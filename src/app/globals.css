@@ -24,8 +24,9 @@
   --color-deep: #0c5132;
   --color-bkash: #e2136e;
 
-  --font-sans: "Roboto Flex", "Hind Siliguri", system-ui, sans-serif;
-  --font-bangla: "Hind Siliguri", "Roboto Flex", sans-serif;
+  /* The four font variables are set on <html> by src/app/fonts.ts (fonts served from our own address). */
+  --font-sans: var(--font-taka), var(--font-latin), var(--font-bn), system-ui, sans-serif;
+  --font-bangla: var(--font-bn), var(--font-latin), sans-serif;
 }
 
 html {

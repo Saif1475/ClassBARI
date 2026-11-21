@@ -10,8 +10,8 @@ const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net${dev ? " 'unsafe-eval'" : ""}`, // jsDelivr: the text reader (tesseract.js)
   "worker-src 'self' blob:",
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "font-src 'self' data: https://fonts.gstatic.com",
+  "style-src 'self' 'unsafe-inline'",
+  "font-src 'self' data:", // fonts are served from our own address (src/app/fonts.ts)
   "img-src 'self' data: blob: https:",
   "media-src 'self' data: blob: https:",
   `connect-src 'self' data: blob: https: wss:${dev ? " ws:" : ""}`,

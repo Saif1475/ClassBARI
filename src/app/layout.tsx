@@ -10,6 +10,7 @@ import { SlideIndicator } from "@/components/SlideIndicator";
 import { REAL_AUTH } from "@/lib/auth-mode";
 import { FIRST_DATA } from "@/lib/first-data";
 import { THEME_INIT } from "@/lib/theme";
+import { fontVariables } from "./fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -28,16 +29,10 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={fontVariables} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
         {REAL_AUTH && <script dangerouslySetInnerHTML={{ __html: FIRST_DATA }} />}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Roboto+Flex:opsz,wght@8..144,400..800&display=swap"
-        />
       </head>
       <body suppressHydrationWarning>
         <LanguageProvider>

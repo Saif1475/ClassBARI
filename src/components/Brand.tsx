@@ -85,7 +85,7 @@ export function LangSwitch({ compact = false }: { compact?: boolean }) {
       onChange={setLang}
       options={[
         { value: "en", label: compact ? "EN" : "English" },
-        { value: "bn", label: compact ? "বাং" : "বাংলা", className: "font-[family-name:var(--font-bangla)]" },
+        { value: "bn", label: compact ? "বাং" : "বাংলা", className: "font-[family-name:var(--font-bn-label),var(--font-bangla)]" }, // its own tiny font: an English page doesn't fetch a Bangla file for this one word
       ]}
       className="bg-white/70 p-1"
       buttonClassName={`h-9 text-sm font-bold ${compact ? "px-3" : "px-4"}`}

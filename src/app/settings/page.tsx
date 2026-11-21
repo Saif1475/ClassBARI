@@ -124,7 +124,7 @@ function Appearance() {
           ariaLabel={t.common.language}
           value={lang}
           onChange={setLang}
-          options={[{ value: "en", label: "English" }, { value: "bn", label: "বাংলা", className: "font-[family-name:var(--font-bangla)]" }]}
+          options={[{ value: "en", label: "English" }, { value: "bn", label: "বাংলা", className: "font-[family-name:var(--font-bn-label),var(--font-bangla)]" }]}
           className="bg-white/70"
         />
       </div>
