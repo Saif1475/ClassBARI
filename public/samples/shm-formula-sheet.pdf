@@ -1,0 +1,46 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 1274 >>
+stream
+BT
+/F1 16 Tf 1 0 0 1 50 800 Tm (Chapter 4 - Simple Harmonic Motion: Formula Sheet) Tj
+/F1 11 Tf 1 0 0 1 50 772 Tm () Tj
+/F1 11 Tf 1 0 0 1 50 749 Tm (Simple harmonic motion \(SHM\) is a periodic motion in which the acceleration) Tj
+/F1 11 Tf 1 0 0 1 50 726 Tm (is directly proportional to the displacement and acts towards the mean position.) Tj
+/F1 11 Tf 1 0 0 1 50 703 Tm (Definition: a = -w^2 x, where w is the angular frequency.) Tj
+/F1 11 Tf 1 0 0 1 50 680 Tm (Displacement: x = A sin\(wt + phi\). A is called the amplitude.) Tj
+/F1 11 Tf 1 0 0 1 50 657 Tm (Time period of a simple pendulum: T = 2 pi sqrt\(L / g\).) Tj
+/F1 11 Tf 1 0 0 1 50 634 Tm (The time period of a simple pendulum does not depend on the mass of the bob.) Tj
+/F1 11 Tf 1 0 0 1 50 611 Tm (Spring-mass system: T = 2 pi sqrt\(m / k\).) Tj
+/F1 11 Tf 1 0 0 1 50 588 Tm (Springs in series: 1/k = 1/k1 + 1/k2. Springs in parallel: k = k1 + k2.) Tj
+/F1 11 Tf 1 0 0 1 50 565 Tm (Energy in simple harmonic motion: total energy E = \(1/2\) k A^2 stays constant.) Tj
+/F1 11 Tf 1 0 0 1 50 542 Tm (Kinetic energy is maximum at the mean position; potential energy is maximum at the extremes.) Tj
+/F1 11 Tf 1 0 0 1 50 519 Tm (Important: in simple harmonic motion the velocity is maximum at the mean position.) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000001567 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1637
+%%EOF

@@ -1,0 +1,31 @@
+{
+  "packageId": "app.classbari.institute",
+  "host": "institute.classbari.app",
+  "name": "ClassBARI Institution",
+  "launcherName": "CB Institution",
+  "display": "standalone",
+  "orientation": "portrait",
+  "themeColor": "#6b2fb3",
+  "navigationColor": "#ffffff",
+  "backgroundColor": "#eef7f4",
+  "enableNotifications": true,
+  "startUrl": "/login",
+  "iconUrl": "https://institute.classbari.app/apps/institute-512.png",
+  "maskableIconUrl": "https://institute.classbari.app/apps/institute-maskable.png",
+  "webManifestUrl": "https://institute.classbari.app/manifests/institute",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./upload.keystore",
+    "alias": "upload"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "fallbackType": "customtabs",
+  "enableSiteSettingsShortcut": false,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "minSdkVersion": 24,
+  "fingerprints": []
+}

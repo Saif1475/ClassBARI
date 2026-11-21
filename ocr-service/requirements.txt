@@ -1,0 +1,11 @@
+# CPU PyTorch: install first with
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+transformers>=4.57,<5  # v5 needs extra tokenizer packages for TrOCR; v4 is the tested path
+pillow
+numpy
+opencv-python-headless
+fastapi
+uvicorn
+python-multipart
+sentencepiece  # TrOCR small tokenizer
+protobuf

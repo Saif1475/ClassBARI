@@ -1,0 +1,31 @@
+{
+  "packageId": "app.classbari.teacher",
+  "host": "teacher.classbari.app",
+  "name": "ClassBARI Teacher",
+  "launcherName": "CB Teacher",
+  "display": "standalone",
+  "orientation": "portrait",
+  "themeColor": "#2f4fbf",
+  "navigationColor": "#ffffff",
+  "backgroundColor": "#eef7f4",
+  "enableNotifications": true,
+  "startUrl": "/login",
+  "iconUrl": "https://teacher.classbari.app/apps/teacher-512.png",
+  "maskableIconUrl": "https://teacher.classbari.app/apps/teacher-maskable.png",
+  "webManifestUrl": "https://teacher.classbari.app/manifests/teacher",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./upload.keystore",
+    "alias": "upload"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "fallbackType": "customtabs",
+  "enableSiteSettingsShortcut": false,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "minSdkVersion": 24,
+  "fingerprints": []
+}

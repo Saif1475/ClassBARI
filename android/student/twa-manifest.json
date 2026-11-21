@@ -1,0 +1,31 @@
+{
+  "packageId": "app.classbari.student",
+  "host": "student.classbari.app",
+  "name": "ClassBARI Student",
+  "launcherName": "CB Student",
+  "display": "standalone",
+  "orientation": "portrait",
+  "themeColor": "#006a60",
+  "navigationColor": "#ffffff",
+  "backgroundColor": "#eef7f4",
+  "enableNotifications": true,
+  "startUrl": "/login",
+  "iconUrl": "https://student.classbari.app/apps/student-512.png",
+  "maskableIconUrl": "https://student.classbari.app/apps/student-maskable.png",
+  "webManifestUrl": "https://student.classbari.app/manifests/student",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./upload.keystore",
+    "alias": "upload"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "fallbackType": "customtabs",
+  "enableSiteSettingsShortcut": false,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "minSdkVersion": 24,
+  "fingerprints": []
+}

@@ -1,0 +1,45 @@
+{
+  "name": "classbari",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
+    "start": "next start",
+    "test": "node --experimental-strip-types --test scripts/quiz.test.mjs scripts/keywords.test.mjs scripts/xp.test.mjs scripts/live-game.test.mjs scripts/site.test.mjs scripts/rls.test.mjs scripts/platform.test.mjs scripts/omr.test.mjs scripts/sheet.test.mjs scripts/centre.test.mjs scripts/seat.test.mjs scripts/live-poll.test.mjs scripts/question-import.test.mjs scripts/community.test.mjs scripts/live-class.test.mjs scripts/access.test.mjs scripts/data-access.test.mjs scripts/apps.test.mjs scripts/pdf-insights.test.mjs scripts/ai-chat.test.mjs scripts/rate-limit.test.mjs scripts/chat-topics.test.mjs scripts/alerts.test.mjs scripts/word-filter.test.mjs scripts/speed.test.mjs",
+    "ocr": "cd ocr-service && .venv/bin/uvicorn app:app --host 127.0.0.1 --port 8000",
+    "test:e2e": "NEXT_PUBLIC_AUTH_MODE=demo NEXT_DIST_DIR=.next-demo next build --webpack && playwright test",
+    "db:migrate": "node scripts/db-migrate.mjs",
+    "check:real": "node scripts/real-check.mjs",
+    "bench": "node --experimental-strip-types --no-warnings scripts/bench.mjs",
+    "test:accounts": "node scripts/test-accounts.mjs",
+    "test:real-ui": "playwright test -c playwright.real.config.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.11.0",
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.119.2",
+    "jsqr": "^1.4.0",
+    "next": "^16.4.6",
+    "pdfjs-dist": "^6.5.438",
+    "qrcode": "^1.5.4",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "tesseract.js": "^7.0.0",
+    "web-push": "^3.6.7",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.16",
+    "@playwright/test": "^1.65.1",
+    "@tailwindcss/postcss": "^4.3.5",
+    "@types/node": "^22",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/web-push": "^3.6.4",
+    "pg": "^8.23.1",
+    "tailwindcss": "^4.3.5",
+    "typescript": "^5"
+  }
+}

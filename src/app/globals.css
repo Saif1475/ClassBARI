@@ -1,0 +1,674 @@
+@import "tailwindcss";
+
+/* Material 3 Expressive — teal seed with iOS-inspired frosted glass. */
+@theme {
+  --color-primary: #157347;
+  --color-on-primary: #ffffff;
+  --color-primary-container: rgba(168, 236, 196, 0.72);
+  --color-on-primary-container: #05210f;
+  --color-secondary-container: rgba(206, 234, 214, 0.72);
+  --color-on-secondary-container: #0a2012;
+  --color-tertiary: #7a5900;
+  --color-tertiary-container: rgba(255, 222, 166, 0.78);
+  --color-on-tertiary-container: #261900;
+  --color-error: #ba1a1a;
+  --color-error-container: rgba(255, 218, 214, 0.8);
+  --color-on-error-container: #410002;
+  --color-surface: #f0f8f2;
+  --color-surface-container: rgba(226, 239, 230, 0.58);
+  --color-surface-high: rgba(214, 231, 220, 0.65);
+  --color-on-surface: #171d19;
+  --color-on-surface-variant: #3f4a43;
+  --color-outline: rgba(111, 122, 114, 0.45);
+  --color-outline-variant: rgba(255, 255, 255, 0.72);
+  --color-deep: #0c5132;
+  --color-bkash: #e2136e;
+
+  --font-sans: "Roboto Flex", "Hind Siliguri", system-ui, sans-serif;
+  --font-bangla: "Hind Siliguri", "Roboto Flex", sans-serif;
+}
+
+html {
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
+}
+
+html[lang="bn"] body {
+  font-family: var(--font-bangla);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  background-color: var(--color-surface);
+  background-image:
+    radial-gradient(at 12% 10%, var(--glow-a) 0px, transparent 50%),
+    radial-gradient(at 88% 14%, var(--glow-b) 0px, transparent 48%),
+    radial-gradient(at 80% 85%, var(--glow-a) 0px, transparent 52%),
+    radial-gradient(at 18% 82%, var(--glow-c) 0px, transparent 50%);
+  background-attachment: fixed;
+}
+
+/* iPhone-inspired frosted glass surfaces */
+.bg-surface {
+  background-color: transparent;
+}
+
+.bg-white,
+.bg-white\/80 {
+  background-color: rgba(255, 255, 255, 0.62) !important;
+  backdrop-filter: blur(24px) saturate(185%);
+  -webkit-backdrop-filter: blur(24px) saturate(185%);
+  border-color: rgba(255, 255, 255, 0.78);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.9),
+    0 10px 30px -8px rgba(0, 52, 46, 0.08);
+}
+
+.bg-surface-container,
+.bg-surface-high {
+  backdrop-filter: blur(22px) saturate(180%);
+  -webkit-backdrop-filter: blur(22px) saturate(180%);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.65);
+}
+
+.bg-primary-container,
+.bg-secondary-container,
+.bg-tertiary-container {
+  backdrop-filter: blur(18px) saturate(170%);
+  -webkit-backdrop-filter: blur(18px) saturate(170%);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.6),
+    0 6px 20px -6px rgba(0, 52, 46, 0.06);
+}
+
+.glass-dark {
+  background-color: var(--rail);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.16);
+}
+
+.glass-header {
+  background-color: rgba(244, 251, 248, 0.65);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.72);
+  box-shadow: 0 4px 20px -4px rgba(0, 52, 46, 0.05);
+}
+
+details > summary {
+  list-style: none;
+}
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Phones: blur on every card makes scrolling janky on low-end Android, and a fixed
+   background repaints on every scroll. Use solid surfaces instead. */
+@media (max-width: 767px) {
+  body {
+    background-attachment: scroll;
+  }
+  .bg-white,
+  .bg-white\/80,
+  .bg-primary-container,
+  .bg-secondary-container,
+  .bg-tertiary-container,
+  .bg-surface-container,
+  .bg-surface-high {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .bg-white,
+  .bg-white\/80 {
+    background-color: rgba(255, 255, 255, 0.92) !important;
+  }
+  .bg-surface-container {
+    background-color: rgb(226, 238, 234);
+  }
+}
+
+/* Live game (phone): calm, light answer buttons. Each button sets --tone (RGB triplet). */
+.answer-key {
+  color: #1c2422;
+  background: rgb(var(--tone) / 0.1);
+  border: 1.5px solid rgb(var(--tone) / 0.3);
+  box-shadow: 0 2px 0 rgb(var(--tone) / 0.18);
+  transition: transform 0.08s ease-out, background-color 0.15s;
+}
+.answer-key:active {
+  transform: translateY(2px);
+  box-shadow: none;
+  background: rgb(var(--tone) / 0.18);
+}
+.answer-key:focus-visible {
+  outline: 3px solid rgb(var(--tone));
+  outline-offset: 2px;
+}
+.answer-key .letter {
+  color: #fff;
+  background: rgb(var(--tone) / 0.85);
+}
+
+/* Frosted glass card for the question and results */
+.glass-card {
+  background: rgb(255 255 255 / 0.7);
+  border: 1px solid rgb(0 52 46 / 0.08);
+  box-shadow: 0 4px 16px -8px rgb(0 52 46 / 0.15);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .answer-key,
+  .answer-key:active {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* ============================================================================================
+   iOS-style motion, applied site-wide. Curves follow UIKit: quick start, long soft settle;
+   presses shrink a little and spring back. Everything is switched off for "reduce motion".
+   ============================================================================================ */
+:root {
+  --ios-ease: cubic-bezier(0.32, 0.72, 0, 1); /* sheets, pages, slides */
+  --ios-spring: cubic-bezier(0.34, 1.36, 0.64, 1); /* small overshoot: press release, pop-ins */
+  interpolate-size: allow-keywords; /* lets <details> animate to height: auto */
+}
+html {
+  scroll-behavior: smooth;
+  font-size: var(--text-size, 100%); /* A / A+ / A++ */
+}
+/* Phones: everything sized in rem comes out a little smaller (15px instead of 16px at "A"). */
+@media (max-width: 767px) {
+  html {
+    font-size: calc(var(--text-size, 100%) * 0.9375);
+  }
+}
+
+/* 1. Pages: the new page slides in from the right over the old one, like a navigation push. */
+::view-transition-old(.ios-page) {
+  animation: ios-page-out 0.38s var(--ios-ease) both;
+}
+::view-transition-new(.ios-page) {
+  animation: ios-page-in 0.38s var(--ios-ease) both;
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.25s;
+}
+@keyframes ios-page-out {
+  to { opacity: 0; transform: translateX(-12%); }
+}
+@keyframes ios-page-in {
+  from { opacity: 0; transform: translateX(18%); }
+}
+
+/* 2. Taps: buttons and button-like links shrink slightly while pressed and spring back. */
+:where(button, [role="button"], a[class*="rounded-full"], a[class*="rounded-["], summary, label:has(> input[type="checkbox"], > input[type="radio"])) {
+  transition: transform 0.45s var(--ios-spring), background-color 0.2s ease, color 0.2s ease, box-shadow 0.25s ease, opacity 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+:where(button, [role="button"], a[class*="rounded-full"], a[class*="rounded-["], summary):active:not(:disabled) {
+  transform: scale(0.96);
+  transition-duration: 0.1s;
+}
+
+/* 3. Screens appear: each block of a new screen slides in from the right, one after another. */
+main > *,
+[role="dialog"] > * {
+  animation: ios-rise 0.5s var(--ios-ease) both;
+}
+main > :nth-child(2) { animation-delay: 0.03s; }
+main > :nth-child(3) { animation-delay: 0.06s; }
+main > :nth-child(4) { animation-delay: 0.09s; }
+main > :nth-child(5) { animation-delay: 0.12s; }
+main > :nth-child(n + 6) { animation-delay: 0.15s; }
+@keyframes ios-rise {
+  from { opacity: 0; transform: translateX(24px); } /* slides in from the right, like an iOS push */
+}
+
+/* 4. Sheets: dim the background, slide the panel up from the bottom (phone) or zoom it in (desktop). */
+.fixed.inset-0:is(.bg-black\/35, .bg-black\/60),
+.fixed.inset-0 > button.bg-black\/40 {
+  animation: ios-fade 0.3s ease both;
+}
+.fixed.inset-0.items-end > * {
+  animation: ios-sheet-up 0.5s var(--ios-ease) both;
+}
+@media (min-width: 640px) {
+  .fixed.inset-0.items-end > * {
+    animation: ios-pop 0.42s var(--ios-spring) both;
+  }
+}
+.fixed.inset-0 > aside[role="dialog"] {
+  animation: ios-slide-right 0.45s var(--ios-ease) both; /* phone menu */
+}
+@keyframes ios-fade {
+  from { opacity: 0; }
+}
+@keyframes ios-sheet-up {
+  from { transform: translateY(100%); }
+}
+@keyframes ios-pop {
+  from { opacity: 0; transform: scale(0.92); }
+}
+@keyframes ios-slide-right {
+  from { transform: translateX(-100%); }
+}
+
+/* 5. Fold-out sections (<details>) open and close smoothly. */
+details::details-content {
+  height: 0;
+  overflow: clip;
+  transition: height 0.4s var(--ios-ease), content-visibility 0.4s allow-discrete;
+}
+details[open]::details-content {
+  height: auto;
+}
+
+/* 6. Toasts and banners drop in like iOS notifications; alerts give a small shake. */
+.ios-toast,
+body > [role="status"]:first-child {
+  animation: ios-drop 0.55s var(--ios-spring) both;
+}
+@keyframes ios-drop {
+  from { opacity: 0; transform: translateY(24px) scale(0.96); }
+}
+[role="alert"]:not(:empty) {
+  animation: ios-shake 0.4s ease both;
+}
+@keyframes ios-shake {
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+/* 7. Cards that are links or buttons lift gently on hover (mouse only). */
+@media (hover: hover) {
+  :where(a, button)[class*="rounded-[2"]:hover:not(:disabled) {
+    box-shadow: 0 10px 28px -14px rgb(0 52 46 / 0.35);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after,
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* 8. Sliding selection pill (src/components/SlideIndicator.tsx): glides between tabs like iOS segmented controls. */
+.slide-pill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: -1;
+  pointer-events: none;
+  transition: transform 0.5s var(--ios-ease), width 0.5s var(--ios-ease), height 0.5s var(--ios-ease), border-radius 0.3s ease, background-color 0.3s ease, opacity 0.2s ease;
+}
+
+/* ============================================================================================
+   Modern look: 3D glass selectors, depth on buttons and cards, and a dark mode (html.dark).
+   ============================================================================================ */
+
+/* 3D glass selector: the sliding pill of every tab bar / switch is a raised, lit piece of glass. */
+.glass-3d,
+.slide-pill {
+  background-image:
+    linear-gradient(180deg, rgb(255 255 255 / 0.5) 0%, rgb(255 255 255 / 0.12) 48%, rgb(255 255 255 / 0) 52%, rgb(0 0 0 / 0.06) 100%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.85),
+    inset 0 -1px 2px rgb(0 0 0 / 0.12),
+    0 1px 2px rgb(0 40 36 / 0.18),
+    0 8px 20px -8px rgb(0 60 54 / 0.45) !important;
+  border: 1px solid rgb(255 255 255 / 0.55);
+}
+/* …sitting in a slightly sunken glass track. */
+.glass-well {
+  box-shadow:
+    inset 0 2px 5px rgb(0 40 36 / 0.12),
+    inset 0 -1px 0 rgb(255 255 255 / 0.7);
+}
+/* Round glass button (light/dark switch). */
+.glass-orb {
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.85), rgb(255 255 255 / 0.45));
+  border: 1px solid rgb(255 255 255 / 0.8);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -2px 4px rgb(0 0 0 / 0.06), 0 6px 16px -8px rgb(0 60 54 / 0.4);
+  color: var(--color-on-surface);
+}
+.theme-icon {
+  display: inline-block;
+  animation: theme-spin 0.5s var(--ios-spring, ease) both;
+}
+@keyframes theme-spin {
+  from { transform: rotate(-90deg) scale(0.6); opacity: 0; }
+}
+
+/* Main buttons: gentle top light and a coloured soft shadow, so they feel pressable. */
+.bg-primary {
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.16), rgb(255 255 255 / 0) 60%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.25), 0 8px 18px -10px color-mix(in srgb, var(--color-primary) 80%, transparent);
+}
+h1, h2 {
+  letter-spacing: -0.015em;
+}
+:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-primary) 55%, transparent);
+  outline-offset: 2px;
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-on-surface) 25%, transparent) transparent;
+}
+
+/* ---------------------------------- Dark mode ---------------------------------- */
+html.dark {
+  color-scheme: dark; /* native form controls, scrollbars and date pickers go dark too */
+  --color-primary: #6cc9a4;
+  --color-on-primary: #06231a;
+  --color-primary-container: rgba(28, 74, 56, 0.6);
+  --color-on-primary-container: #c4efd9;
+  --color-secondary-container: rgba(48, 58, 53, 0.66);
+  --color-on-secondary-container: #d5e5db;
+  --color-tertiary: #e7bd62;
+  --color-tertiary-container: rgba(92, 68, 8, 0.6);
+  --color-on-tertiary-container: #ffdfa8;
+  --color-error: #ffb4ab;
+  --color-error-container: rgba(147, 0, 10, 0.55);
+  --color-on-error-container: #ffdad6;
+  --color-surface: #111314;
+  --color-surface-container: rgba(38, 42, 44, 0.7);
+  --color-surface-high: rgba(48, 53, 56, 0.74);
+  --color-on-surface: #e3e6e5;
+  --color-on-surface-variant: #a8b0ad;
+  --color-outline: rgba(150, 160, 157, 0.4);
+  --color-outline-variant: rgba(255, 255, 255, 0.09);
+  --color-deep: #123a2a;
+  --rail: rgba(22, 25, 27, 0.94);
+  --brand-card: #1d4a37;
+}
+html.dark body {
+  background-image: none; /* flat charcoal: no coloured glow */
+}
+html.dark .bg-white,
+html.dark .bg-white\/80 {
+  background-color: rgba(27, 30, 32, 0.66) !important;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.07), 0 10px 30px -8px rgba(0, 0, 0, 0.5);
+}
+html.dark [class*="bg-white/"]:not(.bg-white\/80) {
+  background-color: rgba(34, 38, 41, 0.6) !important;
+}
+html.dark .bg-surface-container,
+html.dark .bg-surface-high,
+html.dark .bg-primary-container,
+html.dark .bg-secondary-container,
+html.dark .bg-tertiary-container {
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+}
+html.dark .border-white\/70,
+html.dark [class*="border-white"] {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+html.dark .glass-header {
+  background-color: rgba(16, 18, 20, 0.7);
+  border-bottom-color: rgba(255, 255, 255, 0.07);
+}
+html.dark .glass-card {
+  background: rgb(27 30 32 / 0.75);
+  border-color: rgb(255 255 255 / 0.08);
+}
+html.dark .answer-key {
+  color: #e6efec;
+}
+html.dark .bg-\[\#eef7f4\] {
+  background-color: rgba(34, 38, 41, 0.75);
+}
+html.dark .glass-3d,
+html.dark .slide-pill {
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.22) 0%, rgb(255 255 255 / 0.05) 48%, rgb(255 255 255 / 0) 52%, rgb(0 0 0 / 0.2) 100%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.3), inset 0 -1px 2px rgb(0 0 0 / 0.35), 0 8px 20px -8px rgb(0 0 0 / 0.7) !important;
+  border-color: rgb(255 255 255 / 0.14);
+}
+html.dark .glass-well {
+  box-shadow: inset 0 2px 6px rgb(0 0 0 / 0.45), inset 0 -1px 0 rgb(255 255 255 / 0.05);
+}
+html.dark .glass-orb {
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.14), rgb(255 255 255 / 0.04));
+  border-color: rgb(255 255 255 / 0.14);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.2), 0 6px 16px -8px rgb(0 0 0 / 0.8);
+}
+@media (max-width: 767px) {
+  html.dark .bg-white,
+  html.dark .bg-white\/80 {
+    background-color: rgba(25, 28, 30, 0.94) !important;
+  }
+  html.dark .bg-surface-container {
+    background-color: rgb(34, 38, 41);
+  }
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  mix-blend-mode: normal; /* clean cross-fade when switching light/dark */
+}
+/* Dark: large brand cards (live class, today, toasts) become deep teal glass with light text; buttons keep the bright accent. */
+html.dark :is(section, div).bg-primary {
+  background-color: var(--brand-card);
+  color: #e2f7f2;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 12px 30px -14px rgb(0 0 0 / 0.8);
+}
+html.dark :is(section, div).bg-primary .text-primary-container {
+  color: var(--color-on-primary-container);
+}
+html.dark .glass-dark .text-primary-container {
+  color: color-mix(in srgb, var(--color-on-primary-container) 80%, transparent); /* side-menu items that aren't selected */
+}
+
+/* Selectors: softly rounded rectangles rather than full pills (matches iOS segmented controls). */
+.slide-pill {
+  border-radius: 12px !important;
+}
+[data-slide] .rounded-full,
+[data-slide][class*="rounded-full"] {
+  border-radius: 12px;
+}
+html.dark :is(section, div).bg-primary [class*="text-on-primary"] {
+  color: rgb(226 247 242 / 0.82); /* secondary lines on the deep teal cards */
+}
+html.dark :is(section, div).bg-primary [class*="text-secondary-container"],
+html.dark :is(section, div).bg-primary [class*="text-tertiary-container"] {
+  color: rgb(226 247 242 / 0.78);
+}
+
+/* Live class: pulsing "live" dot and floating reactions. */
+.live-dot {
+  animation: live-pulse 1.4s ease-in-out infinite;
+}
+@keyframes live-pulse {
+  50% { opacity: 0.35; transform: scale(0.8); }
+}
+.reaction-float {
+  animation: reaction-up 2.4s ease-out both;
+}
+@keyframes reaction-up {
+  from { opacity: 0; transform: translateY(30px) scale(0.6); }
+  15% { opacity: 1; transform: translateY(0) scale(1.15); }
+  to { opacity: 0; transform: translateY(-160px) scale(1); }
+}
+
+/* Form controls shrink with their card: a select with one long option (or a date-time box) must never push a
+   page wider than a small phone's screen. */
+input,
+select,
+textarea {
+  min-width: 0;
+  max-width: 100%;
+}
+label {
+  min-width: 0; /* a label that holds a wide control may shrink with its row */
+}
+
+/* Dark: the light "container" colours used as TEXT on the deep teal (landing toolkit, video tiles) must stay light,
+   and the error colour (a light pink in dark mode) needs dark text on it. */
+html.dark .bg-deep.text-primary-container,
+html.dark .bg-deep [class*="text-primary-container"],
+html.dark .bg-deep [class*="text-secondary-container"] {
+  color: #b9f5ea;
+}
+html.dark .bg-error,
+html.dark .bg-error.text-white {
+  color: #4a0006;
+}
+
+/* A button whose words wrap (Bangla, large text, narrow phones) grows with them instead of the text spilling out:
+   its fixed height becomes a minimum height. */
+:is(button, a, summary):is(.h-7, .h-8, .h-9, .h-9\.5, .h-10, .h-11, .h-12, .h-13, .h-14) {
+  height: auto;
+}
+:is(button, a, summary).h-7 {
+  min-height: calc(var(--spacing) * 7);
+}
+:is(button, a, summary).h-8 {
+  min-height: calc(var(--spacing) * 8);
+}
+:is(button, a, summary).h-9 {
+  min-height: calc(var(--spacing) * 9);
+}
+:is(button, a, summary).h-9\.5 {
+  min-height: calc(var(--spacing) * 9.5);
+}
+:is(button, a, summary).h-10 {
+  min-height: calc(var(--spacing) * 10);
+}
+:is(button, a, summary).h-11 {
+  min-height: calc(var(--spacing) * 11);
+}
+:is(button, a, summary).h-12 {
+  min-height: calc(var(--spacing) * 12);
+}
+:is(button, a, summary).h-13 {
+  min-height: calc(var(--spacing) * 13);
+}
+:is(button, a, summary).h-14 {
+  min-height: calc(var(--spacing) * 14);
+}
+
+/* Grid cells may be narrower than their content wants (long words, wide controls) instead of widening the page. */
+.grid > * {
+  min-width: 0;
+}
+html.dark .bg-tertiary.text-white {
+  color: #3a2a00; /* the amber accent is light in dark mode: white text on it can't be read */
+}
+
+/* "Find your institute": the list slides down from the box. */
+.picker-drop {
+  background-color: #f8fcfb !important; /* solid: the page's glass surfaces would let the links underneath show through */
+  transform-origin: top center;
+  animation: picker-drop 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.15) both;
+}
+@keyframes picker-drop {
+  from { opacity: 0; transform: translateY(-10px) scaleY(0.94); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .picker-drop { animation: none; }
+}
+html.dark .picker-drop {
+  background-color: #1b1e20 !important;
+}
+
+/* ---------------------------------- Colour themes ---------------------------------- */
+:root {
+  --glow-a: rgba(168, 236, 196, 0.55);
+  --glow-b: rgba(255, 222, 166, 0.4);
+  --glow-c: rgba(206, 234, 214, 0.5);
+  --rail: rgba(12, 81, 50, 0.88); /* the side menu */
+}
+/* "Sky & pink": sky blue, baby pink, near-white surfaces. Chosen in Settings → Look. */
+html[data-tone="sky"] {
+  --color-primary: #1976b8;
+  --color-primary-container: rgba(190, 226, 250, 0.78);
+  --color-on-primary-container: #062b47;
+  --color-secondary-container: rgba(255, 214, 228, 0.78);
+  --color-on-secondary-container: #4a1228;
+  --color-tertiary: #a83e6f;
+  --color-tertiary-container: rgba(255, 226, 236, 0.85);
+  --color-on-tertiary-container: #45132b;
+  --color-surface: #fbfcfe;
+  --color-surface-container: rgba(234, 242, 250, 0.62);
+  --color-surface-high: rgba(224, 235, 247, 0.68);
+  --color-on-surface: #1a1c20;
+  --color-on-surface-variant: #454a52;
+  --color-outline: rgba(110, 120, 135, 0.45);
+  --color-deep: #114b78;
+  --glow-a: rgba(190, 226, 250, 0.6);
+  --glow-b: rgba(255, 214, 228, 0.55);
+  --glow-c: rgba(255, 255, 255, 0.6);
+  --rail: rgba(17, 75, 120, 0.9);
+}
+html.dark[data-tone="sky"] {
+  --color-primary: #8ccaf5;
+  --color-on-primary: #062b47;
+  --color-primary-container: rgba(20, 74, 110, 0.62);
+  --color-on-primary-container: #cfe8fb;
+  --color-secondary-container: rgba(92, 44, 62, 0.6);
+  --color-on-secondary-container: #ffd9e6;
+  --color-tertiary: #f3a8c6;
+  --color-tertiary-container: rgba(100, 38, 64, 0.6);
+  --color-on-tertiary-container: #ffd9e6;
+  --color-surface: #111314;
+  --color-surface-container: rgba(38, 42, 44, 0.7);
+  --color-surface-high: rgba(48, 53, 56, 0.74);
+  --color-on-surface: #e3e6e5;
+  --color-on-surface-variant: #a8b0ad;
+  --color-outline: rgba(150, 160, 157, 0.4);
+  --color-deep: #0e3552;
+  --rail: rgba(22, 25, 27, 0.94);
+  --brand-card: #1b4466;
+}
+/* Buttons, chips and boxes with side padding: softly rounded instead of full pills (round icon buttons stay round). */
+.rounded-full[class*="px-"] {
+  border-radius: 12px;
+}
+
+/* Boxes stand slightly off the page: a soft two-layer shadow (a tight contact shadow and a wider, fainter one) gives
+   cards a gentle 3D look. Form fields stay flat. */
+:root {
+  --lift: inset 0 1px 0 rgb(255 255 255 / 0.85), 0 1px 2px rgb(0 32 24 / 0.08), 0 6px 18px -6px rgb(0 32 24 / 0.16);
+  --lift-soft: inset 0 1px 0 rgb(255 255 255 / 0.6), 0 1px 2px rgb(0 32 24 / 0.06), 0 4px 12px -6px rgb(0 32 24 / 0.12);
+}
+html.dark {
+  --lift: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 1px 2px rgb(0 0 0 / 0.5), 0 8px 22px -8px rgb(0 0 0 / 0.7);
+  --lift-soft: inset 0 1px 0 rgb(255 255 255 / 0.05), 0 1px 2px rgb(0 0 0 / 0.4), 0 6px 16px -8px rgb(0 0 0 / 0.6);
+}
+:is(div, section, article, form, aside, li, a, details, label, ul, nav, header).bg-white,
+:is(div, section, article, form, aside, li, a, details, label, ul).bg-white\/80,
+html.dark :is(div, section, article, form, aside, li, a, details, label, ul, nav, header).bg-white {
+  box-shadow: var(--lift) !important;
+}
+:is(div, section, article, a, li, button).bg-primary-container,
+:is(div, section, article, a, li, button).bg-secondary-container,
+:is(div, section, article, a, li, button).bg-tertiary-container,
+:is(section, div).bg-primary,
+:is(div, a, li).bg-surface-container[class*="rounded-"] {
+  box-shadow: var(--lift-soft);
+}
+html.dark :is(section, div).bg-primary {
+  box-shadow: var(--lift) !important;
+}
+.picker-drop {
+  box-shadow: 0 2px 4px rgb(0 32 24 / 0.08), 0 18px 40px -8px rgb(0 32 24 / 0.28) !important;
+}
+
+/* The "loading" mark of a dashboard that is still fetching its data: only shown if the wait passes half a second. */
+.wait-in {
+  animation: ios-fade 0.2s 0.5s both;
+}

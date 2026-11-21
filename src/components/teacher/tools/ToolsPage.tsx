@@ -1,0 +1,83 @@
+"use client";
+
+import { useState } from "react";
+import { Icon } from "@/components/Icon";
+import { useLang } from "@/lib/i18n/LanguageProvider";
+import { AdmissionsTool } from "./AdmissionsTool";
+import { BankTool } from "./BankTool";
+import { Community } from "@/components/community/Community";
+import { DoubtsTool } from "./DoubtsTool";
+import { MeetingsTool } from "./MeetingsTool";
+import { MoneyTool } from "./MoneyTool";
+import { RoutineTool } from "./RoutineTool";
+import { ShopTool } from "./ShopTool";
+import { StaffTool } from "./StaffTool";
+import { WatchTool } from "./WatchTool";
+import { WebsiteTool } from "./WebsiteTool";
+import { CardsTool } from "./CardsTool";
+import { MeritTool } from "./MeritTool";
+import { OmrTool } from "./OmrTool";
+import { WhiteboardTool } from "./WhiteboardTool";
+
+export type ToolProps = { batchNames: string[]; notify: (msg: string) => void };
+const TOOLS = {
+  classroom: { icon: "sparkle", C: WhiteboardTool },
+  merit: { icon: "award", C: MeritTool },
+  omr: { icon: "exams", C: OmrTool },
+  bank: { icon: "book", C: BankTool },
+  cards: { icon: "printer", C: CardsTool },
+  doubts: { icon: "message", C: DoubtsTool },
+  community: { icon: "users", C: () => <Community viewer={{ staff: true }} /> },
+  watch: { icon: "eye", C: WatchTool },
+  routine: { icon: "calendar", C: RoutineTool },
+  money: { icon: "fees", C: MoneyTool },
+  admissions: { icon: "users", C: AdmissionsTool },
+  staff: { icon: "batches", C: StaffTool },
+  meetings: { icon: "share", C: MeetingsTool },
+  website: { icon: "globe", C: WebsiteTool },
+  shop: { icon: "star", C: ShopTool },
+} satisfies Record<string, { icon: string; C: (p: ToolProps) => React.ReactNode }>;
+export type ToolId = keyof typeof TOOLS;
+
+/** Teacher "Tools": one big card per tool (easy to find for older teachers), each opening its own screen. */
+const OWNER_ONLY: string[] = ["money", "website", "shop", "admissions", "staff"]; // institute-only tools: hidden from instructors
+
+export function ToolsPage({ owner, ...props }: ToolProps & { owner: boolean }) {
+  const { t } = useLang();
+  const T = t.tools;
+  const [open, setOpen] = useState<ToolId | null>(null);
+  const Tool = open && TOOLS[open].C;
+  return (
+    <main className="flex min-w-0 flex-1 flex-col gap-5 px-4 pb-28 pt-4 md:overflow-y-auto md:px-8 md:pb-10 md:pt-6 [&>*]:shrink-0">
+      {Tool ? (
+        <>
+          <button type="button" onClick={() => setOpen(null)} className="inline-flex items-center gap-1 self-start rounded-full bg-surface-container px-4 py-2 text-sm font-bold text-primary">
+            <Icon name="back" size={16} /> {T.all}
+          </button>
+          <h1 className="text-3xl font-bold">{T.names[open!][0]}</h1>
+          <Tool {...props} />
+        </>
+      ) : (
+        <>
+          <div>
+            <h1 className="text-3xl font-bold">{T.title}</h1>
+            <p className="mt-1 text-sm text-on-surface-variant">{T.sub}</p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {(Object.keys(TOOLS) as ToolId[]).filter((id) => owner || !OWNER_ONLY.includes(id)).map((id) => (
+              <button key={id} type="button" onClick={() => setOpen(id)} className="flex items-start gap-4 rounded-[18px] border border-outline-variant bg-white p-5 text-left transition-transform hover:-translate-y-0.5">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-container text-on-primary-container">
+                  <Icon name={TOOLS[id].icon} size={24} />
+                </span>
+                <span className="flex flex-col gap-1">
+                  <span className="text-lg font-bold">{T.names[id][0]}</span>
+                  <span className="text-sm text-on-surface-variant">{T.names[id][1]}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </main>
+  );
+}

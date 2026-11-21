@@ -1,0 +1,31 @@
+{
+  "packageId": "app.classbari.guardian",
+  "host": "guardian.classbari.app",
+  "name": "ClassBARI Guardian",
+  "launcherName": "CB Guardian",
+  "display": "standalone",
+  "orientation": "portrait",
+  "themeColor": "#b4470c",
+  "navigationColor": "#ffffff",
+  "backgroundColor": "#eef7f4",
+  "enableNotifications": true,
+  "startUrl": "/login",
+  "iconUrl": "https://guardian.classbari.app/apps/guardian-512.png",
+  "maskableIconUrl": "https://guardian.classbari.app/apps/guardian-maskable.png",
+  "webManifestUrl": "https://guardian.classbari.app/manifests/guardian",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "./upload.keystore",
+    "alias": "upload"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "fallbackType": "customtabs",
+  "enableSiteSettingsShortcut": false,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "minSdkVersion": 24,
+  "fingerprints": []
+}
