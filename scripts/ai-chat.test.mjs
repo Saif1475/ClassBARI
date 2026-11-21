@@ -98,6 +98,20 @@ test("only a first question on its own, with nothing personal in it, is shared b
   assert.equal(shareable(q("What is Newton's second law?"), { ...none, fresh: true }), false); // "try again"
   assert.equal(shareable(q("x".repeat(501)), none), false);
   for (const p of ["my name is Rahim, check my essay", "call me on 01711000000", "mail rahim@gmail.com", "আমার রোল ১২"]) assert.equal(personal(p), true, p);
+  // The same question again (capitals, punctuation, filler, Bangla digits) is the same; one changed word or number is not.
+  const { sameAsk, findAnswer } = await import("../src/lib/answer-cache.ts");
+  for (const [a, b] of [["What is Newton's second law?", "what is newtons second law"], ["Solve x^2 - 5x + 6 = 0", "please solve x^2-5x+6=0"], ["নিউটনের দ্বিতীয় সূত্র কী?", "স্যার, নিউটনের দ্বিতীয় সূত্র কি"], ["২ + ২ = ?", "2+2="]])
+    assert.equal(sameAsk(a, b), a !== "What is Newton's second law?", `${a} / ${b}`); // "newton's" and "newtons" are different words: a fresh answer, the safe side
+  for (const [a, b] of [["নিউটনের দ্বিতীয় সূত্র কী?", "নিউটনের তৃতীয় সূত্র কী?"], ["Solve x^2 - 5x + 6 = 0", "Solve x^2 - 5x + 4 = 0"], ["divide 10 by 2", "divide 2 by 10"], ["x - 5 = 0", "x + 5 = 0"], ["What is osmosis?", "Why is osmosis?"], ["?", "!"]])
+    assert.equal(sameAsk(a, b), false, `${a} / ${b}`);
+  // A close match is used only if it asks the very same thing; rows from the old database function (no question) never.
+  const db = (rows) => ({ rpc: async (fn) => ({ data: fn === "match_answer" ? rows : null, error: null }) });
+  const near = { id: 1, answer: "third law…", model: "x", similarity: 0.971, question: "নিউটনের তৃতীয় সূত্র কী?" };
+  const exact = { id: 2, answer: "second law…", model: "x", similarity: 0.96, question: "নিউটনের দ্বিতীয় সূত্র কি" };
+  assert.equal(await findAnswer(db([near]), [], "x", "নিউটনের দ্বিতীয় সূত্র কী?"), null);
+  assert.equal((await findAnswer(db([near, exact]), [], "x", "নিউটনের দ্বিতীয় সূত্র কী?")).id, 2);
+  assert.equal(await findAnswer(db([{ ...exact, question: undefined }]), [], "x", "নিউটনের দ্বিতীয় সূত্র কী?"), null);
+  assert.equal(await findAnswer(db([{ ...exact, similarity: 0.9 }]), [], "x", "নিউটনের দ্বিতীয় সূত্র কী?"), null);
   assert.equal(personal("Explain the photoelectric effect"), false);
   assert.equal(langOf("তরঙ্গ কী?"), "bn");
   assert.equal(langOf("What is a wave?"), "en");

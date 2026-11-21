@@ -41,6 +41,18 @@ export const personal = (q: string) =>
 export const shareable = (turns: { role: string; content: string }[], extras: { image: boolean; file: boolean; fresh: boolean }) =>
   turns.length === 1 && !extras.image && !extras.file && !extras.fresh && turns[0].content.trim().length <= MAX_QUESTION && !personal(turns[0].content);
 
+// Measured with the real model (Nov 2026): closeness alone is not enough. "নিউটনের দ্বিতীয় সূত্র কী?" and "…তৃতীয় সূত্র কী?"
+// score 0.97, and "Solve x^2 - 5x + 6 = 0" and "… + 4 = 0" score 0.98: different questions, far above SIMILAR.
+// So a saved answer is reused only when the two questions also have the same words in the same order, ignoring
+// capitals, punctuation, Bangla or English digits, and polite filler ("please", "sir", "the" …).
+const FILLER = new Set("a an the is are was were please pls plz kindly me tell can could would you i want to know sir hi hello hey দয়া করে প্লিজ একটু আমাকে আমায় স্যার ভাই ভাইয়া আপু".split(" "));
+/** The words, numbers and maths signs that carry a question's meaning, in order. */
+export const askKey = (q: string) =>
+  (q.normalize("NFC").toLowerCase().replace(/[০-৯]/g, (d) => String(d.charCodeAt(0) - 0x09e6)).replace(/কী/g, "কি").match(/[\p{L}\p{M}]+|\d+(?:\.\d+)?|[+\-*\/^=<>%√∫×÷]/gu) ?? [])
+    .filter((w) => !FILLER.has(w))
+    .join(" ");
+export const sameAsk = (a: string, b: string) => askKey(a) !== "" && askKey(a) === askKey(b);
+
 /** Answers this model may be given: ones written by it or by a model of the same or a bigger pack (never a weaker one). */
 export function goodEnough(model: string) {
   const menu = modelMenu(1500);
@@ -71,8 +83,11 @@ const asVector = (v: number[]) => `[${v.join(",")}]`;
 /** The saved answer to use, or null. */
 export async function findAnswer(db: Db, vec: number[], model: string, question: string) {
   const { data, error } = await db.rpc("match_answer", { query: asVector(vec), min_similarity: SIMILAR, models: goodEnough(model), p_lang: langOf(question) });
-  const best = !error && Array.isArray(data) ? (data[0] as { id: number; answer: string; model: string; similarity: number } | undefined) : undefined;
-  if (!best || best.similarity < SIMILAR) return null;
+  // The closest few (closest first): the first one that is close enough and asks the very same thing. A row without
+  // its question (the older database function, before migration 0012) can't be checked, so it is never used.
+  const rows = !error && Array.isArray(data) ? (data as { id: number; question?: string; answer: string; model: string; similarity: number }[]) : [];
+  const best = rows.find((r) => r.similarity >= SIMILAR && typeof r.question === "string" && sameAsk(r.question, question));
+  if (!best) return null;
   void db.rpc("answer_reused", { p_id: best.id }); // counting only; a failure doesn't matter
   return best;
 }
