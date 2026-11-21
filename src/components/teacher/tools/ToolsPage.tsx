@@ -1,23 +1,27 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useState } from "react";
+import { Loading } from "@/components/Loading";
 import { Icon } from "@/components/Icon";
 import { useLang } from "@/lib/i18n/LanguageProvider";
-import { AdmissionsTool } from "./AdmissionsTool";
-import { BankTool } from "./BankTool";
-import { Community } from "@/components/community/Community";
-import { DoubtsTool } from "./DoubtsTool";
-import { MeetingsTool } from "./MeetingsTool";
-import { MoneyTool } from "./MoneyTool";
-import { RoutineTool } from "./RoutineTool";
-import { ShopTool } from "./ShopTool";
-import { StaffTool } from "./StaffTool";
-import { WatchTool } from "./WatchTool";
-import { WebsiteTool } from "./WebsiteTool";
-import { CardsTool } from "./CardsTool";
-import { MeritTool } from "./MeritTool";
-import { OmrTool } from "./OmrTool";
-import { WhiteboardTool } from "./WhiteboardTool";
+
+// Each tool's code is fetched when the tool is opened, not with the whole dashboard.
+const AdmissionsTool = dynamic(() => import("./AdmissionsTool").then((m) => m.AdmissionsTool), { loading: () => <Loading /> });
+const BankTool = dynamic(() => import("./BankTool").then((m) => m.BankTool), { loading: () => <Loading /> });
+const CardsTool = dynamic(() => import("./CardsTool").then((m) => m.CardsTool), { loading: () => <Loading /> });
+const DoubtsTool = dynamic(() => import("./DoubtsTool").then((m) => m.DoubtsTool), { loading: () => <Loading /> });
+const MeetingsTool = dynamic(() => import("./MeetingsTool").then((m) => m.MeetingsTool), { loading: () => <Loading /> });
+const MeritTool = dynamic(() => import("./MeritTool").then((m) => m.MeritTool), { loading: () => <Loading /> });
+const MoneyTool = dynamic(() => import("./MoneyTool").then((m) => m.MoneyTool), { loading: () => <Loading /> });
+const OmrTool = dynamic(() => import("./OmrTool").then((m) => m.OmrTool), { loading: () => <Loading /> });
+const RoutineTool = dynamic(() => import("./RoutineTool").then((m) => m.RoutineTool), { loading: () => <Loading /> });
+const ShopTool = dynamic(() => import("./ShopTool").then((m) => m.ShopTool), { loading: () => <Loading /> });
+const StaffTool = dynamic(() => import("./StaffTool").then((m) => m.StaffTool), { loading: () => <Loading /> });
+const WatchTool = dynamic(() => import("./WatchTool").then((m) => m.WatchTool), { loading: () => <Loading /> });
+const WebsiteTool = dynamic(() => import("./WebsiteTool").then((m) => m.WebsiteTool), { loading: () => <Loading /> });
+const WhiteboardTool = dynamic(() => import("./WhiteboardTool").then((m) => m.WhiteboardTool), { loading: () => <Loading /> });
+const Community = dynamic(() => import("@/components/community/Community").then((m) => m.Community), { loading: () => <Loading /> });
 
 export type ToolProps = { batchNames: string[]; notify: (msg: string) => void };
 const TOOLS = {
@@ -34,9 +38,9 @@ const TOOLS = {
   admissions: { icon: "users", C: AdmissionsTool },
   staff: { icon: "batches", C: StaffTool },
   meetings: { icon: "share", C: MeetingsTool },
-  website: { icon: "globe", C: WebsiteTool },
+  website: { icon: "globe", C: () => <WebsiteTool /> },
   shop: { icon: "star", C: ShopTool },
-} satisfies Record<string, { icon: string; C: (p: ToolProps) => React.ReactNode }>;
+} satisfies Record<string, { icon: string; C: React.ComponentType<ToolProps> }>;
 export type ToolId = keyof typeof TOOLS;
 
 /** Teacher "Tools": one big card per tool (easy to find for older teachers), each opening its own screen. */

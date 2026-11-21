@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { REAL_AUTH } from "./auth-mode";
 import "./first-data"; // (the type of window.__firstData)
-import { useLang } from "./i18n/LanguageProvider";
+import { Loading } from "@/components/Loading";
 import { dayKey, toDate } from "./dates";
 import { blankState, idBase, makeActions, monthKey, rollFees, type LmsState } from "./lms-actions";
 import { FEE_DUE_DAY, seed, type Batch, type CalendarEvent, type CourseModule, type ItemKind, type ModuleItem, type Payment, type Staff } from "./mock-data";
@@ -18,6 +18,20 @@ export { monthKey, type StudentInput } from "./lms-actions";
 // v8: students have their own and their guardian's Gmail. Older saved demo data is ignored.
 const STORAGE_KEY = "edunest-lms-state-v8";
 const OUTBOX_KEY = "edunest-outbox-v1";
+// Real accounts: what this person's screens last showed, kept on the device so the next visit opens at once (and
+// without a connection) while the fresh copy is fetched. Removed at log-out, at every new sign-in, and whenever the
+// server says they are not signed in. A very big view (the owner of a huge institute) is simply not kept.
+export const VIEW_KEY = "edunest-last-view-v1";
+const VIEW_MAX = 1_000_000; // characters: well inside a browser's 5 MB of storage
+/** Is anyone signed in on this browser? (Supabase keeps the login in a cookie; visitors have none.) */
+const hasLogin = () => /(?:^|; )sb-[^=;]*-auth-token/.test(document.cookie);
+export function forgetView() {
+  try {
+    localStorage.removeItem(VIEW_KEY);
+  } catch {
+    /* storage blocked: nothing was kept */
+  }
+}
 
 export type Todo = { moduleId: number; itemId: number; batch: string; title: string; kind: ItemKind; dueDate?: string; level: "urgent" | "soon" | "normal" };
 export type CalendarEntry = Omit<CalendarEvent, "id"> & { id: string; allDay?: boolean };
@@ -49,12 +63,17 @@ function useLmsState() {
   };
   // The viewer (whose batches the owner is looking at) is this screen's choice, not saved data.
   const adopt = (server: LmsState) => setState((prev) => ({ ...blankState(), ...server, viewer: prev.viewer === "all" ? server.viewer : prev.viewer }));
+  const cached = useRef(false); // showing the copy kept on this device, until the server's answer replaces it
   const pull = async () => {
     // The first load may already be on its way: the page's first script asked for it (see first-data.ts).
     const early = version.current === 0 ? window.__firstData : undefined;
     window.__firstData = undefined;
     const res = (await early) || (await fetch(`/api/data?v=${version.current}`, { cache: "no-store" }));
     if (res.status === 204) return true;
+    if (res.status === 401) {
+      forgetView(); // not signed in (any more), or taken off the list: nothing of theirs stays on the device or the screen
+      cached.current = false;
+    }
     if (!res.ok) return false;
     const d = (await res.json()) as { state: LmsState; version: number; role?: string };
     version.current = d.version;
@@ -107,13 +126,30 @@ function useLmsState() {
 
   useEffect(() => {
     if (REAL_AUTH) {
-      pull()
-        .then((ok) => ok || setState(blankState())) // signed out: nothing (never the sample data)
-        .catch(() => setState(blankState()))
-        .finally(() => setReady(true));
+      if (!hasLogin()) {
+        // A visitor (nobody signed in on this browser): nothing to ask the server for, now or every 15 seconds.
+        forgetView();
+        setState(blankState());
+        setReady(true);
+      } else {
+        try {
+          const last = JSON.parse(localStorage.getItem(VIEW_KEY) ?? "null") as LmsState | null;
+          if (last && Array.isArray(last.students)) {
+            adopt(last); // their screens open with what they last showed; the fresh copy follows
+            cached.current = true;
+            setReady(true);
+          }
+        } catch {
+          /* nothing usable kept: wait for the server as before */
+        }
+        pull()
+          .then((ok) => ok || cached.current || setState(blankState())) // signed out: nothing (never the sample data)
+          .catch(() => cached.current || setState(blankState())) // no connection: the kept copy stays, or nothing
+          .finally(() => setReady(true));
+      }
       // shortcut: polling every 15 s; switch to Supabase Realtime if classes get big.
       const timer = setInterval(() => {
-        if (document.visibilityState !== "visible") return;
+        if (!hasLogin() || document.visibilityState !== "visible") return;
         if (outbox.current.length) void flush();
         else void pull().catch(() => {});
       }, 15_000);
@@ -138,6 +174,25 @@ function useLmsState() {
     } catch {
       setSaveError(true); // usually the 5 MB browser limit (big uploaded files)
     }
+  }, [state, ready]);
+
+  // Real accounts: keep what the screens show on the device (see VIEW_KEY), a moment after it last changed.
+  const tooBig = useRef(false);
+  useEffect(() => {
+    if (!ready || !REAL_AUTH || tooBig.current) return;
+    const timer = setTimeout(() => {
+      if (!hasLogin() || !owner.current) return; // logged out meanwhile, or the server hasn't said who this is yet
+      try {
+        const text = JSON.stringify({ ...state, viewer: undefined }); // the viewer is this visit's choice, not kept
+        if (text.length > VIEW_MAX) {
+          tooBig.current = true;
+          forgetView();
+        } else localStorage.setItem(VIEW_KEY, text);
+      } catch {
+        forgetView(); // storage full or blocked: the next visit just waits for the server, as before
+      }
+    }, 2000);
+    return () => clearTimeout(timer);
   }, [state, ready]);
 
   // New month's fees and late fines (the server does this itself with real accounts).
@@ -268,14 +323,8 @@ export function PublicData({ children }: { children: ReactNode }) {
 
 /** Renders children only after saved data has loaded, so screens never flash sample data or mismatch the server render. */
 export function WhenReady({ children }: { children: ReactNode }) {
-  const { t } = useLang();
-  if (useLms().ready) return children;
-  // Part of the page as it first arrives, so a slow phone shows this (after half a second) instead of an empty screen.
-  return (
-    <div role="progressbar" aria-label={t.common.loading} className="wait-in grid min-h-dvh place-items-center">
-      <span className="size-8 animate-spin rounded-full border-[3px] border-outline-variant border-t-primary" />
-    </div>
-  );
+  // The mark is part of the page as it first arrives, so a slow phone shows it instead of an empty screen.
+  return useLms().ready ? children : <Loading full />;
 }
 
 export function useLms() {

@@ -8,6 +8,7 @@ import { homeFor } from "@/lib/access";
 import { useLang } from "@/lib/i18n/LanguageProvider";
 import { logOut } from "@/lib/logout";
 import { setRole } from "@/lib/role";
+import { forgetView } from "@/lib/lms-store";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { currentApp } from "@/lib/app-lock";
 import { getInstitute, setInstitute } from "@/lib/institute-choice";
@@ -27,6 +28,7 @@ export default function Continue() {
   const [app, setApp] = useState<keyof typeof APPS | null>(null);
 
   useEffect(() => {
+    forgetView(); // a new sign-in never opens with what the person before had on screen
     (async () => {
       const sb = supabaseBrowser();
       const { data: auth } = await sb.auth.getUser();

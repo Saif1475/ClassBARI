@@ -177,9 +177,23 @@ test("logging out ends the session (the login library is fetched when it is firs
   await login(page, "Student", STUDENT);
   await expect(page).toHaveURL(/\/student$/);
   expect((await myData(page)).role).toBe("student");
+  // What the dashboard shows is kept on the device: the next visit opens with it, even before (or without) the server.
+  const kept = () => page.evaluate(() => localStorage.getItem("edunest-last-view-v1"));
+  await expect.poll(kept, { timeout: 10_000 }).toContain("Test Student");
+  await page.route("**/api/data**", (r) => r.abort());
+  await page.reload();
+  await expect(page.getByRole("button", { name: "Community" }).first()).toBeVisible();
+  await page.unroute("**/api/data**");
   await page.goto("/settings");
   await page.getByRole("button", { name: "Log out" }).click();
   await expect(page).toHaveURL(/\/login/);
+  expect(await kept()).toBeNull(); // nothing of theirs is left for the next person on this device
+  // A visitor (nobody signed in) doesn't ask the server for data at all.
+  const asked: string[] = [];
+  page.on("request", (r) => void (r.url().includes("/api/data") && asked.push(r.url())));
+  await page.goto("/");
+  await page.waitForLoadState("networkidle");
+  expect(asked).toEqual([]);
   expect(await page.evaluate(async () => (await fetch("/api/data", { cache: "no-store" })).status)).toBe(401);
   await page.goto("/student"); // the dashboard is closed again
   await expect(page).toHaveURL(/\/login/);

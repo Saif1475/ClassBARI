@@ -106,7 +106,7 @@ test("infinite whiteboard: grows when you draw at the edge, pans with the Move t
   const canvas = page.locator('[data-testid="board-view"] canvas');
   const size = () => canvas.evaluate((c: HTMLCanvasElement) => [c.width, c.height]);
   const ink = () => canvas.evaluate((c: HTMLCanvasElement) => { const d = c.getContext("2d")!.getImageData(0, 0, c.width, c.height).data; let n = 0; for (let i = 3; i < d.length; i += 4) if (d[i]) n++; return n; });
-  expect(await size()).toEqual([2400, 1600]);
+  await expect.poll(size).toEqual([2400, 1600]); // the tool is fetched when opened, so the board is ready a moment later
 
   // Draw a line, then a stroke off the top-left corner: the board grows left/up and the first line moves with it.
   await page.getByTestId("board-view").evaluate((v) => v.scrollIntoView({ block: "end" }));

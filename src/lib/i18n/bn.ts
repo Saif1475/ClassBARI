@@ -38,6 +38,15 @@ const bn: Dict = {
     lightMode: "লাইট মোড",
     textSize: "লেখার আকার",
   },
+  pager: {
+    label: "পৃষ্ঠা",
+    show: "দেখান",
+    perPage: "প্রতি পৃষ্ঠায় কতজন",
+    range: (from: number, to: number, all: number) => `${all.toLocaleString("bn-BD")} এর মধ্যে ${from.toLocaleString("bn-BD")}–${to.toLocaleString("bn-BD")}`,
+    prev: "আগের পৃষ্ঠা",
+    next: "পরের পৃষ্ঠা",
+    page: (n: number) => `পৃষ্ঠা ${n.toLocaleString("bn-BD")}`,
+  },
   landing: {
     navFeatures: "ফিচার",
     navToolkit: "টুলকিট",
@@ -1068,7 +1077,6 @@ const bn: Dict = {
     paperNote: "প্রশ্নগুলো প্রশ্নপত্রে আছে। খুলে দেখো, তারপর এখানে উত্তর দাও।",
   },
   community: {
-    morePeople: (shown: number, all: number) => `${all.toLocaleString("bn-BD")} জনের মধ্যে ${shown.toLocaleString("bn-BD")} জন দেখানো হচ্ছে। কাউকে খুঁজতে নাম লিখুন।`,
     unkind: "অশোভন বা খারাপ শব্দ বাদ দিয়ে আবার চেষ্টা করো।",
     willWait: "এই পোস্টে এমন শব্দ আছে যা অশোভন হতে পারে। পোস্ট করলে সহপাঠীরা দেখার আগে শিক্ষক এটি দেখবেন।",
     heldMine: "শিক্ষক পোস্টটি দেখার অপেক্ষায়",

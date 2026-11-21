@@ -4,12 +4,15 @@ import { BottomBar } from "@/components/BottomBar";
 import { PdfHighlights } from "@/components/PdfHighlights";
 import { REAL_AUTH } from "@/lib/auth-mode";
 import { Gradebook } from "@/components/teacher/Gradebook";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@/components/Icon";
 import { LangSwitch, Logo, TextSize } from "@/components/Brand";
 import { DrawerItem, MobileDrawer } from "@/components/MobileDrawer";
 import { useLang } from "@/lib/i18n/LanguageProvider";
+import { usePaged } from "@/components/Pager";
+import { Loading } from "@/components/Loading";
 import { dayFromToday, dayKey, fmtDate, fmtDayNum, fmtTime, fmtWeekday, fmtWhen, liveLabel, toLocalInput } from "@/lib/dates";
 import { levels, subjects, taka, type ItemKind, type ModuleItem } from "@/lib/mock-data";
 import { monthAttendance, useLms } from "@/lib/lms-store";
@@ -24,8 +27,6 @@ import { FeeDialog } from "@/components/teacher/FeeDialog";
 import { StudentsPage } from "@/components/teacher/StudentsPage";
 import { ToolsPage } from "@/components/teacher/tools/ToolsPage";
 import { Payroll } from "@/components/teacher/Payroll";
-import { QrAttendance } from "@/components/teacher/QrAttendance";
-import { LiveHost } from "@/components/game/LiveHost";
 import { PointsPanel } from "@/components/dojo/PointsPanel";
 import { StoryFeed } from "@/components/dojo/StoryFeed";
 import { Portfolio } from "@/components/dojo/Portfolio";
@@ -40,8 +41,12 @@ import { isBdMobile, waLink } from "@/lib/site";
 import { useFlag } from "@/components/Platform";
 import { SmsButton } from "@/components/teacher/SmsButton";
 import { notifyBatch } from "@/components/PushToggle";
-import { LiveControlRoom } from "@/components/LiveClassroom";
 import { SeatBillingCard } from "@/components/teacher/SeatBillingCard";
+
+// Screens opened now and then (the QR scanner, a live quiz, the live class room): their code is fetched when they open.
+const QrAttendance = dynamic(() => import("@/components/teacher/QrAttendance").then((m) => m.QrAttendance));
+const LiveHost = dynamic(() => import("@/components/game/LiveHost").then((m) => m.LiveHost));
+const LiveControlRoom = dynamic(() => import("@/components/LiveClassroom").then((m) => m.LiveControlRoom), { loading: () => <Loading /> });
 
 export type GlobalTab = "dashboard" | "students" | "courses" | "tools" | "calendar" | "inbox";
 type CourseSection = "home" | "announcements" | "modules" | "assignments" | "quizzes" | "grades" | "people" | "fees" | "dojo" | "files" | "live";
@@ -220,6 +225,9 @@ export default function TeacherApp({
       return !q || `${s.name} ${s.phone} ${s.id}`.toLowerCase().includes(q);
     });
   }, [batchStudents, studentFilter, studentSearch]);
+  // Long lists a page at a time (10 / 20 / 50 / 100 a page); another batch, filter or search starts at page 1.
+  const { shown: studentRows, pager: studentPager } = usePaged(filteredStudents, `${activeBatch}|${studentFilter}|${studentSearch}`);
+  const { shown: attendanceRows, pager: attendancePager } = usePaged(attendanceList, `${activeBatch}|${studentSearch}`);
 
   const allItems = useMemo(() => batchModules.flatMap((m) => m.items.map((it) => ({ ...it, moduleId: m.id, moduleTitle: m.title }))), [batchModules]);
 
@@ -1494,7 +1502,7 @@ export default function TeacherApp({
 
                   <ul className="flex flex-col gap-2">
                     {attendanceList.length === 0 && <li className="rounded-[16px] border border-outline-variant bg-white p-8 text-center text-on-surface-variant">{batchStudents.length === 0 ? T.noStudentsInBatch : T.noMatch}</li>}
-                    {attendanceList.map((s) => {
+                    {attendanceRows.map((s) => {
                       const present = isPresent(s.id);
                       return (
                         <li key={s.id} className="flex flex-wrap items-center gap-3 rounded-[16px] border border-outline-variant bg-white px-4 py-3">
@@ -1521,6 +1529,7 @@ export default function TeacherApp({
                       );
                     })}
                   </ul>
+                  {attendancePager}
                 </div>
               )}
 
@@ -1568,7 +1577,7 @@ export default function TeacherApp({
 
                   <ul className="flex flex-col gap-2">
                     {filteredStudents.length === 0 && <li className="rounded-[16px] border border-outline-variant bg-white p-8 text-center text-on-surface-variant">{batchStudents.length === 0 ? T.noStudentsInBatch : T.noMatch}</li>}
-                    {filteredStudents.map((s) => (
+                    {studentRows.map((s) => (
                       <li key={s.id} className="flex flex-wrap items-center gap-3 rounded-[16px] border border-outline-variant bg-white px-4 py-3">
                         <span className="flex min-w-44 flex-1 flex-col">
                           <span className="text-base font-bold">{s.name}</span>
@@ -1593,6 +1602,7 @@ export default function TeacherApp({
                       </li>
                     ))}
                   </ul>
+                  {studentPager}
                 </div>
               )}
 

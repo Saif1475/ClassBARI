@@ -6,6 +6,7 @@ import { StudentForm } from "@/components/StudentForm";
 import { ImportStudents } from "./ImportStudents";
 import { LoginHint } from "./LoginHint";
 import { useLang } from "@/lib/i18n/LanguageProvider";
+import { usePaged } from "@/components/Pager";
 import { useLms } from "@/lib/lms-store";
 import { REAL_AUTH } from "@/lib/auth-mode";
 import { dayKey } from "@/lib/dates";
@@ -38,6 +39,7 @@ export function StudentsPage({ batchNames, notify }: { batchNames: string[]; not
       (batch === "all" || s.batch === batch) &&
       (!query || `${s.name} ${s.email} ${s.guardianName} ${s.guardianEmail} ${s.phone} ${s.studentPhone ?? ""}`.toLowerCase().includes(query)),
   );
+  const { shown, pager } = usePaged(list, `${batch}|${query}`);
   const student = lms.students.find((s) => s.id === editing);
 
   return (
@@ -98,7 +100,7 @@ export function StudentsPage({ batchNames, notify }: { batchNames: string[]; not
         </div>
         {list.length === 0 && <p className="text-sm text-on-surface-variant">{R.none}</p>}
         <ul className="flex flex-col gap-2">
-          {list.map((s) => (
+          {shown.map((s) => (
             <li key={s.id} className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-[16px] border border-outline-variant bg-white px-4 py-3 text-sm">
               <span className="flex min-w-56 flex-1 flex-col">
                 <span className="font-bold">{s.name} <span className="font-normal text-on-surface-variant">· {t.common.roll} {s.id}</span></span>
@@ -141,6 +143,7 @@ export function StudentsPage({ batchNames, notify }: { batchNames: string[]; not
             </li>
           ))}
         </ul>
+        {pager}
       </section>
 
       {student && (

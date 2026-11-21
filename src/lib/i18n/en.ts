@@ -36,6 +36,15 @@ const en = {
     lightMode: "Light mode",
     textSize: "Text size",
   },
+  pager: {
+    label: "Pages",
+    show: "Show",
+    perPage: "Rows per page",
+    range: (from: number, to: number, all: number) => `${from}–${to} of ${all}`,
+    prev: "Previous page",
+    next: "Next page",
+    page: (n: number) => `Page ${n}`,
+  },
   landing: {
     navFeatures: "Features",
     navToolkit: "Toolkit",
@@ -1067,7 +1076,6 @@ const en = {
     paperNote: "The questions are on the question paper. Open it, then answer here.",
   },
   community: {
-    morePeople: (shown: number, all: number) => `Showing ${shown} of ${all}. Type a name to find someone.`,
     unkind: "Please remove unkind or rude words and try again.",
     willWait: "This post has words that may be unkind. If you post it, your teacher will check it before classmates see it.",
     heldMine: "Waiting for your teacher to check this post",

@@ -9,6 +9,7 @@ import { DOC_MAX, FULL, guardedFetch } from "../src/lib/doc-limit.ts";
 import { blankState } from "../src/lib/lms-actions.ts";
 import { averagePct, gradedResults, incomeByMonth, myRank, quizBoard } from "../src/lib/lms-views.ts";
 import { meritList } from "../src/lib/quiz.ts";
+import { PAGE_SIZES, pageAt, pageNumbers } from "../src/lib/paging.ts";
 import { bigState, day, key } from "./bench-data.mjs";
 
 const s = bigState();
@@ -103,5 +104,27 @@ test("an institute's data over the size limit is refused before it is sent; ever
     assert.equal(sent.length, 2);
   } finally {
     globalThis.fetch = real;
+  }
+});
+
+test("long lists: page sizes, the page you are on, and which page numbers are offered", () => {
+  assert.deepEqual(PAGE_SIZES, [10, 20, 50, 100]);
+  assert.deepEqual(pageAt(2000, 20, 1), { pages: 100, page: 1 });
+  assert.deepEqual(pageAt(45, 20, 3), { pages: 3, page: 3 });
+  assert.deepEqual(pageAt(45, 20, 9), { pages: 3, page: 3 }); // the list got shorter: the last page, not an empty one
+  assert.deepEqual(pageAt(0, 10, 1), { pages: 1, page: 1 });
+  assert.deepEqual(pageAt(45, 20, -4), { pages: 3, page: 1 });
+  assert.deepEqual(pageNumbers(1, 1), [1]);
+  assert.deepEqual(pageNumbers(3, 7), [1, 2, 3, 4, 5, 6, 7]);
+  assert.deepEqual(pageNumbers(1, 100), [1, 2, 0, 100]); // 0 is the gap "…"
+  assert.deepEqual(pageNumbers(50, 100), [1, 0, 49, 50, 51, 0, 100]);
+  assert.deepEqual(pageNumbers(100, 100), [1, 0, 99, 100]);
+  assert.deepEqual(pageNumbers(2, 100), [1, 2, 3, 0, 100]);
+  // Every row is on exactly one page.
+  for (const size of PAGE_SIZES) {
+    const rows = Array.from({ length: 237 }, (_, i) => i);
+    const seen = [];
+    for (let p = 1; p <= pageAt(rows.length, size, 1).pages; p++) seen.push(...rows.slice((p - 1) * size, p * size));
+    assert.deepEqual(seen, rows);
   }
 });

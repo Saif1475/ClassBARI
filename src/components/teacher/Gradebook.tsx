@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useLang } from "@/lib/i18n/LanguageProvider";
+import { usePaged } from "@/components/Pager";
 import { itemScores, type CourseModule, type ModuleItem } from "@/lib/lms-store";
 
 const outOf = (it: ModuleItem) => it.points ?? (it.kind === "quiz" ? 30 : 20);
@@ -11,6 +12,7 @@ export function Gradebook({ students, modules }: { students: { id: number; name:
   const { t } = useLang();
   const T = t.teacher;
   const items = modules.flatMap((m) => m.items).filter((it) => Object.keys(itemScores(it)).length > 0).slice(-6);
+  const { shown, pager } = usePaged(students);
   if (!items.length) return <p className="rounded-[18px] border border-outline-variant bg-white p-6 text-on-surface-variant">{T.noMarksYet}</p>;
   return (
     <>
@@ -27,7 +29,7 @@ export function Gradebook({ students, modules }: { students: { id: number; name:
             </tr>
           </thead>
           <tbody>
-            {students.map((s) => {
+            {shown.map((s) => {
               const parts = items.flatMap((it) => (itemScores(it)[s.id] === undefined ? [] : [itemScores(it)[s.id] / outOf(it)]));
               return (
                 <tr key={s.id} className="border-t border-white/60">
@@ -49,6 +51,7 @@ export function Gradebook({ students, modules }: { students: { id: number; name:
           </tbody>
         </table>
       </div>
+      {pager}
     </>
   );
 }

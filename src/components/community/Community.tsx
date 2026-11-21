@@ -23,6 +23,7 @@ import {
 import { fmtAgo } from "@/lib/dates";
 import { readAsDataUrl } from "@/lib/files";
 import { useLang } from "@/lib/i18n/LanguageProvider";
+import { usePaged } from "@/components/Pager";
 import { shrinkImage } from "@/lib/image";
 import { useLms } from "@/lib/lms-store";
 import { unkind } from "@/lib/word-filter";
@@ -32,7 +33,6 @@ type Tab = "all" | "friends" | "saved" | "activity" | "people" | "me";
 const card = "flex flex-col gap-3 rounded-[16px] border border-outline-variant bg-white p-4";
 const iconBtn = "flex h-9 min-w-9 items-center justify-center gap-1.5 rounded-full px-2 text-sm transition-colors"; // colour set per button
 const PDF_MAX = 5 * 1024 * 1024;
-const MAX_PEOPLE = 100; // rows drawn in the People list at once
 const AUD_ICON: Record<Audience, string> = { all: "🌐", batch: "🏫", friends: "👥" };
 
 /**
@@ -662,7 +662,7 @@ function People({ me, onOpen }: { me: number; onOpen: (a: Author) => void }) {
   const needle = q.trim().toLowerCase();
   // People who chose not to be findable only show up for their friends.
   const found = others.filter((s) => (!lms.communityProfiles[s.id]?.hidden || statusOf(s.id) === "friends") && (!needle || s.name.toLowerCase().includes(needle)));
-  const people = found.slice(0, MAX_PEOPLE); // a big institute: show the first ones and let the search narrow it
+  const { shown: people, pager } = usePaged(found, needle); // a big institute: a page at a time
   const row = "flex items-center gap-3 rounded-[10px] bg-surface-container/60 px-3 py-2";
   const who = (s: (typeof others)[number]) => (
     <button type="button" onClick={() => onOpen(s.id)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
@@ -705,7 +705,7 @@ function People({ me, onOpen }: { me: number; onOpen: (a: Author) => void }) {
             <FriendButton me={me} other={s.id} name={s.name} status={statusOf(s.id)} />
           </div>
         ))}
-        {found.length > people.length && <p className="text-sm text-on-surface-variant">{C.morePeople(people.length, found.length)}</p>}
+        {pager}
       </section>
     </div>
   );
