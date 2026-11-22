@@ -54,6 +54,7 @@ test("AI packs: models and allowance by pack; photos are checked", async () => {
   assert.equal(windowTokens(packPlan(1500).daily), 100_000);
   assert.ok(!packPlan(800).models.includes("claude-sonnet-5-5") && packPlan(1500).models.includes("claude-sonnet-5-5"));
   assert.ok(packPlan(1500).models.every((id) => MODELS[id])); // every pack model has a provider and a price
+  assert.ok(packPlan(800).models.includes("qwen3.7-plus") && !packPlan(800).models.includes("qwen3.8-max") && packPlan(1500).models.includes("qwen3.8-max"));
   assert.deepEqual(chatImage("data:image/png;base64,AAAA"), { media_type: "image/png", data: "AAAA" });
   assert.equal(chatImage("data:image/svg+xml;base64,AAAA"), null);
   assert.equal(chatImage("data:text/html;base64,AAAA"), null);
@@ -95,7 +96,7 @@ test("thinking that a provider leaves out of completion_tokens is still counted 
 test("the model picker lists every model and locks the ones a bigger pack has", async () => {
   const { modelMenu } = await import("../src/lib/ai-chat.ts");
   const m150 = modelMenu(150);
-  assert.equal(m150.length, 7);
+  assert.equal(m150.length, 9);
   assert.deepEqual(m150.filter((m) => !m.locked).map((m) => m.id), ["gemini-2.5-flash-lite", "qwen3.7-flash"]);
   assert.equal(m150.find((m) => m.id === "claude-sonnet-5-5").pack, 1500);
   assert.ok(modelMenu(1500).every((m) => !m.locked));

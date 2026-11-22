@@ -16,6 +16,8 @@ export const MODELS: Record<string, { label: string; provider: "anthropic" | "go
   "gemini-3-flash-preview": { label: "Gemini 3 Flash", provider: "google", price: [0.5, 3, 0.5] },
   "gpt-5.6-luna": { label: "GPT Luna", provider: "openai", price: [0.2, 1.2, 0.2] },
   "qwen3.8-flash": { label: "Qwen 3.8 Flash", provider: "qwen", price: [0.15, 0.47, 0.15] },
+  "qwen3.7-plus": { label: "Qwen Plus", provider: "qwen", price: [0.4, 1.6, 0.4] },
+  "qwen3.8-max": { label: "Qwen Max", provider: "qwen", price: [2, 6, 0.25] },
   "claude-sonnet-5-5": { label: "Claude Sonnet", provider: "anthropic", price: [2, 10, 0.1] },
   "claude-opus-5-5": { label: "Claude Opus", provider: "anthropic", price: [4, 20, 0.2] }, // staff previews only
 };
@@ -25,8 +27,8 @@ export const PACKS = [150, 400, 800, 1500] as const;
 const PLANS: Record<number, { daily: number; adds: string[] }> = {
   150: { daily: 100_000, adds: ["gemini-2.5-flash-lite", "qwen3.7-flash"] },
   400: { daily: 100_000, adds: ["claude-haiku-5-5", "gemini-3-flash-preview"] },
-  800: { daily: 150_000, adds: ["gpt-5.6-luna"] },
-  1500: { daily: 200_000, adds: ["claude-sonnet-5-5", "qwen3.8-flash"] },
+  800: { daily: 150_000, adds: ["gpt-5.6-luna", "qwen3.7-plus"] },
+  1500: { daily: 200_000, adds: ["claude-sonnet-5-5", "qwen3.8-flash", "qwen3.8-max"] },
 };
 export function packPlan(pack: number | undefined) {
   const price = PLANS[pack ?? 0] ? (pack as number) : 150; // premium given before packs existed counts as the smallest
