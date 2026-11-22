@@ -81,13 +81,23 @@ class _ClassbariAppState extends State<ClassbariApp> {
 
   @override
   Widget build(BuildContext context) => Live((context) {
-    final sky = (store.me ?? (kApp == 'guardian' ? store.child : null))?['gender'] == 'female'; // the website's theme for girls
+    final sky = store.sky;
     return MaterialApp(
       title: kAppName,
       navigatorKey: nav,
       debugShowCheckedModeBanner: false,
       theme: classbariTheme(Brightness.light, sky: sky),
       darkTheme: classbariTheme(Brightness.dark, sky: sky),
+      themeMode: switch (store.themeMode) {
+        'light' => ThemeMode.light,
+        'dark' => ThemeMode.dark,
+        _ => ThemeMode.system,
+      },
+      // Text size from Settings, on top of the phone's own text size.
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(MediaQuery.textScalerOf(context).scale(1) * store.textSize)),
+        child: child!,
+      ),
       home: const Root(),
     );
   });

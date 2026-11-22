@@ -54,6 +54,35 @@ export function AiChat({ meId, name, premium, email }: { meId: number; name: str
   const { t } = useLang();
   const A = t.aichat;
   const storeKey = `edunest-ai-chats-${meId}`;
+  // Chat settings, kept on this device: the model picked last, and how the student wants answers (language, length).
+  const modelKey = `edunest-ai-model-${meId}`;
+  const prefsKey = `edunest-ai-prefs-${meId}`;
+  const [prefs, setPrefs] = useState<{ lang: "auto" | "bn" | "en"; length: "normal" | "short" | "long" }>({ lang: "auto", length: "normal" });
+  const [usage, setUsage] = useState<{ left: number; resetsAt: string } | null>(null); // this 12-hour allowance
+  useEffect(() => {
+    try {
+      const p = JSON.parse(localStorage.getItem(prefsKey) ?? "{}") as Partial<typeof prefs>;
+      setPrefs({ lang: p.lang === "bn" || p.lang === "en" ? p.lang : "auto", length: p.length === "short" || p.length === "long" ? p.length : "normal" });
+    } catch {
+      /* unreadable: the defaults */
+    }
+  }, [prefsKey]);
+  const choose = (next: typeof prefs) => {
+    setPrefs(next);
+    try {
+      localStorage.setItem(prefsKey, JSON.stringify(next));
+    } catch {
+      /* storage full: the choice lasts for this visit */
+    }
+  };
+  const pickModel = (id: string) => {
+    setModel(id);
+    try {
+      localStorage.setItem(modelKey, id);
+    } catch {
+      /* this visit only */
+    }
+  };
   const [chats, setChats] = useState<Chat[]>([]);
   const [openId, setOpenId] = useState(0); // 0: a new chat not started yet
   const [showList, setShowList] = useState(false); // phones: the chat list is behind a button
@@ -100,7 +129,18 @@ export function AiChat({ meId, name, premium, email }: { meId: number; name: str
     if (!REAL_AUTH || !premium) return;
     void fetch("/api/ai/assistant")
       .then((r) => (r.ok ? r.json() : null))
-      .then((d: { models: Model[]; pick: string | null } | null) => d?.models && (setModels(d.models), setModel(d.pick ?? "")))
+      .then((d: { models: Model[]; pick: string | null; left?: number; resetsAt?: string } | null) => {
+        if (!d?.models) return;
+        setModels(d.models);
+        let mine: string | null = null; // the model picked last time, if this pack still has it
+        try {
+          mine = localStorage.getItem(modelKey);
+        } catch {
+          /* no storage */
+        }
+        setModel(mine && d.models.some((m) => m.id === mine && !m.locked && !m.soon) ? mine : (d.pick ?? ""));
+        if (typeof d.left === "number" && d.resetsAt) setUsage({ left: d.left, resetsAt: d.resetsAt });
+      })
       .catch(() => {});
   }, [premium]);
   const save = (next: Chat[], keepNow = true) => {
@@ -146,7 +186,7 @@ export function AiChat({ meId, name, premium, email }: { meId: number; name: str
       const res = await fetch("/api/ai/assistant", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: asked.map(({ role, content }) => ({ role, content })), ...(image ? { image } : {}), ...(doc ? { file: doc } : {}), ...(chosen ? { model: chosen.id } : {}), ...(fresh ? { fresh: true } : {}) }),
+        body: JSON.stringify({ messages: asked.map(({ role, content }) => ({ role, content })), ...(image ? { image } : {}), ...(doc ? { file: doc } : {}), ...(chosen ? { model: chosen.id } : {}), ...(fresh ? { fresh: true } : {}), ...(prefs.lang !== "auto" || prefs.length !== "normal" ? { prefs: { ...(prefs.lang !== "auto" ? { lang: prefs.lang } : {}), ...(prefs.length !== "normal" ? { length: prefs.length } : {}) } } : {}) }),
         signal: stopper.current.signal,
       });
       if (!res.ok || !res.body) {
@@ -167,6 +207,7 @@ export function AiChat({ meId, name, premium, email }: { meId: number; name: str
       const info = (tail ? JSON.parse(tail) : { error: true }) as { left?: number; declined?: boolean; cut?: boolean; error?: boolean };
       put([...asked, { role: "assistant", content: info.declined ? A.declined : (text.trim() || A.error) + (info.cut ? `\n\n${A.cut}` : "") }]);
       setNote(info.error ? A.error : typeof info.left === "number" ? A.left(info.left) : "");
+      if (typeof info.left === "number") setUsage((u) => (u ? { ...u, left: info.left! } : u));
     } catch {
       // Stopped by the student, or the connection dropped: keep what arrived.
       if (answer) put([...asked, { role: "assistant", content: answer.split(TRAILER)[0] }]);
@@ -271,6 +312,40 @@ export function AiChat({ meId, name, premium, email }: { meId: number; name: str
         </details>
       ))}
       {chats.length > 0 && <p className="mt-2 px-2 text-xs text-on-surface-variant">{A.saved}</p>}
+      {/* Chat settings: how the AI answers, what is left of the allowance, and clearing the chats on this device. */}
+      <details className="group mt-2 rounded-[12px] border border-outline-variant bg-white">
+        <summary className="flex min-h-11 cursor-pointer items-center gap-2 px-3 text-sm font-bold">
+          <span aria-hidden className="transition-transform group-open:rotate-90"><Icon name="chevronRight" size={16} /></span>
+          <span className="min-w-0 flex-1">{A.settings}</span>
+        </summary>
+        <div className="flex flex-col gap-3 px-3 pb-3">
+          {usage && (
+            <p className="text-xs text-on-surface-variant">
+              <span className="font-bold text-on-surface">{A.usage}:</span> {A.usageLeft(usage.left, new Date(usage.resetsAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }))}
+            </p>
+          )}
+          {([
+            [A.answerLang, "lang", [["auto", A.langAuto], ["bn", A.langBn], ["en", A.langEn]]],
+            [A.answerLength, "length", [["normal", A.lenNormal], ["short", A.lenShort], ["long", A.lenLong]]],
+          ] as const).map(([label, key, options]) => (
+            <div key={key} role="group" aria-label={label} className="flex flex-col gap-1">
+              <span className="text-xs font-bold text-on-surface-variant">{label}</span>
+              <div className="flex flex-wrap gap-1">
+                {options.map(([value, text]) => (
+                  <button key={value} type="button" aria-pressed={prefs[key] === value} onClick={() => choose({ ...prefs, [key]: value })} className={`min-h-9 rounded-[10px] px-3 text-xs font-bold ${prefs[key] === value ? "bg-primary text-on-primary" : "bg-surface-container text-on-surface"}`}>
+                    {text}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+          {chats.length > 0 && (
+            <button type="button" onClick={() => window.confirm(A.confirmDeleteAll) && (save([]), open(0))} className="min-h-10 self-start rounded-[10px] bg-error-container px-3 text-xs font-bold text-on-error-container">
+              {A.deleteAll} ({chats.length})
+            </button>
+          )}
+        </div>
+      </details>
     </nav>
   );
 
@@ -393,7 +468,7 @@ export function AiChat({ meId, name, premium, email }: { meId: number; name: str
                       const off = m.locked || m.soon;
                       return (
                         <li key={m.id} role="option" aria-selected={m.id === chosen?.id} aria-disabled={off}>
-                          <button type="button" disabled={off} onClick={() => (setModel(m.id), setMenu(false))} className={`flex min-h-12 w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm ${m.id === chosen?.id ? "bg-surface-container" : ""} ${off ? "cursor-not-allowed" : "hover:bg-surface-container"}`}>
+                          <button type="button" disabled={off} onClick={() => (pickModel(m.id), setMenu(false))} className={`flex min-h-12 w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm ${m.id === chosen?.id ? "bg-surface-container" : ""} ${off ? "cursor-not-allowed" : "hover:bg-surface-container"}`}>
                             <span className="flex min-w-0 flex-1 flex-col">
                               <span className={`font-bold ${off ? "text-on-surface-variant" : ""}`}>{m.label}</span>
                               <span className="text-xs text-on-surface-variant">{m.locked ? A.unlockWith(taka(m.pack)) : m.soon ? A.modelSoon : A.inPack(taka(m.pack))}</span>

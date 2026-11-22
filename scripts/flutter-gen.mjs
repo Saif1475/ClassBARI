@@ -17,8 +17,8 @@ import { quizOrder } from "../src/lib/quiz.ts";
 import { validateStudent } from "../src/lib/site.ts";
 import { streak, totalXp, weekXp } from "../src/lib/xp.ts";
 
-const SECTIONS = ["app", "auth", "aichat", "pdfhl", "pager", "roster", "kid", "tday", "glance", "streak"];
-const SINGLE = ["common.loading", "quiz.checking", "parent.noClasses", "settings.askInstitute", "settings.yourName", "settings.phone", "settings.instituteName", "login.newHere", "login.create", "login.title", "login.sub", "student.progress", "student.actions.video", "student.actions.pdf", "student.actions.quiz", "student.actions.task", "student.actions.exam", "student.tags.inProgress", "student.tags.new", "student.tags.completed", "teacher.greeting"];
+const SECTIONS = ["app", "auth", "aichat", "pdfhl", "pager", "roster", "kid", "tday", "glance", "streak", "settings"];
+const SINGLE = ["common.loading", "common.textSize", "support.link", "landing.privacy", "landing.terms", "teacher.phoneInvalid", "quiz.checking", "parent.noClasses", "login.newHere", "login.create", "login.title", "login.sub", "student.progress", "student.actions.video", "student.actions.pdf", "student.actions.quiz", "student.actions.task", "student.actions.exam", "student.tags.inProgress", "student.tags.new", "student.tags.completed", "teacher.greeting"];
 
 // ---- words -------------------------------------------------------------------------------------------------------
 const local = (v, lang) => (typeof v === "number" ? v.toLocaleString(lang === "bn" ? "bn-BD" : "en-US") : String(v));

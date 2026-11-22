@@ -1,4 +1,4 @@
-import { answerIn, chatFile, chatImage, cleanHistory, costUsd, modelMenu, packPlan, TRAILER, usedTokens, withFile } from "@/lib/ai-chat";
+import { chatFile, chatImage, chatPrefs, cleanHistory, costUsd, modelMenu, packPlan, prefsRule, TRAILER, usedTokens, withFile } from "@/lib/ai-chat";
 import { allowance } from "@/lib/ai-allowance";
 import { modelReady, streamChat } from "@/lib/ai-providers";
 import { embed, findAnswer, saveAnswer, shareable, VET_RULES, vetAsk, vetModel, vetSaysYes } from "@/lib/answer-cache";
@@ -33,7 +33,9 @@ async function gate(request: Request) {
 export async function GET(request: Request) {
   const g = await gate(request);
   if ("error" in g) return g.error;
-  return Response.json({ pack: g.plan.pack, pick: g.models[0] ?? null, models: modelMenu(g.plan.pack).map((m) => ({ ...m, soon: !m.locked && !g.models.includes(m.id) })) });
+  // Also how much of this 12-hour allowance is left and when it refills (shown in Chat settings).
+  const a = await allowance(`${g.me.institute}:student:${g.student.id}`, g.me.institute, g.plan);
+  return Response.json({ pack: g.plan.pack, pick: g.models[0] ?? null, left: a.left(), resetsAt: a.resetsAt, models: modelMenu(g.plan.pack).map((m) => ({ ...m, soon: !m.locked && !g.models.includes(m.id) })) });
 }
 
 /**
@@ -45,7 +47,8 @@ export async function POST(request: Request) {
   if ("error" in g) return g.error;
   const { me, student, plan } = g;
   if (Number(request.headers.get("content-length")) > 6_000_000) return Response.json({ error: "too large" }, { status: 413 });
-  const body = (await request.json().catch(() => null)) as { messages?: unknown; image?: unknown; model?: unknown; file?: unknown; fresh?: unknown } | null;
+  const body = (await request.json().catch(() => null)) as { messages?: unknown; image?: unknown; model?: unknown; file?: unknown; fresh?: unknown; prefs?: unknown } | null;
+  const prefs = chatPrefs(body?.prefs); // the student's own answer language and length, if they set any
   const history = cleanHistory(body?.messages);
   const image = body?.image === undefined ? null : chatImage(body.image);
   const file = body?.file === undefined ? null : chatFile(body.file);
@@ -63,7 +66,8 @@ export async function POST(request: Request) {
 
   // Asked before by someone? Answer from the saved copy: instant, and it uses none of the student's allowance.
   const question = history[0].content;
-  const share = shareable(history, { image: !!image, file: !!file, fresh: body?.fresh === true });
+  // An answer shaped by the student's own settings is theirs alone: it is neither taken from the saved answers nor added to them.
+  const share = shareable(history, { image: !!image, file: !!file, fresh: body?.fresh === true || !!prefs.lang || !!prefs.length });
   const vec = share ? await embed(question) : null;
   const saved = vec ? await findAnswer(db, vec, model, question).catch(() => null) : null;
   if (saved) return new Response(saved.answer + TRAILER + JSON.stringify({ left: leftNow }), { headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" } });
@@ -84,7 +88,7 @@ export async function POST(request: Request) {
       let keep = "";
       try {
         let answer = "";
-        const r = await streamChat({ model, system: [{ text: RULES }, { text: answerIn(history[history.length - 1].content) }], messages: withFile(history, file), image, maxTokens: 4000 }, (t) => ((answer += t), send(t)));
+        const r = await streamChat({ model, system: [{ text: RULES }, { text: prefsRule(prefs, history[history.length - 1].content) }], messages: withFile(history, file), image, maxTokens: 4000 }, (t) => ((answer += t), send(t)));
         keep = !!vec && !r.declined && !r.cut && answer.trim().length > 20 ? answer.trim() : "";
         const tokens = usedTokens(r.usage);
         const cost = costUsd(model, r.usage);

@@ -107,7 +107,14 @@ const shot = async (name) => { await page.mouse.move(195, 2); await page.waitFor
 const named = (text) => page.getByText(text, { exact: false }).or(page.locator(`[aria-label*="${text}"]`));
 const see = (text, ms = 20000) => named(text).first().waitFor({ state: "attached", timeout: ms });
 // Flutter draws on a canvas; its named parts are an invisible layer, so presses go to the screen position of the part.
-const tap = async (loc) => { const b = await loc.first().boundingBox({ timeout: 15000 }); if (!b) throw new Error(`not on screen: ${loc}`); await page.mouse.click(b.x + b.width / 2, b.y + b.height / 2); await page.waitForTimeout(600); };
+const tap = async (loc) => {
+  const b = await loc.first().boundingBox({ timeout: 15000 }).catch(() => null);
+  // Not there: say what was pressed for and which buttons the screen had instead.
+  if (!b) throw new Error(`not on screen: ${loc}; buttons there: ${(await page.locator('[role="button"]').evaluateAll((all) => all.map((e) => e.getAttribute("aria-label") || e.textContent.trim().slice(0, 30)))).join(" | ").slice(0, 600)}`);
+  await page.mouse.click(b.x + b.width / 2, b.y + b.height / 2);
+  await page.waitForTimeout(600);
+  await page.mouse.move(195, 2); // off whatever is under it now: a button's hover tip is read as part of its name
+};
 const press = (name) => tap(page.getByRole("button", { name }).or(page.getByText(name, { exact: true })));
 const tab = (i) => tap(page.locator(`[flt-semantics-identifier="tab-${i}"]`));
 const back = () => tap(page.getByRole("button", { name: "Back", exact: true })).catch(() => page.goBack().then(() => page.waitForTimeout(700))); // the bar's arrow, or the browser's own
@@ -124,12 +131,25 @@ const typeInto = async (box, text) => {
 };
 const type = (nth, text) => typeInto(page.locator("input, textarea").nth(nth), text); // the nth text box on screen
 const typePassword = () => typeInto(page.locator('input[type="password"]').last(), password);
-const down = async (by = 500) => { await page.mouse.move(195, 420); await page.mouse.wheel(0, by); await page.waitForTimeout(500); };
+const down = async (by = 500) => {
+  await page.mouse.move(195, 420);
+  // The app moves a quarter of what the wheel says (measured), and long pages are built as they are reached, so one
+  // big turn stops short: many small turns instead.
+  for (let left = Math.abs(by) * 4; left > 0; left -= 240) { await page.mouse.wheel(0, Math.sign(by) * Math.min(240, left)); await page.waitForTimeout(90); }
+  await page.waitForTimeout(400);
+};
 /** One screen of the tour: a failure is noted and the tour goes on. */
 const step = async (name, go) => { try { await go(); await shot(name); } catch (e) { problems.push(`${name}: ${e.message.split("\n")[0]}`); } };
 const quietly = (go) => go().catch((e) => problems.push(`going back: ${e.message.split("\n")[0]}`));
 
 const menu = () => tap(page.getByRole("button", { name: "Menu", exact: true }));
+/** Settings from the open side menu: its top, then its lower parts (`more`: extra screens while it is open), then back. */
+const settings = async (parts, more = async () => {}) => {
+  await step("settings", async () => { await tap(named("Settings")); await page.getByRole("button", { name: "Back", exact: true }).first().waitFor({ state: "attached", timeout: 15000 }); });
+  for (const part of parts) await step(`settings-${part}`, () => down(600));
+  await more();
+  await quietly(back);
+};
 const outside = async () => { await page.mouse.click(382, 420); await page.waitForTimeout(700); }; // beside an open side panel or sheet: closes it
 
 const TOURS = {
@@ -148,17 +168,25 @@ const TOURS = {
     await step("results", () => tab(2));
     await step("notices", () => tab(3));
     await step("menu", menu);
+    await settings(["password-and-help"], async () => {
+      await quietly(() => down(-2000)); // back to the top
+      await step("settings-dark-theme", () => tap(named("Dark")));
+      await step("settings-biggest-letters", async () => { await tap(named("Same as phone")); await tap(named("A++")); });
+      await quietly(() => tap(page.getByRole("button", { name: "A", exact: true })));
+    });
+    await quietly(menu);
     await step("menu-in-bangla", () => tap(named("বাংলা")));
     await quietly(outside);
     await step("dashboard-in-bangla", () => tab(0));
     await step("to-do-in-bangla", () => tab(1));
   },
   guardian: async () => {
-    await step("home-lower-part", () => down(700));
+    await step("home-lower-part", () => down(175));
     await step("results", () => tab(1));
     await step("notices", () => tab(2));
     await step("messages", () => tab(3));
     await step("menu", menu);
+    await settings(["look", "password-and-help"]);
   },
   teacher: async () => {
     await step("batch", () => tap(named("Teacher Batch")));
@@ -177,9 +205,10 @@ const TOURS = {
     await quietly(back);
     await step("notices", () => tab(3));
     await step("menu", menu);
+    await settings(["look-and-lists", "password-and-help"]);
   },
   institute: async () => {
-    await step("home-lower-part", () => down(700));
+    await step("home-lower-part", () => down(175));
     await step("batch", () => tap(named("Teacher Batch")));
     await quietly(back);
     await step("fees", () => tab(1));
@@ -187,10 +216,11 @@ const TOURS = {
     await quietly(() => press("Cancel"));
     await step("students", () => tab(2));
     await step("add-student", () => tap(named("Add student")));
-    await step("add-student-lower-part", () => down(600));
+    await step("add-student-lower-part", () => down(150));
     await quietly(back);
     await step("notices", () => tab(3));
     await step("menu", menu);
+    await settings(["institute-code", "look-and-lists", "password-and-help"]);
   },
   chatbot: async () => {
     // A real question (a few paisa on the AI account): one of the suggestions, then the finished answer from its end and its start.
@@ -203,6 +233,10 @@ const TOURS = {
     await quietly(async () => { await page.mouse.click(195, 90); await page.waitForTimeout(700); });
     await step("new-chat-with-topics", () => tap(page.getByRole("button", { name: "New chat", exact: true })));
     await step("topic-page", () => tap(named("Physics")));
+    await quietly(back);
+    // Settings from the gear in the chat list: the pack and allowance, the model, how the AI answers, the chats, the look.
+    await quietly(() => tap(page.getByRole("button", { name: "Chats", exact: true })));
+    await settings(["how-the-ai-answers", "chats-and-look", "password-and-help"]);
   },
 };
 

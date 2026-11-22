@@ -15,6 +15,7 @@ import '../ui.dart';
 import '../views.dart';
 import 'lesson.dart' show pickPhoto;
 import 'pdf.dart' show clock;
+import 'settings.dart';
 
 const _trailer = '\u001e'; // ends the streamed answer; after it comes JSON: allowance left, declined, cut, error
 const _keep = 50; // chats kept on the phone (the most recently used)
@@ -32,7 +33,12 @@ class _AiChatAppState extends State<AiChatApp> {
   List<Json> chats = [];
   var openId = 0; // 0: a new chat not started yet
   List<Json> models = [];
-  var model = '', access = 'loading'; // loading, ok, pack (no AI pack), soon (not set up), offline
+  var pick = '', access = 'loading'; // loading, ok, pack (no AI pack), soon (not set up), offline
+  num? left; // % of the allowance left, and when it refills (shown in Settings)
+  String? resetsAt;
+
+  /// The model picked last time (kept in Settings); until then the one the server suggests.
+  String get model => store.aiModel ?? pick;
   ({Uint8List bytes, String data})? photo;
   var busy = false, note = '', find = '';
   int? pack; // the student's AI pack, for the side panel
@@ -73,7 +79,9 @@ class _AiChatAppState extends State<AiChatApp> {
         final d = jsonDecode(res.body) as Json;
         models = rows(d['models']);
         pack = (d['pack'] as num?)?.toInt();
-        model = '${d['pick'] ?? ''}';
+        pick = '${d['pick'] ?? ''}';
+        left = d['left'] as num?;
+        resetsAt = d['resetsAt'] as String?;
         next = 'ok';
       } else if (res.statusCode == 402) {
         next = 'pack';
@@ -154,6 +162,7 @@ class _AiChatAppState extends State<AiChatApp> {
         if (image.isNotEmpty) 'image': image,
         if (chosen != null) 'model': chosen!['id'],
         if (fresh) 'fresh': true,
+        if (store.aiPrefs.isNotEmpty) 'prefs': store.aiPrefs, // answer language and length from Settings
       });
       if (res.statusCode != 200) {
         Json d = const {};
@@ -187,6 +196,7 @@ class _AiChatAppState extends State<AiChatApp> {
         ...asked,
         {'role': 'assistant', 'content': info['declined'] == true ? t('aichat.declined') : '${text.isEmpty ? t('aichat.error') : text}${info['cut'] == true ? '\n\n${t('aichat.cut')}' : ''}'},
       ]);
+      if (info['left'] is num) left = info['left'] as num;
       note = info['error'] == true ? t('aichat.error') : (info['left'] is num ? t('aichat.left', [info['left']]) : '');
     } catch (_) {
       // Stopped by the student, or the connection dropped: keep what arrived.
@@ -260,7 +270,7 @@ class _AiChatAppState extends State<AiChatApp> {
               title: Text('${m['label']}'),
               subtitle: Text(m['locked'] == true ? t('aichat.unlockWith', [taka(m['pack'] as num)]) : (m['soon'] == true ? t('aichat.modelSoon') : t('aichat.inPack', [taka(m['pack'] as num)]))),
               onTap: () {
-                setState(() => model = '${m['id']}');
+                store.setting('classbari-ai-model', '${m['id']}');
                 Navigator.pop(context);
               },
             ),
@@ -268,6 +278,12 @@ class _AiChatAppState extends State<AiChatApp> {
       ),
     ),
   );
+
+  /// Settings → "Delete all chats" (asked "are you sure?" there).
+  void deleteAll() {
+    openId = 0;
+    save(const []);
+  }
 
   Future<void> remove(Json c) async {
     if (!await confirm(context, t('aichat.deleteChat'), t('aichat.confirmDelete'), yes: t('aichat.deleteChat'))) return;
@@ -662,7 +678,7 @@ class _AiChatAppState extends State<AiChatApp> {
           ),
         ),
         const Divider(),
-        // Who is logged in, with their pack; the gear opens language and log out.
+        // Who is logged in, with their pack; the gear opens Settings.
         Padding(
           padding: const EdgeInsets.fromLTRB(12, 8, 6, 8),
           child: Row(
@@ -678,7 +694,7 @@ class _AiChatAppState extends State<AiChatApp> {
                   ],
                 ),
               ),
-              IconButton(tooltip: t('app.menu'), icon: const Icon(Icons.settings_outlined), onPressed: () => _settings(context)),
+              IconButton(tooltip: t('settings.title'), icon: const Icon(Icons.settings_outlined), onPressed: () => _settings(context)),
             ],
           ),
         ),
@@ -686,28 +702,17 @@ class _AiChatAppState extends State<AiChatApp> {
     );
   }
 
-  void _settings(BuildContext context) => showModalBottomSheet<void>(
-    context: context,
-    showDragHandle: true,
-    builder: (context) => Live(
-      (context) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 12,
-            children: [
-              Muted(store.email ?? ''),
-              Section(t('app.language')),
-              Chips(value: lang.code, options: const ['en', 'bn'], labels: const {'en': 'English', 'bn': 'বাংলা'}, onChanged: store.setLang),
-              Doing(label: t('app.logOut'), icon: Icons.logout, soft: true, danger: true, onPressed: store.signOut),
-            ],
-          ),
-        ),
+  /// The gear: Settings, with this app's own part (pack, allowance, model, how the AI answers, clearing the chats).
+  void _settings(BuildContext context) {
+    Navigator.pop(context); // close the chat list first
+    push(
+      context,
+      SettingsScreen(
+        details: [(t('settings.yourName'), myName), (t('settings.instituteName'), '${store.state?['instituteName'] ?? ''}')],
+        ai: AiSettings(models: models, pack: pack, left: left, resetsAt: resetsAt, chats: () => chats.length, onDeleteAll: deleteAll),
       ),
-    ),
-  );
+    );
+  }
 }
 
 /// The start of a message as one short line: no line breaks, no formatting marks.

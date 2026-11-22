@@ -9,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'api.dart';
 import 'config.dart';
+import 'screens/settings.dart';
 import 'store.dart';
 import 'strings.dart';
 import 'theme.dart';
@@ -373,7 +374,7 @@ class Pair extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 12,
       children: [
-        Flexible(child: Muted(label)),
+        ConstrainedBox(constraints: const BoxConstraints(maxWidth: 130), child: Muted(label)),
         Expanded(
           child: Text(
             value,
@@ -769,7 +770,7 @@ class TabItem extends StatelessWidget {
   }
 }
 
-/// The side menu: who is logged in, their details, the language, and log out.
+/// The side menu: who is logged in, the way into Settings and help, the language, and log out.
 class SideMenu extends StatelessWidget {
   const SideMenu({super.key, this.details = const [], this.note});
   final List<(String, String)> details;
@@ -796,13 +797,24 @@ class SideMenu extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 18),
-            Section(kAppName),
-            const SizedBox(height: 6),
-            for (final (label, value) in details)
-              if (value.isNotEmpty) Pair(label, value),
-            if (note != null) Padding(padding: const EdgeInsets.only(top: 6), child: Muted(note!)),
-            const SizedBox(height: 18),
+            const SizedBox(height: 14),
+            const Divider(),
+            Item(
+              icon: Icons.settings_outlined,
+              title: t('settings.title'),
+              onTap: () {
+                Navigator.pop(context); // close the menu first
+                push(context, SettingsScreen(details: details, note: note));
+              },
+            ),
+            Item(
+              icon: Icons.support_agent_rounded,
+              color: context.course(1),
+              title: t('support.link'),
+              onTap: () => launchUrl(Uri.parse('$kApiUrl/support'), mode: LaunchMode.externalApplication),
+            ),
+            const Divider(),
+            const SizedBox(height: 14),
             Section(t('app.language')),
             const SizedBox(height: 8),
             Chips(value: lang.code, options: const ['en', 'bn'], labels: const {'en': 'English', 'bn': 'বাংলা'}, onChanged: store.setLang),

@@ -25,3 +25,6 @@ bool get kPicksInstitute => kApp != 'institute';
 const kApiUrl = String.fromEnvironment('API_URL');
 const kSupabaseUrl = String.fromEnvironment('SUPABASE_URL');
 const kSupabaseKey = String.fromEnvironment('SUPABASE_KEY');
+
+/// Shown in Settings. Kept the same as `version:` in pubspec.yaml (a test checks it).
+const kVersion = '1.0.0';

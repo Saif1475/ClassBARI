@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'api.dart';
+import 'config.dart';
 import 'strings.dart';
 import 'views.dart';
 
@@ -32,10 +33,50 @@ class Store extends ChangeNotifier {
   List<Json> get waiting => List.unmodifiable(_outbox);
   Json? get institute => _json(_inst);
   int get pageSize => prefs.getInt(_size) ?? 20;
-  set pageSize(int n) => prefs.setInt(_size, n);
+  set pageSize(int n) => setting(_size, n);
   int get pickedChild => prefs.getInt(_child) ?? 0;
   set pickedChild(int id) {
     prefs.setInt(_child, id);
+    notifyListeners();
+  }
+
+  // ---- settings kept on this phone (they stay when someone logs out, like the website's) --------------------------
+  /// light, dark or system ("Same as phone").
+  String get themeMode => prefs.getString('classbari-theme') ?? 'system';
+
+  /// green or sky; null: by the student's profile, as before there was a setting.
+  String? get tone => prefs.getString('classbari-tone');
+
+  /// How much bigger the letters are: 1, 1.125 or 1.25 (the website's A, A+ and A++).
+  double get textSize => prefs.getDouble('classbari-text-size') ?? 1;
+
+  /// How the AI should answer: {lang: bn|en, length: short|long}; a missing key means "as usual".
+  Json get aiPrefs => _json('classbari-ai-prefs') ?? {};
+
+  /// The AI model picked last time (used for new chats while the pack still has it).
+  String? get aiModel => prefs.getString('classbari-ai-model');
+
+  /// Sky & pink instead of green? The person's own choice; until they choose, by profile (the website's theme for girls).
+  bool get sky {
+    if (tone != null) return tone == 'sky';
+    final who = me ?? (kApp == 'guardian' ? child : null);
+    return who?['gender'] == 'female';
+  }
+
+  /// Save one setting and redraw. `null` removes it (back to the default).
+  void setting(String key, Object? value) {
+    switch (value) {
+      case null:
+        prefs.remove(key);
+      case final double v:
+        prefs.setDouble(key, v);
+      case final int v:
+        prefs.setInt(key, v);
+      case final Map<String, dynamic> v:
+        prefs.setString(key, jsonEncode(v));
+      default:
+        prefs.setString(key, '$value');
+    }
     notifyListeners();
   }
 

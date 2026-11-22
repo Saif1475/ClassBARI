@@ -7,7 +7,9 @@ import 'dart:io';
 import 'package:classbari/screens/ai_chat.dart';
 import 'package:classbari/screens/guardian.dart';
 import 'package:classbari/screens/institute.dart';
+import 'package:classbari/config.dart';
 import 'package:classbari/screens/login.dart';
+import 'package:classbari/screens/settings.dart';
 import 'package:classbari/screens/student.dart';
 import 'package:classbari/screens/teacher.dart';
 import 'package:classbari/store.dart';
@@ -151,10 +153,12 @@ Json sample() => {
 };
 
 /// One app on a small phone (320 wide), in a language and brightness.
-Future<void> open(WidgetTester tester, Widget app, {String code = 'en', bool dark = false, String role = 'student'}) async {
+Future<void> open(WidgetTester tester, Widget app, {String code = 'en', bool dark = false, String role = 'student', double letters = 1}) async {
   tester.view.physicalSize = const Size(320, 640);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
+  tester.platformDispatcher.textScaleFactorTestValue = letters; // Settings → Text size
+  addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
   lang.set(code);
   store.fake(sample(), role);
   await tester.pumpWidget(
@@ -201,7 +205,7 @@ void main() {
   for (final (code, dark) in [('en', false), ('bn', true)]) {
     testWidgets('every tab of the four institute apps opens without a layout error ($code${dark ? ', dark' : ''})', (tester) async {
       for (final (app, role, tabs) in [(const StudentApp(), 'student', 4), (const GuardianApp(), 'guardian', 4), (const TeacherApp(), 'teacher', 4), (const InstituteApp(), 'owner', 4)]) {
-        await open(tester, app, code: code, dark: dark, role: role);
+        await open(tester, app, code: code, dark: dark, role: role, letters: dark ? 1.25 : 1); // the dark run also with the biggest letters (A++)
         for (var i = 0; i < tabs; i++) {
           await tester.tap(find.byType(TabItem).at(i));
           await tester.pumpAndSettle();
@@ -449,5 +453,158 @@ void main() {
     expect(find.text('F = m * a'), findsOneWidget); // the code block
     expect(find.byTooltip('Copy'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  // ---- Settings ----------------------------------------------------------------------------------------------------
+  AiSettings ai({VoidCallback? onDeleteAll, int Function()? chats}) => AiSettings(
+    models: [
+      {'id': 'a', 'label': 'Model A', 'pack': 150},
+      {'id': 'b', 'label': 'Model B', 'pack': 400},
+      {'id': 'c', 'label': 'Model C', 'pack': 800, 'locked': true},
+    ],
+    pack: 400,
+    left: 62,
+    resetsAt: inDays(0),
+    chats: chats ?? () => 3,
+    onDeleteAll: onDeleteAll ?? () {},
+  );
+
+  test('the version shown in Settings is the one in pubspec.yaml', () {
+    expect(File('pubspec.yaml').readAsStringSync(), contains('\nversion: $kVersion+'));
+  });
+
+  for (final (code, dark) in [('en', false), ('bn', true)]) {
+    testWidgets('settings: the whole page, with the AI part, fits a small phone ($code${dark ? ', dark' : ''})', (tester) async {
+      final handle = tester.ensureSemantics();
+      await open(
+        tester,
+        SettingsScreen(details: const [('Name', 'Sadia Akter Chowdhury'), ('Batch', 'Batch A')], note: 'To change these, ask your institute.', ai: ai()),
+        code: code,
+        dark: dark,
+        letters: dark ? 1.25 : 1, // the dark run also with the biggest letters (A++)
+      );
+      await tester.pumpAndSettle();
+      final page = find.byType(Scrollable).hitTestable().first;
+      for (var i = 0; i < 12; i++) {
+        expect(drawingError(tester), isNull, reason: 'after $i scrolls');
+        await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+        await expectLater(tester, meetsGuideline(textContrastGuideline));
+        await tester.drag(page, const Offset(0, -400));
+        await tester.pumpAndSettle();
+      }
+      expect(find.text(t('app.logOut')), findsOneWidget); // the end of the page was reached
+      await tester.pumpWidget(const SizedBox());
+      handle.dispose();
+    });
+  }
+
+  testWidgets('settings: each choice is kept on the phone; clearing the chats asks first', (tester) async {
+    var cleared = 0;
+    await open(
+      tester,
+      SettingsScreen(
+        ai: ai(onDeleteAll: () => cleared++, chats: () => cleared > 0 ? 0 : 3),
+      ),
+    );
+    expect(find.text('Model C'), findsNothing); // a bigger pack's model can't be picked
+    await press(tester, find.text('Model B'));
+    expect(store.aiModel, 'b');
+    await press(tester, find.text('Always Bangla'));
+    await press(tester, find.text('Short'));
+    expect(store.aiPrefs, {'lang': 'bn', 'length': 'short'});
+    await press(tester, find.text('Same as my question'));
+    expect(store.aiPrefs, {'length': 'short'});
+    await press(tester, find.text('Normal'));
+    expect(store.aiPrefs, isEmpty);
+
+    await press(tester, find.text('Delete all chats'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(cleared, 0);
+    await press(tester, find.text('Delete all chats'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete all chats').last); // the button of the "are you sure?" box
+    await tester.pumpAndSettle();
+    expect(cleared, 1);
+    await tester.drag(find.byType(Scrollable).hitTestable().first, const Offset(0, 200)); // the count sits just above the row that went away
+    await tester.pumpAndSettle();
+    expect(find.text('0 chats on this device'), findsOneWidget);
+
+    expect(store.sky, isTrue); // nothing chosen yet: by profile (the sample student is a girl)
+    await press(tester, find.text('Green'));
+    expect(store.sky, isFalse);
+    expect(store.themeMode, 'system');
+    await press(tester, find.text('Dark'));
+    expect(store.themeMode, 'dark');
+    await press(tester, find.text('Same as phone'));
+    expect(store.themeMode, 'system');
+    await press(tester, find.text('A++'));
+    expect(store.textSize, 1.25);
+    await press(tester, find.text('A'));
+    expect(store.textSize, 1);
+    await press(tester, find.text('বাংলা'));
+    await tester.pumpAndSettle();
+    expect(lang.code, 'bn');
+    expect(find.text('সেটিংস'), findsOneWidget); // the page itself changed language
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('settings: a weak or mistyped new password is refused before anything is sent', (tester) async {
+    await open(tester, const Scaffold(body: SingleChildScrollView(child: ChangePassword())));
+    final boxes = find.descendant(of: find.byType(PasswordField), matching: find.byType(TextField));
+    await tester.enterText(boxes.at(0), 'weak');
+    await tester.tap(find.text('Change password'));
+    await tester.pump();
+    expect(find.text(t('auth.passwordRule')), findsOneWidget);
+    await tester.enterText(boxes.at(0), 'Strong#Pass1');
+    await tester.enterText(boxes.at(1), 'Strong#Pass2');
+    await tester.tap(find.text('Change password'));
+    await tester.pump();
+    expect(find.text("The two passwords don't match."), findsOneWidget);
+  });
+
+  testWidgets('settings, staff: a wrong mobile number is refused; a right one is sent as the website sends it', (tester) async {
+    await open(
+      tester,
+      const Scaffold(body: SingleChildScrollView(child: StaffProfile())),
+      role: 'teacher',
+    );
+    expect(find.widgetWithText(TextField, 'Mina Miss'), findsOneWidget);
+    await tester.enterText(find.widgetWithText(TextField, 'Mobile number'), '12345');
+    await tester.tap(find.text('Save'));
+    await tester.pump();
+    expect(find.text(t('teacher.phoneInvalid')), findsOneWidget);
+    expect(sent('updateStaffProfile'), isEmpty);
+    await tester.enterText(find.widgetWithText(TextField, 'Name'), ' Mina Akter ');
+    await tester.enterText(find.widgetWithText(TextField, 'Mobile number'), '01711000002');
+    await tester.tap(find.text('Save'));
+    await tester.pump();
+    expect(sent('updateStaffProfile').single['args'], ['Mina Miss', 'Mina Akter', '01711000002']);
+  });
+
+  testWidgets('the side menu and the AI app\'s gear both open Settings', (tester) async {
+    final handle = tester.ensureSemantics();
+    await open(tester, const StudentApp());
+    await tester.tap(find.byType(Avatar).first); // the person's initial in the top bar opens the menu
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Settings'));
+    await tester.pumpAndSettle();
+    expect(find.text('Sadia Akter Chowdhury'), findsWidgets); // their details, read-only
+    expect(find.text('Look'), findsOneWidget);
+    expect(find.text('Rows per page'), findsNothing); // only the staff apps have long lists
+
+    await tester.pumpWidget(const SizedBox()); // a fresh start: the Settings page above is closed with its app
+    await open(tester, const AiChatApp());
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Chats'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Settings'));
+    await tester.pumpAndSettle();
+    expect(find.text('How the AI answers'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+    handle.dispose();
   });
 }

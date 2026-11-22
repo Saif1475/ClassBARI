@@ -2978,6 +2978,210 @@
   },
   {
    "lang": "en",
+   "key": "aichat.usageLeft",
+   "args": [
+    0,
+    3
+   ],
+   "out": "0% left · refills at 3"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.usageLeft",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "0% left · refills at Batch A"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.usageLeft",
+   "args": [
+    1,
+    3
+   ],
+   "out": "1% left · refills at 3"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.usageLeft",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "1% left · refills at Batch A"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.usageLeft",
+   "args": [
+    2,
+    3
+   ],
+   "out": "2% left · refills at 3"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.usageLeft",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "2% left · refills at Batch A"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.usageLeft",
+   "args": [
+    12,
+    3
+   ],
+   "out": "12% left · refills at 3"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.usageLeft",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "12% left · refills at Batch A"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.usageLeft",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "1234567% left · refills at 3"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.usageLeft",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "1234567% left · refills at Batch A"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.usageLeft",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "Rahim Uddin% left · refills at 3"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.usageLeft",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Rahim Uddin% left · refills at Batch A"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.chatsOnDevice",
+   "args": [
+    0
+   ],
+   "out": "0 chats on this device"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.chatsOnDevice",
+   "args": [
+    0
+   ],
+   "out": "0 chats on this device"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.chatsOnDevice",
+   "args": [
+    1
+   ],
+   "out": "1 chat on this device"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.chatsOnDevice",
+   "args": [
+    1
+   ],
+   "out": "1 chat on this device"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.chatsOnDevice",
+   "args": [
+    2
+   ],
+   "out": "2 chats on this device"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.chatsOnDevice",
+   "args": [
+    2
+   ],
+   "out": "2 chats on this device"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.chatsOnDevice",
+   "args": [
+    12
+   ],
+   "out": "12 chats on this device"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.chatsOnDevice",
+   "args": [
+    12
+   ],
+   "out": "12 chats on this device"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.chatsOnDevice",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 chats on this device"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.chatsOnDevice",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 chats on this device"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.chatsOnDevice",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin chats on this device"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.chatsOnDevice",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin chats on this device"
+  },
+  {
+   "lang": "en",
    "key": "pdfhl.limit",
    "args": [
     0
@@ -5327,6 +5531,102 @@
     "Rahim Uddin"
    ],
    "out": "Rahim Uddin XP"
+  },
+  {
+   "lang": "en",
+   "key": "settings.appVersion",
+   "args": [
+    0
+   ],
+   "out": "Version 0"
+  },
+  {
+   "lang": "en",
+   "key": "settings.appVersion",
+   "args": [
+    0
+   ],
+   "out": "Version 0"
+  },
+  {
+   "lang": "en",
+   "key": "settings.appVersion",
+   "args": [
+    1
+   ],
+   "out": "Version 1"
+  },
+  {
+   "lang": "en",
+   "key": "settings.appVersion",
+   "args": [
+    1
+   ],
+   "out": "Version 1"
+  },
+  {
+   "lang": "en",
+   "key": "settings.appVersion",
+   "args": [
+    2
+   ],
+   "out": "Version 2"
+  },
+  {
+   "lang": "en",
+   "key": "settings.appVersion",
+   "args": [
+    2
+   ],
+   "out": "Version 2"
+  },
+  {
+   "lang": "en",
+   "key": "settings.appVersion",
+   "args": [
+    12
+   ],
+   "out": "Version 12"
+  },
+  {
+   "lang": "en",
+   "key": "settings.appVersion",
+   "args": [
+    12
+   ],
+   "out": "Version 12"
+  },
+  {
+   "lang": "en",
+   "key": "settings.appVersion",
+   "args": [
+    1234567
+   ],
+   "out": "Version 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "settings.appVersion",
+   "args": [
+    1234567
+   ],
+   "out": "Version 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "settings.appVersion",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Version Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "settings.appVersion",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Version Rahim Uddin"
   },
   {
    "lang": "bn",
@@ -8306,6 +8606,210 @@
   },
   {
    "lang": "bn",
+   "key": "aichat.usageLeft",
+   "args": [
+    0,
+    3
+   ],
+   "out": "০% বাকি · 3-এ আবার ভরবে"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.usageLeft",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "০% বাকি · Batch A-এ আবার ভরবে"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.usageLeft",
+   "args": [
+    1,
+    3
+   ],
+   "out": "১% বাকি · 3-এ আবার ভরবে"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.usageLeft",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "১% বাকি · Batch A-এ আবার ভরবে"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.usageLeft",
+   "args": [
+    2,
+    3
+   ],
+   "out": "২% বাকি · 3-এ আবার ভরবে"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.usageLeft",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "২% বাকি · Batch A-এ আবার ভরবে"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.usageLeft",
+   "args": [
+    12,
+    3
+   ],
+   "out": "১২% বাকি · 3-এ আবার ভরবে"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.usageLeft",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "১২% বাকি · Batch A-এ আবার ভরবে"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.usageLeft",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "১২,৩৪,৫৬৭% বাকি · 3-এ আবার ভরবে"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.usageLeft",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "১২,৩৪,৫৬৭% বাকি · Batch A-এ আবার ভরবে"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.usageLeft",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "Rahim Uddin% বাকি · 3-এ আবার ভরবে"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.usageLeft",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Rahim Uddin% বাকি · Batch A-এ আবার ভরবে"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.chatsOnDevice",
+   "args": [
+    0
+   ],
+   "out": "এই ডিভাইসে ০টি চ্যাট"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.chatsOnDevice",
+   "args": [
+    0
+   ],
+   "out": "এই ডিভাইসে ০টি চ্যাট"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.chatsOnDevice",
+   "args": [
+    1
+   ],
+   "out": "এই ডিভাইসে ১টি চ্যাট"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.chatsOnDevice",
+   "args": [
+    1
+   ],
+   "out": "এই ডিভাইসে ১টি চ্যাট"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.chatsOnDevice",
+   "args": [
+    2
+   ],
+   "out": "এই ডিভাইসে ২টি চ্যাট"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.chatsOnDevice",
+   "args": [
+    2
+   ],
+   "out": "এই ডিভাইসে ২টি চ্যাট"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.chatsOnDevice",
+   "args": [
+    12
+   ],
+   "out": "এই ডিভাইসে ১২টি চ্যাট"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.chatsOnDevice",
+   "args": [
+    12
+   ],
+   "out": "এই ডিভাইসে ১২টি চ্যাট"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.chatsOnDevice",
+   "args": [
+    1234567
+   ],
+   "out": "এই ডিভাইসে ১২,৩৪,৫৬৭টি চ্যাট"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.chatsOnDevice",
+   "args": [
+    1234567
+   ],
+   "out": "এই ডিভাইসে ১২,৩৪,৫৬৭টি চ্যাট"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.chatsOnDevice",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "এই ডিভাইসে Rahim Uddinটি চ্যাট"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.chatsOnDevice",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "এই ডিভাইসে Rahim Uddinটি চ্যাট"
+  },
+  {
+   "lang": "bn",
    "key": "pdfhl.limit",
    "args": [
     0
@@ -10655,6 +11159,102 @@
     "Rahim Uddin"
    ],
    "out": "Rahim Uddin XP"
+  },
+  {
+   "lang": "bn",
+   "key": "settings.appVersion",
+   "args": [
+    0
+   ],
+   "out": "সংস্করণ 0"
+  },
+  {
+   "lang": "bn",
+   "key": "settings.appVersion",
+   "args": [
+    0
+   ],
+   "out": "সংস্করণ 0"
+  },
+  {
+   "lang": "bn",
+   "key": "settings.appVersion",
+   "args": [
+    1
+   ],
+   "out": "সংস্করণ 1"
+  },
+  {
+   "lang": "bn",
+   "key": "settings.appVersion",
+   "args": [
+    1
+   ],
+   "out": "সংস্করণ 1"
+  },
+  {
+   "lang": "bn",
+   "key": "settings.appVersion",
+   "args": [
+    2
+   ],
+   "out": "সংস্করণ 2"
+  },
+  {
+   "lang": "bn",
+   "key": "settings.appVersion",
+   "args": [
+    2
+   ],
+   "out": "সংস্করণ 2"
+  },
+  {
+   "lang": "bn",
+   "key": "settings.appVersion",
+   "args": [
+    12
+   ],
+   "out": "সংস্করণ 12"
+  },
+  {
+   "lang": "bn",
+   "key": "settings.appVersion",
+   "args": [
+    12
+   ],
+   "out": "সংস্করণ 12"
+  },
+  {
+   "lang": "bn",
+   "key": "settings.appVersion",
+   "args": [
+    1234567
+   ],
+   "out": "সংস্করণ 1234567"
+  },
+  {
+   "lang": "bn",
+   "key": "settings.appVersion",
+   "args": [
+    1234567
+   ],
+   "out": "সংস্করণ 1234567"
+  },
+  {
+   "lang": "bn",
+   "key": "settings.appVersion",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "সংস্করণ Rahim Uddin"
+  },
+  {
+   "lang": "bn",
+   "key": "settings.appVersion",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "সংস্করণ Rahim Uddin"
   }
  ],
  "now": "2026-11-22T10:30",

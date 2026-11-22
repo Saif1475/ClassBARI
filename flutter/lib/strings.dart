@@ -29,8 +29,10 @@ class Lang extends ChangeNotifier {
   /// The text for `key` with its blanks filled: "{0}" as written, "{0n}" as a number in the reader's digits.
   String text(String key, [List<Object?> args = const []]) {
     final first = args.isEmpty ? null : args[0];
-    final special = first == 0 || first == 1 ? _raw('$key=$first') : null; // "Submit now?" for none, "1 student" for one
-    final found = special ?? _raw(key);
+    // One language for both lookups: Bangla wording must not pick up an English "1 chat" line that Bangla doesn't need.
+    final words = code == 'bn' && _bn.containsKey(key) ? _bn : _en;
+    final special = first == 0 || first == 1 ? words['$key=$first'] : null; // "Submit now?" for none, "1 student" for one
+    final found = special ?? words[key];
     if (found is! String) return key;
     if (args.isEmpty) return found;
     return found.replaceAllMapped(RegExp(r'\{(\d)(n?)\}'), (m) {

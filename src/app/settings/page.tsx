@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/Icon";
 import { Logo, TextSize } from "@/components/Brand";
+import { PasswordInput } from "@/components/PasswordInput";
+import { strongPassword } from "@/components/auth/StepLogin";
 import { PushToggle } from "@/components/PushToggle";
 import { SlidingSegmented } from "@/components/SlidingSegmented";
 import { SeatBillingCard } from "@/components/teacher/SeatBillingCard";
@@ -14,6 +16,7 @@ import { getRole, type Role } from "@/lib/role";
 import { logOut } from "@/lib/logout";
 import { REAL_AUTH } from "@/lib/auth-mode";
 import { isBdMobile } from "@/lib/site";
+import { supabaseLater } from "@/lib/supabase/later";
 import { applyThemeMode, applyTone, readThemeMode, readTone, type ThemeMode, type Tone } from "@/lib/theme";
 
 const HOME: Record<Role, string> = { student: "/student", teacher: "/teacher", institute: "/institute", parent: "/parent" };
@@ -45,6 +48,7 @@ export default function Settings() {
 
         {staff ? <TeacherProfile institute={role === "institute"} /> : role === "student" ? <StudentProfile /> : <GuardianProfile />}
         <Appearance />
+        {REAL_AUTH && <Password />}
         {!staff && <Notifications role={role} />}
         {role === "institute" && <SeatBillingCard totalStudents={lms.students.length} />}
         {staff && <Backup />}
@@ -129,6 +133,40 @@ function Appearance() {
         />
       </div>
     </section>
+  );
+}
+
+/** Change the password while logged in. */
+function Password() {
+  const { t } = useLang();
+  const S = t.settings;
+  const A = t.auth;
+  const [password, setPassword] = useState("");
+  const [again, setAgain] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const change = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!strongPassword(password)) return setMsg({ ok: false, text: A.passwordRule });
+    if (password !== again) return setMsg({ ok: false, text: A.passwordsDiffer });
+    setBusy(true);
+    const { error } = await (await supabaseLater()).auth.updateUser({ password });
+    setBusy(false);
+    // The password they already have is fine; a project set to ask for a fresh login first sends them to "Forgot password?".
+    if (error && error.code !== "same_password") return setMsg({ ok: false, text: error.code === "weak_password" ? A.passwordRule : error.code === "reauthentication_needed" ? S.passwordAgainLogin : A.resendSoon });
+    setPassword("");
+    setAgain("");
+    setMsg({ ok: true, text: S.passwordChanged });
+  };
+  return (
+    <form className={card} onSubmit={change}>
+      <h2 className="text-lg font-bold">{S.password}</h2>
+      <p className="text-sm text-on-surface-variant">{S.passwordHelp} {A.passwordRule}</p>
+      <label className={field}>{A.password}<PasswordInput required autoComplete="new-password" minLength={8} value={password} onChange={(e) => { setPassword(e.target.value); setMsg(null); }} className={box} /></label>
+      <label className={field}>{A.passwordAgain}<PasswordInput required autoComplete="new-password" value={again} onChange={(e) => { setAgain(e.target.value); setMsg(null); }} className={box} /></label>
+      {msg && <p role={msg.ok ? "status" : "alert"} className={`text-sm font-semibold ${msg.ok ? "text-primary" : "text-error"}`}>{msg.text}</p>}
+      <button type="submit" disabled={busy} className="h-12 self-start rounded-full bg-primary px-6 font-bold text-on-primary disabled:opacity-60">{S.changePassword}</button>
+    </form>
   );
 }
 

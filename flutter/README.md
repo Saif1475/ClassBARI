@@ -114,13 +114,21 @@ Email and password login (with the verification code) works without this.
 - `lib/theme.dart`, `lib/ui.dart` — the look (the website's phone look) and the parts every screen is built from
 - `lib/store.dart` — loading data, sending changes, working without internet
 - `lib/views.dart` — the read-only helpers copied from the website (tested against it)
-- `lib/screens/` — `login`, `student`, `lesson`, `pdf`, `guardian`, `teacher`, `institute`, `ai_chat`
+- `lib/screens/` — `login`, `student`, `lesson`, `pdf`, `guardian`, `teacher`, `institute`, `ai_chat`, `settings`
 - `android/app/build.gradle.kts` — the five Android apps (names, ids)
 - `../scripts/app-icons.mjs` — makes the icons
+
+## Settings
+
+Every app has one Settings page (`lib/screens/settings.dart`), opened from the side menu, or from the gear in the AI
+app's chat list. Choices (colours, theme, text size, rows per page, AI model, answer language and length) are kept on
+the phone. Anything Settings offers must also be on the website: `src/app/settings/page.tsx`, and "Chat settings" in
+`src/components/student/AiChat.tsx`. The version shown comes from `kVersion` in `lib/config.dart`; a test keeps it
+the same as `version:` in `pubspec.yaml`.
 
 ## Not done yet
 
 - iPhone builds: the code is shared, but building needs a Mac with Xcode and an Apple developer account.
 - AI chat: photos can be attached; PDF, Word and Excel files (as on the website) cannot yet.
 - Highlighted PDFs are listed by page, not drawn on the page.
-- Notifications.
+- Notifications (so Settings has no notification switches yet; the website's Settings has them).

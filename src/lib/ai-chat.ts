@@ -97,6 +97,18 @@ export const answerIn = (question: string) =>
   /[ঀ-৿]/.test(question)
     ? "The student's latest message is written in Bangla. Answer in Bangla."
     : "The student's latest message is written in English letters. Answer in English, unless it is Bangla typed in English letters: then answer in Bangla.";
+/** A student's own choices for answers (Chat settings): a fixed language and a length. Anything else sent is dropped. */
+export type ChatPrefs = { lang?: "bn" | "en"; length?: "short" | "long" };
+export function chatPrefs(raw: unknown): ChatPrefs {
+  const p = (raw && typeof raw === "object" ? raw : {}) as { lang?: unknown; length?: unknown };
+  return { ...(p.lang === "bn" || p.lang === "en" ? { lang: p.lang } : {}), ...(p.length === "short" || p.length === "long" ? { length: p.length } : {}) };
+}
+/** The lines those choices add for the model. With no fixed language, the language is the question's own (answerIn). */
+export const prefsRule = (prefs: ChatPrefs, question: string) =>
+  [
+    prefs.lang === "bn" ? "The student has chosen Bangla for every answer. Answer in Bangla." : prefs.lang === "en" ? "The student has chosen English for every answer. Answer in English." : answerIn(question),
+    prefs.length === "short" ? "The student wants short answers: at most about 120 words, only the key steps." : prefs.length === "long" ? "The student wants detailed answers: explain every step and add one worked example." : "",
+  ].filter(Boolean).join("\n");
 export const MAX_QUESTION = 1000;
 /** Ends the streamed chat answer; after it comes JSON: the allowance left (%), declined, cut, error. */
 export const TRAILER = "\u001e";
