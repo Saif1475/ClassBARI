@@ -18,7 +18,7 @@ import { quizOrder } from "../src/lib/quiz.ts";
 import { validateStudent } from "../src/lib/site.ts";
 import { streak, totalXp, weekXp } from "../src/lib/xp.ts";
 
-const SECTIONS = ["app", "auth", "aichat", "pdfhl", "pager", "roster", "kid", "tday", "glance", "streak", "settings", "pay", "batch", "doubts", "practice", "skills", "video", "community", "parent", "fees", "teacher", "fee", "att", "income", "money", "admissions", "staffTool", "payroll", "exam", "quiz", "rubric", "merit", "bank", "watch", "routine", "kinds", "common", "centre", "courses"];
+const SECTIONS = ["app", "auth", "aichat", "pdfhl", "pager", "roster", "kid", "tday", "glance", "streak", "settings", "pay", "batch", "doubts", "practice", "skills", "video", "community", "parent", "fees", "teacher", "fee", "att", "income", "money", "admissions", "staffTool", "payroll", "exam", "quiz", "rubric", "merit", "bank", "watch", "routine", "kinds", "common", "centre", "courses", "kp", "hw", "cards", "qr", "shop", "website", "poll", "seats", "meetings", "omr", "buy", "board", "importer", "qimport", "game", "sms"];
 const SINGLE = ["notify.title", "notify.help", "notify.open", "notify.groups.classwork", "notify.groups.results", "notify.groups.notices", "notify.groups.ai", "notify.groups.attendance", "notify.groups.fees", "notify.groups.messages", "notify.groups.work", "common.loading", "common.textSize", "support.link", "landing.privacy", "landing.terms", "teacher.phoneInvalid", "quiz.checking", "parent.noClasses", "login.newHere", "login.create", "login.title", "login.sub", "student.progress", "student.actions.video", "student.actions.pdf", "student.actions.quiz", "student.actions.task", "student.actions.exam", "student.tags.inProgress", "student.tags.new", "student.tags.completed", "teacher.greeting", "student.calendar", "student.calendarSub", "student.all", "student.joinClass", "kinds.live", "kinds.exam", "kinds.due", "student.explore", "student.free", "report.title", "report.attendance", "report.quizzes", "report.assignments", "report.notSubmitted", "report.comment", "report.noComment", "sub.waiting", "student.noQuizYet", "att.date", "teacher.confirmDeleteAnn"];
 
 // ---- words -------------------------------------------------------------------------------------------------------
@@ -61,9 +61,13 @@ const at = (dict, path) => path.split(".").reduce((o, k) => o?.[k], dict);
 
 const fixtures = { words: [] };
 const wrong = [];
+// Groups taken as far as they go: a text with number formatting the Dart templates can't copy is left out (the app
+// must not use those keys) instead of stopping the whole run.
+const PARTIAL = ["dojo", "liveRoom", "printing"];
+const dropped = new Set();
 function words(dict, lang) {
   const out = {};
-  for (const s of SECTIONS) flatten(dict[s], s, lang, out);
+  for (const s of [...SECTIONS, ...PARTIAL]) flatten(dict[s], s, lang, out);
   for (const path of SINGLE) {
     const v = at(dict, path);
     if (typeof v === "function") template(path, v, lang, out);
@@ -80,7 +84,8 @@ function words(dict, lang) {
         } catch {
           continue; // e.g. a name's first word asked of a number
         }
-        if (render(out, key, args, lang) !== want) wrong.push(`${lang} ${key}(${JSON.stringify(args)}): website "${want}", template "${render(out, key, args, lang)}"`);
+        if (render(out, key, args, lang) !== want && PARTIAL.includes(key.split(".")[0])) dropped.add(key);
+        else if (render(out, key, args, lang) !== want) wrong.push(`${lang} ${key}(${JSON.stringify(args)}): website "${want}", template "${render(out, key, args, lang)}"`);
         else fixtures.words.push({ lang, key, args, out: want });
       }
   };
@@ -90,7 +95,7 @@ function words(dict, lang) {
       else if (v && typeof v === "object" && !Array.isArray(v)) walk(v, `${prefix}.${k}`);
     }
   };
-  for (const s of SECTIONS) walk(dict[s], s);
+  for (const s of [...SECTIONS, ...PARTIAL]) walk(dict[s], s);
   for (const path of SINGLE) if (typeof at(dict, path) === "function") check(path, at(dict, path));
   return out;
 }
@@ -136,8 +141,11 @@ Object.assign(fixtures, {
 const dir = new URL("../flutter/", import.meta.url).pathname;
 mkdirSync(`${dir}assets/gen`, { recursive: true });
 const save = (file, value) => writeFileSync(dir + file, JSON.stringify(value, null, 1) + "\n");
-save("assets/gen/en.json", words(en, "en"));
-save("assets/gen/bn.json", words(bn, "bn"));
+const enWords = words(en, "en"), bnWords = words(bn, "bn");
+for (const k of dropped) delete enWords[k], delete bnWords[k];
+fixtures.words = fixtures.words.filter((w) => !dropped.has(w.key));
+save("assets/gen/en.json", enWords);
+save("assets/gen/bn.json", bnWords);
 save("assets/gen/shared.json", { topics: WORDS, weights: WEIGHT, packs: PACKS });
 if (wrong.length) {
   console.error(`These texts can't be turned into templates as they are written:\n  ${wrong.join("\n  ")}`);
