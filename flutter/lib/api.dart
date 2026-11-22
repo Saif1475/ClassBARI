@@ -28,9 +28,9 @@ Future<Map<String, String>> _headers() async {
 }
 
 /// A request to the ClassBARI server as the signed-in person.
-Future<http.Response> api(String path, {Object? body}) async {
+Future<http.Response> api(String path, {Object? body, bool delete = false}) async {
   final uri = Uri.parse('$kApiUrl$path'), headers = await _headers();
-  final sent = body == null ? http.get(uri, headers: headers) : http.post(uri, headers: headers, body: jsonEncode(body));
+  final sent = delete ? http.delete(uri, headers: headers, body: jsonEncode(body)) : (body == null ? http.get(uri, headers: headers) : http.post(uri, headers: headers, body: jsonEncode(body)));
   return sent.timeout(const Duration(seconds: 40));
 }
 

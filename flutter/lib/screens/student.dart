@@ -30,9 +30,9 @@ class StudentApp extends StatelessWidget {
     return Tabs(
       [
         AppTab(Icons.space_dashboard_outlined, t('app.tabs2.dashboard'), const StudentHome()),
-        AppTab(Icons.checklist_rounded, t('app.todo'), const TodoPage(), badge: todoItems().length),
-        AppTab(Icons.insights_rounded, t('app.tabs2.results'), const Progress()),
-        AppTab(Icons.notifications_none_rounded, t('app.notices'), const StudentNotices()),
+        AppTab(Icons.checklist_rounded, t('app.todo'), const TodoPage(), badge: todoItems().length, screen: 'todo'),
+        AppTab(Icons.insights_rounded, t('app.tabs2.results'), const Progress(), screen: 'results'),
+        AppTab(Icons.notifications_none_rounded, t('app.notices'), const StudentNotices(), screen: 'notices'),
       ],
       note: t('settings.askInstitute'),
       details: me == null ? const [] : [(t('settings.yourName'), '${me['name']}'), (t('app.batch'), '${me['batch']}'), (t('app.roll'), '${me['id']}'), (t('app.guardian'), '${me['guardianName'] ?? ''}')],

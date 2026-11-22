@@ -1,0 +1,74 @@
+// Notifications on the phone (Firebase Cloud Messaging). The server decides who gets what (src/lib/notify.ts);
+// this file only lets the server reach this phone, and opens the right tab when a notification is tapped.
+import 'dart:async';
+
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart' show ValueNotifier, debugPrint, kIsWeb;
+
+import 'api.dart';
+import 'strings.dart';
+
+/// The screen a tapped notification asks for (home, todo, results, notices, messages); the tabs listen.
+final openScreen = ValueNotifier<String?>(null);
+
+/// A notification that arrived while the app was open (Android shows none then): the app shows it itself.
+void Function(String title, String body, String screen)? onForeground;
+
+var _ready = false;
+String? _token;
+StreamSubscription<String>? _refresh;
+
+/// At app start. Browser builds (used for screenshots) have no Firebase setup, so they skip this.
+Future<void> startPush() async {
+  if (kIsWeb) return;
+  try {
+    await Firebase.initializeApp(); // reads android/app/google-services.json
+    FirebaseMessaging.onMessageOpenedApp.listen(_open);
+    final first = await FirebaseMessaging.instance.getInitialMessage(); // the app was closed and opened by a tap
+    if (first != null) _open(first);
+    FirebaseMessaging.onMessage.listen((m) => onForeground?.call(m.notification?.title ?? '', m.notification?.body ?? '', '${m.data['screen'] ?? 'home'}'));
+    _ready = true;
+  } catch (e) {
+    debugPrint('notifications are off: $e'); // a build without google-services.json still runs
+  }
+}
+
+void _open(RemoteMessage m) => openScreen.value = '${m.data['screen'] ?? 'home'}';
+
+/// After login: ask to show notifications (Android 13 and newer ask the person once) and tell the server this phone.
+Future<void> registerPush() async {
+  if (!_ready || _token != null) return;
+  try {
+    await FirebaseMessaging.instance.requestPermission();
+    // shortcut: the FCM token calls are marked old in firebase_messaging 17 (new: register() and an installation
+    // id). They still work and the server sends by token; move both together once Google's send-by-id API is checked.
+    // ignore: deprecated_member_use
+    final token = await FirebaseMessaging.instance.getToken();
+    if (token == null) return;
+    await _send(token);
+    // ignore: deprecated_member_use
+    _refresh ??= FirebaseMessaging.instance.onTokenRefresh.listen(_send); // Google changes it now and then
+  } catch (e) {
+    debugPrint('notifications: not registered: $e');
+  }
+}
+
+Future<void> _send(String token) async {
+  final res = await api('/api/notify/device', body: {'token': token, 'lang': lang.code});
+  if (res.statusCode == 200) _token = token;
+}
+
+/// Before logging out: this phone gets nothing more for this person.
+Future<void> forgetPush() async {
+  final token = _token;
+  _token = null;
+  if (token == null) return;
+  try {
+    await api('/api/notify/device', body: {'token': token}, delete: true);
+    // ignore: deprecated_member_use
+    await FirebaseMessaging.instance.deleteToken(); // the next person on this phone gets a new one
+  } catch (_) {
+    // offline: the server forgets it when Google says it is gone
+  }
+}

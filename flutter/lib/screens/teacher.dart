@@ -43,9 +43,9 @@ class TeacherApp extends StatelessWidget {
     (context) => Tabs(
       [
         AppTab(Icons.space_dashboard_outlined, t('app.myBatches'), const TeacherHome()),
-        AppTab(Icons.checklist_rounded, t('app.todo'), const Marking(), badge: toMark().length),
-        AppTab(Icons.chat_bubble_outline_rounded, t('app.tabs2.messages'), const Inbox(), badge: guardianChats().fold<int>(0, (n, c) => n + ((c['unread'] as num?) ?? 0).toInt())),
-        AppTab(Icons.campaign_outlined, t('app.tabs2.notices'), const Notices()),
+        AppTab(Icons.checklist_rounded, t('app.todo'), const Marking(), badge: toMark().length, screen: 'todo'),
+        AppTab(Icons.chat_bubble_outline_rounded, t('app.tabs2.messages'), const Inbox(), badge: guardianChats().fold<int>(0, (n, c) => n + ((c['unread'] as num?) ?? 0).toInt()), screen: 'messages'),
+        AppTab(Icons.campaign_outlined, t('app.tabs2.notices'), const Notices(), screen: 'notices'),
       ],
       details: [
         (t('settings.yourName'), store.staffName),

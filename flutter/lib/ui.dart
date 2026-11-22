@@ -9,6 +9,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'api.dart';
 import 'config.dart';
+import 'push.dart';
 import 'screens/settings.dart';
 import 'store.dart';
 import 'strings.dart';
@@ -665,11 +666,14 @@ class Loading extends StatelessWidget {
 
 /// One tab of an app: its icon, its name, its page, and a count to show on the icon (things waiting).
 class AppTab {
-  const AppTab(this.icon, this.label, this.page, {this.badge = 0});
+  const AppTab(this.icon, this.label, this.page, {this.badge = 0, this.screen});
   final IconData icon;
   final String label;
   final Widget page;
   final int badge;
+
+  /// The notification screen this tab shows (todo, results, notices, messages); a tapped notification opens it.
+  final String? screen;
 }
 
 /// The bottom tabs of an app, with the side menu (the person's details, language, log out).
@@ -690,6 +694,29 @@ class _TabsState extends State<Tabs> {
   var at = 0;
   final opened = {0}; // a tab is built the first time it is opened, then kept
   void open(int i) => setState(() => opened.add(at = i));
+
+  @override
+  void initState() {
+    super.initState();
+    openScreen.addListener(follow);
+    WidgetsBinding.instance.addPostFrameCallback((_) => follow()); // tapped while the app was closed
+  }
+
+  @override
+  void dispose() {
+    openScreen.removeListener(follow);
+    super.dispose();
+  }
+
+  /// A tapped notification: back to the tabs, on the one it is about (the first tab for "home").
+  void follow() {
+    final want = openScreen.value;
+    if (want == null || !mounted) return;
+    openScreen.value = null;
+    Navigator.of(context).popUntil((r) => r.isFirst);
+    final i = widget.tabs.indexWhere((t) => t.screen == want);
+    open(i < 0 ? 0 : i);
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(

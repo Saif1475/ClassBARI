@@ -15,9 +15,9 @@ class GuardianApp extends StatelessWidget {
     return Tabs(
       [
         AppTab(Icons.space_dashboard_outlined, t('app.tabs.home'), const GuardianHome()),
-        AppTab(Icons.insights_rounded, t('app.tabs2.results'), const GuardianResults()),
-        AppTab(Icons.notifications_none_rounded, t('app.notices'), const GuardianNotices()),
-        AppTab(Icons.chat_bubble_outline_rounded, t('app.tabs2.messages'), const GuardianMessages()),
+        AppTab(Icons.insights_rounded, t('app.tabs2.results'), const GuardianResults(), screen: 'results'),
+        AppTab(Icons.notifications_none_rounded, t('app.notices'), const GuardianNotices(), screen: 'notices'),
+        AppTab(Icons.chat_bubble_outline_rounded, t('app.tabs2.messages'), const GuardianMessages(), screen: 'messages'),
       ],
       note: t('settings.askInstitute'),
       details: [(t('settings.yourName'), '${g?['guardianName'] ?? ''}'), (t('settings.phone'), '${g?['phone'] ?? ''}'), for (final k in kids) (t('app.child'), '${k['name']} · ${k['batch']}')],

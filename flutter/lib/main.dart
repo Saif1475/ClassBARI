@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'config.dart';
+import 'push.dart';
 import 'screens/ai_chat.dart';
 import 'screens/guardian.dart';
 import 'screens/institute.dart';
@@ -39,6 +40,8 @@ Future<void> main() async {
   await Supabase.initialize(url: kSupabaseUrl, publishableKey: kSupabaseKey);
   await store.open(await SharedPreferences.getInstance(), deviceLang: PlatformDispatcher.instance.locale.languageCode);
   store.follow();
+  await startPush();
+  store.beforeSignOut = forgetPush;
   runApp(const ClassbariApp());
 }
 
@@ -50,6 +53,7 @@ class ClassbariApp extends StatefulWidget {
 
 class _ClassbariAppState extends State<ClassbariApp> {
   final nav = GlobalKey<NavigatorState>();
+  final messenger = GlobalKey<ScaffoldMessengerState>();
   late final AppLifecycleListener life;
   var wasIn = store.signedIn;
 
@@ -64,12 +68,21 @@ class _ClassbariAppState extends State<ClassbariApp> {
       },
     );
     store.addListener(leftScreens);
+    // A notification while the app is open: shown at the bottom, with a button to go to it.
+    onForeground = (title, body, screen) => messenger.currentState?.showSnackBar(
+      SnackBar(
+        content: Text(body.isEmpty ? title : '$title — $body'),
+        action: SnackBarAction(label: t('notify.open'), onPressed: () => openScreen.value = screen),
+      ),
+    );
   }
 
   /// Logged out (or the login ended) while a lesson or chat was open on top: back to the first screen.
+  /// Logged in with the data loaded: this phone can get notifications now.
   void leftScreens() {
     if (wasIn && !store.signedIn) nav.currentState?.popUntil((r) => r.isFirst);
     wasIn = store.signedIn;
+    if (store.signedIn && store.role != null) registerPush();
   }
 
   @override
@@ -85,6 +98,7 @@ class _ClassbariAppState extends State<ClassbariApp> {
     return MaterialApp(
       title: kAppName,
       navigatorKey: nav,
+      scaffoldMessengerKey: messenger,
       debugShowCheckedModeBanner: false,
       theme: classbariTheme(Brightness.light, sky: sky),
       darkTheme: classbariTheme(Brightness.dark, sky: sky),

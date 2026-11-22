@@ -16,7 +16,7 @@ class InstituteApp extends StatelessWidget {
         AppTab(Icons.space_dashboard_outlined, t('app.tabs2.dashboard'), const Dashboard()),
         AppTab(Icons.payments_outlined, t('app.tabs2.fees'), const Fees(), badge: store.students.where((s) => ((s['feeDue'] as num?) ?? 0) > 0).length),
         AppTab(Icons.groups_outlined, t('app.tabs2.students'), const Students()),
-        AppTab(Icons.campaign_outlined, t('app.tabs2.notices'), const Notices()),
+        AppTab(Icons.campaign_outlined, t('app.tabs2.notices'), const Notices(), screen: 'notices'),
       ],
       details: [(t('settings.yourName'), store.staffName), (t('settings.instituteName'), '${store.state?['instituteName'] ?? ''}')],
     ),

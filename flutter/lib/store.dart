@@ -260,7 +260,11 @@ class Store extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Run before logging out, while still signed in (set by main.dart).
+  Future<void> Function()? beforeSignOut;
+
   Future<void> signOut() async {
+    await beforeSignOut?.call(); // e.g. this phone stops getting notifications (needs the login still)
     _forget();
     notifyListeners();
     await auth.signOut();
