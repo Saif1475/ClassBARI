@@ -2,6 +2,7 @@
 // browser engine so Bangla letters join correctly (simple PDF libraries break conjuncts).
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { INLINE } from "./chat-tools.ts";
 
 export type PdfTurn = { role: "user" | "assistant"; content: string; photo?: boolean };
 export const PDF_TURNS_MAX = 200;
@@ -21,11 +22,11 @@ export function pdfTurns(raw: unknown): PdfTurn[] | null {
 }
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-/** **bold** and `code` inside one line, as the chat screen shows them. */
+/** **bold**, ==highlight== and `code` inside one line, as the chat screen shows them (odd pieces are the marks). */
 const inline = (line: string) =>
   line
-    .split(/(\*\*[^*]+\*\*|`[^`]+`)/)
-    .map((p) => (p.startsWith("**") && p.length > 4 ? `<strong>${esc(p.slice(2, -2))}</strong>` : p.startsWith("`") && p.length > 2 ? `<code>${esc(p.slice(1, -1))}</code>` : esc(p)))
+    .split(INLINE)
+    .map((p, i) => (i % 2 === 0 ? esc(p) : p.startsWith("**") ? `<strong>${esc(p.slice(2, -2))}</strong>` : p.startsWith("==") ? `<mark>${esc(p.slice(2, -2))}</mark>` : `<code>${esc(p.slice(1, -1))}</code>`))
     .join("");
 /** The chat screen's formatting (components/student/AiChat.tsx `Rich`): code blocks, headings, lists, paragraphs. */
 export const richHtml = (text: string) =>
@@ -65,7 +66,7 @@ header b{color:#0b5d3b;font-size:11pt}h1{font-size:17pt;margin:4px 0 0}
 .muted{color:#5f6662;font-size:10pt}section{margin:0 0 12px;padding:10px 12px;border-radius:10px;break-inside:auto}
 .user{background:#e8f3ec}.assistant{border:1px solid #d6dcd8}.who{font-weight:700;font-size:10pt;color:#0b5d3b;margin-bottom:2px}
 p{margin:2px 0}.h{font-weight:700;margin-top:8px}.li{padding-left:1.2em;text-indent:-1.2em}.gap{height:6px}
-code{background:#eef1ef;border-radius:4px;padding:0 3px;font-size:.92em}pre{background:#10231a;color:#fff;border-radius:8px;padding:10px;white-space:pre-wrap;font-size:10pt}
+mark{background:#ffe066;color:inherit;border-radius:3px;padding:0 2px}code{background:#eef1ef;border-radius:4px;padding:0 3px;font-size:.92em}pre{background:#10231a;color:#fff;border-radius:8px;padding:10px;white-space:pre-wrap;font-size:10pt}
 footer{margin-top:16px;color:#5f6662;font-size:9.5pt}</style></head><body>
 <header><b>ClassBARI AI</b><h1>${esc(o.title)}</h1><div class="muted">${esc(o.date)}</div></header>${turns}<footer>${esc(o.note)}</footer></body></html>`;
 }

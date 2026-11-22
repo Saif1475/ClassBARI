@@ -9,26 +9,12 @@ import { admin, aiSpent, loadPart, whoIs } from "./data-server";
 import { dayKey } from "./dates";
 import { aiWindow, costUsd, monthlyBudgetUsd, usedTokens } from "./ai-chat";
 import { readPlatform } from "./platform-server";
-import { aiSeconds, basicHighlights, clean, canSeeInsights, dedupe, geminiAnswer, geminiPdfAsk, isScanned, type Highlight, type PdfPage } from "./pdf-insights";
+import { aiHighlights, aiSeconds, basicHighlights, clean, canSeeInsights, geminiAnswer, geminiPdfAsk, type Highlight, type PdfPage } from "./pdf-insights";
+import { readPages } from "./pdf-mark";
 
 const AI_MAX_BYTES = 20 * 1024 * 1024; // the API takes up to 32 MB per request; base64 adds a third
 const AI_MAX_PAGES = 100;
 export const filePath = (url: string) => url.match(/^\/api\/files\/([0-9a-f-]{36}\/[0-9a-f-]{36})$/)?.[1] ?? null;
-
-async function readPages(pdf: Uint8Array): Promise<PdfPage[]> {
-  // Loaded from node_modules at run time (not bundled): the browser build of pdf.js stays separate.
-  const pdfjs = (await import(/* webpackIgnore: true */ "pdfjs-dist/legacy/build/pdf.mjs")) as typeof import("pdfjs-dist/legacy/build/pdf.mjs");
-  const task = pdfjs.getDocument({ data: pdf.slice(), useSystemFonts: true, disableFontFace: true });
-  const doc = await task.promise;
-  const pages: PdfPage[] = [];
-  for (let n = 1; n <= doc.numPages; n++) {
-    const content = await (await doc.getPage(n)).getTextContent();
-    const text = content.items.map((it) => ("str" in it ? it.str + (it.hasEOL ? "\n" : " ") : "")).join("").replace(/[ \t]+\n/g, "\n").trim();
-    pages.push({ n, scanned: isScanned(text), text });
-  }
-  await task.destroy();
-  return pages;
-}
 
 const AiResult = z.object({
   pages: z.array(
@@ -73,16 +59,17 @@ function pdfReader() {
   return claude ? { by: "claude" as const, model: want && !want.startsWith("gemini") ? want : "claude-opus-5-5" } : null;
 }
 
-async function geminiRead(path: string, model: string, pdf: Uint8Array, note: string, pageCount: number) {
+/** Gemini reads and marks a PDF; `paid` records what it cost (called even when the result is unusable). Also used by the AI chat's Highlight tool. */
+export async function geminiRead(model: string, pdf: Uint8Array, note: string, sec: number, paid: (usage: { input_tokens: number; output_tokens: number }) => Promise<void>) {
   const res = await fetch("https://generativelanguage.googleapis.com/v1beta/interactions", {
     method: "POST",
     headers: { "Content-Type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY!, "Api-Revision": "2026-05-20" },
-    signal: AbortSignal.timeout(aiSeconds(pageCount) * 1000),
+    signal: AbortSignal.timeout(sec * 1000),
     body: JSON.stringify(geminiPdfAsk(model, PROMPT, Buffer.from(pdf).toString("base64"), note)),
   });
   if (!res.ok) throw new Error(`${model}: HTTP ${res.status} ${(await res.text()).slice(0, 200)}`);
   const got = geminiAnswer(await res.json());
-  await recordPdfCost(path, model, got.usage); // paid even if the result is unusable
+  await paid(got.usage); // paid even if the result is unusable
   if (!got.done) throw new Error(`AI gave no result (${got.status})`);
   return AiResult.parse(JSON.parse(got.text));
 }
@@ -96,7 +83,7 @@ async function aiRead(path: string, pdf: Uint8Array, pages: PdfPage[]) {
   const note = scanned.length
     ? `Pages ${scanned.join(", ")} are scans or photos with no text layer: for those pages put the full text you read from the image in "transcript" (original language). For all other pages leave "transcript" empty.`
     : `Every page has a text layer: leave "transcript" empty on all pages.`;
-  if (reader.by === "gemini") return geminiRead(path, reader.model, pdf, note, pages.length);
+  if (reader.by === "gemini") return geminiRead(reader.model, pdf, note, aiSeconds(pages.length), (u) => recordPdfCost(path, reader.model, u));
   const client = new Anthropic();
   const res = await client.beta.messages.parse({
     model: reader.model,
@@ -153,7 +140,7 @@ export async function processPdf(path: string) {
           const page = pages.find((x) => x.n === p.page);
           if (page?.scanned && p.transcript.trim()) page.text = p.transcript.trim(); // the AI read the image
         }
-        highlights = dedupe(ai.pages.flatMap((p) => p.highlights.map((h) => ({ page: p.page, text: h.text.trim(), type: h.type }))).filter((h) => pages.some((x) => x.n === h.page)));
+        highlights = aiHighlights(ai.pages, pages);
         source = "ai";
       }
     } catch (e) {

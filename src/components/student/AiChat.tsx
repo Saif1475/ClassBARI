@@ -5,13 +5,14 @@ import { Icon } from "@/components/Icon";
 import { PayForm } from "@/components/PayForm";
 import { FILE_TEXT_MAX, modelMenu, TRAILER } from "@/lib/ai-chat";
 import { topicOf, TOPICS, type Topic } from "@/lib/chat-topics";
+import { INLINE, type ChatTools } from "@/lib/chat-tools";
 import { SAMPLE_STUDENT, sampleChats } from "@/lib/sample-chats";
 import { REAL_AUTH } from "@/lib/auth-mode";
 import { useLang } from "@/lib/i18n/LanguageProvider";
 import { shrinkImage } from "@/lib/image";
 import { taka } from "@/lib/mock-data";
 
-type Msg = { role: "user" | "assistant"; content: string; photo?: boolean };
+type Msg = { role: "user" | "assistant"; content: string; photo?: boolean; pdf?: true; hl?: { name: string; at: number } }; // pdf: made with Create PDF; hl: a highlighted PDF (its file is kept in memory by `at`)
 type Doc = { name: string; text: string };
 const TOPIC_ICON: Record<Topic, string> = { physics: "⚛️", chemistry: "🧪", math: "📐", biology: "🧬", ict: "💻", english: "🔤", bangla: "অ", business: "📊", plans: "🗓️", other: "💬" };
 /** "Add file" choices: each opens the file picker for just that kind. */
@@ -22,14 +23,14 @@ const FILE_KINDS = [
   { id: "sheet", icon: "📗", tone: "bg-primary-container", accept: ".xlsx,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv" },
   { id: "text", icon: "📄", tone: "bg-tertiary-container", accept: ".txt,.md,.json,.html,.xml,.py,.js,.ts,.c,.cpp,.java,text/*" },
 ] as const;
-type Chat = { id: number; title: string; msgs: Msg[]; file?: Doc; topic?: Topic; at?: number }; // file: its text goes with every question; topic: its folder; at: last used
+type Chat = { id: number; title: string; msgs: Msg[]; file?: Doc; topic?: Topic; at?: number; tools?: ChatTools }; // file: its text goes with every question; topic: its folder; at: last used; tools: from the Tools menu
 type Model = { id: string; label: string; pack: number; locked: boolean; soon: boolean };
 const KEEP = 50; // chats kept on the device (the most recently used)
 
-/** The model's light formatting: fenced code, headings, lists and **bold**; everything else as written. */
+/** The model's light formatting: fenced code, headings, lists, **bold** and ==highlight==; everything else as written. */
 function Rich({ text }: { text: string }) {
-  const bold = (line: string) => line.split(/(\*\*[^*]+\*\*|`[^`]+`)/).map((part, i) =>
-    part.startsWith("**") && part.length > 4 ? <strong key={i}>{part.slice(2, -2)}</strong> : part.startsWith("`") && part.length > 2 ? <code key={i} className="rounded bg-surface-container px-1 text-[0.9em]">{part.slice(1, -1)}</code> : part,
+  const bold = (line: string) => line.split(INLINE).map((part, i) =>
+    i % 2 === 0 ? part : part.startsWith("**") ? <strong key={i}>{part.slice(2, -2)}</strong> : part.startsWith("==") ? <mark key={i} className="ai-mark">{part.slice(2, -2)}</mark> : <code key={i} className="rounded bg-surface-container px-1 text-[0.9em]">{part.slice(1, -1)}</code>,
   );
   return (
     <>
@@ -90,6 +91,12 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
   const [q, setQ] = useState("");
   const [photo, setPhoto] = useState("");
   const [doc, setDoc] = useState<Doc | null>(null); // the file attached to the open chat
+  const [pdfFile, setPdfFile] = useState<File | null>(null); // an attached PDF itself: Highlight sends it to be highlighted
+  const [tools, setTools] = useState<ChatTools>({}); // the open chat's Tools (kept with the chat)
+  const [toolsMenu, setToolsMenu] = useState(false);
+  const toolsBox = useRef<HTMLDivElement>(null);
+  const made = useRef(new Map<number, Blob>()); // highlighted PDFs made in this visit, by their message's `at`
+  const [highlighting, setHighlighting] = useState(false);
   const [reading, setReading] = useState(false);
   const [find, setFind] = useState(""); // search in the side panel
   const [busy, setBusy] = useState(false);
@@ -108,6 +115,7 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
     const away = (e: PointerEvent) => {
       if (!menuBox.current?.contains(e.target as Node)) setMenu(false);
       if (!addBox.current?.contains(e.target as Node)) setAddMenu(false);
+      if (!toolsBox.current?.contains(e.target as Node)) setToolsMenu(false);
     };
     document.addEventListener("pointerdown", away);
     return () => document.removeEventListener("pointerdown", away);
@@ -159,13 +167,22 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
     end.current?.scrollIntoView({ block: "end" }); // in braces: newer browsers return a promise here, which React would take for a cleanup
   }, [msgs.length, msgs[msgs.length - 1]?.content.length]);
 
-  const open = (id: number) => (setOpenId(id), setDoc(chats.find((c) => c.id === id)?.file ?? null), setPhoto(""), setShowList(false), setNote(""));
+  const open = (id: number) => (setOpenId(id), setDoc(chats.find((c) => c.id === id)?.file ?? null), setPdfFile(null), setTools(chats.find((c) => c.id === id)?.tools ?? {}), setPhoto(""), setShowList(false), setNote(""));
+  /** A tool on or off; an open chat remembers it on this device. */
+  const toggleTool = (k: keyof ChatTools) => {
+    const next = { ...tools };
+    if (next[k]) delete next[k];
+    else next[k] = true;
+    setTools(next);
+    if (chat) save(chats.map((c) => (c.id === chat.id ? { ...c, tools: next } : c)));
+  };
+  const toolNames = { pdf: A.toolPdf, highlight: A.toolHighlight };
   const ask = async (question: string, before: Msg[], image: string, id: number, fresh = false) => {
     const asked: Msg[] = [...before, { role: "user", content: question, ...(image ? { photo: true } : {}) }];
     // Its folder: picked from the first question (and file name); a chat still in "Other" moves once a later question shows its topic.
     const old = chats.find((c) => c.id === id);
     const topic = old?.topic && old.topic !== "other" ? old.topic : topicOf(`${question} ${doc?.name ?? ""}`);
-    const now: Chat = { ...(old ?? { id, title: question.slice(0, 60) }), msgs: asked, file: doc ?? undefined, topic, at: Date.now() };
+    const now: Chat = { ...(old ?? { id, title: question.slice(0, 60) }), msgs: asked, file: doc ?? undefined, topic, at: Date.now(), tools };
     let list = [now, ...chats.filter((c) => c.id !== id)]; // most recently used first
     // While an answer streams in, the screen follows every piece, but the chats are written to the device at most
     // once a second (writing all of them for each word made long answers stutter).
@@ -189,7 +206,7 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
       const res = await fetch("/api/ai/assistant", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: asked.map(({ role, content }) => ({ role, content })), ...(image ? { image } : {}), ...(doc ? { file: doc } : {}), ...(chosen ? { model: chosen.id } : {}), ...(fresh ? { fresh: true } : {}), ...(prefs.lang !== "auto" || prefs.length !== "normal" ? { prefs: { ...(prefs.lang !== "auto" ? { lang: prefs.lang } : {}), ...(prefs.length !== "normal" ? { length: prefs.length } : {}) } } : {}) }),
+        body: JSON.stringify({ messages: asked.map(({ role, content }) => ({ role, content })), ...(image ? { image } : {}), ...(doc ? { file: doc } : {}), ...(chosen ? { model: chosen.id } : {}), ...(fresh ? { fresh: true } : {}), ...(tools.pdf || tools.highlight ? { tools } : {}), ...(prefs.lang !== "auto" || prefs.length !== "normal" ? { prefs: { ...(prefs.lang !== "auto" ? { lang: prefs.lang } : {}), ...(prefs.length !== "normal" ? { length: prefs.length } : {}) } } : {}) }),
         signal: stopper.current.signal,
       });
       if (!res.ok || !res.body) {
@@ -208,7 +225,7 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
       }
       const [text, tail] = answer.split(TRAILER);
       const info = (tail ? JSON.parse(tail) : { error: true }) as { left?: number; declined?: boolean; cut?: boolean; error?: boolean };
-      put([...asked, { role: "assistant", content: info.declined ? A.declined : (text.trim() || A.error) + (info.cut ? `\n\n${A.cut}` : "") }]);
+      put([...asked, { role: "assistant", content: info.declined ? A.declined : (text.trim() || A.error) + (info.cut ? `\n\n${A.cut}` : ""), ...(tools.pdf && !info.declined && !info.error && text.trim() ? { pdf: true as const } : {}) }]);
       setNote(info.error ? A.error : typeof info.left === "number" ? A.left(info.left) : "");
       if (typeof info.left === "number") setUsage((u) => (u ? { ...u, left: info.left! } : u));
     } catch {
@@ -222,9 +239,48 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
       setBusy(false);
     }
   };
+  /** Highlight with a PDF attached: the PDF goes to the server and comes back highlighted, as a card to download. */
+  const highlight = async (question: string, file: File, id: number) => {
+    const before = msgs;
+    const asked: Msg[] = [...before, { role: "user", content: question }];
+    const old = chats.find((c) => c.id === id);
+    const topic = old?.topic && old.topic !== "other" ? old.topic : topicOf(`${question} ${file.name}`);
+    let list = [{ ...(old ?? { id, title: question.slice(0, 60) }), msgs: asked, file: doc ?? undefined, topic, at: Date.now(), tools }, ...chats.filter((c) => c.id !== id)];
+    const put = (m: Msg[]) => save((list = list.map((c) => (c.id === id ? { ...c, msgs: m } : c))));
+    const undo = () => (before.length ? put(before) : (save((list = list.filter((c) => c.id !== id))), setOpenId(0)), setQ(question === A.highlightAsk(file.name) ? "" : question), setPdfFile(file));
+    save(list);
+    setOpenId(id);
+    setQ("");
+    setNote("");
+    setPdfFile(null); // highlighted once; its text (if read) stays with the chat for questions
+    setBusy(true);
+    setHighlighting(true);
+    stopper.current = new AbortController();
+    try {
+      const res = await fetch("/api/ai/highlight", { method: "POST", headers: { "Content-Type": "application/pdf" }, body: file, signal: stopper.current.signal });
+      if (!res.ok) {
+        const d = (await res.json().catch(() => ({}))) as { error?: string; resetsAt?: string };
+        setNote(res.status === 429 && d.resetsAt ? A.limit(new Date(d.resetsAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })) : d.error === "paused" ? A.paused : res.status === 404 ? A.soon : res.status === 413 ? A.highlightTooBig : A.highlightFailed);
+        return undo();
+      }
+      const at = Date.now();
+      made.current.set(at, await res.blob());
+      put([...asked, { role: "assistant", content: A.highlightDone(file.name, Number(res.headers.get("X-Highlights")) || 0), hl: { name: file.name, at } }]);
+      const left = Number(res.headers.get("X-Left"));
+      if (res.headers.has("X-Left") && Number.isFinite(left)) (setNote(A.left(left)), setUsage((u) => (u ? { ...u, left } : u)));
+    } catch {
+      undo();
+      if (!stopper.current?.signal.aborted) setNote(A.highlightFailed);
+    } finally {
+      setBusy(false);
+      setHighlighting(false);
+    }
+  };
   const send = (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (q.trim() && !busy) void ask(q.trim(), msgs, photo, openId || Date.now());
+    if (busy) return;
+    if (tools.highlight && pdfFile) void highlight(q.trim() || A.highlightAsk(pdfFile.name), pdfFile, openId || Date.now());
+    else if (q.trim()) void ask(q.trim(), msgs, photo, openId || Date.now());
   };
   const retry = () => {
     const last = msgs.findLast((m) => m.role === "user");
@@ -232,15 +288,22 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
   };
   // The whole chat as a PDF (drawn on the server, the same file the apps get).
   const [pdf, setPdf] = useState<"" | "busy" | "failed">("");
-  const downloadPdf = async () => {
+  const [pdfAt, setPdfAt] = useState(-1); // which answer's card asked (-1: the whole chat)
+  const saveFile = (blob: Blob, name: string) => {
+    const url = URL.createObjectURL(blob);
+    Object.assign(document.createElement("a"), { href: url, download: name }).click();
+    setTimeout(() => URL.revokeObjectURL(url), 10_000);
+  };
+  /** The whole chat, or (Create PDF) one answer with its question, as a PDF. */
+  const downloadPdf = async (at = -1) => {
     if (!chat || pdf === "busy") return;
     setPdf("busy");
-    const res = await fetch("/api/ai/pdf", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: chat.title, lang, messages: chat.msgs.map(({ role, content, photo }) => ({ role, content, ...(photo ? { photo } : {}) })) }) }).catch(() => null);
+    setPdfAt(at);
+    const turns = at < 0 ? chat.msgs : chat.msgs.slice(Math.max(0, at - 1), at + 1);
+    const title = at < 0 ? chat.title : (chat.msgs[at].content.match(/^#\s+(.+)/m)?.[1].replace(/[*=`]/g, "").trim() || turns[0].content).slice(0, 120);
+    const res = await fetch("/api/ai/pdf", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title, lang, messages: turns.map(({ role, content, photo }) => ({ role, content, ...(photo ? { photo } : {}) })) }) }).catch(() => null);
     if (!res?.ok) return setPdf("failed");
-    const url = URL.createObjectURL(await res.blob());
-    const a = Object.assign(document.createElement("a"), { href: url, download: `${chat.title.slice(0, 60) || "chat"}.pdf` });
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 10_000);
+    saveFile(await res.blob(), `${title.slice(0, 60) || "chat"}.pdf`);
     setPdf("");
   };
   const copy = (text: string, i: number) => void navigator.clipboard?.writeText(text).then(() => (setCopied(i), setTimeout(() => setCopied(-1), 1500)));
@@ -248,12 +311,16 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
   const pick = async (file?: File) => {
     if (!file) return;
     setNote("");
+    setPdfFile(null);
     if (file.type.startsWith("image/")) return setPhoto(await shrinkImage(file, 1280, 0.8).catch(() => ""));
     setReading(true);
     try {
       const ext = file.name.toLowerCase().split(".").pop() ?? "";
       let text = "";
-      if (ext === "pdf" || file.type === "application/pdf") text = (await (await import("@/lib/read-document")).readDocument(file, () => {})).text;
+      if (ext === "pdf" || file.type === "application/pdf") {
+        setPdfFile(file); // kept for Highlight
+        text = (await (await import("@/lib/read-document")).readDocument(file, () => {})).text;
+      }
       else if (ext === "docx") text = await (await import("@/lib/sheet")).readDocxText(await file.arrayBuffer());
       else if (ext === "xlsx") text = (await (await import("@/lib/sheet")).readXlsx(await file.arrayBuffer())).map((r) => r.join("\t")).join("\n");
       else if (["txt", "md", "csv", "json", "html", "xml", "py", "js", "ts", "c", "cpp", "java"].includes(ext) || file.type.startsWith("text/")) text = await file.text();
@@ -393,18 +460,30 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
                   <div className="min-w-0 break-words rounded-[6px_18px_18px_18px] border border-outline-variant bg-white px-4 py-3 leading-relaxed shadow-sm">
                     <Rich text={m.content} />
                   </div>
+                  {(m.pdf || m.hl) && !(busy && i === msgs.length - 1) && (
+                    <div className="flex flex-wrap items-center gap-3 rounded-[14px] border border-primary bg-primary-container px-4 py-3">
+                      <span aria-hidden className="text-2xl">{m.hl ? "🖍️" : "📄"}</span>
+                      <span className="flex min-w-0 flex-1 flex-col">
+                        <span className="font-bold">{m.hl ? A.highlightReady : A.pdfReady}</span>
+                        <span className="truncate text-xs text-on-surface-variant">{m.hl ? (made.current.has(m.hl.at) ? m.hl.name : A.highlightGone) : A.pdfReadyHint}</span>
+                      </span>
+                      {m.pdf && <button type="button" disabled={pdf === "busy"} onClick={() => downloadPdf(i)} className="min-h-11 rounded-full bg-primary px-4 text-sm font-bold text-on-primary disabled:opacity-60">{pdf === "busy" && pdfAt === i ? A.pdfMaking : A.pdfCard}</button>}
+                      {m.hl && made.current.has(m.hl.at) && <button type="button" onClick={() => saveFile(made.current.get(m.hl!.at)!, `${m.hl!.name.replace(/\.pdf$/i, "").slice(0, 60)}-highlighted.pdf`)} className="min-h-11 rounded-full bg-primary px-4 text-sm font-bold text-on-primary">{A.downloadHighlighted}</button>}
+                      {m.pdf && pdf === "failed" && pdfAt === i && <span role="alert" className="w-full text-xs text-error">{A.pdfFailed}</span>}
+                    </div>
+                  )}
                   {!(busy && i === msgs.length - 1) && (
                     <span className="flex gap-1">
                       <button type="button" onClick={() => copy(m.content, i)} className="min-h-9 rounded-full px-3 text-xs font-bold text-primary hover:bg-surface-container">{copied === i ? A.copied : A.copy}</button>
                       {i === msgs.length - 1 && <button type="button" onClick={retry} className="min-h-9 rounded-full px-3 text-xs font-bold text-primary hover:bg-surface-container">{A.retry}</button>}
-                      {i === msgs.length - 1 && <button type="button" disabled={pdf === "busy"} onClick={downloadPdf} className="min-h-9 rounded-full px-3 text-xs font-bold text-primary hover:bg-surface-container disabled:opacity-60">{pdf === "busy" ? A.pdfMaking : A.downloadPdf}</button>}
-                      {i === msgs.length - 1 && pdf === "failed" && <span role="alert" className="self-center text-xs text-error">{A.pdfFailed}</span>}
+                      {i === msgs.length - 1 && <button type="button" disabled={pdf === "busy"} onClick={() => downloadPdf()} className="min-h-9 rounded-full px-3 text-xs font-bold text-primary hover:bg-surface-container disabled:opacity-60">{pdf === "busy" && pdfAt < 0 ? A.pdfMaking : A.downloadPdf}</button>}
+                      {i === msgs.length - 1 && pdf === "failed" && pdfAt < 0 && <span role="alert" className="self-center text-xs text-error">{A.pdfFailed}</span>}
                     </span>
                   )}
                 </div>
               ),
             )}
-            {busy && msgs[msgs.length - 1]?.role === "user" && <p role="status" className="text-sm text-on-surface-variant">⏳ {A.thinking}</p>}
+            {busy && msgs[msgs.length - 1]?.role === "user" && <p role="status" className="text-sm text-on-surface-variant">⏳ {highlighting ? A.highlighting : A.thinking}</p>}
             <div ref={end} />
           </div>
         </div>
@@ -419,12 +498,23 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
                 <button type="button" onClick={() => setPhoto("")} className="min-h-9 text-xs font-bold text-error">{A.removePhoto}</button>
               </span>
             )}
-            {(doc || reading) && (
-              <span className="flex items-center gap-2 px-2 text-sm">
-                <span className="min-w-0 truncate rounded-[10px] bg-surface-container px-3 py-2 font-semibold">📄 {reading ? A.fileReading : doc!.name}</span>
-                {doc && <button type="button" onClick={() => setDoc(null)} className="min-h-9 shrink-0 text-xs font-bold text-error">{A.removeFile}</button>}
+            {(tools.pdf || tools.highlight) && (
+              <span className="flex flex-wrap gap-1.5 px-2 pt-1">
+                {(["pdf", "highlight"] as const).filter((k) => tools[k]).map((k) => (
+                  <span key={k} className="inline-flex h-9 items-center gap-1 rounded-full bg-primary-container pl-3 text-sm font-bold">
+                    <span aria-hidden>{k === "pdf" ? "📄" : "🖍️"}</span> {toolNames[k]}
+                    <button type="button" aria-label={A.removeTool(toolNames[k])} title={A.removeTool(toolNames[k])} onClick={() => toggleTool(k)} className="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant">✕</button>
+                  </span>
+                ))}
               </span>
             )}
+            {(doc || pdfFile || reading) && (
+              <span className="flex items-center gap-2 px-2 text-sm">
+                <span className="min-w-0 truncate rounded-[10px] bg-surface-container px-3 py-2 font-semibold">📄 {reading ? A.fileReading : (doc?.name ?? pdfFile!.name)}</span>
+                {(doc || pdfFile) && <button type="button" onClick={() => (setDoc(null), setPdfFile(null))} className="min-h-9 shrink-0 text-xs font-bold text-error">{A.removeFile}</button>}
+              </span>
+            )}
+            {tools.highlight && pdfFile && !reading && <p className="px-3 text-xs text-on-surface-variant">{A.highlightWillSend}</p>}
             <textarea
               value={q}
               onChange={(e) => setQ(e.target.value)}
@@ -469,6 +559,28 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
                 )}
                 <input ref={fileInput} type="file" tabIndex={-1} aria-hidden className="sr-only" onChange={(e) => (void pick(e.target.files?.[0]), (e.target.value = ""))} />
               </div>
+              <div ref={toolsBox} className="shrink-0">
+                <button type="button" aria-haspopup="menu" aria-expanded={toolsMenu} onClick={() => setToolsMenu((v) => !v)} className="flex h-11 items-center gap-2 rounded-full px-3 text-sm font-bold text-primary hover:bg-surface-container">
+                  🧰 <span className="hidden sm:inline">{A.tools}</span>
+                  <span className="sr-only sm:hidden">{A.tools}</span>
+                </button>
+                {toolsMenu && (
+                  <ul role="menu" aria-label={A.tools} className="picker-drop absolute bottom-full left-0 z-30 mb-2 flex w-72 max-w-[calc(100vw-3rem)] flex-col gap-1 rounded-[14px] border border-outline-variant p-2 shadow-[0_18px_50px_rgba(0,32,28,0.22)]">
+                    {(["pdf", "highlight"] as const).map((k) => (
+                      <li key={k} role="none">
+                        <button type="button" role="menuitemcheckbox" aria-checked={!!tools[k]} onClick={() => toggleTool(k)} className="flex min-h-12 w-full items-center gap-3 rounded-[10px] px-3 py-2 text-left text-sm hover:bg-surface-container">
+                          <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-primary-container text-lg">{k === "pdf" ? "📄" : "🖍️"}</span>
+                          <span className="flex min-w-0 flex-1 flex-col">
+                            <span className="font-bold">{toolNames[k]}</span>
+                            <span className="text-xs text-on-surface-variant">{k === "pdf" ? A.toolPdfHint : A.toolHighlightHint}</span>
+                          </span>
+                          <span aria-hidden className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 ${tools[k] ? "border-primary bg-primary text-on-primary" : "border-outline"}`}>{tools[k] ? "✓" : ""}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
               <span className="flex min-w-0 flex-1 items-center justify-end gap-1">
               <div ref={menuBox} className="min-w-0">
                 <button type="button" aria-haspopup="listbox" aria-expanded={menu} aria-label={A.model} onClick={() => setMenu((v) => !v)} className="flex h-11 w-full min-w-0 items-center justify-end gap-1.5 rounded-full px-3 text-sm font-bold text-on-surface-variant hover:bg-surface-container">
@@ -497,7 +609,7 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
               {busy ? (
                 <button type="button" onClick={() => stopper.current?.abort()} className="h-11 rounded-full bg-deep px-5 text-sm font-bold text-white">■ {A.stop}</button>
               ) : (
-                <button type="submit" disabled={!q.trim() || reading} className="h-11 shrink-0 rounded-full bg-primary px-5 text-sm font-bold text-on-primary disabled:opacity-50">{A.send}</button>
+                <button type="submit" disabled={!(q.trim() || (tools.highlight && pdfFile)) || reading} className="h-11 shrink-0 rounded-full bg-primary px-5 text-sm font-bold text-on-primary disabled:opacity-50">{A.send}</button>
               )}
               </span>
             </span>

@@ -32,6 +32,10 @@ export function basicHighlights(pages: PdfPage[]): Highlight[] {
   return dedupe(out);
 }
 
+/** The AI's marks as highlights, on pages the PDF really has, one per (page, text). */
+export const aiHighlights = (ai: { page: number; highlights: { text: string; type: HighlightType }[] }[], pages: PdfPage[]) =>
+  dedupe(ai.flatMap((p) => p.highlights.map((h) => ({ page: p.page, text: h.text.trim(), type: h.type }))).filter((h) => pages.some((x) => x.n === h.page)));
+
 /** One highlight per (page, text); keep AI output tidy too. */
 export function dedupe(list: Highlight[]) {
   const seen = new Set<string>();

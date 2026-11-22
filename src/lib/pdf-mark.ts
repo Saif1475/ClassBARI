@@ -2,7 +2,23 @@
 // PDF app shows, prints, and lets a teacher delete). Text stays selectable; nothing else on the page changes.
 // Where each highlight sits is found from the page's own text (pdf.js), exactly as the server read it.
 import { PDFDocument, PDFName, PDFString, StandardFonts, type PDFContext } from "pdf-lib";
-import { locate, type Highlight, type HighlightType } from "./pdf-insights.ts";
+import { isScanned, locate, type Highlight, type HighlightType, type PdfPage } from "./pdf-insights.ts";
+
+/** Each page's text as pdf.js reads it (the same text the highlights are found in below). */
+export async function readPages(pdf: Uint8Array): Promise<PdfPage[]> {
+  // Loaded from node_modules at run time (not bundled): the browser build of pdf.js stays separate.
+  const pdfjs = (await import(/* webpackIgnore: true */ "pdfjs-dist/legacy/build/pdf.mjs")) as typeof import("pdfjs-dist/legacy/build/pdf.mjs");
+  const task = pdfjs.getDocument({ data: pdf.slice(), useSystemFonts: true, disableFontFace: true });
+  const doc = await task.promise;
+  const pages: PdfPage[] = [];
+  for (let n = 1; n <= doc.numPages; n++) {
+    const content = await (await doc.getPage(n)).getTextContent();
+    const text = content.items.map((it) => ("str" in it ? it.str + (it.hasEOL ? "\n" : " ") : "")).join("").replace(/[ \t]+\n/g, "\n").trim();
+    pages.push({ n, scanned: isScanned(text), text });
+  }
+  await task.destroy();
+  return pages;
+}
 
 /** The highlighter colours (as on the website): yellow terms, green definitions, blue formulas, orange exam points. */
 const RGB: Record<HighlightType, [number, number, number]> = { term: [1, 0.878, 0.4], definition: [0.698, 0.949, 0.733], formula: [0.647, 0.847, 1], exam: [1, 0.753, 0.471] };

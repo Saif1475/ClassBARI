@@ -55,6 +55,12 @@ Future<http.StreamedResponse> apiStream(http.Client client, String path, Object 
   return client.send(req);
 }
 
+/// A PDF file's bytes sent as they are (AI chat → Highlight); the answer is a PDF too. The AI may read for up to 2 minutes.
+Future<http.Response> apiPdf(String path, List<int> bytes) async {
+  final headers = {...await _headers(), 'Content-Type': 'application/pdf'};
+  return http.post(Uri.parse('$kApiUrl$path'), headers: headers, body: bytes).timeout(const Duration(seconds: 150));
+}
+
 /// Stored files (/api/files/…) need a short-lived link; other links are used as they are.
 Future<String?> fileLink(String url) async {
   if (!url.startsWith('/api/files/')) return url.startsWith('/') ? '$kApiUrl$url' : url;
