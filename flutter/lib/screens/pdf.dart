@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../api.dart';
 import '../strings.dart';
@@ -78,6 +79,21 @@ class _PdfScreenState extends State<PdfScreen> {
             ],
           ),
         if (state == 'ready') ...[
+          // The teacher's own PDF with the highlights written into it, opened in the phone's PDF app.
+          Doing(
+            label: t('pdfhl.open'),
+            icon: Icons.auto_awesome,
+            onPressed: () async {
+              try {
+                final res = await api('/api/pdf-insights/pdf?file=${Uri.encodeQueryComponent(widget.file)}&link=1');
+                final url = res.statusCode == 200 ? (jsonDecode(res.body) as Json)['url'] as String? : null;
+                if (url != null && await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication)) return;
+              } catch (_) {
+                // offline: said below
+              }
+              if (context.mounted) toast(context, t('app.noFile'));
+            },
+          ),
           Chips(value: tab, options: const ['highlights', 'chat'], labels: {'highlights': t('pdfhl.list'), 'chat': t('pdfhl.ask')}, onChanged: (v) => setState(() => tab = v)),
           if (tab == 'highlights') Highlights(file: widget.file, data: data!) else AskAi(file: widget.file),
         ],

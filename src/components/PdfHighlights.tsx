@@ -1,5 +1,6 @@
 "use client";
 
+import { createPortal } from "react-dom";
 import { useEffect, useRef, useState } from "react";
 import { REAL_AUTH } from "@/lib/auth-mode";
 import { loadFile } from "@/lib/file-store";
@@ -53,14 +54,16 @@ export function PdfHighlights({ url, title }: { url: string; title: string }) {
   return (
     <>
       <span className="flex flex-wrap gap-2">
-        <button type="button" onClick={() => setOpen("highlights")} className="inline-flex h-11 items-center gap-2 rounded-full bg-primary px-5 text-sm font-bold text-on-primary">
+        {/* The teacher's own PDF with the highlights written into it: opens in the browser's PDF viewer (download, print). */}
+        <a href={`/api/pdf-insights/pdf?file=${encodeURIComponent(url)}`} target="_blank" rel="noopener" className="inline-flex h-11 items-center gap-2 rounded-full bg-primary px-5 text-sm font-bold text-on-primary">
           ✨ {P.open}
-        </button>
+        </a>
         <button type="button" onClick={() => setOpen("chat")} className="inline-flex h-11 items-center gap-2 rounded-full bg-secondary-container px-5 text-sm font-bold text-on-secondary-container">
           🤖 {P.ask}
         </button>
       </span>
-      {open && <Viewer url={url} title={title} data={d} start={open} onClose={() => setOpen("")} />}
+      {/* Opened on the page itself: inside the lesson sheet (which slides in) a full-screen window was squeezed into the sheet. */}
+      {open && createPortal(<Viewer url={url} title={title} data={d} start={open} onClose={() => setOpen("")} />, document.body)}
     </>
   );
 }
@@ -135,16 +138,19 @@ function Viewer({ url, title, data, start, onClose }: { url: string; title: stri
   const hiddenNow = new Set(list.filter((h) => h.hidden).map((h) => h.i));
 
   return (
-    <div role="dialog" aria-modal="true" aria-label={title} className="fixed inset-0 z-50 flex flex-col bg-surface">
-      <header className="flex flex-wrap items-center gap-3 border-b border-outline-variant px-4 py-3">
-        <button type="button" onClick={onClose} className="rounded-full bg-surface-container px-4 py-2 text-sm font-bold">✕ {P.close}</button>
-        <h2 className="flex-1 truncate text-lg font-bold">{title}</h2>
-        <span className="flex flex-wrap gap-2 text-xs font-semibold">
+    <div role="dialog" aria-modal="true" aria-label={title} className="fixed inset-0 z-50 flex flex-col" style={{ background: "var(--color-surface)" }}>{/* solid: the site's "bg-surface" is see-through glass */}
+      <header className="flex flex-col gap-2 border-b border-outline-variant px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+        <div className="flex items-center gap-3">
+          <button type="button" onClick={onClose} aria-label={P.close} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-container text-lg font-bold">✕</button>
+          <h2 className="min-w-0 flex-1 truncate text-lg font-bold">{title}</h2>
+        </div>
+        {/* What each colour means: one scrolling row on phones */}
+        <span className="-mx-4 flex gap-2 overflow-x-auto px-4 text-xs font-semibold">
           {(Object.keys(COLOR) as HighlightType[]).map((k) => (
-            <span key={k} className="rounded-full px-2.5 py-1" style={{ background: COLOR[k] }}>{P.types[k]}</span>
+            <span key={k} className="shrink-0 rounded-full px-2.5 py-1 text-[#1c1c1c]" style={{ background: COLOR[k] }}>{P.types[k]}</span>
           ))}
+          {data.source === "basic" && <span className="shrink-0 self-center text-on-surface-variant">{P.basic}</span>}
         </span>
-        {data.source === "basic" && <span className="text-xs text-on-surface-variant">{P.basic}</span>}
       </header>
       <div className="flex min-h-0 flex-1">
         <div className={`min-w-0 flex-1 overflow-y-auto bg-surface-container p-4 ${tab === "chat" ? "hidden md:block" : ""}`}>

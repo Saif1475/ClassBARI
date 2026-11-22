@@ -924,6 +924,7 @@ const en = {
     groups: { classwork: "Homework and quizzes", results: "Marks and results", notices: "Notices and live classes", ai: "AI pack", attendance: "Attendance", fees: "Fees", messages: "Messages", work: "Questions, meetings, leave and orders" },
     title: "Notifications",
     help: "Choose what you get on this phone and in this browser.",
+    open: "Open",
   },
   merit: {
     title: (t: string) => `Merit list: ${t}`,
@@ -1872,7 +1873,7 @@ const en = {
     topicsHelp: "Your chats are sorted into topics by themselves.",
   },
   pdfhl: {
-    open: "Highlighted version",
+    open: "Highlighted PDF",
     ask: "Ask AI",
     askHelp: "Ask anything about this lesson — in Bangla or English. Answers come from the PDF.",
     askPh: "Your question about this lesson…",
