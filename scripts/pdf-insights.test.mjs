@@ -1,7 +1,7 @@
 // Run: npm test — premium highlighted PDFs: fallback highlights, who may see them, finding them on a page.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { basicHighlights, canSeeInsights, findInText, isScanned } from "../src/lib/pdf-insights.ts";
+import { basicHighlights, canSeeInsights, findInText, geminiAnswer, geminiPdfAsk, isScanned } from "../src/lib/pdf-insights.ts";
 
 const pages = [
   { n: 1, scanned: false, text: "Simple harmonic motion is called SHM. In simple harmonic motion the restoring force is proportional to displacement." },
@@ -35,4 +35,16 @@ test("a highlight is found in the page text, ignoring spaces and case", () => {
 test("a page with no text layer counts as scanned", () => {
   assert.equal(isScanned("  \n 12 "), true);
   assert.equal(isScanned(pages[0].text), false);
+});
+
+test("reading a PDF with Gemini: the PDF itself is sent and not kept; the answer's text and token count are read back", () => {
+  const ask = geminiPdfAsk("gemini-3-flash-preview", "rules", "QUJD", "Pages 2 are scans");
+  assert.deepEqual(ask.input, [{ type: "document", data: "QUJD", mime_type: "application/pdf" }, { type: "text", text: "Pages 2 are scans" }]);
+  assert.equal(ask.store, false); // a teacher's PDF is not left on Google's side
+  assert.equal(ask.system_instruction, "rules");
+  assert.deepEqual(ask.response_format.schema.properties.pages.items.properties.highlights.items.properties.type.enum, ["term", "definition", "formula", "exam"]);
+  const ok = geminiAnswer({ status: "completed", steps: [{ type: "thought" }, { type: "model_output", content: [{ type: "text", text: '{"pages":' }, { type: "text", text: "[]}" }] }], usage: { total_input_tokens: 900, total_output_tokens: 120, total_thought_tokens: 300 } });
+  assert.deepEqual(ok, { text: '{"pages":[]}', done: true, status: "completed", usage: { input_tokens: 900, output_tokens: 420 } }); // thinking is paid as output
+  assert.equal(geminiAnswer({ status: "incomplete", steps: [{ type: "model_output", content: [{ type: "text", text: '{"pa' }] }] }).done, false); // cut short: not used
+  assert.deepEqual(geminiAnswer({}), { text: "", done: false, status: "no status", usage: { input_tokens: 0, output_tokens: 0 } });
 });

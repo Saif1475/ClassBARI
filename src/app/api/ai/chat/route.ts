@@ -1,4 +1,4 @@
-import { basicAnswer, cleanHistory, costUsd, packPlan, usedTokens } from "@/lib/ai-chat";
+import { basicAnswer, cleanHistory, costUsd, MODELS, packPlan, usedTokens } from "@/lib/ai-chat";
 import { allowance } from "@/lib/ai-allowance";
 import { modelReady, streamChat } from "@/lib/ai-providers";
 import { REAL_AUTH } from "@/lib/auth-mode";
@@ -41,8 +41,9 @@ export async function POST(request: Request) {
   const left = (tokens: number, cost = 0) => a.left(tokens, cost); // % of this window's allowance
 
   const question = history[history.length - 1].content;
-  // Students: the first model of their pack that is set up. Staff previews: AI_CHAT_MODEL.
-  const model = plan ? plan.models.find(modelReady) : [process.env.AI_CHAT_MODEL || "claude-opus-5-5"].find(modelReady);
+  // Students: the first model of their pack that is set up.
+  // Staff previews: AI_CHAT_MODEL or Claude Opus if its key is set, else the strongest model that is.
+  const model = plan ? plan.models.find(modelReady) : [process.env.AI_CHAT_MODEL || "claude-opus-5-5", ...Object.keys(MODELS).sort((a, b) => MODELS[b].price[1] - MODELS[a].price[1])].find(modelReady);
   if (!model) {
     await record(0, 0); // no AI used: costs nothing, uses no allowance
     return Response.json({ answer: basicAnswer(pages, question), source: "basic", left: left(0) });

@@ -1,13 +1,14 @@
 // Server only: turns each PDF a teacher uploads in a premium institute into its highlighted version, once.
 // ① read the text page by page (free, on our server); ② the AI marks key terms, definitions, formulas and exam
-// points and reads scanned / Bangla pages from their images; without an AI key, a non-AI fallback marks them.
+// points and reads scanned / Bangla pages from their images (Claude, or Gemini when only a Gemini key is set);
+// without an AI key, a non-AI fallback marks them.
 import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { z } from "zod";
 import { admin, aiSpent, loadPart, whoIs } from "./data-server";
 import { dayKey } from "./dates";
 import { aiWindow, costUsd, usedTokens } from "./ai-chat";
-import { basicHighlights, canSeeInsights, dedupe, isScanned, type Highlight, type PdfPage } from "./pdf-insights";
+import { basicHighlights, canSeeInsights, dedupe, geminiAnswer, geminiPdfAsk, isScanned, type Highlight, type PdfPage } from "./pdf-insights";
 
 const AI_MAX_BYTES = 20 * 1024 * 1024; // the API takes up to 32 MB per request; base64 adds a third
 const AI_MAX_PAGES = 100;
@@ -57,14 +58,41 @@ async function recordPdfCost(path: string, model: string, usage: Parameters<type
   await db.from("ai_usage").upsert({ user_key: key, day, slot, institute_id: institute, questions: (data?.questions ?? 0) + 1, cost_usd: Number(data?.cost_usd ?? 0) + costUsd(model, usage), tokens: Number(data?.tokens ?? 0) + usedTokens(usage) });
 }
 
+/** Which AI reads PDFs: AI_PDF_MODEL if its key is set, else Claude, else Gemini; null when there is no AI key at all. */
+function pdfReader() {
+  const want = process.env.AI_PDF_MODEL || "";
+  const gemini = !!process.env.GEMINI_API_KEY, claude = !!process.env.ANTHROPIC_API_KEY;
+  if (gemini && (want.startsWith("gemini") || !claude)) return { by: "gemini" as const, model: want.startsWith("gemini") ? want : "gemini-3-flash-preview" };
+  return claude ? { by: "claude" as const, model: want && !want.startsWith("gemini") ? want : "claude-opus-5-5" } : null;
+}
+
+async function geminiRead(path: string, model: string, pdf: Uint8Array, note: string) {
+  const res = await fetch("https://generativelanguage.googleapis.com/v1beta/interactions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY!, "Api-Revision": "2026-05-20" },
+    signal: AbortSignal.timeout(300_000),
+    body: JSON.stringify(geminiPdfAsk(model, PROMPT, Buffer.from(pdf).toString("base64"), note)),
+  });
+  if (!res.ok) throw new Error(`${model}: HTTP ${res.status} ${(await res.text()).slice(0, 200)}`);
+  const got = geminiAnswer(await res.json());
+  await recordPdfCost(path, model, got.usage); // paid even if the result is unusable
+  if (!got.done) throw new Error(`AI gave no result (${got.status})`);
+  return AiResult.parse(JSON.parse(got.text));
+}
+
 async function aiRead(path: string, pdf: Uint8Array, pages: PdfPage[]) {
-  if (!process.env.ANTHROPIC_API_KEY || pdf.byteLength > AI_MAX_BYTES || pages.length > AI_MAX_PAGES) return null;
+  const reader = pdfReader();
+  if (!reader || pdf.byteLength > AI_MAX_BYTES || pages.length > AI_MAX_PAGES) return null;
   // The monthly AI budget covers highlighting too: over it, PDFs get the basic highlights.
   if ((await aiSpent(`${aiWindow().day.slice(0, 7)}-01`)) >= Number(process.env.AI_MONTHLY_BUDGET_USD || 30)) return null;
   const scanned = pages.filter((p) => p.scanned).map((p) => p.n);
+  const note = scanned.length
+    ? `Pages ${scanned.join(", ")} are scans or photos with no text layer: for those pages put the full text you read from the image in "transcript" (original language). For all other pages leave "transcript" empty.`
+    : `Every page has a text layer: leave "transcript" empty on all pages.`;
+  if (reader.by === "gemini") return geminiRead(path, reader.model, pdf, note);
   const client = new Anthropic();
   const res = await client.beta.messages.parse({
-    model: process.env.AI_PDF_MODEL || "claude-opus-5-5",
+    model: reader.model,
     max_tokens: 32000,
     betas: ["server-side-fallback-2026-07-01"],
     fallbacks: "default", // a declined request is retried on another model inside the same call
@@ -75,17 +103,12 @@ async function aiRead(path: string, pdf: Uint8Array, pages: PdfPage[]) {
         role: "user",
         content: [
           { type: "document", source: { type: "base64", media_type: "application/pdf", data: Buffer.from(pdf).toString("base64") } },
-          {
-            type: "text",
-            text: scanned.length
-              ? `Pages ${scanned.join(", ")} are scans or photos with no text layer: for those pages put the full text you read from the image in "transcript" (original language). For all other pages leave "transcript" empty.`
-              : `Every page has a text layer: leave "transcript" empty on all pages.`,
-          },
+          { type: "text", text: note },
         ],
       },
     ],
   });
-  await recordPdfCost(path, process.env.AI_PDF_MODEL || "claude-opus-5-5", res.usage); // paid even if the result is unusable
+  await recordPdfCost(path, reader.model, res.usage); // paid even if the result is unusable
   if (res.stop_reason === "refusal" || !res.parsed_output) throw new Error(`AI gave no result (${res.stop_reason})`);
   return res.parsed_output;
 }
