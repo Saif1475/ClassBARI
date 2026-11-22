@@ -2978,6 +2978,306 @@
   },
   {
    "lang": "en",
+   "key": "aichat.removeTool",
+   "args": [
+    0
+   ],
+   "out": "Remove 0"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.removeTool",
+   "args": [
+    0
+   ],
+   "out": "Remove 0"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.removeTool",
+   "args": [
+    1
+   ],
+   "out": "Remove 1"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.removeTool",
+   "args": [
+    1
+   ],
+   "out": "Remove 1"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.removeTool",
+   "args": [
+    2
+   ],
+   "out": "Remove 2"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.removeTool",
+   "args": [
+    2
+   ],
+   "out": "Remove 2"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.removeTool",
+   "args": [
+    12
+   ],
+   "out": "Remove 12"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.removeTool",
+   "args": [
+    12
+   ],
+   "out": "Remove 12"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.removeTool",
+   "args": [
+    1234567
+   ],
+   "out": "Remove 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.removeTool",
+   "args": [
+    1234567
+   ],
+   "out": "Remove 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.removeTool",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Remove Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.removeTool",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Remove Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.highlightAsk",
+   "args": [
+    0
+   ],
+   "out": "Highlight 0"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.highlightAsk",
+   "args": [
+    0
+   ],
+   "out": "Highlight 0"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.highlightAsk",
+   "args": [
+    1
+   ],
+   "out": "Highlight 1"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.highlightAsk",
+   "args": [
+    1
+   ],
+   "out": "Highlight 1"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.highlightAsk",
+   "args": [
+    2
+   ],
+   "out": "Highlight 2"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.highlightAsk",
+   "args": [
+    2
+   ],
+   "out": "Highlight 2"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.highlightAsk",
+   "args": [
+    12
+   ],
+   "out": "Highlight 12"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.highlightAsk",
+   "args": [
+    12
+   ],
+   "out": "Highlight 12"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.highlightAsk",
+   "args": [
+    1234567
+   ],
+   "out": "Highlight 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.highlightAsk",
+   "args": [
+    1234567
+   ],
+   "out": "Highlight 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.highlightAsk",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Highlight Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.highlightAsk",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Highlight Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.highlightDone",
+   "args": [
+    0,
+    3
+   ],
+   "out": "I highlighted 0: 3 marks for key terms, definitions, formulas and exam points."
+  },
+  {
+   "lang": "en",
+   "key": "aichat.highlightDone",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "I highlighted 0: Batch A marks for key terms, definitions, formulas and exam points."
+  },
+  {
+   "lang": "en",
+   "key": "aichat.highlightDone",
+   "args": [
+    1,
+    3
+   ],
+   "out": "I highlighted 1: 3 marks for key terms, definitions, formulas and exam points."
+  },
+  {
+   "lang": "en",
+   "key": "aichat.highlightDone",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "I highlighted 1: Batch A marks for key terms, definitions, formulas and exam points."
+  },
+  {
+   "lang": "en",
+   "key": "aichat.highlightDone",
+   "args": [
+    2,
+    3
+   ],
+   "out": "I highlighted 2: 3 marks for key terms, definitions, formulas and exam points."
+  },
+  {
+   "lang": "en",
+   "key": "aichat.highlightDone",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "I highlighted 2: Batch A marks for key terms, definitions, formulas and exam points."
+  },
+  {
+   "lang": "en",
+   "key": "aichat.highlightDone",
+   "args": [
+    12,
+    3
+   ],
+   "out": "I highlighted 12: 3 marks for key terms, definitions, formulas and exam points."
+  },
+  {
+   "lang": "en",
+   "key": "aichat.highlightDone",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "I highlighted 12: Batch A marks for key terms, definitions, formulas and exam points."
+  },
+  {
+   "lang": "en",
+   "key": "aichat.highlightDone",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "I highlighted 1234567: 3 marks for key terms, definitions, formulas and exam points."
+  },
+  {
+   "lang": "en",
+   "key": "aichat.highlightDone",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "I highlighted 1234567: Batch A marks for key terms, definitions, formulas and exam points."
+  },
+  {
+   "lang": "en",
+   "key": "aichat.highlightDone",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "I highlighted Rahim Uddin: 3 marks for key terms, definitions, formulas and exam points."
+  },
+  {
+   "lang": "en",
+   "key": "aichat.highlightDone",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "I highlighted Rahim Uddin: Batch A marks for key terms, definitions, formulas and exam points."
+  },
+  {
+   "lang": "en",
    "key": "aichat.usageLeft",
    "args": [
     0,
@@ -25403,6 +25703,306 @@
     "Rahim Uddin"
    ],
    "out": "এই ১২ ঘণ্টার বরাদ্দ শেষ। Rahim Uddin-এ আবার চালু হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.removeTool",
+   "args": [
+    0
+   ],
+   "out": "0 সরাও"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.removeTool",
+   "args": [
+    0
+   ],
+   "out": "0 সরাও"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.removeTool",
+   "args": [
+    1
+   ],
+   "out": "1 সরাও"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.removeTool",
+   "args": [
+    1
+   ],
+   "out": "1 সরাও"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.removeTool",
+   "args": [
+    2
+   ],
+   "out": "2 সরাও"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.removeTool",
+   "args": [
+    2
+   ],
+   "out": "2 সরাও"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.removeTool",
+   "args": [
+    12
+   ],
+   "out": "12 সরাও"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.removeTool",
+   "args": [
+    12
+   ],
+   "out": "12 সরাও"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.removeTool",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 সরাও"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.removeTool",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 সরাও"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.removeTool",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin সরাও"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.removeTool",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin সরাও"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.highlightAsk",
+   "args": [
+    0
+   ],
+   "out": "0 হাইলাইট করো"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.highlightAsk",
+   "args": [
+    0
+   ],
+   "out": "0 হাইলাইট করো"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.highlightAsk",
+   "args": [
+    1
+   ],
+   "out": "1 হাইলাইট করো"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.highlightAsk",
+   "args": [
+    1
+   ],
+   "out": "1 হাইলাইট করো"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.highlightAsk",
+   "args": [
+    2
+   ],
+   "out": "2 হাইলাইট করো"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.highlightAsk",
+   "args": [
+    2
+   ],
+   "out": "2 হাইলাইট করো"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.highlightAsk",
+   "args": [
+    12
+   ],
+   "out": "12 হাইলাইট করো"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.highlightAsk",
+   "args": [
+    12
+   ],
+   "out": "12 হাইলাইট করো"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.highlightAsk",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 হাইলাইট করো"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.highlightAsk",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 হাইলাইট করো"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.highlightAsk",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin হাইলাইট করো"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.highlightAsk",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin হাইলাইট করো"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.highlightDone",
+   "args": [
+    0,
+    3
+   ],
+   "out": "0 হাইলাইট করে দিয়েছি: মূল শব্দ, সংজ্ঞা, সূত্র ও পরীক্ষার অংশে ৩টি দাগ।"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.highlightDone",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "0 হাইলাইট করে দিয়েছি: মূল শব্দ, সংজ্ঞা, সূত্র ও পরীক্ষার অংশে Batch Aটি দাগ।"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.highlightDone",
+   "args": [
+    1,
+    3
+   ],
+   "out": "1 হাইলাইট করে দিয়েছি: মূল শব্দ, সংজ্ঞা, সূত্র ও পরীক্ষার অংশে ৩টি দাগ।"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.highlightDone",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "1 হাইলাইট করে দিয়েছি: মূল শব্দ, সংজ্ঞা, সূত্র ও পরীক্ষার অংশে Batch Aটি দাগ।"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.highlightDone",
+   "args": [
+    2,
+    3
+   ],
+   "out": "2 হাইলাইট করে দিয়েছি: মূল শব্দ, সংজ্ঞা, সূত্র ও পরীক্ষার অংশে ৩টি দাগ।"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.highlightDone",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "2 হাইলাইট করে দিয়েছি: মূল শব্দ, সংজ্ঞা, সূত্র ও পরীক্ষার অংশে Batch Aটি দাগ।"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.highlightDone",
+   "args": [
+    12,
+    3
+   ],
+   "out": "12 হাইলাইট করে দিয়েছি: মূল শব্দ, সংজ্ঞা, সূত্র ও পরীক্ষার অংশে ৩টি দাগ।"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.highlightDone",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "12 হাইলাইট করে দিয়েছি: মূল শব্দ, সংজ্ঞা, সূত্র ও পরীক্ষার অংশে Batch Aটি দাগ।"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.highlightDone",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "1234567 হাইলাইট করে দিয়েছি: মূল শব্দ, সংজ্ঞা, সূত্র ও পরীক্ষার অংশে ৩টি দাগ।"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.highlightDone",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "1234567 হাইলাইট করে দিয়েছি: মূল শব্দ, সংজ্ঞা, সূত্র ও পরীক্ষার অংশে Batch Aটি দাগ।"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.highlightDone",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "Rahim Uddin হাইলাইট করে দিয়েছি: মূল শব্দ, সংজ্ঞা, সূত্র ও পরীক্ষার অংশে ৩টি দাগ।"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.highlightDone",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Rahim Uddin হাইলাইট করে দিয়েছি: মূল শব্দ, সংজ্ঞা, সূত্র ও পরীক্ষার অংশে Batch Aটি দাগ।"
   },
   {
    "lang": "bn",

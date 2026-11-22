@@ -47,3 +47,18 @@ test("text size slider on the Settings page: any size from 90% to 130%, remember
   await page.reload();
   await expect(page.getByRole("slider", { name: "Text size" })).toHaveValue("130");
 });
+
+test("glass slider on the Settings page: Medium for a new visitor, Off is the flat look, remembered after reload", async ({ page }) => {
+  await loginAs(page, "parent");
+  await page.goto("/settings");
+  const glass = page.getByRole("slider", { name: "Glass effect" });
+  await expect(glass).toHaveValue("2");
+  await expect(page.locator("html")).toHaveAttribute("data-glass", "2");
+  await glass.fill("0");
+  await expect(page.locator("html")).not.toHaveAttribute("data-glass", /./);
+  await page.reload();
+  await expect(glass).toHaveValue("0");
+  await expect(page.locator("html")).not.toHaveAttribute("data-glass", /./);
+  await glass.fill("3");
+  await expect.poll(() => page.evaluate(() => document.documentElement.style.getPropertyValue("--glass"))).toBe("1");
+});

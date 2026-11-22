@@ -432,6 +432,17 @@ html.dark .glass-card {
 html.dark .answer-key {
   color: #e6efec;
 }
+/* AI chat: ==text== from the Highlight tool, a highlighter-pen yellow that stays readable in the dark. */
+.ai-mark {
+  background: #ffe066;
+  color: inherit;
+  border-radius: 3px;
+  padding: 0 2px;
+}
+html.dark .ai-mark {
+  background: #7a6200;
+  color: #fff6d6;
+}
 html.dark .bg-\[\#eef7f4\] {
   background-color: rgba(34, 38, 41, 0.75);
 }
@@ -674,4 +685,106 @@ html.dark :is(section, div).bg-primary {
 /* The "loading" mark of a dashboard that is still fetching its data: only shown if the wait passes half a second. */
 .wait-in {
   animation: ios-fade 0.2s 0.5s both;
+}
+
+/* ---------------------------------- Glass effect (Settings → Glass effect) ----------------------------------
+   <html data-glass="1|2|3" style="--glass: 0.33|0.67|1"> (src/lib/theme.ts); no data-glass = Off, exactly the look above.
+   A soft gradient with a few large blurred colour blobs behind everything, and cards, bars and dialogs that let more
+   of it through, with a stronger frost. Screen only: printed pages (receipts, report cards) stay plain. The blobs are
+   pastel (light) or deep (dark) so text on the page keeps its AA contrast. */
+:root {
+  --blob-a: #9fe3bb; /* mint */
+  --blob-b: #9adfd6; /* teal */
+  --blob-c: #ffe2a8; /* warm sand */
+}
+html[data-tone="sky"] {
+  --blob-a: #b9defa;
+  --blob-b: #ffcfe0;
+  --blob-c: #dfe3ff;
+}
+html.dark {
+  --blob-a: #1c4a38;
+  --blob-b: #0f3b3c;
+  --blob-c: #3a3415;
+}
+html.dark[data-tone="sky"] {
+  --blob-a: #144a6e;
+  --blob-b: #5c2c3e;
+  --blob-c: #1f2a4a;
+}
+@media screen {
+  /* The backdrop is one fixed layer, so scrolling never repaints it (also on phones). */
+  html[data-glass] body {
+    background: transparent;
+  }
+  html[data-glass] body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(circle 55vmax at 6% 4%, color-mix(in srgb, var(--blob-a) calc(var(--glass) * 60%), transparent), transparent 70%),
+      radial-gradient(circle 48vmax at 98% 16%, color-mix(in srgb, var(--blob-b) calc(var(--glass) * 55%), transparent), transparent 70%),
+      radial-gradient(circle 55vmax at 80% 102%, color-mix(in srgb, var(--blob-c) calc(var(--glass) * 45%), transparent), transparent 70%),
+      radial-gradient(circle 42vmax at 8% 92%, color-mix(in srgb, var(--blob-b) calc(var(--glass) * 35%), transparent), transparent 70%),
+      radial-gradient(at 12% 10%, var(--glow-a) 0px, transparent 50%),
+      radial-gradient(at 88% 14%, var(--glow-b) 0px, transparent 48%),
+      radial-gradient(at 18% 82%, var(--glow-c) 0px, transparent 50%),
+      var(--color-surface);
+  }
+  html.dark[data-glass] {
+    --glow-a: transparent; /* dark mode had no glow: only the deep blobs */
+    --glow-b: transparent;
+    --glow-c: transparent;
+  }
+
+  /* Cards: more see-through and a stronger frost. */
+  html[data-glass] .bg-white,
+  html[data-glass] .bg-white\/80 {
+    background-color: rgb(255 255 255 / calc(0.62 - var(--glass) * 0.2)) !important;
+    backdrop-filter: blur(calc(24px + var(--glass) * 16px)) saturate(calc(185% + var(--glass) * 15%));
+    -webkit-backdrop-filter: blur(calc(24px + var(--glass) * 16px)) saturate(calc(185% + var(--glass) * 15%));
+    border-color: rgb(255 255 255 / 0.85);
+  }
+  html.dark[data-glass] .bg-white,
+  html.dark[data-glass] .bg-white\/80 {
+    background-color: rgb(27 30 32 / calc(0.66 - var(--glass) * 0.2)) !important;
+    border-color: rgb(255 255 255 / 0.1);
+  }
+
+  /* Bars (headers, the phone's bottom bar, side menus) and dialogs: frosted on every screen size. These are a few
+     large surfaces, so the blur stays smooth on phones too (cards there are see-through without blur). */
+  html[data-glass] :is(.glass-header, [class*="backdrop-blur"]:not(.fixed.inset-0, .glass-well)) {
+    backdrop-filter: blur(calc(20px + var(--glass) * 16px)) saturate(190%);
+    -webkit-backdrop-filter: blur(calc(20px + var(--glass) * 16px)) saturate(190%);
+  }
+  html[data-glass] :is(.glass-header, .bg-surface-container[class*="backdrop-blur"]:not(.glass-well), .bg-surface\/90) {
+    background-color: color-mix(in srgb, var(--color-surface) calc(80% - var(--glass) * 30%), transparent) !important;
+  }
+  html[data-glass] .glass-dark {
+    background-color: color-mix(in srgb, var(--rail) calc(100% - var(--glass) * 8%), transparent); /* white text on it stays readable */
+    backdrop-filter: blur(calc(24px + var(--glass) * 16px)) saturate(190%);
+    -webkit-backdrop-filter: blur(calc(24px + var(--glass) * 16px)) saturate(190%);
+  }
+  html[data-glass] :is([role="dialog"], .fixed.inset-0 > *).bg-white {
+    background-color: rgb(255 255 255 / calc(0.9 - var(--glass) * 0.12)) !important;
+    backdrop-filter: blur(calc(20px + var(--glass) * 20px)) saturate(180%);
+    -webkit-backdrop-filter: blur(calc(20px + var(--glass) * 20px)) saturate(180%);
+  }
+  html.dark[data-glass] :is([role="dialog"], .fixed.inset-0 > *).bg-white {
+    background-color: rgb(27 30 32 / calc(0.92 - var(--glass) * 0.12)) !important;
+  }
+}
+@media screen and (max-width: 767px) {
+  html[data-glass] .bg-white:not(:is([role="dialog"], .fixed.inset-0 > *)),
+  html[data-glass] .bg-white\/80 {
+    background-color: rgb(255 255 255 / calc(0.92 - var(--glass) * 0.27)) !important;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  html.dark[data-glass] .bg-white:not(:is([role="dialog"], .fixed.inset-0 > *)),
+  html.dark[data-glass] .bg-white\/80 {
+    background-color: rgb(25 28 30 / calc(0.94 - var(--glass) * 0.27)) !important;
+  }
 }

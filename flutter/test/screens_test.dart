@@ -4,6 +4,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:classbari/api.dart';
 import 'package:classbari/screens/ai_chat.dart';
 import 'package:classbari/screens/guardian.dart';
 import 'package:classbari/screens/institute.dart';
@@ -18,6 +19,7 @@ import 'package:classbari/theme.dart';
 import 'package:classbari/ui.dart';
 import 'package:classbari/views.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -164,7 +166,7 @@ Future<void> open(WidgetTester tester, Widget app, {String code = 'en', bool dar
   await tester.pumpWidget(
     Live(
       (context) => MaterialApp(
-        theme: classbariTheme(dark ? Brightness.dark : Brightness.light, sky: dark),
+        theme: classbariTheme(dark ? Brightness.dark : Brightness.light, sky: dark, glass: store.glass / 3), // Settings → Glass effect (Medium when nothing is saved)
         home: app,
       ),
     ),
@@ -224,6 +226,33 @@ void main() {
       await expectLater(tester, meetsGuideline(textContrastGuideline));
     }
     handle.dispose();
+  });
+
+  testWidgets('glass effect: Off draws no blur and no backdrop (the flat look); High frosts the side menu and text stays readable', (tester) async {
+    for (final level in [0, 3]) {
+      store.prefs.setInt('edunest-glass', level);
+      final handle = tester.ensureSemantics();
+      await open(tester, const StudentApp(), dark: level == 3);
+      expect(
+        find
+            .byType(DecoratedBox)
+            .evaluate()
+            .where(
+              (e) => switch ((e.widget as DecoratedBox).decoration) {
+                BoxDecoration(:final gradient) => gradient is RadialGradient,
+                _ => false,
+              },
+            ),
+        level == 0 ? isEmpty : isNotEmpty,
+      );
+      await expectLater(tester, meetsGuideline(textContrastGuideline));
+      await tester.tap(find.bySemanticsLabel(t('app.menu')).first);
+      await tester.pumpAndSettle();
+      expect(find.byType(BackdropFilter), level == 0 ? findsNothing : findsOneWidget, reason: 'glass $level');
+      await expectLater(tester, meetsGuideline(textContrastGuideline));
+      handle.dispose();
+      await tester.pumpWidget(const SizedBox());
+    }
   });
 
   testWidgets('student: a quiz is shown in the website\'s order and handed in with the picks as the server expects them', (tester) async {
@@ -524,6 +553,63 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('AI chat: Tools turn on as chips, the question carries them, ==marks== show highlighted, Create PDF gives a card', (tester) async {
+    Object? body;
+    aiApi = (path, {body, delete = false}) async => http.Response(
+      jsonEncode({
+        'models': [
+          {'id': 'm', 'label': 'Model M', 'pack': 150},
+        ],
+        'pick': 'm',
+        'pack': 150,
+      }),
+      200,
+    );
+    aiStream = (client, path, sent) async {
+      body = sent;
+      return http.StreamedResponse(Stream.value(utf8.encode('# Inertia\nThe ==law of inertia== matters, but a == b stays.\u001e{"left":50}')), 200);
+    };
+    addTearDown(() {
+      aiApi = api;
+      aiStream = apiStream;
+    });
+    await open(tester, const AiChatApp());
+    await tester.pumpAndSettle();
+    expect(find.byType(InputChip), findsNothing);
+    await tester.tap(find.byTooltip('Tools'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Create PDF'));
+    await tester.tap(find.text('Highlight'));
+    await tester.pumpAndSettle();
+    await tester.tapAt(const Offset(10, 10)); // close the menu
+    await tester.pumpAndSettle();
+    expect(find.byType(InputChip), findsNWidgets(2)); // the chosen tools, above the box
+    await tester.tap(find.byTooltip('Remove Create PDF'));
+    await tester.pumpAndSettle();
+    expect(find.byType(InputChip), findsOneWidget);
+    await tester.tap(find.byTooltip('Tools'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Create PDF'));
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField), 'Explain inertia');
+    await tester.pump();
+    await tester.tap(find.byTooltip('Send'));
+    await tester.pumpAndSettle();
+    expect((body as Map)['tools'], {'highlight': true, 'pdf': true});
+    final line = find.byWidgetPredicate((w) => w is SelectableText && w.textSpan?.toPlainText() == 'The law of inertia matters, but a == b stays.');
+    expect(line, findsOneWidget);
+    final spans = tester.widget<SelectableText>(line).textSpan!.children!.cast<TextSpan>();
+    expect(spans.firstWhere((x) => x.text == 'law of inertia').style?.backgroundColor, markColor(tester.element(line)));
+    expect(spans.where((x) => x.style?.backgroundColor != null).length, 1); // "a == b" is not a mark
+    expect(find.text('Download PDF'), findsOneWidget); // the Create PDF card under the answer
+    expect(find.text('Your PDF is ready'), findsOneWidget);
+    final saved = jsonDecode(store.prefs.getString('classbari-ai-chats-5')!) as List;
+    expect(saved.first['tools'], {'highlight': true, 'pdf': true}); // the chat remembers its tools on this phone
+    expect(tester.takeException(), isNull);
+  });
+
   // ---- Settings ----------------------------------------------------------------------------------------------------
   AiSettings ai({VoidCallback? onDeleteAll, int Function()? chats}) => AiSettings(
     models: [
@@ -609,13 +695,24 @@ void main() {
     expect(store.themeMode, 'dark');
     await press(tester, find.text('Same as phone'));
     expect(store.themeMode, 'system');
-    await tester.scrollUntilVisible(find.byType(Slider), 150, scrollable: find.byType(Scrollable).hitTestable().first);
+    await tester.scrollUntilVisible(find.byType(Slider).first, 150, scrollable: find.byType(Scrollable).hitTestable().first);
     await tester.pumpAndSettle();
-    await tester.drag(find.byType(Slider), const Offset(400, 0)); // the text-size slider, pulled to its big end
+    await tester.drag(find.byType(Slider).first, const Offset(400, 0)); // the text-size slider, pulled to its big end
     expect(store.textSize, 1.3);
-    await tester.drag(find.byType(Slider), const Offset(-400, 0));
+    await tester.drag(find.byType(Slider).first, const Offset(-400, 0));
     await tester.pumpAndSettle();
     expect(store.textSize, 0.9);
+    expect(store.glass, 2); // the glass effect: Medium until changed
+    await tester.scrollUntilVisible(find.byType(Slider).last, 150, scrollable: find.byType(Scrollable).hitTestable().first);
+    await tester.pumpAndSettle();
+    await tester.drag(find.byType(Slider).last, const Offset(-400, 0));
+    await tester.pumpAndSettle();
+    expect(store.glass, 0);
+    expect(store.prefs.getInt('edunest-glass'), 0); // kept on the phone
+    expect(find.textContaining('Glass effect · Off'), findsOneWidget);
+    await tester.drag(find.byType(Slider).last, const Offset(400, 0));
+    await tester.pumpAndSettle();
+    expect(store.glass, 3);
     await press(tester, find.text('বাংলা'));
     await tester.pumpAndSettle();
     expect(lang.code, 'bn');

@@ -41,6 +41,7 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) => Live((context) {
     final staff = kApp == 'teacher' || kApp == 'institute';
     final shown = kApp == 'institute' ? const <(String, String)>[] : details.where((d) => d.$2.isNotEmpty && !(staff && d.$1 == t('settings.yourName'))).toList();
+    const glassLevels = ['settings.glassOff', 'settings.glassSoft', 'settings.glassMedium', 'settings.glassHigh'];
     Widget choice(String label, Widget chips) => Column(crossAxisAlignment: CrossAxisAlignment.start, spacing: 8, children: [Muted(label), chips]);
     return Screen(
       title: t('settings.title'),
@@ -172,6 +173,11 @@ class SettingsScreen extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+            // Glass effect: Off (the flat look) · Soft · Medium · High, as on the website's Settings page.
+            choice(
+              '${t('settings.glass')} · ${t(glassLevels[store.glass])}',
+              Slider(value: store.glass.toDouble(), max: 3, divisions: 3, semanticFormatterCallback: (v) => t(glassLevels[v.round()]), onChanged: (v) => store.setting('edunest-glass', v.round())),
             ),
             choice(t('app.language'), Chips(value: lang.code, options: const ['en', 'bn'], labels: const {'en': 'English', 'bn': 'বাংলা'}, onChanged: store.setLang)),
           ],

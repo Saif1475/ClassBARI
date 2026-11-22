@@ -1,8 +1,35 @@
 // Light / dark look. Kept outside the client components so the server layout can inline THEME_INIT.
 export const THEME_KEY = "classbari-theme";
+/** Glass effect, 0 (off: the flat look) to 3 (high); also read by THEME_INIT. The phone apps keep the same key and levels. */
+export const GLASS_KEY = "edunest-glass";
+export const GLASS_DEFAULT = 2;
+export function readGlass() {
+  try {
+    const g = Number(localStorage.getItem(GLASS_KEY) ?? GLASS_DEFAULT);
+    return g >= 0 && g <= 3 ? Math.round(g) : GLASS_DEFAULT;
+  } catch {
+    return GLASS_DEFAULT;
+  }
+}
+/** Save and apply at once (not for someone whose device asks for less transparency): <html data-glass="1..3" style="--glass: 0..1">, read by globals.css. */
+export function applyGlass(g: number) {
+  try {
+    localStorage.setItem(GLASS_KEY, String(g));
+  } catch {
+    /* private mode: still switch for this visit */
+  }
+  const html = document.documentElement;
+  if (g > 0 && !matchMedia("(prefers-reduced-transparency: reduce)").matches) {
+    html.dataset.glass = String(g);
+    html.style.setProperty("--glass", String(g / 3));
+  } else {
+    delete html.dataset.glass;
+    html.style.removeProperty("--glass");
+  }
+}
 
 /** Runs before the page paints (inline in <head>), so a dark-mode user never sees a white flash. */
-export const THEME_INIT = `try{var t=localStorage.getItem("${THEME_KEY}");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark");if(localStorage.getItem("classbari-tone")==="sky")document.documentElement.dataset.tone="sky"}catch(e){}`;
+export const THEME_INIT = `try{var t=localStorage.getItem("${THEME_KEY}");if(t==="dark"||(!t&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark");if(localStorage.getItem("classbari-tone")==="sky")document.documentElement.dataset.tone="sky";var g=localStorage.getItem("${GLASS_KEY}");g=g===null?${GLASS_DEFAULT}:+g;if(g>0&&g<4&&!matchMedia("(prefers-reduced-transparency: reduce)").matches){document.documentElement.dataset.glass=g;document.documentElement.style.setProperty("--glass",g/3)}}catch(e){}`;
 
 export type ThemeMode = "light" | "dark" | "system";
 

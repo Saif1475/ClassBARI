@@ -5,7 +5,7 @@ import { Icon } from "./Icon";
 import { SlidingSegmented } from "./SlidingSegmented";
 import { useEffect, useState } from "react";
 import { useLang, type Lang } from "@/lib/i18n/LanguageProvider";
-import { applyThemeMode } from "@/lib/theme";
+import { applyGlass, applyThemeMode, readGlass } from "@/lib/theme";
 
 const TEXT_KEY = "classbari-text-size";
 const SIZES = ["100%", "112.5%", "125%"]; // A, A+, A++ (everything is sized in rem, so this scales the whole app)
@@ -41,6 +41,21 @@ export function TextSizeSlider() {
       <input type="range" min={SMALLEST} max={BIGGEST} step={5} value={size} onChange={(e) => pick(Number(e.target.value))} aria-label={t.common.textSize} aria-valuetext={shown} className="h-11 min-w-0 flex-1 accent-primary" />
       <span aria-hidden className="text-[24px] font-bold leading-none">A</span>
       <span className="w-14 text-right text-sm font-semibold tabular-nums text-on-surface-variant">{shown}</span>
+    </div>
+  );
+}
+
+/** Glass effect: Off (flat) · Soft · Medium · High, as a slider like the text size (the phone apps have the same one). */
+export function GlassSlider() {
+  const { t } = useLang();
+  const S = t.settings;
+  const [g, setG] = useState(2);
+  useEffect(() => setG(readGlass()), []);
+  const shown = [S.glassOff, S.glassSoft, S.glassMedium, S.glassHigh][g];
+  return (
+    <div className="flex w-full max-w-sm items-center gap-3">
+      <input type="range" min={0} max={3} step={1} value={g} onChange={(e) => { const n = Number(e.target.value); setG(n); applyGlass(n); }} aria-label={S.glass} aria-valuetext={shown} className="h-11 min-w-0 flex-1 accent-primary" />
+      <span className="w-20 text-right text-sm font-semibold text-on-surface-variant">{shown}</span>
     </div>
   );
 }

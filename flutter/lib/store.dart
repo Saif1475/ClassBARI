@@ -26,6 +26,7 @@ class Store extends ChangeNotifier {
   String? role, email;
   Status status = Status.loading;
   bool signedIn = false, syncFailed = false;
+
   /// ClassBARI suspended this institute: saves are refused; the banner says why (the website shows the same).
   var suspended = false;
   final List<Json> _outbox = [];
@@ -52,6 +53,9 @@ class Store extends ChangeNotifier {
 
   /// How much bigger the letters are: 1, 1.125 or 1.25 (the website's A, A+ and A++).
   double get textSize => prefs.getDouble('classbari-text-size') ?? 1;
+
+  /// Glass effect: 0 off (the flat look), 1 soft, 2 medium (new phones start here), 3 high; the website's levels and key.
+  int get glass => (prefs.getInt('edunest-glass') ?? 2).clamp(0, 3);
 
   /// How the AI should answer: {lang: bn|en, length: short|long}; a missing key means "as usual".
   Json get aiPrefs => _json('classbari-ai-prefs') ?? {};

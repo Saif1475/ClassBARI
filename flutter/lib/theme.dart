@@ -4,8 +4,12 @@ import 'package:material_ui/material_ui.dart';
 /// the brand gradient of summary cards, and one strong colour per chapter or batch (each course has its own, as in
 /// the learning apps students already know).
 class Tone extends ThemeExtension<Tone> {
-  const Tone({required this.tile, required this.lift, required this.hero, required this.courses});
+  const Tone({required this.tile, required this.lift, required this.hero, required this.courses, this.glass = 0, this.blobs = const []});
   final Color tile;
+
+  /// Settings → Glass effect, 0 (off: the flat look) to 1 (high); [blobs]: the soft colours of the page behind the glass.
+  final double glass;
+  final List<Color> blobs;
   final List<BoxShadow> lift;
   final List<Color> hero, courses;
 
@@ -31,7 +35,7 @@ Color deep(Color c, [double by = 0.18]) => Color.lerp(c, Colors.black, by)!;
 
 /// ClassBARI's colours: green, or sky blue with pink (the theme girls get on the website), each with a dark version.
 /// Flat and airy: a quiet page, white cards with generous corners, colour kept for what matters.
-ThemeData classbariTheme(Brightness brightness, {bool sky = false}) {
+ThemeData classbariTheme(Brightness brightness, {bool sky = false, double glass = 0}) {
   final dark = brightness == Brightness.dark;
   Color pick(int green, int greenDark, int blue, int blueDark) => Color(sky ? (dark ? blueDark : blue) : (dark ? greenDark : green));
   final primary = pick(0xFF157347, 0xFF6CC9A4, 0xFF1976B8, 0xFF8CCAF5);
@@ -42,6 +46,8 @@ ThemeData classbariTheme(Brightness brightness, {bool sky = false}) {
   final text = Color(dark ? 0xFFE6EAE8 : 0xFF17201B);
   final muted = Color(dark ? 0xFFA3ADA8 : 0xFF57625C);
   final line = Color(dark ? 0xFF2D3432 : 0xFFE0E6E2);
+  // Dialogs, sheets and the side menu: a little see-through with the glass effect (the menu also blurs what is behind).
+  final sheet = card.withValues(alpha: 1 - glass * 0.12);
   final scheme = ColorScheme.fromSeed(seedColor: primary, brightness: brightness).copyWith(
     primary: primary,
     onPrimary: onPrimary,
@@ -75,6 +81,11 @@ ThemeData classbariTheme(Brightness brightness, {bool sky = false}) {
         : const [BoxShadow(color: Color(0x0F0B2A1C), blurRadius: 2, offset: Offset(0, 1)), BoxShadow(color: Color(0x170B2A1C), blurRadius: 20, spreadRadius: -8, offset: Offset(0, 8))],
     hero: dark ? [pick(0, 0xFF24573F, 0, 0xFF22527A), pick(0, 0xFF1A4433, 0, 0xFF183E5E)] : [pick(0xFF1C8553, 0, 0xFF2283C7, 0), pick(0xFF0F5F39, 0, 0xFF125F96, 0)],
     courses: const [Color(0xFF157347), Color(0xFF1D6FB8), Color(0xFFB5416B), Color(0xFFC2580C), Color(0xFF6D3FC0), Color(0xFF0E7C86), Color(0xFF8A6A00), Color(0xFFBE3A3A)],
+    glass: glass,
+    // The website's blobs (globals.css): pastel on light pages, deep on dark ones, so text keeps its contrast.
+    blobs: [
+      for (final (g, gd, b, bd) in const [(0xFF9FE3BB, 0xFF1C4A38, 0xFFB9DEFA, 0xFF144A6E), (0xFF9ADFD6, 0xFF0F3B3C, 0xFFFFCFE0, 0xFF5C2C3E), (0xFFFFE2A8, 0xFF3A3415, 0xFFDFE3FF, 0xFF1F2A4A)]) pick(g, gd, b, bd),
+    ],
   );
   const corner = BorderRadius.all(Radius.circular(14));
   // The website's fonts: Plus Jakarta Sans for English letters; Bangla and ৳ fall through to Hind Siliguri.
@@ -140,15 +151,15 @@ ThemeData classbariTheme(Brightness brightness, {bool sky = false}) {
       ),
     ),
     dialogTheme: DialogThemeData(
-      backgroundColor: card,
+      backgroundColor: sheet,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
     ),
     bottomSheetTheme: BottomSheetThemeData(
-      backgroundColor: card,
+      backgroundColor: sheet,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
     ),
     drawerTheme: DrawerThemeData(
-      backgroundColor: card,
+      backgroundColor: glass > 0 ? card.withValues(alpha: 1 - glass * 0.3) : card,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.horizontal(right: Radius.circular(24))),
     ),
     dividerTheme: DividerThemeData(color: line, space: 1, thickness: 1),

@@ -101,8 +101,8 @@ class _ClassbariAppState extends State<ClassbariApp> {
       navigatorKey: nav,
       scaffoldMessengerKey: messenger,
       debugShowCheckedModeBanner: false,
-      theme: classbariTheme(Brightness.light, sky: sky),
-      darkTheme: classbariTheme(Brightness.dark, sky: sky),
+      theme: classbariTheme(Brightness.light, sky: sky, glass: store.glass / 3),
+      darkTheme: classbariTheme(Brightness.dark, sky: sky, glass: store.glass / 3),
       themeMode: switch (store.themeMode) {
         'light' => ThemeMode.light,
         'dark' => ThemeMode.dark,

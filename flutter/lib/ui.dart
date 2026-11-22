@@ -3,6 +3,8 @@
 // for the person's own details.
 // Every TextField sits in Semantics(container: true): its own item for a screen reader. Without it, loose text next
 // to a box is read as part of the box, and the box's pressable area grows over its neighbours.
+import 'dart:ui' show ImageFilter;
+
 import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -34,6 +36,7 @@ class Live extends StatelessWidget {
 String get _loc => lang.code == 'bn' ? 'bn' : 'en_GB';
 String fmtDate(String s) => DateFormat('d MMM', _loc).format(toDate(s));
 String fmtTime(String s) => (lang.code == 'bn' ? DateFormat.jm(_loc) : DateFormat.Hm(_loc)).format(toDate(s));
+
 /// The month and year: "November 2026".
 String fmtMonth(String s) => DateFormat('MMMM y', _loc).format(toDate(s));
 String fmtDateTime(String s) => '${DateFormat('EEE, d MMM', _loc).format(toDate(s))}, ${fmtTime(s)}';
@@ -149,6 +152,46 @@ class Glyph extends StatelessWidget {
   }
 }
 
+// ---- the glass effect (Settings → Glass effect) ----------------------------------------------------------------------
+/// The page behind everything: with the glass effect, a soft gradient with a few large colour blobs (the website's);
+/// off, only the plain page colour (as before). Painted once per page, so scrolling stays smooth.
+class Backdrop extends StatelessWidget {
+  const Backdrop({super.key, required this.child});
+  final Widget child;
+  @override
+  Widget build(BuildContext context) {
+    final g = context.tone.glass, b = context.tone.blobs;
+    // Off draws no gradient, but the boxes stay: moving the slider must not rebuild the page (its scroll, what was typed).
+    RadialGradient? blob(Alignment at, Color c, double strength, [double radius = 1.1]) => g == 0
+        ? null
+        : RadialGradient(
+            center: at,
+            radius: radius,
+            colors: [
+              c.withValues(alpha: g * strength),
+              c.withValues(alpha: 0),
+            ],
+            stops: const [0, 0.7],
+          );
+    return ColoredBox(
+      color: context.colors.surface, // a gradient replaces a decoration's colour, so the page colour goes underneath
+      child: DecoratedBox(
+        decoration: BoxDecoration(gradient: blob(const Alignment(-1, -1), b[0], 0.9)),
+        child: DecoratedBox(
+          decoration: BoxDecoration(gradient: blob(const Alignment(1, -0.6), b[1], 0.8)),
+          child: DecoratedBox(
+            decoration: BoxDecoration(gradient: blob(const Alignment(0.6, 1), b[2], 0.7, 1.2)),
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A bar or panel's fill with the glass effect: the page colour, more see-through the stronger the setting.
+Color glassFill(BuildContext context, Color solid) => solid.withValues(alpha: solid.a * (1 - context.tone.glass * 0.4));
+
 // ---- cards and rows -----------------------------------------------------------------------------------------------
 const _cardCorner = BorderRadius.all(Radius.circular(18));
 
@@ -185,10 +228,13 @@ class Box extends StatelessWidget {
       container: true,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: hero ? null : (color ?? context.colors.surfaceContainerLowest),
+          // With the glass effect a plain card lets some of the page through (no blur per card: lists stay smooth).
+          color: hero ? null : (color ?? context.colors.surfaceContainerLowest.withValues(alpha: 1 - context.tone.glass * 0.3)),
           gradient: hero ? LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: context.tone.hero) : null,
           borderRadius: _cardCorner,
-          border: hero || color != null ? null : Border.all(color: context.colors.outlineVariant.withValues(alpha: context.dark ? 0.6 : 0.7)),
+          border: hero || color != null
+              ? null
+              : Border.all(color: (context.dark ? context.colors.outlineVariant : Color.lerp(context.colors.outlineVariant, Colors.white, context.tone.glass)!).withValues(alpha: context.dark ? 0.6 : 0.7 + context.tone.glass * 0.3)),
           boxShadow: context.tone.lift,
         ),
         child: Material(
@@ -521,7 +567,7 @@ class TopBar extends StatelessWidget {
     final place = subtitle ?? (root ? _myPlace : '');
     return Container(
       decoration: BoxDecoration(
-        color: color == null ? c.surface : null,
+        color: color == null ? glassFill(context, c.surface) : null,
         gradient: color == null ? null : LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [lit(color!, 0.1), deep(color!, 0.14)]),
       ),
       padding: EdgeInsets.only(top: MediaQuery.paddingOf(context).top),
@@ -611,7 +657,10 @@ class Screen extends StatelessWidget {
       itemBuilder: (_, i) => children[i],
     );
     final waiting = store.waiting.length;
-    return Scaffold(
+    // A tab's own page sits on the tabs' backdrop; a page opened on top draws its own.
+    final onTabs = TabScope.of(context) != null && (ModalRoute.of(context)?.isFirst ?? true);
+    final page = Scaffold(
+      backgroundColor: context.tone.glass > 0 ? Colors.transparent : null,
       body: Column(
         children: [
           TopBar(title: title ?? TabScope.of(context)?.label ?? kAppName, subtitle: subtitle, actions: actions, color: color),
@@ -628,7 +677,7 @@ class Screen extends StatelessWidget {
           if (bottom != null)
             Container(
               decoration: BoxDecoration(
-                color: context.colors.surfaceContainerLowest,
+                color: glassFill(context, context.colors.surfaceContainerLowest),
                 border: Border(top: BorderSide(color: context.colors.outlineVariant)),
               ),
               padding: EdgeInsets.fromLTRB(16, 10, 16, 10 + MediaQuery.paddingOf(context).bottom),
@@ -637,6 +686,7 @@ class Screen extends StatelessWidget {
         ],
       ),
     );
+    return onTabs ? page : Backdrop(child: page);
   }
 }
 
@@ -723,23 +773,26 @@ class _TabsState extends State<Tabs> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-    key: frame,
-    drawer: SideMenu(details: widget.details, note: widget.note),
-    body: IndexedStack(
-      index: at,
-      children: [for (final (i, tab) in widget.tabs.indexed) opened.contains(i) ? TabScope(label: tab.label, openMenu: () => frame.currentState?.openDrawer(), child: tab.page) : const SizedBox.shrink()],
-    ),
-    bottomNavigationBar: Container(
-      decoration: BoxDecoration(
-        color: context.colors.surfaceContainerLowest,
-        border: Border(top: BorderSide(color: context.colors.outlineVariant)),
+  Widget build(BuildContext context) => Backdrop(
+    child: Scaffold(
+      key: frame,
+      backgroundColor: context.tone.glass > 0 ? Colors.transparent : null,
+      drawer: SideMenu(details: widget.details, note: widget.note),
+      body: IndexedStack(
+        index: at,
+        children: [for (final (i, tab) in widget.tabs.indexed) opened.contains(i) ? TabScope(label: tab.label, openMenu: () => frame.currentState?.openDrawer(), child: tab.page) : const SizedBox.shrink()],
       ),
-      padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom, left: 4, right: 4),
-      child: SizedBox(
-        height: 64,
-        child: Row(
-          children: [for (final (i, tab) in widget.tabs.indexed) TabItem(index: i, tab: tab, on: i == at, onTap: () => open(i))],
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: glassFill(context, context.colors.surfaceContainerLowest),
+          border: Border(top: BorderSide(color: context.colors.outlineVariant)),
+        ),
+        padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom, left: 4, right: 4),
+        child: SizedBox(
+          height: 64,
+          child: Row(
+            children: [for (final (i, tab) in widget.tabs.indexed) TabItem(index: i, tab: tab, on: i == at, onTap: () => open(i))],
+          ),
         ),
       ),
     ),
@@ -808,54 +861,73 @@ class SideMenu extends StatelessWidget {
   final String? note;
   @override
   Widget build(BuildContext context) => Drawer(
-    child: Live(
-      (context) => SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
-          children: [
-            Row(
-              spacing: 14,
-              children: [
-                Avatar(myName, size: 56),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(myName.isEmpty ? kAppName : myName, style: context.type.titleLarge),
-                      Muted(store.email ?? ''),
-                    ],
+    child: _Frost(
+      child: Live(
+        (context) => SafeArea(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
+            children: [
+              Row(
+                spacing: 14,
+                children: [
+                  Avatar(myName, size: 56),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(myName.isEmpty ? kAppName : myName, style: context.type.titleLarge),
+                        Muted(store.email ?? ''),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            const Divider(),
-            Item(
-              icon: I.settings,
-              title: t('settings.title'),
-              onTap: () {
-                Navigator.pop(context); // close the menu first
-                push(context, SettingsScreen(details: details, note: note));
-              },
-            ),
-            Item(
-              icon: I.support,
-              color: context.course(1),
-              title: t('support.link'),
-              onTap: () => launchUrl(Uri.parse('$kApiUrl/support'), mode: LaunchMode.externalApplication),
-            ),
-            const Divider(),
-            const SizedBox(height: 14),
-            Section(t('app.language')),
-            const SizedBox(height: 8),
-            Chips(value: lang.code, options: const ['en', 'bn'], labels: const {'en': 'English', 'bn': 'বাংলা'}, onChanged: store.setLang),
-            const SizedBox(height: 24),
-            Doing(label: t('app.logOut'), icon: I.logout, soft: true, danger: true, onPressed: store.signOut),
-          ],
+                ],
+              ),
+              const SizedBox(height: 14),
+              const Divider(),
+              Item(
+                icon: I.settings,
+                title: t('settings.title'),
+                onTap: () {
+                  Navigator.pop(context); // close the menu first
+                  push(context, SettingsScreen(details: details, note: note));
+                },
+              ),
+              Item(
+                icon: I.support,
+                color: context.course(1),
+                title: t('support.link'),
+                onTap: () => launchUrl(Uri.parse('$kApiUrl/support'), mode: LaunchMode.externalApplication),
+              ),
+              const Divider(),
+              const SizedBox(height: 14),
+              Section(t('app.language')),
+              const SizedBox(height: 8),
+              Chips(value: lang.code, options: const ['en', 'bn'], labels: const {'en': 'English', 'bn': 'বাংলা'}, onChanged: store.setLang),
+              const SizedBox(height: 24),
+              Doing(label: t('app.logOut'), icon: I.logout, soft: true, danger: true, onPressed: store.signOut),
+            ],
+          ),
         ),
       ),
     ),
   );
+}
+
+/// Frosted glass: blurs what is behind (only with the glass effect on). For a few large panels, never list rows.
+class _Frost extends StatelessWidget {
+  const _Frost({required this.child});
+  final Widget child;
+  @override
+  Widget build(BuildContext context) {
+    final g = context.tone.glass;
+    if (g == 0) return child;
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 12 + g * 12, sigmaY: 12 + g * 12),
+        child: child,
+      ),
+    );
+  }
 }
 
 // ---- long lists: 10, 20, 50 or 100 rows a page, with numbered pages ------------------------------------------------
