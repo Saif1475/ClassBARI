@@ -56,6 +56,14 @@ done
 
 The files appear in `build/app/outputs/flutter-apk/` as `app-<name>-release.apk`.
 
+**Right now this store-style build stops with an error** in a step called `lintVitalAnalyzeRelease`. That step needs
+Java 21 and this computer has Java 17. Everything else in the build works (checked once with that step skipped: the
+Student app came out at about 20 MB). Until Java 21 is installed, make test builds instead, which work today:
+
+```sh
+flutter build apk --debug --flavor student --dart-define-from-file=config.local.json
+```
+
 Before uploading to Google Play, the release build must be signed with ClassBARI's upload key. It is signed with
 Flutter's test key for now (`android/app/build.gradle.kts`, `buildTypes.release`). The Student, Guardian, Teacher and
 Institution apps keep the ids of the earlier web-wrapper apps, so to replace those as updates they need the same key.
