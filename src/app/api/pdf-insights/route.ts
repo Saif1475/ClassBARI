@@ -1,6 +1,6 @@
 import { REAL_AUTH } from "@/lib/auth-mode";
 import { admin } from "@/lib/data-server";
-import { type Highlight } from "@/lib/pdf-insights";
+import { stuckAfterMs, type Highlight } from "@/lib/pdf-insights";
 import { premiumGate as gate, queuePdfs } from "@/lib/pdf-pipeline";
 
 export const dynamic = "force-dynamic";
@@ -10,18 +10,21 @@ export async function GET(request: Request) {
   const g = await gate(request, new URL(request.url).searchParams.get("file"));
   if ("error" in g) return g.error;
   const { data } = await admin().from("pdf_insights").select("status, source, pages, highlights, updated_at").eq("file_path", g.path).maybeSingle();
-  const stale = data && ["queued", "processing"].includes(data.status) && Date.now() - Date.parse(data.updated_at) > 10 * 60_000;
+  const pageCount = Array.isArray(data?.pages) ? data.pages.length : 0;
+  const stale = data && data.status !== "ready" && Date.now() - Date.parse(data.updated_at) > stuckAfterMs(data.status, pageCount);
   if (!data || stale) {
     if (stale) await admin().from("pdf_insights").update({ status: "queued" }).eq("file_path", g.path);
     queuePdfs(g.me.institute, [g.path]); // not read yet (e.g. uploaded before the institute went premium)
     return Response.json({ status: "queued" });
   }
-  if (data.status !== "ready") return Response.json({ status: data.status });
+  // While the AI reads, the basic highlights are shown; `improving` tells the screen to ask again for the AI's.
+  const improving = data.status !== "ready";
+  if (improving && !data.highlights) return Response.json({ status: data.status });
   // Students don't see highlights a teacher removed; teachers see them greyed out so they can bring them back.
   const highlights = ((data.highlights ?? []) as Highlight[]).map((h, i) => ({ ...h, i })).filter((h) => g.staff || !h.hidden);
   // Page text only for scanned pages (to show what the AI read); other pages are highlighted on the PDF itself.
   const scanned = ((data.pages ?? []) as { n: number; scanned: boolean; text: string }[]).filter((p) => p.scanned).map((p) => ({ n: p.n, text: p.text }));
-  return Response.json({ status: "ready", source: data.source, highlights, scanned, canEdit: g.staff });
+  return Response.json({ status: "ready", source: data.source, highlights, scanned, canEdit: g.staff, improving });
 }
 
 /** A teacher hides a wrong highlight (or brings it back): { file, index, hidden }. */

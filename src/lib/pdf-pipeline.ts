@@ -8,7 +8,7 @@ import { z } from "zod";
 import { admin, aiSpent, loadPart, whoIs } from "./data-server";
 import { dayKey } from "./dates";
 import { aiWindow, costUsd, usedTokens } from "./ai-chat";
-import { basicHighlights, canSeeInsights, dedupe, geminiAnswer, geminiPdfAsk, isScanned, type Highlight, type PdfPage } from "./pdf-insights";
+import { aiSeconds, basicHighlights, clean, canSeeInsights, dedupe, geminiAnswer, geminiPdfAsk, isScanned, type Highlight, type PdfPage } from "./pdf-insights";
 
 const AI_MAX_BYTES = 20 * 1024 * 1024; // the API takes up to 32 MB per request; base64 adds a third
 const AI_MAX_PAGES = 100;
@@ -66,11 +66,11 @@ function pdfReader() {
   return claude ? { by: "claude" as const, model: want && !want.startsWith("gemini") ? want : "claude-opus-5-5" } : null;
 }
 
-async function geminiRead(path: string, model: string, pdf: Uint8Array, note: string) {
+async function geminiRead(path: string, model: string, pdf: Uint8Array, note: string, pageCount: number) {
   const res = await fetch("https://generativelanguage.googleapis.com/v1beta/interactions", {
     method: "POST",
     headers: { "Content-Type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY!, "Api-Revision": "2026-05-20" },
-    signal: AbortSignal.timeout(300_000),
+    signal: AbortSignal.timeout(aiSeconds(pageCount) * 1000),
     body: JSON.stringify(geminiPdfAsk(model, PROMPT, Buffer.from(pdf).toString("base64"), note)),
   });
   if (!res.ok) throw new Error(`${model}: HTTP ${res.status} ${(await res.text()).slice(0, 200)}`);
@@ -89,7 +89,7 @@ async function aiRead(path: string, pdf: Uint8Array, pages: PdfPage[]) {
   const note = scanned.length
     ? `Pages ${scanned.join(", ")} are scans or photos with no text layer: for those pages put the full text you read from the image in "transcript" (original language). For all other pages leave "transcript" empty.`
     : `Every page has a text layer: leave "transcript" empty on all pages.`;
-  if (reader.by === "gemini") return geminiRead(path, reader.model, pdf, note);
+  if (reader.by === "gemini") return geminiRead(path, reader.model, pdf, note, pages.length);
   const client = new Anthropic();
   const res = await client.beta.messages.parse({
     model: reader.model,
@@ -113,20 +113,34 @@ async function aiRead(path: string, pdf: Uint8Array, pages: PdfPage[]) {
   return res.parsed_output;
 }
 
+/** `work`, or an error after `sec` seconds. */
+const limit = <T>(work: Promise<T>, sec: number, what: string) =>
+  Promise.race([work, new Promise<never>((_, no) => setTimeout(() => no(new Error(`${what} took over ${sec} s`)), sec * 1000).unref())]);
+
 /** Read and mark one PDF; saves 'ready' (or 'failed' with the reason). */
 export async function processPdf(path: string) {
   const db = admin();
-  const save = (patch: Record<string, unknown>) => db.from("pdf_insights").update({ ...patch, updated_at: new Date().toISOString() }).eq("file_path", path);
+  const save = async (patch: Record<string, unknown>) => {
+    const { error } = await db.from("pdf_insights").update({ ...clean(patch), updated_at: new Date().toISOString() }).eq("file_path", path);
+    if (error) throw new Error(`saving the result failed: ${error.message}`); // used to pass unseen and leave it "processing"
+  };
   await save({ status: "processing", error: null });
+  const started = Date.now();
+  const step = (what: string) => console.info(`pdf ${path.slice(-12)}: ${what} after ${Math.round((Date.now() - started) / 1000)} s`);
   try {
-    const { data: blob, error } = await db.storage.from("files").download(path);
+    // Every step has a time limit: a stuck step used to leave the PDF "processing" for ever.
+    const { data: blob, error } = await limit(db.storage.from("files").download(path), 60, "download");
     if (error || !blob) throw new Error(`download failed: ${error?.message}`);
     const pdf = new Uint8Array(await blob.arrayBuffer());
-    const pages = await readPages(pdf);
+    step(`downloaded ${Math.round(pdf.byteLength / 1024)} KB`);
+    const pages = await limit(readPages(pdf), 60, "reading the pages");
+    step(`read ${pages.length} pages`);
+    await save({ status: "processing", source: "basic", pages, highlights: basicHighlights(pages) }); // shown while the AI reads
     let highlights: Highlight[] | null = null;
     let source: "ai" | "basic" = "basic";
     try {
       const ai = await aiRead(path, pdf, pages);
+      step(ai ? "the AI marked it" : "no AI (no key, too big, or the monthly budget is used up)");
       if (ai) {
         for (const p of ai.pages) {
           const page = pages.find((x) => x.n === p.page);
@@ -140,7 +154,8 @@ export async function processPdf(path: string) {
     }
     await save({ status: "ready", source, pages, highlights: highlights ?? basicHighlights(pages) });
   } catch (e) {
-    await save({ status: "failed", error: e instanceof Error ? e.message.slice(0, 300) : "failed" });
+    console.error("pdf:", path.slice(-12), e instanceof Error ? e.message : e);
+    await save({ status: "failed", error: e instanceof Error ? e.message.slice(0, 300) : "failed" }).catch(() => {});
   }
 }
 

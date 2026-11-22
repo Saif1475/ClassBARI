@@ -18,7 +18,7 @@ import { validateStudent } from "../src/lib/site.ts";
 import { streak, totalXp, weekXp } from "../src/lib/xp.ts";
 
 const SECTIONS = ["app", "auth", "aichat", "pdfhl", "pager", "roster", "kid", "tday", "glance", "streak", "settings"];
-const SINGLE = ["notify.title", "notify.help", "notify.groups.classwork", "notify.groups.results", "notify.groups.notices", "notify.groups.ai", "notify.groups.attendance", "notify.groups.fees", "notify.groups.messages", "notify.groups.work", "common.loading", "common.textSize", "support.link", "landing.privacy", "landing.terms", "teacher.phoneInvalid", "quiz.checking", "parent.noClasses", "login.newHere", "login.create", "login.title", "login.sub", "student.progress", "student.actions.video", "student.actions.pdf", "student.actions.quiz", "student.actions.task", "student.actions.exam", "student.tags.inProgress", "student.tags.new", "student.tags.completed", "teacher.greeting"];
+const SINGLE = ["notify.title", "notify.help", "notify.open", "notify.groups.classwork", "notify.groups.results", "notify.groups.notices", "notify.groups.ai", "notify.groups.attendance", "notify.groups.fees", "notify.groups.messages", "notify.groups.work", "common.loading", "common.textSize", "support.link", "landing.privacy", "landing.terms", "teacher.phoneInvalid", "quiz.checking", "parent.noClasses", "login.newHere", "login.create", "login.title", "login.sub", "student.progress", "student.actions.video", "student.actions.pdf", "student.actions.quiz", "student.actions.task", "student.actions.exam", "student.tags.inProgress", "student.tags.new", "student.tags.completed", "teacher.greeting"];
 
 // ---- words -------------------------------------------------------------------------------------------------------
 const local = (v, lang) => (typeof v === "number" ? v.toLocaleString(lang === "bn" ? "bn-BD" : "en-US") : String(v));
@@ -114,7 +114,7 @@ const attendance = { "2026-11-02": [5], "2026-11-03": [], "2026-11-09": [6], "20
 const roll = [{ id: 1, email: "rahim@gmail.com", guardianEmail: "father@gmail.com" }, { id: 2, email: "karim@gmail.com", guardianEmail: "father@gmail.com" }];
 const person = (over) => ({ name: "Sadia", email: "sadia@gmail.com", guardianName: "Mrs Akter", guardianEmail: "akter@gmail.com", phone: "01712345678", ...over });
 const people = [person({}), person({ name: " " }), person({ email: "sadia@yahoo.com" }), person({ email: "Rahim@gmail.com" }), person({ email: "father@gmail.com" }), person({ guardianEmail: "sadia@gmail.com" }), person({ guardianEmail: "karim@gmail.com" }), person({ guardianEmail: "father@gmail.com" }), person({ guardianName: "" }), person({ phone: "0171234" }), person({ phone: "+880 1712-345678" }), person({ studentPhone: "123" }), person({ studentPhone: "01912345678" })];
-const page = "The  Second law:\nForce  equals mass × acceleration.\tবল = ভর × ত্বরণ";
+const page = "The  Second law:\nForce  equals mass × acceleration.\tবল = ভর × ত্বরণ\nSpeed   is   de fi ned   as   the   distance   travelled   per   unit   time .\u0000 a   = ( v   −   u ) /   t .";
 const asked = ["Explain Newton's second law with an example", "Make me a physics revision plan", "integrals of sin x", "তরঙ্গের বেগ কী?", "সমাস কাকে বলে", "hello there", "Make me a 7-day revision plan for my exam", "What is an acid and a base? অম্ল", "python loop array"];
 
 Object.assign(fixtures, {
@@ -126,7 +126,7 @@ Object.assign(fixtures, {
   quizOrder: [[quiz(1700000000123, false, false), 5], [quiz(1700000000123, true, false), 5], [quiz(1700000000123, true, true), 1999], [quiz(1700000099999, true, true), 2000000], [quiz(7, true, false), 1]].map(([item, sid]) => ({ item, sid, out: quizOrder(item, sid) })),
   taka: [0, 5, 999, 1000, 15000, 123456, 1234567, 12345678].map((n) => ({ n, out: taka(n) })),
   enrol: { roll, cases: people.map((p) => ({ input: p, out: validateStudent(p, roll) })).concat([{ input: person({ email: "rahim@gmail.com" }), except: 1, out: validateStudent(person({ email: "rahim@gmail.com" }), roll, 1) }]) },
-  find: { page, cases: ["second LAW", "force equals   mass", "বল = ভর", "nothing here", "", "ত্বরণ"].map((phrase) => ({ phrase, out: findInText(page, phrase) })) },
+  find: { page, cases: ["second LAW", "force equals   mass", "বল = ভর", "nothing here", "", "ত্বরণ", "Speed is defined as the distance travelled per unit time.", "a = (v − u) / t"].map((phrase) => ({ phrase, out: findInText(page, phrase) })) },
   topics: asked.map((text) => ({ text, out: topicOf(text) })),
   pages: [[1, 1], [3, 7], [1, 100], [50, 100], [100, 100], [2, 100], [4, 8]].map(([page, pages]) => ({ page, pages, out: pageNumbers(page, pages) })),
   packs: PACKS,

@@ -55,7 +55,8 @@ class _PdfScreenState extends State<PdfScreen> {
     }
     if (!mounted) return;
     setState(() => state = next);
-    if (next == 'preparing') again = Timer(const Duration(seconds: 5), load); // reading a new PDF takes a little while
+    // Reading a new PDF takes a little while; the basic highlights show at once and the AI's replace them.
+    if (next == 'preparing' || (next == 'ready' && data?['improving'] == true)) again = Timer(const Duration(seconds: 5), load);
   }
 
   @override

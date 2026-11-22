@@ -9,7 +9,7 @@ import { findInText, type HighlightType } from "@/lib/pdf-insights";
 type Shown = { i: number; page: number; text: string; type: HighlightType; hidden?: boolean };
 type Insights =
   | { status: "queued" | "processing" | "failed" }
-  | { status: "ready"; source: "ai" | "basic"; highlights: Shown[]; scanned: { n: number; text: string }[]; canEdit: boolean };
+  | { status: "ready"; source: "ai" | "basic"; highlights: Shown[]; scanned: { n: number; text: string }[]; canEdit: boolean; improving?: boolean };
 type State = { kind: "loading" } | { kind: "none" } | { kind: "locked" } | { kind: "data"; d: Insights };
 
 const COLOR: Record<HighlightType, string> = { term: "#ffe066", definition: "#b2f2bb", formula: "#a5d8ff", exam: "#ffc078" };
@@ -35,7 +35,7 @@ export function PdfHighlights({ url, title }: { url: string; title: string }) {
       if (res.status === 402) return setState({ kind: "locked" });
       const d = (await res.json()) as Insights;
       setState({ kind: "data", d });
-      if (d.status === "queued" || d.status === "processing") timer = setTimeout(load, 5000); // still being prepared
+      if (d.status === "queued" || d.status === "processing" || (d.status === "ready" && d.improving)) timer = setTimeout(load, 5000); // still being prepared, or the AI's highlights still to come
     };
     void load();
     return () => {

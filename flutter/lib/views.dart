@@ -159,24 +159,16 @@ final _space = RegExp(r'\s');
 
 /// Where a highlight's text sits in a page's text (spaces and case ignored): [start, end) or null.
 (int, int)? findInText(String page, String phrase) {
+  // Spaces are left out on both sides: PDFs often split words ("de fi ned") and put spaces before full stops.
   final at = <int>[]; // index in `page` of each kept character
   final flat = StringBuffer();
-  var lastSpace = true;
   for (var i = 0; i < page.length; i++) {
     final ch = page[i];
-    if (_space.hasMatch(ch)) {
-      if (!lastSpace) {
-        flat.write(' ');
-        at.add(i);
-        lastSpace = true;
-      }
-      continue;
-    }
+    if (_space.hasMatch(ch) || ch == '\u0000') continue;
     flat.write(ch.toLowerCase());
     at.add(i);
-    lastSpace = false;
   }
-  final needle = phrase.toLowerCase().replaceAll(RegExp(r'\s+'), ' ').trim();
+  final needle = phrase.toLowerCase().replaceAll(RegExp(r'[\s\u0000]+'), '');
   final found = needle.isEmpty ? -1 : flat.toString().indexOf(needle);
   if (found < 0 || found + needle.length - 1 >= at.length) return null;
   return (at[found], at[found + needle.length - 1] + 1);

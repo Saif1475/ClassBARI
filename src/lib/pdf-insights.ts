@@ -55,20 +55,15 @@ export function canSeeInsights(role: string, institutePremium: boolean, premiumU
 
 /** Where a highlight's text sits in a page's text (spaces and case ignored): [start, end) or null. */
 export function findInText(page: string, phrase: string): [number, number] | null {
+  // Spaces are left out on both sides: PDFs often split words ("de fi ned") and put spaces before full stops.
   const norm: number[] = []; // index in `page` of each kept character
   let flat = "";
   for (let i = 0; i < page.length; i++) {
-    if (/\s/.test(page[i])) {
-      if (flat && flat[flat.length - 1] !== " ") {
-        flat += " ";
-        norm.push(i);
-      }
-      continue;
-    }
+    if (/\s|\u0000/.test(page[i])) continue;
     flat += page[i].toLowerCase();
     norm.push(i);
   }
-  const needle = phrase.toLowerCase().replace(/\s+/g, " ").trim();
+  const needle = phrase.toLowerCase().replace(/[\s\u0000]+/g, "");
   const at = needle ? flat.indexOf(needle) : -1;
   return at < 0 ? null : [norm[at], norm[at + needle.length - 1] + 1];
 }
@@ -112,3 +107,13 @@ export function geminiAnswer(out: GeminiOut) {
   const u = out.usage ?? {};
   return { text, done: out.status === "completed" && !!text, status: out.status ?? "no status", usage: { input_tokens: u.total_input_tokens ?? 0, output_tokens: (u.total_output_tokens ?? 0) + (u.total_thought_tokens ?? 0) } };
 }
+
+/** How long the AI may take to read a PDF: a minute, plus 5 seconds a page, at most 5 minutes. */
+export const aiSeconds = (pages: number) => Math.min(300, 60 + 5 * pages);
+/**
+ * When a PDF still "being read" counts as stuck and is started again: the longest the AI may take plus a minute
+ * (3 minutes before its pages are known). A PDF that failed is tried again after 10 minutes.
+ */
+export const stuckAfterMs = (status: string, pages: number) => (status === "failed" ? 10 * 60 : pages ? aiSeconds(pages) + 60 : 180) * 1000;
+/** Without the "null" character PDFs often hold: the database refuses text that has one. */
+export const clean = <T>(x: T): T => JSON.parse(JSON.stringify(x).replace(/\\u0000/g, ""));

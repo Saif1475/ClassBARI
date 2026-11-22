@@ -48,3 +48,17 @@ test("reading a PDF with Gemini: the PDF itself is sent and not kept; the answer
   assert.equal(geminiAnswer({ status: "incomplete", steps: [{ type: "model_output", content: [{ type: "text", text: '{"pa' }] }] }).done, false); // cut short: not used
   assert.deepEqual(geminiAnswer({}), { text: "", done: false, status: "no status", usage: { input_tokens: 0, output_tokens: 0 } });
 });
+
+test("a stuck PDF is started again sooner when it is short; the AI's time limit grows with the pages", async () => {
+  const { aiSeconds, stuckAfterMs } = await import("../src/lib/pdf-insights.ts");
+  assert.equal(aiSeconds(2), 70);
+  assert.equal(aiSeconds(100), 300); // never more than 5 minutes
+  assert.equal(stuckAfterMs("processing", 2), 130_000); // a 2-page PDF: just over 2 minutes, not 10
+  assert.equal(stuckAfterMs("processing", 0), 180_000); // pages not read yet
+  assert.equal(stuckAfterMs("failed", 2), 600_000);
+});
+
+test("text with a 'null' character can be saved (the database refuses it otherwise)", async () => {
+  const { clean } = await import("../src/lib/pdf-insights.ts");
+  assert.deepEqual(clean({ text: "a\u0000b", list: ["\u0000x"] }), { text: "ab", list: ["x"] });
+});

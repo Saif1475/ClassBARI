@@ -12442,7 +12442,7 @@
   ]
  },
  "find": {
-  "page": "The  Second law:\nForce  equals mass × acceleration.\tবল = ভর × ত্বরণ",
+  "page": "The  Second law:\nForce  equals mass × acceleration.\tবল = ভর × ত্বরণ\nSpeed   is   de fi ned   as   the   distance   travelled   per   unit   time .\u0000 a   = ( v   −   u ) /   t .",
   "cases": [
    {
     "phrase": "second LAW",
@@ -12478,6 +12478,20 @@
     "out": [
      62,
      67
+    ]
+   },
+   {
+    "phrase": "Speed is defined as the distance travelled per unit time.",
+    "out": [
+     68,
+     146
+    ]
+   },
+   {
+    "phrase": "a = (v − u) / t",
+    "out": [
+     148,
+     173
     ]
    }
   ]
