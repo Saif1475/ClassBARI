@@ -13,6 +13,8 @@ import '../store.dart';
 import '../strings.dart';
 import '../ui.dart';
 import '../views.dart';
+import '../icon.dart';
+import '../icons.g.dart';
 
 // An email link (instead of typing the code) opens the website, which finishes there.
 String _back(String next) => '$kApiUrl/auth/callback?next=${Uri.encodeComponent(next)}';
@@ -172,12 +174,12 @@ class _InstitutePickerState extends State<InstitutePicker> {
               autocorrect: false,
               decoration: InputDecoration(
                 hintText: t('auth.institutePh'),
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: Ico(I.search),
                 // The arrow opens and closes the list without bringing up the keyboard.
                 suffixIcon: IconButton(
                   tooltip: t('auth.findInstitute'),
                   onPressed: () => setState(() => open = !open),
-                  icon: AnimatedRotation(turns: open ? 0.5 : 0, duration: const Duration(milliseconds: 200), child: const Icon(Icons.keyboard_arrow_down_rounded)),
+                  icon: AnimatedRotation(turns: open ? 0.5 : 0, duration: const Duration(milliseconds: 200), child: Ico(I.chevronDown)),
                 ),
               ),
             ),
@@ -304,7 +306,7 @@ class _PasswordFieldState extends State<PasswordField> {
       onSubmitted: (_) => widget.onSubmitted?.call(),
       decoration: InputDecoration(
         labelText: widget.label,
-        suffixIcon: IconButton(tooltip: t(hidden ? 'auth.showPassword' : 'auth.hidePassword'), icon: Icon(hidden ? Icons.visibility_outlined : Icons.visibility_off_outlined), onPressed: () => setState(() => hidden = !hidden)),
+        suffixIcon: IconButton(tooltip: t(hidden ? 'auth.showPassword' : 'auth.hidePassword'), icon: Ico(hidden ? I.eye : I.eyeOff), onPressed: () => setState(() => hidden = !hidden)),
       ),
     ),
   );
@@ -402,7 +404,7 @@ class _StaffLoginState extends State<StaffLogin> with _Form {
         ),
         PasswordField(controller: password, label: t('auth.password'), onSubmitted: () => run(() => signIn(mail, password.text))),
         ?note,
-        Doing(label: t('auth.signIn'), icon: Icons.arrow_forward, onPressed: busy ? null : () => run(() => signIn(mail, password.text))),
+        Doing(label: t('auth.signIn'), icon: I.arrow, onPressed: busy ? null : () => run(() => signIn(mail, password.text))),
         Wrap(
           alignment: WrapAlignment.center,
           spacing: 8,
@@ -550,13 +552,13 @@ class _StepLoginState extends State<StepLogin> with _Form {
           ),
         ),
         ?note,
-        Doing(label: t('auth.next'), icon: Icons.arrow_forward, onPressed: busy ? null : () => run(checkEmail)),
+        Doing(label: t('auth.next'), icon: I.arrow, onPressed: busy ? null : () => run(checkEmail)),
       ],
       'password' => [
         who,
         PasswordField(controller: password, label: known == 'password' ? t('auth.welcomeBack') : t('auth.password'), autofocus: true, onSubmitted: () => run(() => signIn(mail, password.text))),
         ?note,
-        Doing(label: t('auth.signIn'), icon: Icons.arrow_forward, onPressed: busy ? null : () => run(() => signIn(mail, password.text))),
+        Doing(label: t('auth.signIn'), icon: I.arrow, onPressed: busy ? null : () => run(() => signIn(mail, password.text))),
         Wrap(
           alignment: WrapAlignment.center,
           spacing: 8,

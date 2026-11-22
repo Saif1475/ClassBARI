@@ -12,6 +12,8 @@ import '../ui.dart';
 import '../views.dart';
 import 'pdf.dart';
 import 'student.dart' show chapterNo, kindIcons;
+import '../icon.dart';
+import '../icons.g.dart';
 
 const _fileMax = 8000000; // the server's limit for a photo sent as text
 
@@ -58,13 +60,7 @@ class LessonScreen extends StatelessWidget {
       color: color,
       refresh: false,
       bottom: kind == 'video' || kind == 'pdf'
-          ? Doing(
-              label: done ? t('app.markNotDone') : t('app.markDone'),
-              icon: done ? Icons.check_circle_rounded : Icons.radio_button_unchecked,
-              soft: done,
-              color: color,
-              onPressed: () => store.act('toggleItemDone', [moduleId, itemId, me]),
-            )
+          ? Doing(label: done ? t('app.markNotDone') : t('app.markDone'), icon: done ? I.checkCircle : I.radioOff, soft: done, color: color, onPressed: () => store.act('toggleItemDone', [moduleId, itemId, me]))
           : null,
       children: [
         Box(
@@ -73,7 +69,7 @@ class LessonScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 12,
               children: [
-                Glyph(kindIcons[kind] ?? Icons.article_outlined, color: color),
+                Glyph(kindIcons[kind] ?? I.file, color: color),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,7 +99,7 @@ class LessonScreen extends StatelessWidget {
         if (kind == 'pdf' && url != null && url.startsWith('/api/files/'))
           Doing(
             label: '${t('pdfhl.open')} · ${t('pdfhl.ask')}',
-            icon: Icons.auto_awesome,
+            icon: I.sparkle,
             soft: true,
             color: color,
             onPressed: () async => push(context, PdfScreen(file: url, title: '${it['title']}')),
@@ -119,7 +115,7 @@ class OpenFile extends StatelessWidget {
   const OpenFile(this.url, {super.key});
   final String? url;
   @override
-  Widget build(BuildContext context) => url == null || url!.isEmpty ? Muted(t('app.noFile')) : Doing(label: t('app.open'), icon: Icons.open_in_new, onPressed: () => openLink(context, url!));
+  Widget build(BuildContext context) => url == null || url!.isEmpty ? Muted(t('app.noFile')) : Doing(label: t('app.open'), icon: I.external, onPressed: () => openLink(context, url!));
 }
 
 /// Stored videos play here; YouTube and other web links open in their own app or the browser.
@@ -183,7 +179,7 @@ class _VideoBoxState extends State<VideoBox> {
         ),
         Row(
           children: [
-            IconButton(tooltip: playing ? 'Pause' : 'Play', iconSize: 32, icon: Icon(playing ? Icons.pause_circle : Icons.play_circle), onPressed: () => playing ? p.pause() : p.play()),
+            IconButton(tooltip: playing ? 'Pause' : 'Play', iconSize: 32, icon: Ico(playing ? I.pause : I.play), onPressed: () => playing ? p.pause() : p.play()),
             Expanded(child: VideoProgressIndicator(p, allowScrubbing: true, padding: const EdgeInsets.symmetric(vertical: 12))),
           ],
         ),
@@ -334,14 +330,14 @@ class _HomeworkState extends State<Homework> {
           spacing: 8,
           children: [
             Expanded(
-              child: OutlinedButton.icon(onPressed: () => pick(true), icon: const Icon(Icons.photo_camera_outlined), label: Text(t('app.takePhoto'))),
+              child: OutlinedButton.icon(onPressed: () => pick(true), icon: Ico(I.camera), label: Text(t('app.takePhoto'))),
             ),
             Expanded(
-              child: OutlinedButton.icon(onPressed: () => pick(false), icon: const Icon(Icons.image_outlined), label: Text(t('app.choosePhoto'))),
+              child: OutlinedButton.icon(onPressed: () => pick(false), icon: Ico(I.image), label: Text(t('app.choosePhoto'))),
             ),
           ],
         ),
-        Doing(label: t('app.handIn'), icon: Icons.upload, onPressed: photo == null ? null : send),
+        Doing(label: t('app.handIn'), icon: I.upload, onPressed: photo == null ? null : send),
       ],
     );
   }

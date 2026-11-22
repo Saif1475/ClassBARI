@@ -10,6 +10,7 @@ import '../strings.dart';
 import '../theme.dart';
 import '../ui.dart';
 import '../views.dart';
+import '../icons.g.dart';
 
 /// Premium: a PDF lesson's highlights, page by page, and "Ask AI" about it.
 /// shortcut: highlights are listed, not drawn on the page; draw them when an in-app PDF viewer is added.
@@ -66,7 +67,7 @@ class _PdfScreenState extends State<PdfScreen> {
       title: widget.title,
       refresh: false,
       children: [
-        Doing(label: t('app.open'), icon: Icons.open_in_new, soft: true, onPressed: () => openLink(context, widget.file)),
+        Doing(label: t('app.open'), icon: I.external, soft: true, onPressed: () => openLink(context, widget.file)),
         if (state == 'loading') const Center(child: CircularProgressIndicator()),
         if (state == 'none' || state == 'failed') Muted(t('pdfhl.failed')),
         if (state == 'locked') Box(color: context.colors.tertiaryContainer, children: [Strong(t('pdfhl.locked'))]),
@@ -82,7 +83,7 @@ class _PdfScreenState extends State<PdfScreen> {
           // The teacher's own PDF with the highlights written into it, opened in the phone's PDF app.
           Doing(
             label: t('pdfhl.open'),
-            icon: Icons.auto_awesome,
+            icon: I.sparkle,
             onPressed: () async {
               try {
                 final res = await api('/api/pdf-insights/pdf?file=${Uri.encodeQueryComponent(widget.file)}&link=1');
@@ -271,7 +272,7 @@ class _AskAiState extends State<AskAi> {
                 decoration: InputDecoration(hintText: t('pdfhl.askPh'), labelText: t('pdfhl.ask'), counterText: '', fillColor: c.surface),
               ),
             ),
-            Doing(label: t('pdfhl.send'), icon: Icons.send, onPressed: busy || q.text.trim().isEmpty ? null : send),
+            Doing(label: t('pdfhl.send'), icon: I.send, onPressed: busy || q.text.trim().isEmpty ? null : send),
           ],
         ),
       ],

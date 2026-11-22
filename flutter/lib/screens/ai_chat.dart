@@ -17,6 +17,8 @@ import 'lesson.dart' show pickPhoto;
 import 'pdf.dart' show clock;
 import 'pay.dart';
 import 'settings.dart';
+import '../icon.dart';
+import '../icons.g.dart';
 
 const _trailer = '\u001e'; // ends the streamed answer; after it comes JSON: allowance left, declined, cut, error
 const _keep = 50; // chats kept on the phone (the most recently used)
@@ -242,8 +244,8 @@ class _AiChatAppState extends State<AiChatApp> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(leading: const Icon(Icons.photo_camera_outlined), title: Text(t('app.takePhoto')), onTap: () => Navigator.pop(context, true)),
-            ListTile(leading: const Icon(Icons.image_outlined), title: Text(t('app.choosePhoto')), subtitle: Text(t('aichat.fileKinds.image.hint')), onTap: () => Navigator.pop(context, false)),
+            ListTile(leading: Ico(I.camera), title: Text(t('app.takePhoto')), onTap: () => Navigator.pop(context, true)),
+            ListTile(leading: Ico(I.image), title: Text(t('app.choosePhoto')), subtitle: Text(t('aichat.fileKinds.image.hint')), onTap: () => Navigator.pop(context, false)),
           ],
         ),
       ),
@@ -267,7 +269,7 @@ class _AiChatAppState extends State<AiChatApp> {
             ListTile(
               enabled: m['locked'] != true && m['soon'] != true,
               selected: m['id'] == chosen?['id'],
-              leading: Icon(m['locked'] == true ? Icons.lock_outline : (m['id'] == chosen?['id'] ? Icons.radio_button_checked : Icons.radio_button_unchecked)),
+              leading: Ico(m['locked'] == true ? I.lock : (m['id'] == chosen?['id'] ? I.radioOn : I.radioOff)),
               title: Text('${m['label']}'),
               subtitle: Text(m['locked'] == true ? t('aichat.unlockWith', [taka(m['pack'] as num)]) : (m['soon'] == true ? t('aichat.modelSoon') : t('aichat.inPack', [taka(m['pack'] as num)]))),
               onTap: () {
@@ -309,7 +311,7 @@ class _AiChatAppState extends State<AiChatApp> {
               child: Row(
                 children: [
                   const SizedBox(width: 6),
-                  IconButton(tooltip: t('aichat.chats'), icon: const Icon(Icons.menu_rounded), onPressed: () => frame.currentState?.openDrawer()),
+                  IconButton(tooltip: t('aichat.chats'), icon: Ico(I.menu), onPressed: () => frame.currentState?.openDrawer()),
                   Expanded(
                     child: Center(
                       // The model in use; pressing it shows them all (the ones a bigger pack unlocks are shown locked).
@@ -333,7 +335,7 @@ class _AiChatAppState extends State<AiChatApp> {
                                       Flexible(
                                         child: Text('${chosen?['label'] ?? t('aichat.model')}', overflow: TextOverflow.ellipsis, style: context.type.titleMedium),
                                       ),
-                                      Icon(Icons.expand_more_rounded, color: c.onSurfaceVariant),
+                                      Ico(I.chevronDown, color: c.onSurfaceVariant),
                                     ],
                                   ),
                                 ),
@@ -341,7 +343,7 @@ class _AiChatAppState extends State<AiChatApp> {
                             ),
                     ),
                   ),
-                  IconButton(tooltip: t('aichat.newChat'), icon: const Icon(Icons.edit_square), onPressed: busy ? null : () => open(0)),
+                  IconButton(tooltip: t('aichat.newChat'), icon: Ico(I.edit), onPressed: busy ? null : () => open(0)),
                   const SizedBox(width: 6),
                 ],
               ),
@@ -429,7 +431,7 @@ class _AiChatAppState extends State<AiChatApp> {
         const SizedBox(height: 18),
       ],
       Group(
-        children: [for (final idea in lang.list('aichat.ideas')) Item(icon: Icons.lightbulb_outline_rounded, color: context.colors.tertiary, title: idea, onTap: busy || access != 'ok' ? null : () => ask(idea, const []))],
+        children: [for (final idea in lang.list('aichat.ideas')) Item(icon: I.idea, color: context.colors.tertiary, title: idea, onTap: busy || access != 'ok' ? null : () => ask(idea, const []))],
       ),
       const SizedBox(height: 10),
       Center(child: Muted(t('aichat.saved'))),
@@ -468,14 +470,14 @@ class _AiChatAppState extends State<AiChatApp> {
           children: [
             IconButton(
               tooltip: t(copied == i ? 'aichat.copied' : 'aichat.copy'),
-              icon: Icon(copied == i ? Icons.check_rounded : Icons.copy_rounded, size: 20),
+              icon: Ico(copied == i ? I.check : I.copy, size: 20),
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: text));
                 setState(() => copied = i);
                 Timer(const Duration(milliseconds: 1500), () => mounted ? setState(() => copied = -1) : null);
               },
             ),
-            if (last && access == 'ok') IconButton(tooltip: t('aichat.retry'), icon: const Icon(Icons.refresh_rounded, size: 20), onPressed: retry),
+            if (last && access == 'ok') IconButton(tooltip: t('aichat.retry'), icon: Ico(I.refresh, size: 20), onPressed: retry),
           ],
         ),
     ],
@@ -517,7 +519,7 @@ class _AiChatAppState extends State<AiChatApp> {
                         Positioned(
                           right: -6,
                           top: -6,
-                          child: IconButton(tooltip: t('aichat.removePhoto'), icon: const Icon(Icons.cancel), onPressed: () => setState(() => photo = null)),
+                          child: IconButton(tooltip: t('aichat.removePhoto'), icon: Ico(I.cancelCircle), onPressed: () => setState(() => photo = null)),
                         ),
                       ],
                     ),
@@ -545,11 +547,9 @@ class _AiChatAppState extends State<AiChatApp> {
                 ),
                 Row(
                   children: [
-                    IconButton(tooltip: t('aichat.attach'), icon: const Icon(Icons.add_rounded), onPressed: can && !busy ? attach : null),
+                    IconButton(tooltip: t('aichat.attach'), icon: Ico(I.plus), onPressed: can && !busy ? attach : null),
                     const Spacer(),
-                    busy
-                        ? IconButton.filled(tooltip: t('aichat.stop'), icon: const Icon(Icons.stop_rounded), onPressed: stop)
-                        : IconButton.filled(tooltip: t('aichat.send'), icon: const Icon(Icons.arrow_upward_rounded), onPressed: can && q.text.trim().isNotEmpty ? send : null),
+                    busy ? IconButton.filled(tooltip: t('aichat.stop'), icon: Ico(I.stop), onPressed: stop) : IconButton.filled(tooltip: t('aichat.send'), icon: Ico(I.arrowUp), onPressed: can && q.text.trim().isNotEmpty ? send : null),
                   ],
                 ),
               ],
@@ -569,7 +569,7 @@ class _AiChatAppState extends State<AiChatApp> {
   Widget _locked(BuildContext context) => ListView(
     padding: const EdgeInsets.all(20),
     children: [
-      Icon(Icons.lock_outline_rounded, size: 44, color: context.colors.tertiary),
+      Ico(I.lock, size: 44, color: context.colors.tertiary),
       const SizedBox(height: 12),
       Text(t('aichat.lockedTitle'), textAlign: TextAlign.center, style: context.type.headlineSmall),
       const SizedBox(height: 8),
@@ -577,7 +577,7 @@ class _AiChatAppState extends State<AiChatApp> {
       const SizedBox(height: 16),
       Group(
         title: t('aichat.packLabel'),
-        children: [for (final p in packs) Item(icon: Icons.auto_awesome, title: '${taka(p)}${t('aichat.perMonth')}', subtitle: t('aichat.packNote.$p'))],
+        children: [for (final p in packs) Item(icon: I.sparkle, title: '${taka(p)}${t('aichat.perMonth')}', subtitle: t('aichat.packNote.$p'))],
       ),
       const SizedBox(height: 16),
       const PayForm(),
@@ -592,7 +592,7 @@ class _AiChatAppState extends State<AiChatApp> {
     Widget chatRow(Json x, {bool withTopic = false}) => Item(
       title: '${x['title']}',
       subtitle: withTopic ? '${_topicIcons[x['topic'] ?? 'other']}  ${t('aichat.topics.${x['topic'] ?? 'other'}')}' : null,
-      trailing: IconButton(tooltip: t('aichat.deleteChat'), icon: const Icon(Icons.delete_outline_rounded, size: 20), onPressed: () => remove(x)),
+      trailing: IconButton(tooltip: t('aichat.deleteChat'), icon: Ico(I.trash, size: 20), onPressed: () => remove(x)),
       onTap: busy
           ? null
           : () {
@@ -619,7 +619,7 @@ class _AiChatAppState extends State<AiChatApp> {
               ),
               Doing(
                 label: t('aichat.newChat'),
-                icon: Icons.add_rounded,
+                icon: I.plus,
                 onPressed: () async {
                   Navigator.pop(context);
                   open(0);
@@ -629,7 +629,7 @@ class _AiChatAppState extends State<AiChatApp> {
                 container: true,
                 child: TextField(
                   onChanged: (v) => setState(() => find = v),
-                  decoration: InputDecoration(labelText: t('aichat.searchChats'), prefixIcon: const Icon(Icons.search_rounded), isDense: true, fillColor: context.colors.surface),
+                  decoration: InputDecoration(labelText: t('aichat.searchChats'), prefixIcon: Ico(I.search), isDense: true, fillColor: context.colors.surface),
                 ),
               ),
             ],
@@ -665,7 +665,7 @@ class _AiChatAppState extends State<AiChatApp> {
                               ExcludeSemantics(child: Text(_topicIcons[topic] ?? '💬', style: const TextStyle(fontSize: 20))),
                               Expanded(child: Text(t('aichat.topics.$topic'), style: context.type.titleMedium)),
                               Tag(localNumber(chats.where((x) => (x['topic'] ?? 'other') == topic).length, lang.code), kind: 'plain'),
-                              Icon(unfolded.contains(topic) ? Icons.expand_less_rounded : Icons.expand_more_rounded, color: context.colors.onSurfaceVariant),
+                              Ico(unfolded.contains(topic) ? I.chevronUp : I.chevronDown, color: context.colors.onSurfaceVariant),
                             ],
                           ),
                         ),
@@ -697,7 +697,7 @@ class _AiChatAppState extends State<AiChatApp> {
                   ],
                 ),
               ),
-              IconButton(tooltip: t('settings.title'), icon: const Icon(Icons.settings_outlined), onPressed: () => _settings(context)),
+              IconButton(tooltip: t('settings.title'), icon: Ico(I.settings), onPressed: () => _settings(context)),
             ],
           ),
         ),
@@ -745,7 +745,7 @@ class TopicScreen extends StatelessWidget {
             Paged(
               items: chats,
               row: (x) => Item(
-                icon: Icons.chat_bubble_outline_rounded,
+                icon: I.message,
                 color: context.course(topics.all.indexOf(topic)),
                 title: '${x['title']}',
                 subtitle: _snippet('${rows(x['msgs']).lastOrNull?['content'] ?? ''}'),

@@ -6,6 +6,8 @@ import '../ui.dart';
 import '../views.dart';
 import 'student.dart' show Stat;
 import 'teacher.dart' show BatchScreen, Notices, absentOn, batchNo;
+import '../icon.dart';
+import '../icons.g.dart';
 
 class InstituteApp extends StatelessWidget {
   const InstituteApp({super.key});
@@ -13,10 +15,10 @@ class InstituteApp extends StatelessWidget {
   Widget build(BuildContext context) => Live(
     (context) => Tabs(
       [
-        AppTab(Icons.space_dashboard_outlined, t('app.tabs2.dashboard'), const Dashboard()),
-        AppTab(Icons.payments_outlined, t('app.tabs2.fees'), const Fees(), badge: store.students.where((s) => ((s['feeDue'] as num?) ?? 0) > 0).length),
-        AppTab(Icons.groups_outlined, t('app.tabs2.students'), const Students()),
-        AppTab(Icons.campaign_outlined, t('app.tabs2.notices'), const Notices(), screen: 'notices'),
+        AppTab(I.dashboard, t('app.tabs2.dashboard'), const Dashboard()),
+        AppTab(I.fees, t('app.tabs2.fees'), const Fees(), badge: store.students.where((s) => ((s['feeDue'] as num?) ?? 0) > 0).length),
+        AppTab(I.users, t('app.tabs2.students'), const Students()),
+        AppTab(I.megaphone, t('app.tabs2.notices'), const Notices(), screen: 'notices'),
       ],
       details: [(t('settings.yourName'), store.staffName), (t('settings.instituteName'), '${store.state?['instituteName'] ?? ''}')],
     ),
@@ -63,17 +65,17 @@ class Dashboard extends StatelessWidget {
           ],
         ),
         CardGrid([
-          Stat(icon: Icons.groups_rounded, label: t('app.tabs2.students'), value: localNumber(n, lang.code), onTap: () => push(context, const Students(pushed: true))),
-          Stat(icon: Icons.how_to_reg_rounded, color: context.course(1), label: t('app.presentToday'), value: taken ? '${localNumber(n - absentOn(dayKey()).length, lang.code)}/${localNumber(n, lang.code)}' : '—'),
-          Stat(icon: Icons.class_rounded, color: context.course(4), label: t('app.myBatches'), value: localNumber(store.batches.length, lang.code)),
-          Stat(icon: Icons.school_rounded, color: context.course(3), label: t('app.teachers'), value: localNumber(rows(store.state?['staff']).length, lang.code)),
+          Stat(icon: I.users, label: t('app.tabs2.students'), value: localNumber(n, lang.code), onTap: () => push(context, const Students(pushed: true))),
+          Stat(icon: I.personCheck, color: context.course(1), label: t('app.presentToday'), value: taken ? '${localNumber(n - absentOn(dayKey()).length, lang.code)}/${localNumber(n, lang.code)}' : '—'),
+          Stat(icon: I.classroom, color: context.course(4), label: t('app.myBatches'), value: localNumber(store.batches.length, lang.code)),
+          Stat(icon: I.school, color: context.course(3), label: t('app.teachers'), value: localNumber(rows(store.state?['staff']).length, lang.code)),
         ]),
         Section(t('app.myBatches')),
         CardGrid([
           for (final b in store.batches)
             CourseCard(
               color: context.course(batchNo(b['name'])),
-              icon: Icons.groups_rounded,
+              icon: I.users,
               title: '${b['name']}',
               subtitle: '${b['teacher'] ?? ''}\n${t('app.studentsN', [students.where((s) => s['batch'] == b['name']).length])} · ${taka((b['fee'] as num?) ?? 0)}',
               onTap: () => push(context, BatchScreen(batch: '${b['name']}')),
@@ -152,7 +154,7 @@ class Fees extends StatelessWidget {
             children: [
               for (final p in recent)
                 Item(
-                  icon: Icons.check_circle_outline_rounded,
+                  icon: I.checkCircle,
                   title: '${store.student(p['studentId'])?['name'] ?? '#${p['studentId']}'}',
                   subtitle: '${t(p['method'] == 'cash' ? 'app.cash' : 'app.bkash')}${p['at'] is String ? ' · ${fmtWhen(p['at'] as String)}' : ''}',
                   trailing: Strong(taka((p['amount'] as num?) ?? 0)),
@@ -180,12 +182,12 @@ class _StudentsState extends State<Students> {
     return Screen(
       title: widget.pushed ? t('app.tabs2.students') : null,
       children: [
-        Doing(label: t('app.addStudent'), icon: Icons.person_add_alt_1_rounded, onPressed: () async => push(context, const NewStudent())),
+        Doing(label: t('app.addStudent'), icon: I.personAdd, onPressed: () async => push(context, const NewStudent())),
         Semantics(
           container: true,
           child: TextField(
             onChanged: (v) => setState(() => q = v),
-            decoration: InputDecoration(labelText: t('app.search'), hintText: t('roster.searchPh'), prefixIcon: const Icon(Icons.search)),
+            decoration: InputDecoration(labelText: t('app.search'), hintText: t('roster.searchPh'), prefixIcon: Ico(I.search)),
           ),
         ),
         Section(t('roster.count', [list.length])),

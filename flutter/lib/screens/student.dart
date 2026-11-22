@@ -5,9 +5,11 @@ import '../strings.dart';
 import '../ui.dart';
 import '../views.dart';
 import 'lesson.dart';
+import '../icon.dart';
+import '../icons.g.dart';
 
-const kindIcons = {'video': Icons.play_circle_outline_rounded, 'pdf': Icons.description_outlined, 'quiz': Icons.quiz_outlined, 'task': Icons.edit_note_rounded, 'exam': Icons.assignment_outlined};
-const _cardIcons = [Icons.menu_book_rounded, Icons.science_rounded, Icons.calculate_rounded, Icons.public_rounded, Icons.lightbulb_rounded, Icons.auto_stories_rounded, Icons.biotech_rounded, Icons.functions_rounded];
+const kindIcons = {'video': I.play, 'pdf': I.file, 'quiz': I.quiz, 'task': I.editNote, 'exam': I.clipboard};
+const _cardIcons = [I.book, I.flask, I.calculator, I.globe, I.idea, I.books, I.helix, I.formula];
 
 /// A chapter's place in the list: that decides its colour everywhere it shows.
 int chapterNo(Object? moduleId) {
@@ -29,10 +31,10 @@ class StudentApp extends StatelessWidget {
     final me = store.me;
     return Tabs(
       [
-        AppTab(Icons.space_dashboard_outlined, t('app.tabs2.dashboard'), const StudentHome()),
-        AppTab(Icons.checklist_rounded, t('app.todo'), const TodoPage(), badge: todoItems().length, screen: 'todo'),
-        AppTab(Icons.insights_rounded, t('app.tabs2.results'), const Progress(), screen: 'results'),
-        AppTab(Icons.notifications_none_rounded, t('app.notices'), const StudentNotices(), screen: 'notices'),
+        AppTab(I.dashboard, t('app.tabs2.dashboard'), const StudentHome()),
+        AppTab(I.checklist, t('app.todo'), const TodoPage(), badge: todoItems().length, screen: 'todo'),
+        AppTab(I.insights, t('app.tabs2.results'), const Progress(), screen: 'results'),
+        AppTab(I.bell, t('app.notices'), const StudentNotices(), screen: 'notices'),
       ],
       note: t('settings.askInstitute'),
       details: me == null ? const [] : [(t('settings.yourName'), '${me['name']}'), (t('app.batch'), '${me['batch']}'), (t('app.roll'), '${me['id']}'), (t('app.guardian'), '${me['guardianName'] ?? ''}')],
@@ -59,7 +61,7 @@ class NoticeCards extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 12,
               children: [
-                Glyph(Icons.campaign_outlined, color: context.colors.tertiary),
+                Glyph(I.megaphone, color: context.colors.tertiary),
                 Expanded(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, spacing: 2, children: [Strong('${a['title']}'), if (a['at'] is String) Muted(fmtWhen(a['at'] as String))]),
                 ),
@@ -85,7 +87,7 @@ class LiveBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Group(
     title: t('app.nextLive'),
-    children: [Item(icon: Icons.sensors_rounded, color: context.colors.error, title: '${live['topic'] ?? ''}', subtitle: fmtDateTime(live['start'] as String))],
+    children: [Item(icon: I.live, color: context.colors.error, title: '${live['topic'] ?? ''}', subtitle: fmtDateTime(live['start'] as String))],
   );
 }
 
@@ -234,14 +236,14 @@ class ChapterScreen extends StatelessWidget {
             children: [
               for (final it in items)
                 Item(
-                  icon: kindIcons[it['kind']] ?? Icons.article_outlined,
+                  icon: kindIcons[it['kind']] ?? I.file,
                   color: color,
                   title: '${it['title']}',
                   subtitle: [
                     if ('${it['meta'] ?? ''}'.isNotEmpty) '${it['meta']}',
                     if (it['dueDate'] is String) t('app.due', [fmtDate(it['dueDate'] as String)]),
                   ].join(' · '),
-                  trailing: it['done'] == true ? Icon(Icons.check_circle_rounded, color: context.colors.primary, semanticLabel: t('app.done')) : null,
+                  trailing: it['done'] == true ? Ico(I.checkCircle, color: context.colors.primary, semanticLabel: t('app.done')) : null,
                   onTap: () => push(context, LessonScreen(moduleId: moduleId, itemId: it['id'] as int)),
                 ),
             ],
@@ -318,7 +320,7 @@ class ResultLines extends StatelessWidget {
 /// A number with its name, in a small card: attendance, the average mark.
 class Stat extends StatelessWidget {
   const Stat({super.key, required this.icon, required this.label, required this.value, this.note, this.pct, this.onTap, this.color});
-  final IconData icon;
+  final CbIcon icon;
   final String label, value;
   final String? note;
   final num? pct;
@@ -365,13 +367,13 @@ class Progress extends StatelessWidget {
       children: [
         CardGrid([
           Stat(
-            icon: Icons.event_available_rounded,
+            icon: I.eventOk,
             label: t('app.attendance'),
             value: att.held > 0 ? '${localNumber(att.pct, lang.code)}%' : '—',
             pct: att.held > 0 ? att.pct : null,
             note: att.held > 0 ? t('app.attended', [att.present, att.held]) : t('parent.noClasses'),
           ),
-          Stat(icon: Icons.grade_rounded, color: context.course(1), label: t('app.average'), value: avg == null ? '—' : '${localNumber(avg, lang.code)}%', pct: avg, note: avg == null ? t('app.noResults') : null),
+          Stat(icon: I.star, color: context.course(1), label: t('app.average'), value: avg == null ? '—' : '${localNumber(avg, lang.code)}%', pct: avg, note: avg == null ? t('app.noResults') : null),
         ]),
         Group(
           children: [

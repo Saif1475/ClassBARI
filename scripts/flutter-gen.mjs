@@ -9,6 +9,7 @@ import { topicOf, WEIGHT, WORDS } from "../src/lib/chat-topics.ts";
 import { dayKey } from "../src/lib/dates.ts";
 import bn from "../src/lib/i18n/bn.ts";
 import en from "../src/lib/i18n/en.ts";
+import { ICONS } from "../src/lib/icon-set.ts";
 import { gradedResults, monthAttendance } from "../src/lib/lms-views.ts";
 import { taka } from "../src/lib/mock-data.ts";
 import { pageNumbers } from "../src/lib/paging.ts";
@@ -143,4 +144,14 @@ if (wrong.length) {
   process.exit(1);
 }
 save("test/fixtures.json", fixtures);
+
+// The icons, as Dart: the same shapes the website draws (src/lib/icon-set.ts), one constant per icon (I.home…).
+for (const [name, g] of Object.entries(ICONS))
+  for (const d of [...g.s, ...(g.a ?? []), ...(g.f ?? [])])
+    if (/[^MLHVCQZ0-9.\s-]/.test(d)) throw new Error(`icon ${name}: only M L H V C Q Z with plain numbers can be drawn in the apps: ${d}`);
+const dartList = (l) => `[${(l ?? []).map((d) => `'${d}'`).join(", ")}]`;
+writeFileSync(
+  `${dir}lib/icons.g.dart`,
+  `// Made by \`npm run flutter:gen\` from src/lib/icon-set.ts. Do not edit by hand.\n// ignore_for_file: constant_identifier_names\nimport 'icon.dart';\n\n/// ClassBARI's icons, one constant per icon.\nabstract final class I {\n${Object.keys(ICONS).map((k) => `  static const ${k} = CbIcon('${k}');`).join("\n")}\n}\n\n/// Each icon's shapes: stroked lines, soft accent fills, solid fills.\nconst kGlyphs = <String, (List<String>, List<String>, List<String>)>{\n${Object.entries(ICONS).map(([k, g]) => `  '${k}': (${dartList(g.s)}, ${dartList(g.a)}, ${dartList(g.f)}),`).join("\n")}\n};\n`,
+);
 console.log(`flutter words and fixtures written (${fixtures.words.length} text checks)`);

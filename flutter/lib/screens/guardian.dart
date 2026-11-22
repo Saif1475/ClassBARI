@@ -6,6 +6,8 @@ import '../ui.dart';
 import '../views.dart';
 import 'pdf.dart' show Bubble;
 import 'student.dart';
+import '../icon.dart';
+import '../icons.g.dart';
 
 class GuardianApp extends StatelessWidget {
   const GuardianApp({super.key});
@@ -14,10 +16,10 @@ class GuardianApp extends StatelessWidget {
     final kids = store.children, g = kids.firstOrNull;
     return Tabs(
       [
-        AppTab(Icons.space_dashboard_outlined, t('app.tabs.home'), const GuardianHome()),
-        AppTab(Icons.insights_rounded, t('app.tabs2.results'), const GuardianResults(), screen: 'results'),
-        AppTab(Icons.notifications_none_rounded, t('app.notices'), const GuardianNotices(), screen: 'notices'),
-        AppTab(Icons.chat_bubble_outline_rounded, t('app.tabs2.messages'), const GuardianMessages(), screen: 'messages'),
+        AppTab(I.dashboard, t('app.tabs.home'), const GuardianHome()),
+        AppTab(I.insights, t('app.tabs2.results'), const GuardianResults(), screen: 'results'),
+        AppTab(I.bell, t('app.notices'), const GuardianNotices(), screen: 'notices'),
+        AppTab(I.message, t('app.tabs2.messages'), const GuardianMessages(), screen: 'messages'),
       ],
       note: t('settings.askInstitute'),
       details: [(t('settings.yourName'), '${g?['guardianName'] ?? ''}'), (t('settings.phone'), '${g?['phone'] ?? ''}'), for (final k in kids) (t('app.child'), '${k['name']} · ${k['batch']}')],
@@ -74,12 +76,12 @@ class GuardianHome extends StatelessWidget {
           flush: true,
           children: [
             Padding(padding: const EdgeInsets.fromLTRB(16, 16, 16, 4), child: H2(t('glance.title'))),
-            Item(icon: Icons.event_available_rounded, title: att.held > 0 ? t('glance.attended', [att.present, att.held]) : t('parent.noClasses')),
+            Item(icon: I.eventOk, title: att.held > 0 ? t('glance.attended', [att.present, att.held]) : t('parent.noClasses')),
             const Divider(indent: 14, endIndent: 14),
-            Item(icon: Icons.payments_outlined, title: due > 0 ? t('glance.feeDue', [taka(due)]) : t('glance.feePaid')),
+            Item(icon: I.fees, title: due > 0 ? t('glance.feeDue', [taka(due)]) : t('glance.feePaid')),
             if (last.isNotEmpty) ...[
               const Divider(indent: 14, endIndent: 14),
-              Item(icon: Icons.insights_rounded, title: t('glance.lastTest', ['${show(last.first.score)}/${show(last.first.points)}']), subtitle: last.first.title),
+              Item(icon: I.insights, title: t('glance.lastTest', ['${show(last.first.score)}/${show(last.first.points)}']), subtitle: last.first.title),
             ],
             const SizedBox(height: 6),
           ],
@@ -103,11 +105,11 @@ class GuardianHome extends StatelessWidget {
             if (slots.isEmpty) Padding(padding: const EdgeInsets.all(16), child: Muted(t('app.noMeetings'))),
             for (final m in slots)
               Item(
-                icon: Icons.handshake_outlined,
+                icon: I.handshake,
                 color: context.course(4),
                 title: fmtDateTime(m['start'] as String),
                 subtitle: ['${m['teacher'] ?? ''} · ${m['minutes'] ?? ''} min', if (m['bookedBy'] == id) t('app.booked')].join('\n'),
-                trailing: m['bookedBy'] == id ? Icon(Icons.check_circle_rounded, color: context.colors.primary) : Tag(m['bookedBy'] == null ? t('app.book') : t('app.taken'), kind: m['bookedBy'] == null ? 'note' : 'plain'),
+                trailing: m['bookedBy'] == id ? Ico(I.checkCircle, color: context.colors.primary) : Tag(m['bookedBy'] == null ? t('app.book') : t('app.taken'), kind: m['bookedBy'] == null ? 'note' : 'plain'),
                 onTap: () => tapSlot(m),
               ),
           ],
@@ -131,13 +133,13 @@ class GuardianResults extends StatelessWidget {
         if (store.children.length > 1) const ChildChips(),
         CardGrid([
           Stat(
-            icon: Icons.event_available_rounded,
+            icon: I.eventOk,
             label: t('app.attendance'),
             value: att.held > 0 ? '${localNumber(att.pct, lang.code)}%' : '—',
             pct: att.held > 0 ? att.pct : null,
             note: att.held > 0 ? t('app.attended', [att.present, att.held]) : t('parent.noClasses'),
           ),
-          Stat(icon: Icons.grade_rounded, color: context.course(1), label: t('app.average'), value: avg == null ? '—' : '${localNumber(avg, lang.code)}%', pct: avg, note: avg == null ? t('app.noResults') : null),
+          Stat(icon: I.star, color: context.course(1), label: t('app.average'), value: avg == null ? '—' : '${localNumber(avg, lang.code)}%', pct: avg, note: avg == null ? t('app.noResults') : null),
         ]),
         if (note.isNotEmpty) Box(children: [Text(note)]),
         Section(t('app.results')),
@@ -225,7 +227,7 @@ class _ChatThreadState extends State<ChatThread> {
                 decoration: InputDecoration(hintText: t(widget.guardian ? 'app.writeTeacher' : 'app.writeGuardian'), labelText: t('app.tabs2.messages'), counterText: '', fillColor: context.colors.surface),
               ),
             ),
-            Doing(label: t('app.send'), icon: Icons.send, onPressed: text.text.trim().isEmpty ? null : send),
+            Doing(label: t('app.send'), icon: I.send, onPressed: text.text.trim().isEmpty ? null : send),
           ],
         ),
       ],

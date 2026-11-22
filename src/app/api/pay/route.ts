@@ -29,6 +29,7 @@ export async function POST(request: Request) {
   const over = limited(request, "pay", 10, 3600_000, me.who.email); // a person sends a few, not many
   if (over) return over;
   const body = ((await request.json().catch(() => null)) ?? {}) as Record<string, unknown>;
+  if (body.kind === "plan" && me.who.role !== "owner") return Response.json({ error: "not allowed" }, { status: 403 }); // who may pay what, before anything else
   const p = checkPayment(body, await planPrices());
   if ("error" in p) return Response.json(p, { status: 400 });
   if (!payNumbers().some((n) => n.method === p.method)) return Response.json({ error: "method off" }, { status: 400 });
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
     if (me.who.role === "student") studentId = me.who.studentIds[0] ?? null;
     else if (me.who.role === "guardian" && me.who.studentIds.includes(Number(body.studentId))) studentId = Number(body.studentId);
     if (studentId === null) return Response.json({ error: "not allowed" }, { status: 403 });
-  } else if (me.who.role !== "owner") return Response.json({ error: "not allowed" }, { status: 403 });
+  }
   const { data, error } = await admin()
     .from("pay_requests")
     .insert({ institute_id: me.institute, payer_email: me.who.email, payer_role: me.who.role, kind: p.kind, item: p.item, student_id: studentId, months: p.months, amount: p.amount, method: p.method, sender: p.sender, trx_id: p.trxId })

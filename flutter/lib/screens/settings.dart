@@ -17,6 +17,7 @@ import '../views.dart';
 import 'login.dart' show PasswordField;
 import 'pay.dart';
 import 'pdf.dart' show clock;
+import '../icons.g.dart';
 
 /// What the AI app hands to Settings: its models and pack, what is left of the allowance, and a way to clear the chats.
 class AiSettings {
@@ -71,15 +72,15 @@ class SettingsScreen extends StatelessWidget {
             Group(
               title: t('aichat.yourPack'),
               children: [
-                if (ai!.pack != null) Item(icon: Icons.auto_awesome, title: '${taka(ai!.pack!)}${t('aichat.perMonth')}', subtitle: t('aichat.packNote.${ai!.pack}')),
+                if (ai!.pack != null) Item(icon: I.sparkle, title: '${taka(ai!.pack!)}${t('aichat.perMonth')}', subtitle: t('aichat.packNote.${ai!.pack}')),
                 Item(
-                  icon: Icons.add_card_rounded,
+                  icon: I.addCard,
                   color: context.course(2),
                   title: t('pay.buyPack'),
                   onTap: () => push(context, Screen(title: t('pay.buyPack'), children: const [PayForm()])),
                 ),
                 if (ai!.left != null && ai!.resetsAt != null)
-                  Item(icon: Icons.hourglass_bottom_rounded, color: context.course(1), title: t('aichat.usage'), subtitle: t('aichat.usageLeft', [ai!.left, clock(ai!.resetsAt)]), below: MarkBar(ai!.left!, plain: true)),
+                  Item(icon: I.hourglass, color: context.course(1), title: t('aichat.usage'), subtitle: t('aichat.usageLeft', [ai!.left, clock(ai!.resetsAt)]), below: MarkBar(ai!.left!, plain: true)),
               ],
             ),
           if (ai!.models.any((m) => m['locked'] != true && m['soon'] != true))
@@ -189,16 +190,16 @@ class SettingsScreen extends StatelessWidget {
         Group(
           title: t('settings.help'),
           children: [
-            for (final (path, key, icon) in const [('/support', 'support.link', Icons.support_agent_rounded), ('/privacy', 'landing.privacy', Icons.privacy_tip_outlined), ('/terms', 'landing.terms', Icons.description_outlined)])
+            for (final (path, key, icon) in const [('/support', 'support.link', I.support), ('/privacy', 'landing.privacy', I.privacy), ('/terms', 'landing.terms', I.file)])
               Item(
                 icon: icon,
                 title: t(key),
                 onTap: () => launchUrl(Uri.parse('$kApiUrl$path'), mode: LaunchMode.externalApplication),
               ),
-            Item(icon: Icons.info_outline_rounded, title: kAppName, subtitle: t('settings.appVersion', [kVersion])),
+            Item(icon: I.info, title: kAppName, subtitle: t('settings.appVersion', [kVersion])),
           ],
         ),
-        Doing(label: t('app.logOut'), icon: Icons.logout, soft: true, danger: true, onPressed: store.signOut),
+        Doing(label: t('app.logOut'), icon: I.logout, soft: true, danger: true, onPressed: store.signOut),
       ],
     );
   });
@@ -219,10 +220,10 @@ class _AiChatsState extends State<AiChats> {
     return Group(
       title: t('aichat.chats'),
       children: [
-        Item(icon: Icons.chat_bubble_outline_rounded, title: t('aichat.chatsOnDevice', [n]), subtitle: t('aichat.saved')),
+        Item(icon: I.message, title: t('aichat.chatsOnDevice', [n]), subtitle: t('aichat.saved')),
         if (n > 0)
           Item(
-            icon: Icons.delete_outline_rounded,
+            icon: I.trash,
             color: context.colors.error,
             title: t('aichat.deleteAll'),
             onTap: () async {
@@ -411,7 +412,7 @@ class _InstituteCodeState extends State<InstituteCode> {
             Expanded(child: SelectableText('${c['code']}', style: context.type.headlineSmall?.copyWith(letterSpacing: 3))),
             Doing(
               label: t(copied ? 'settings.copied' : 'settings.copy'),
-              icon: Icons.copy_rounded,
+              icon: I.copy,
               small: true,
               soft: true,
               onPressed: () async {
@@ -483,7 +484,7 @@ class _ChangePasswordState extends State<ChangePassword> {
       PasswordField(controller: password, label: t('auth.password'), fresh: true),
       PasswordField(controller: again, label: t('auth.passwordAgain'), fresh: true),
       if (msg != null) Semantics(liveRegion: true, child: Strong(msg!.$2, color: msg!.$1 ? context.colors.primary : context.colors.error)),
-      Doing(label: t('settings.changePassword'), icon: Icons.lock_reset_rounded, onPressed: change),
+      Doing(label: t('settings.changePassword'), icon: I.lockReset, onPressed: change),
     ],
   );
 }

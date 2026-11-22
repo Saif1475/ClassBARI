@@ -9,6 +9,7 @@ import '../api.dart';
 import '../strings.dart';
 import '../ui.dart';
 import '../views.dart';
+import '../icons.g.dart';
 
 class PayForm extends StatefulWidget {
   const PayForm({super.key, this.kind = 'ai_pack'});
@@ -150,7 +151,7 @@ class _PayFormState extends State<PayForm> {
             Item(
               title: '${taka((m['amount'] as num?) ?? 0)} · ${t('pay.monthN', [m['months']])} · ${m['trx_id']}',
               subtitle: '${t('pay.${m['status']}')}${m['reason'] != null ? ': ${m['reason']}' : ''}',
-              icon: m['status'] == 'approved' ? Icons.check_circle_outline : (m['status'] == 'rejected' ? Icons.error_outline : Icons.hourglass_bottom_rounded),
+              icon: m['status'] == 'approved' ? I.checkCircle : (m['status'] == 'rejected' ? I.error : I.hourglass),
             ),
         ],
       ],

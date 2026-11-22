@@ -15,6 +15,8 @@ import 'store.dart';
 import 'strings.dart';
 import 'theme.dart';
 import 'views.dart';
+import 'icon.dart';
+import 'icons.g.dart';
 
 export 'theme.dart' show Look, Tone, lit, deep;
 
@@ -125,7 +127,7 @@ class Tag extends StatelessWidget {
 /// An icon in its own soft rounded square, in the row's colour.
 class Glyph extends StatelessWidget {
   const Glyph(this.icon, {super.key, this.color});
-  final IconData icon;
+  final CbIcon icon;
   final Color? color;
   @override
   Widget build(BuildContext context) {
@@ -140,7 +142,7 @@ class Glyph extends StatelessWidget {
         color: onHero ? Colors.white.withValues(alpha: 0.18) : tint.withValues(alpha: context.dark ? 0.24 : 0.12),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Icon(icon, size: 22, color: ink),
+      child: Ico(icon, size: 22, color: ink),
     );
   }
 }
@@ -212,7 +214,7 @@ class Item extends StatelessWidget {
   const Item({super.key, required this.title, this.subtitle, this.icon, this.color, this.leading, this.trailing, this.below, this.onTap});
   final String title;
   final String? subtitle;
-  final IconData? icon;
+  final CbIcon? icon;
   final Color? color;
   final Widget? leading, trailing, below;
   final VoidCallback? onTap;
@@ -239,7 +241,7 @@ class Item extends StatelessWidget {
               ),
             ),
             // What sits at the end never takes more than about a third of the row: a long label wraps instead of pushing the title out.
-            if (trailing != null) ConstrainedBox(constraints: const BoxConstraints(maxWidth: 132), child: trailing) else if (onTap != null) Icon(Icons.chevron_right, color: context.colors.onSurfaceVariant),
+            if (trailing != null) ConstrainedBox(constraints: const BoxConstraints(maxWidth: 132), child: trailing) else if (onTap != null) Ico(I.chevronRight, color: context.colors.onSurfaceVariant),
           ],
         ),
       ),
@@ -278,12 +280,12 @@ class Group extends StatelessWidget {
 
 /// A course on the dashboard: a block of its own colour on top, its name and how far along it is underneath.
 class CourseCard extends StatelessWidget {
-  const CourseCard({super.key, required this.color, required this.title, this.subtitle, this.progress, this.icon = Icons.menu_book_rounded, this.badge, this.onTap});
+  const CourseCard({super.key, required this.color, required this.title, this.subtitle, this.progress, this.icon = I.book, this.badge, this.onTap});
   final Color color;
   final String title;
   final String? subtitle, badge;
   final num? progress;
-  final IconData icon;
+  final CbIcon icon;
   final VoidCallback? onTap;
   @override
   Widget build(BuildContext context) => Semantics(
@@ -307,7 +309,7 @@ class CourseCard extends StatelessWidget {
                 ),
                 child: Stack(
                   children: [
-                    Positioned(right: -10, bottom: -14, child: Icon(icon, size: 84, color: Colors.white.withValues(alpha: 0.22))),
+                    Positioned(right: -10, bottom: -14, child: Ico(icon, size: 84, color: Colors.white.withValues(alpha: 0.22))),
                     if (badge != null) Positioned(left: 10, top: 10, child: Tag(badge!)),
                   ],
                 ),
@@ -667,7 +669,7 @@ class Loading extends StatelessWidget {
 /// One tab of an app: its icon, its name, its page, and a count to show on the icon (things waiting).
 class AppTab {
   const AppTab(this.icon, this.label, this.page, {this.badge = 0, this.screen});
-  final IconData icon;
+  final CbIcon icon;
   final String label;
   final Widget page;
   final int badge;
@@ -780,7 +782,7 @@ class TabItem extends StatelessWidget {
                   isLabelVisible: tab.badge > 0,
                   label: Text(localNumber(tab.badge, lang.code)),
                   offset: const Offset(-8, -2),
-                  child: Icon(tab.icon, size: 23, color: on ? c.primary : c.onSurfaceVariant),
+                  child: Ico(tab.icon, size: 23, color: on ? c.primary : c.onSurfaceVariant),
                 ),
               ),
               Text(
@@ -827,7 +829,7 @@ class SideMenu extends StatelessWidget {
             const SizedBox(height: 14),
             const Divider(),
             Item(
-              icon: Icons.settings_outlined,
+              icon: I.settings,
               title: t('settings.title'),
               onTap: () {
                 Navigator.pop(context); // close the menu first
@@ -835,7 +837,7 @@ class SideMenu extends StatelessWidget {
               },
             ),
             Item(
-              icon: Icons.support_agent_rounded,
+              icon: I.support,
               color: context.course(1),
               title: t('support.link'),
               onTap: () => launchUrl(Uri.parse('$kApiUrl/support'), mode: LaunchMode.externalApplication),
@@ -846,7 +848,7 @@ class SideMenu extends StatelessWidget {
             const SizedBox(height: 8),
             Chips(value: lang.code, options: const ['en', 'bn'], labels: const {'en': 'English', 'bn': 'বাংলা'}, onChanged: store.setLang),
             const SizedBox(height: 24),
-            Doing(label: t('app.logOut'), icon: Icons.logout, soft: true, danger: true, onPressed: store.signOut),
+            Doing(label: t('app.logOut'), icon: I.logout, soft: true, danger: true, onPressed: store.signOut),
           ],
         ),
       ),
@@ -949,9 +951,9 @@ class _PagedState<T> extends State<Paged<T>> {
                 Wrap(
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    IconButton(tooltip: t('pager.prev'), onPressed: at > 1 ? () => setState(() => page = at - 1) : null, icon: const Icon(Icons.chevron_left)),
+                    IconButton(tooltip: t('pager.prev'), onPressed: at > 1 ? () => setState(() => page = at - 1) : null, icon: Ico(I.chevronLeft)),
                     for (final n in pageNumbers(at, pages)) number(n),
-                    IconButton(tooltip: t('pager.next'), onPressed: at < pages ? () => setState(() => page = at + 1) : null, icon: const Icon(Icons.chevron_right)),
+                    IconButton(tooltip: t('pager.next'), onPressed: at < pages ? () => setState(() => page = at + 1) : null, icon: Ico(I.chevronRight)),
                   ],
                 ),
               ],
@@ -995,7 +997,7 @@ class Doing extends StatefulWidget {
   const Doing({super.key, required this.label, required this.onPressed, this.icon, this.soft = false, this.danger = false, this.small = false, this.color});
   final String label;
   final Future<void> Function()? onPressed;
-  final IconData? icon;
+  final CbIcon? icon;
   final bool soft, danger, small;
 
   /// A course's colour instead of the app's.
@@ -1045,7 +1047,7 @@ class _DoingState extends State<Doing> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 spacing: 8,
                 children: [
-                  if (busy) SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2.5, color: ink)) else if (widget.icon != null) Icon(widget.icon, size: 20, color: ink),
+                  if (busy) SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2.5, color: ink)) else if (widget.icon != null) Ico(widget.icon!, size: 20, color: ink),
                   Flexible(
                     child: Text(
                       widget.label,

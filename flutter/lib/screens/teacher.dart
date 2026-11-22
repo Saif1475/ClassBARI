@@ -8,6 +8,7 @@ import '../views.dart';
 import 'guardian.dart' show ChatThread;
 import 'lesson.dart' show OpenFile;
 import 'pdf.dart';
+import '../icons.g.dart';
 
 /// Homework and written exams handed in but not marked yet, in the batches this person looks after.
 List<({Json m, Json it, int sid, Json sub})> toMark() {
@@ -42,10 +43,10 @@ class TeacherApp extends StatelessWidget {
   Widget build(BuildContext context) => Live(
     (context) => Tabs(
       [
-        AppTab(Icons.space_dashboard_outlined, t('app.myBatches'), const TeacherHome()),
-        AppTab(Icons.checklist_rounded, t('app.todo'), const Marking(), badge: toMark().length, screen: 'todo'),
-        AppTab(Icons.chat_bubble_outline_rounded, t('app.tabs2.messages'), const Inbox(), badge: guardianChats().fold<int>(0, (n, c) => n + ((c['unread'] as num?) ?? 0).toInt()), screen: 'messages'),
-        AppTab(Icons.campaign_outlined, t('app.tabs2.notices'), const Notices(), screen: 'notices'),
+        AppTab(I.dashboard, t('app.myBatches'), const TeacherHome()),
+        AppTab(I.checklist, t('app.todo'), const Marking(), badge: toMark().length, screen: 'todo'),
+        AppTab(I.message, t('app.tabs2.messages'), const Inbox(), badge: guardianChats().fold<int>(0, (n, c) => n + ((c['unread'] as num?) ?? 0).toInt()), screen: 'messages'),
+        AppTab(I.megaphone, t('app.tabs2.notices'), const Notices(), screen: 'notices'),
       ],
       details: [
         (t('settings.yourName'), store.staffName),
@@ -72,10 +73,10 @@ class TeacherHome extends StatelessWidget {
           Group(
             title: t('tday.attention'),
             children: [
-              if (waiting > 0) Item(icon: Icons.fact_check_outlined, color: context.colors.tertiary, title: t('tday.toMark', [waiting]), onTap: () => push(context, const Marking(pushed: true))),
+              if (waiting > 0) Item(icon: I.factCheck, color: context.colors.tertiary, title: t('tday.toMark', [waiting]), onTap: () => push(context, const Marking(pushed: true))),
               if (unread.isNotEmpty)
                 Item(
-                  icon: Icons.chat_bubble_outline_rounded,
+                  icon: I.message,
                   color: context.course(1),
                   title: t('tday.unread', [unread.fold<num>(0, (n, c) => n + (c['unread'] as num))]),
                   onTap: () => push(context, ChatScreen(threadId: '${unread.first['id']}')),
@@ -92,7 +93,7 @@ class TeacherHome extends StatelessWidget {
                 final out = kids.where((k) => absent.contains(k['id'])).length;
                 return CourseCard(
                   color: context.course(batchNo(b['name'])),
-                  icon: Icons.groups_rounded,
+                  icon: I.users,
                   title: '${b['name']}',
                   subtitle: '${b['days'] ?? ''}\n${t('app.studentsN', [kids.length])}',
                   badge: taken && out > 0 ? t('app.absentToday', [out]) : null,
@@ -129,14 +130,14 @@ class BatchScreen extends StatelessWidget {
       children: [
         Doing(
           label: t('tday.takeAttendance'),
-          icon: Icons.how_to_reg_rounded,
+          icon: I.personCheck,
           color: color,
           onPressed: () async => push(context, Attendance(batch: batch)),
         ),
         Group(
           children: [
-            Item(icon: Icons.event_busy_outlined, color: color, title: t('app.absentToday', [out]), subtitle: t('app.studentsN', [kids.length])),
-            Item(icon: Icons.fact_check_outlined, color: color, title: t('tday.toMark', [toMark().where((x) => x.m['batch'] == batch).length]), onTap: () => push(context, const Marking(pushed: true))),
+            Item(icon: I.eventBusy, color: color, title: t('app.absentToday', [out]), subtitle: t('app.studentsN', [kids.length])),
+            Item(icon: I.factCheck, color: color, title: t('tday.toMark', [toMark().where((x) => x.m['batch'] == batch).length]), onTap: () => push(context, const Marking(pushed: true))),
           ],
         ),
         if (pdfs.isNotEmpty)
@@ -145,7 +146,7 @@ class BatchScreen extends StatelessWidget {
             children: [
               for (final it in pdfs)
                 Item(
-                  icon: Icons.auto_awesome,
+                  icon: I.sparkle,
                   color: color,
                   title: '${it['title']}',
                   onTap: () => push(context, PdfScreen(file: '${it['url']}', title: '${it['title']}')),
@@ -233,7 +234,7 @@ class _AttendanceState extends State<Attendance> {
         if (kids.isNotEmpty)
           Doing(
             label: t('app.allPresent'),
-            icon: Icons.done_all,
+            icon: I.checkAll,
             soft: true,
             onPressed: () => store.act('markAllPresent', [
               [for (final k in kids) k['id']],
@@ -302,7 +303,7 @@ class Marking extends StatelessWidget {
               Paged(
                 items: list,
                 row: (x) => Item(
-                  icon: Icons.edit_note_rounded,
+                  icon: I.editNote,
                   color: context.course(batchNo(x.m['batch'])),
                   title: '${store.student(x.sid)?['name'] ?? '#${x.sid}'}',
                   subtitle: '${x.it['title']}\n${x.m['batch']}${x.sub['at'] is String ? ' · ${fmtWhen(x.sub['at'] as String)}' : ''}',
@@ -471,7 +472,7 @@ class _NoticesState extends State<Notices> {
                 decoration: InputDecoration(labelText: t('app.noticeBody'), counterText: '', alignLabelWithHint: true, fillColor: context.colors.surface),
               ),
             ),
-            Doing(label: t('app.post'), icon: Icons.send_rounded, onPressed: ready ? post : null),
+            Doing(label: t('app.post'), icon: I.send, onPressed: ready ? post : null),
           ],
         ),
         if (list.isEmpty) Muted(t('app.noNotices')),
@@ -481,7 +482,7 @@ class _NoticesState extends State<Notices> {
             children: [
               Paged(
                 items: list,
-                row: (a) => Item(icon: Icons.campaign_outlined, color: context.course(batchNo(a['batch'])), title: '${a['title']}', subtitle: '${a['body']}\n${a['batch']}${a['at'] is String ? ' · ${fmtWhen(a['at'] as String)}' : ''}'),
+                row: (a) => Item(icon: I.megaphone, color: context.course(batchNo(a['batch'])), title: '${a['title']}', subtitle: '${a['body']}\n${a['batch']}${a['at'] is String ? ' · ${fmtWhen(a['at'] as String)}' : ''}'),
               ),
             ],
           ),
