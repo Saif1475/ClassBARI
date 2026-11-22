@@ -649,8 +649,8 @@ function StudentCard({ s, send }: { s: StudentRow; send: (body: Record<string, u
 }
 
 type AiData = {
-  settings: { budgetUsd?: number; freeOn?: boolean; freeDaily?: number; freeWindowUsd?: number; packMonthlyUsd?: Record<string, number>; packDaily?: Record<string, number> };
-  defaults: { budgetUsd: number; freeOn: boolean; freeDaily: number; freeWindowUsd: number; packMonthlyUsd: Record<string, number>; packDaily: Record<string, number> };
+  settings: { budgetUsd?: number; freeOn?: boolean; freeDaily?: number; freeWindowUsd?: number; packMargin?: number; usdToBdt?: number; packMonthlyUsd?: Record<string, number>; packDaily?: Record<string, number> };
+  defaults: { budgetUsd: number; freeOn: boolean; freeDaily: number; freeWindowUsd: number; packMargin: number; usdToBdt: number; packMonthlyUsd: Record<string, number>; packDaily: Record<string, number> };
   since: string;
   spend: { total: number; byInstitute: { name: string; usd: number }[] } | null;
   providers: { id: string; key: string; keySet: boolean; on: boolean }[];
@@ -688,6 +688,9 @@ function AiControl({ token, act }: { token: string; act: Act }) {
         <Setting label="Free plan: tokens a day (half per 12-hour window)" value={s.freeDaily} def={d.freeDaily} onSave={(v) => set({ key: "freeDaily", value: v })} />
         <Setting label="Free plan: most money per 12-hour window (US$)" value={s.freeWindowUsd} def={d.freeWindowUsd} step="0.0001" onSave={(v) => set({ key: "freeWindowUsd", value: v })} />
         {PACKS.map((p) => <Setting key={p} label={`Pack ৳${p}: tokens a day`} value={s.packDaily?.[p]} def={d.packDaily[p]} onSave={(v) => set({ key: "packDaily", pack: p, value: v })} />)}
+        <Setting label="Profit margin on AI packs (0.40 = 40%; the monthly caps below follow it)" value={s.packMargin} def={d.packMargin} step="0.01" onSave={(v) => set({ key: "packMargin", value: v })} />
+        <Setting label="Dollar rate (৳ per US$)" value={s.usdToBdt} def={d.usdToBdt} step="0.5" onSave={(v) => set({ key: "usdToBdt", value: v })} />
+        <p className="text-sm text-on-surface-variant">Each cap = pack price × (1 − margin) ÷ dollar rate. Fill a box below only to set that pack's cap by hand.</p>
         {PACKS.map((p) => <Setting key={`cap${p}`} label={`Pack ৳${p}: AI money cap per student per month (US$)`} value={s.packMonthlyUsd?.[p]} def={d.packMonthlyUsd[p]} step="0.1" onSave={(v) => set({ key: "packMonthlyUsd", pack: p, value: v })} />)}
       </section>
       <section className={`${card} flex flex-col gap-2`}>

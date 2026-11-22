@@ -152,8 +152,10 @@ function setAi(ai: AiSettings, a: Record<string, unknown>): string | { error: st
     freeOn: (x) => typeof x === "boolean",
     freeDaily: (x) => num(x, 10_000_000, true),
     freeWindowUsd: (x) => num(x, 10),
+    packMargin: (x) => num(x, 0.95), // 0–95%: the monthly caps follow it
+    usdToBdt: (x) => num(x, 1000) && (x as number) >= 50,
   };
-  const key = a.key as "budgetUsd" | "freeOn" | "freeDaily" | "freeWindowUsd";
+  const key = a.key as "budgetUsd" | "freeOn" | "freeDaily" | "freeWindowUsd" | "packMargin" | "usdToBdt";
   if (typeof a.key !== "string" || !Object.hasOwn(ok, key) || (v !== null && !ok[key](v))) return { error: "bad AI setting" };
   if (v === null) delete ai[key];
   else Object.assign(ai, { [key]: v });

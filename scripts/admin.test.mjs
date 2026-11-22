@@ -43,10 +43,18 @@ test("AI settings are validated, logged, take effect, and null goes back to the 
   assert.equal(windowCostUsd(0, p.ai), 0.01);
   ai({ key: "packMonthlyUsd", pack: 400, value: 3 });
   assert.equal(packMonthlyUsd(400, p.ai), 3);
+  // The margin and dollar rate drive the caps; a cap typed by hand still wins for its pack.
+  assert.deepEqual(ai({ key: "packMargin", value: 0.99 }), { error: "bad AI setting" });
+  assert.deepEqual(ai({ key: "usdToBdt", value: 5 }), { error: "bad AI setting" });
+  ai({ key: "packMargin", value: 0.5 });
+  ai({ key: "usdToBdt", value: 125 });
+  assert.equal(packMonthlyUsd(800, p.ai), 3.2); // 800 × 50% ÷ 125
+  assert.equal(packMonthlyUsd(400, p.ai), 3); // set by hand above
+  assert.equal(aiDefaults(p.ai).packMonthlyUsd[1500], 6); // what the panel shows: 1500 × 50% ÷ 125
 
   ai({ key: "budgetUsd", value: null });
   assert.equal(p.ai.budgetUsd, undefined);
-  assert.equal(p.audit.length, 7); // only the accepted changes are logged
+  assert.equal(p.audit.length, 9); // only the accepted changes are logged
   assert.ok(p.audit.every((a) => a.action === "ai"));
 });
 

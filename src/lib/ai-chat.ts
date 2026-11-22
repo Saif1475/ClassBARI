@@ -44,9 +44,9 @@ const PLANS: Record<number, { daily: number; adds: string[] }> = {
 /** The share of a pack's price that is ours whatever the student does (owner's decision 2026-11-23: a 40% margin). */
 export const PACK_MARGIN = 0.4;
 /** ৳ per US$ (USD_TO_BDT in .env.local when the rate moves). */
-const usdToBdt = () => Number(process.env.USD_TO_BDT) || 122;
-/** The most AI money one student's pack may use in a calendar month (Dhaka time), US$: 60% of its price, to the cent below. */
-export const packCapUsd = (pack: number) => Math.floor((pack * (1 - PACK_MARGIN) * 100) / usdToBdt()) / 100;
+const usdToBdt = (s: AiSettings = {}) => s.usdToBdt ?? (Number(process.env.USD_TO_BDT) || 122);
+/** The most AI money one student's pack may use in a calendar month (Dhaka time), US$: what the margin leaves, to the cent below. */
+export const packCapUsd = (pack: number, s: AiSettings = {}) => Math.floor((pack * (1 - (s.packMargin ?? PACK_MARGIN)) * 100) / usdToBdt(s)) / 100;
 export const PACK_MONTHLY_USD: Record<number, number> = Object.fromEntries(PACKS.map((p) => [p, packCapUsd(p)]));
 /** Students without a pack: the free models (under $0.20 for answers), 10,000 answer tokens every 12 hours. pack 0 means free. */
 export const FREE = { pack: 0, daily: 20_000, models: inPlan(0) };
@@ -75,24 +75,28 @@ export type AiSettings = {
   freeDaily?: number; // tokens a day (two 12-hour windows)
   freeWindowUsd?: number;
   packDaily?: Record<string, number>; // by pack price
-  packMonthlyUsd?: Record<string, number>; // by pack price: the most AI money one student may use in a month
+  packMonthlyUsd?: Record<string, number>; // by pack price: the most AI money one student may use in a month (overrides the margin)
+  packMargin?: number; // share of each pack's price that is ours (0.4 = 40%); the monthly caps follow it
+  usdToBdt?: number; // ৳ per US$
 };
 export const PROVIDERS = ["anthropic", "google", "qwen", "openai"] as const;
 /** Switched on in the admin panel (both the model and its provider). */
 export const modelOn = (id: string, s: AiSettings = {}) => !!MODELS[id] && !s.offModels?.includes(id) && !s.offProviders?.includes(MODELS[id].provider);
 export const monthlyBudgetUsd = (s: AiSettings = {}) => s.budgetUsd ?? Number(process.env.AI_MONTHLY_BUDGET_USD || 30);
 /** The values used when the admin panel has not changed them. */
-export const aiDefaults = () => ({
+export const aiDefaults = (s: AiSettings = {}) => ({
+  packMargin: PACK_MARGIN,
+  usdToBdt: Number(process.env.USD_TO_BDT) || 122,
   budgetUsd: Number(process.env.AI_MONTHLY_BUDGET_USD || 30),
   freeOn: true,
   freeDaily: FREE.daily,
   freeWindowUsd: FREE_WINDOW_USD,
-  packMonthlyUsd: Object.fromEntries(PACKS.map((p) => [p, PACK_MONTHLY_USD[p]])) as Record<string, number>,
+  packMonthlyUsd: Object.fromEntries(PACKS.map((p) => [p, packCapUsd(p, s)])) as Record<string, number>, // from the margin and rate in use
   packDaily: Object.fromEntries(PACKS.map((p) => [p, PLANS[p].daily])) as Record<string, number>,
 });
 
 /** A pack's monthly AI money cap (US$) as the admin panel set it, else the owner's default. */
-export const packMonthlyUsd = (pack: number, s: AiSettings = {}) => s.packMonthlyUsd?.[pack] ?? PACK_MONTHLY_USD[pack] ?? 0;
+export const packMonthlyUsd = (pack: number, s: AiSettings = {}) => s.packMonthlyUsd?.[pack] ?? ((PACKS as readonly number[]).includes(pack) ? packCapUsd(pack, s) : 0);
 /** The free plan's money backstop per 12-hour window (packs have a monthly cap instead). */
 export const windowCostUsd = (pack: number, s: AiSettings = {}) => (pack ? Infinity : (s.freeWindowUsd ?? FREE_WINDOW_USD));
 /** When the next calendar month starts in Dhaka (UTC+6), as a time: when a pack's monthly AI cap refills. */

@@ -25,7 +25,7 @@ export async function GET(request: Request) {
   }
   return Response.json({
     settings: ai,
-    defaults: aiDefaults(),
+    defaults: aiDefaults(ai), // caps shown from the margin and rate in use
     since,
     spend,
     providers: PROVIDERS.map((id) => ({ id, key: PROVIDER_KEY[id], keySet: !!process.env[PROVIDER_KEY[id]], on: !ai.offProviders?.includes(id) })),
