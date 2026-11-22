@@ -23,6 +23,7 @@ screenshots/
 /android/*/.twa-manifest.saved
 /android/*/store_icon.png
 /.next-demo
+/.next-live
 
 # The phone app keeps its own Git history inside its folder (mobile/.git).
 /mobile/
