@@ -271,7 +271,7 @@ class _AiChatAppState extends State<AiChatApp> {
               selected: m['id'] == chosen?['id'],
               leading: Ico(m['locked'] == true ? I.lock : (m['id'] == chosen?['id'] ? I.radioOn : I.radioOff)),
               title: Text('${m['label']}'),
-              subtitle: Text(m['locked'] == true ? t('aichat.unlockWith', [taka(m['pack'] as num)]) : (m['soon'] == true ? t('aichat.modelSoon') : t('aichat.inPack', [taka(m['pack'] as num)]))),
+              subtitle: Text(m['locked'] == true ? t('aichat.unlockWith', [taka(m['pack'] as num)]) : (m['soon'] == true ? t('aichat.modelSoon') : (m['pack'] == 0 ? t('aichat.free') : t('aichat.inPack', [taka(m['pack'] as num)])))),
               onTap: () {
                 store.setting('classbari-ai-model', '${m['id']}');
                 Navigator.pop(context);
@@ -693,7 +693,7 @@ class _AiChatAppState extends State<AiChatApp> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('${store.me?['name'] ?? ''}', maxLines: 1, overflow: TextOverflow.ellipsis, style: context.type.titleMedium),
-                    Muted(pack == null ? (store.email ?? '') : '${t('aichat.packLabel')} · ${taka(pack!)}${t('aichat.perMonth')}', lines: 1),
+                    Muted(pack == null ? (store.email ?? '') : (pack == 0 ? t('aichat.freePlan') : '${t('aichat.packLabel')} · ${taka(pack!)}${t('aichat.perMonth')}'), lines: 1),
                   ],
                 ),
               ),

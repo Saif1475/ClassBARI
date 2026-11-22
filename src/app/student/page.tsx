@@ -887,7 +887,7 @@ export default function StudentPage() {
             </main>
           )}
 
-          {navTab === "ai" && me && <AiChat meId={me.id} name={me.name} email={me.email} premium={!!me.premiumUntil && me.premiumUntil >= dayKey()} />}
+          {navTab === "ai" && me && <AiChat meId={me.id} name={me.name} email={me.email} />}
 
           {/* ============================== COMMUNITY ============================== */}
           {navTab === "community" && me && (

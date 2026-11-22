@@ -232,6 +232,8 @@ try {
   check("teacher can preview and edit the highlights", ins.json?.canEdit === true);
   r = await insights(student);
   check("a student without premium sees it's locked", r.status === 402);
+  const free = await call(student, "GET", "/api/ai/assistant");
+  check("a student without a pack gets the free AI chat (Qwen Flash only)", free.status === 200 && free.json.pack === 0 && free.json.models.filter((m) => !m.locked).every((m) => m.id === "qwen3.7-flash"));
   r = await insights(guardian);
   check("guardians don't get it", r.status === 402);
   await act(owner, "setStudentPremium", [me.id, "2099-12-31"]);

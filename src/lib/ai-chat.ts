@@ -30,6 +30,10 @@ const PLANS: Record<number, { daily: number; adds: string[] }> = {
   800: { daily: 150_000, adds: ["gpt-5.6-luna", "qwen3.7-plus"] },
   1500: { daily: 200_000, adds: ["claude-sonnet-5-5", "qwen3.8-flash", "qwen3.8-max"] },
 };
+/** Students without a pack: the cheapest model, 10,000 answer tokens every 12 hours. pack 0 means free. */
+export const FREE = { pack: 0, daily: 20_000, models: ["qwen3.7-flash"] };
+/** Free: the most AI money one student may use in a 12-hour window (a backstop to the tokens; ~$0.0015 at full use). */
+const FREE_WINDOW_USD = Number(process.env.AI_FREE_WINDOW_USD) || 0.004;
 export function packPlan(pack: number | undefined) {
   const price = PLANS[pack ?? 0] ? (pack as number) : 150; // premium given before packs existed counts as the smallest
   // Cheapest model first: the first one that is set up is the default; students switch to a stronger one when they want.
@@ -46,7 +50,7 @@ export function packPlan(pack: number | undefined) {
 export const PACK_COST_SHARE = Number(process.env.AI_PACK_COST_SHARE) || 0.65;
 const usdToBdt = () => Number(process.env.USD_TO_BDT) || 122;
 /** US$ a student's pack may spend in one 12-hour window (a month has 60 of them). */
-export const windowCostUsd = (pack: number) => (pack * PACK_COST_SHARE) / usdToBdt() / 60;
+export const windowCostUsd = (pack: number) => (pack ? (pack * PACK_COST_SHARE) / usdToBdt() / 60 : FREE_WINDOW_USD);
 /** The window just before this one (overuse in it is taken from this one). */
 export function previousWindow(w: { day: string; slot: number }) {
   if (w.slot > 0) return { day: w.day, slot: w.slot - 1 };
@@ -83,10 +87,15 @@ export async function takeTurn(key: string) {
 
 /**
  * Every chat model for the picker, cheapest pack first: `pack` is the smallest pack that has it, and `locked` says
- * this student's pack doesn't (so they see what a bigger pack would give them).
+ * this student's pack doesn't (so they see what a bigger pack would give them). Free (pack 0): the free model shows
+ * pack 0, every other one is locked.
  */
 export const modelMenu = (pack: number | undefined) =>
-  PACKS.flatMap((p) => PLANS[p].adds.map((id) => ({ id, label: MODELS[id].label, pack: p as number, locked: p > packPlan(pack).pack })));
+  PACKS.flatMap((p) =>
+    PLANS[p].adds.map((id) =>
+      pack === 0 && FREE.models.includes(id) ? { id, label: MODELS[id].label, pack: 0, locked: false } : { id, label: MODELS[id].label, pack: p as number, locked: pack === 0 || p > packPlan(pack).pack },
+    ),
+  );
 
 /** How much of an attached file's text goes with a chat (it is sent again with every question, so it uses the allowance). */
 export const FILE_TEXT_MAX = 30_000;

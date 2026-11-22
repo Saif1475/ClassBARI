@@ -102,6 +102,16 @@ test("the model picker lists every model and locks the ones a bigger pack has", 
   assert.ok(modelMenu(1500).every((m) => !m.locked));
 });
 
+test("free plan: only Qwen Flash, 10,000 tokens a window, a small money backstop", async () => {
+  const { FREE, modelMenu, windowTokens, windowCostUsd } = await import("../src/lib/ai-chat.ts");
+  assert.deepEqual(FREE.models, ["qwen3.7-flash"]);
+  assert.equal(windowTokens(FREE.daily), 10_000);
+  assert.ok(windowCostUsd(0) > 0 && windowCostUsd(0) < windowCostUsd(150));
+  const free = modelMenu(0);
+  assert.deepEqual(free.filter((m) => !m.locked).map((m) => [m.id, m.pack]), [["qwen3.7-flash", 0]]);
+  assert.equal(free.find((m) => m.id === "gemini-2.5-flash-lite").pack, 150); // shown as "unlock with ৳150"
+});
+
 test("an attached file's text goes before the first question, and is checked", async () => {
   const { chatFile, withFile, FILE_TEXT_MAX } = await import("../src/lib/ai-chat.ts");
   const f = chatFile({ name: 'notes "ch 4".pdf', text: "Waves carry energy." });

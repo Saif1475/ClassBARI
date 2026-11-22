@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/Icon";
 import { PayForm } from "@/components/PayForm";
-import { FILE_TEXT_MAX, modelMenu, PACKS, TRAILER } from "@/lib/ai-chat";
+import { FILE_TEXT_MAX, modelMenu, TRAILER } from "@/lib/ai-chat";
 import { topicOf, TOPICS, type Topic } from "@/lib/chat-topics";
 import { SAMPLE_STUDENT, sampleChats } from "@/lib/sample-chats";
 import { REAL_AUTH } from "@/lib/auth-mode";
@@ -51,7 +51,7 @@ function Rich({ text }: { text: string }) {
 }
 
 /** The AI chat section (student AI packs): chats kept on this device, answers streamed from /api/ai/assistant. */
-export function AiChat({ meId, name, premium, email }: { meId: number; name: string; premium: boolean; email?: string }) {
+export function AiChat({ meId, name, email }: { meId: number; name: string; email?: string }) {
   const { t } = useLang();
   const A = t.aichat;
   const storeKey = `edunest-ai-chats-${meId}`;
@@ -98,6 +98,7 @@ export function AiChat({ meId, name, premium, email }: { meId: number; name: str
   // Every model: the ones a bigger pack unlocks are shown locked. Without the server (demo), the smallest pack's view.
   const [models, setModels] = useState<Model[]>(() => modelMenu(150).map((m) => ({ ...m, soon: false })));
   const [model, setModel] = useState("");
+  const [pack, setPack] = useState<number | null>(null); // 0: the free plan
   const [menu, setMenu] = useState(false);
   const menuBox = useRef<HTMLDivElement>(null);
   const [addMenu, setAddMenu] = useState(false); // "Add file": the list of file kinds
@@ -127,12 +128,13 @@ export function AiChat({ meId, name, premium, email }: { meId: number; name: str
     }
   }, [storeKey]);
   useEffect(() => {
-    if (!REAL_AUTH || !premium) return;
+    if (!REAL_AUTH) return;
     void fetch("/api/ai/assistant")
       .then((r) => (r.ok ? r.json() : null))
-      .then((d: { models: Model[]; pick: string | null; left?: number; resetsAt?: string } | null) => {
+      .then((d: { models: Model[]; pick: string | null; pack?: number; left?: number; resetsAt?: string } | null) => {
         if (!d?.models) return;
         setModels(d.models);
+        setPack(d.pack ?? null);
         let mine: string | null = null; // the model picked last time, if this pack still has it
         try {
           mine = localStorage.getItem(modelKey);
@@ -143,7 +145,7 @@ export function AiChat({ meId, name, premium, email }: { meId: number; name: str
         if (typeof d.left === "number" && d.resetsAt) setUsage({ left: d.left, resetsAt: d.resetsAt });
       })
       .catch(() => {});
-  }, [premium]);
+  }, []);
   const save = (next: Chat[], keepNow = true) => {
     setChats(next);
     if (!keepNow) return; // shown on screen only; written to the device a moment later
@@ -254,23 +256,6 @@ export function AiChat({ meId, name, premium, email }: { meId: number; name: str
     }
   };
 
-  if (REAL_AUTH && !premium)
-    return (
-      <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 p-4 md:p-8">
-        <h1 className="text-3xl font-bold">{A.lockedTitle}</h1>
-        <p className="text-on-surface-variant">{A.lockedBody}</p>
-        <ul className="grid grid-cols-[repeat(auto-fill,minmax(11rem,1fr))] gap-3">
-          {PACKS.map((p) => (
-            <li key={p} className="flex flex-col gap-1 rounded-[16px] border border-outline-variant bg-white p-4">
-              <span className="text-2xl font-extrabold">{taka(p)}<span className="text-sm font-semibold text-on-surface-variant">{A.perMonth}</span></span>
-              <span className="text-sm text-on-surface-variant">{A.packNote[p]}</span>
-            </li>
-          ))}
-        </ul>
-        <PayForm kind="ai_pack" />
-      </div>
-    );
-
   // Folders by topic, the one used most recently first; a search shows only matching chats (title or anything said in them).
   const needle = find.trim().toLowerCase();
   const shown = needle ? chats.filter((c) => c.title.toLowerCase().includes(needle) || c.msgs.some((m) => m.content.toLowerCase().includes(needle)) || !!c.file?.name.toLowerCase().includes(needle)) : chats;
@@ -341,6 +326,11 @@ export function AiChat({ meId, name, premium, email }: { meId: number; name: str
               </div>
             </div>
           ))}
+          {pack === 0 && (
+            <p className="text-xs text-on-surface-variant">
+              <span className="font-bold text-on-surface">{A.freePlan}:</span> {A.packNote[0]}
+            </p>
+          )}
           {REAL_AUTH && (
             <details className="rounded-[10px] border border-outline-variant">
               <summary className="cursor-pointer px-3 py-2 text-xs font-bold">{t.pay.buyPack}</summary>
@@ -479,7 +469,7 @@ export function AiChat({ meId, name, premium, email }: { meId: number; name: str
                           <button type="button" disabled={off} onClick={() => (pickModel(m.id), setMenu(false))} className={`flex min-h-12 w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-sm ${m.id === chosen?.id ? "bg-surface-container" : ""} ${off ? "cursor-not-allowed" : "hover:bg-surface-container"}`}>
                             <span className="flex min-w-0 flex-1 flex-col">
                               <span className={`font-bold ${off ? "text-on-surface-variant" : ""}`}>{m.label}</span>
-                              <span className="text-xs text-on-surface-variant">{m.locked ? A.unlockWith(taka(m.pack)) : m.soon ? A.modelSoon : A.inPack(taka(m.pack))}</span>
+                              <span className="text-xs text-on-surface-variant">{m.locked ? A.unlockWith(taka(m.pack)) : m.soon ? A.modelSoon : m.pack === 0 ? A.free : A.inPack(taka(m.pack))}</span>
                             </span>
                             <span aria-hidden className="shrink-0 text-base">{m.locked ? "🔒" : m.id === chosen?.id ? "✓" : ""}</span>
                           </button>

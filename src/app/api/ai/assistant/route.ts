@@ -1,4 +1,4 @@
-import { chatFile, chatImage, chatPrefs, cleanHistory, costUsd, modelMenu, packPlan, prefsRule, takeTurn, TRAILER, usedTokens, withFile } from "@/lib/ai-chat";
+import { chatFile, chatImage, chatPrefs, cleanHistory, costUsd, FREE, modelMenu, packPlan, prefsRule, takeTurn, TRAILER, usedTokens, withFile } from "@/lib/ai-chat";
 import { allowance } from "@/lib/ai-allowance";
 import { modelReady, streamChat } from "@/lib/ai-providers";
 import { embed, findAnswer, saveAnswer, shareable, VET_RULES, vetAsk, vetModel, vetSaysYes } from "@/lib/answer-cache";
@@ -24,8 +24,9 @@ async function gate(request: Request) {
   if (me.who.role !== "student") return { error: Response.json({ locked: "students" }, { status: 403 }) };
   const { students } = await loadPart(me.institute, "students"); // only the student list, not the whole institute
   const student = students.find((s) => s.id === me.who.studentIds[0]);
-  if (!student?.premiumUntil || student.premiumUntil < dayKey()) return { error: Response.json({ locked: "pack" }, { status: 402 }) };
-  const plan = packPlan(student.aiPack);
+  if (!student) return { error: Response.json({ error: "sign in" }, { status: 401 }) };
+  const paid = !!student.premiumUntil && student.premiumUntil >= dayKey();
+  const plan = paid ? packPlan(student.aiPack) : FREE; // no pack (or it ended): the free plan
   return { me, student, plan, models: plan.models.filter(modelReady) };
 }
 
@@ -76,7 +77,8 @@ export async function POST(request: Request) {
     if (saved) return new Response(saved.answer + TRAILER + JSON.stringify({ left: leftNow }), { headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" } });
 
     if (a.over) return Response.json({ error: "limit", resetsAt: a.resetsAt }, { status: 429 });
-    if ((await aiSpent(`${a.day.slice(0, 7)}-01`)) >= Number(process.env.AI_MONTHLY_BUDGET_USD || 30)) return Response.json({ error: "paused" }, { status: 503 });
+    // Free chats stop at 80% of the monthly budget, so students who paid always have the last 20%.
+    if ((await aiSpent(`${a.day.slice(0, 7)}-01`)) >= Number(process.env.AI_MONTHLY_BUDGET_USD || 30) * (plan.pack ? 1 : 0.8)) return Response.json({ error: "paused" }, { status: 503 });
 
     const enc = new TextEncoder();
     const out = new ReadableStream<Uint8Array>({

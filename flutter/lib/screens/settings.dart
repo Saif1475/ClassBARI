@@ -72,7 +72,7 @@ class SettingsScreen extends StatelessWidget {
             Group(
               title: t('aichat.yourPack'),
               children: [
-                if (ai!.pack != null) Item(icon: I.sparkle, title: '${taka(ai!.pack!)}${t('aichat.perMonth')}', subtitle: t('aichat.packNote.${ai!.pack}')),
+                if (ai!.pack != null) Item(icon: I.sparkle, title: ai!.pack == 0 ? t('aichat.freePlan') : '${taka(ai!.pack!)}${t('aichat.perMonth')}', subtitle: t('aichat.packNote.${ai!.pack}')),
                 Item(
                   icon: I.addCard,
                   color: context.course(2),
