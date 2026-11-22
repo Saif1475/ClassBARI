@@ -123,22 +123,12 @@ const en = {
     contact: "Contact",
   },
   legal: {
-    updated: "Last updated: November 2026",
-    draftNote: "Draft — have this reviewed before launch.",
-    privacyTitle: "Privacy policy",
-    privacy: [
-      "We collect only what we need to run your classes: names, mobile numbers, attendance, marks, fee records and messages inside the app.",
-      "Teachers see their own students' data. Parents see only their own child's data. We never sell or share your data with advertisers.",
-      "Phone numbers are used for login codes, class updates and fee reminders. You can ask us to delete your account and data at any time.",
-      "Payments are handled by licensed payment gateways; we do not store card or wallet PINs.",
-    ],
-    termsTitle: "Terms of use",
-    terms: [
-      "ClassBARI is a tool for teachers and coaching centres to run classes, collect fees and share results.",
-      "Teachers are responsible for the content they upload and must own the rights to it.",
-      "Fees paid through the app go to the teacher's account; refunds are between the teacher and the guardian.",
-      "We may suspend accounts that upload illegal content or misuse other people's data.",
-    ],
+    updated: (date: string) => `Last updated: ${date}`,
+    draftNote: "Draft: the company's details are still to be filled in, and the text is being checked before launch.",
+    contents: "Contents",
+    englishPrevails: "If the English and Bangla versions differ, the English version applies.",
+    seeAlso: "See also",
+    toTop: "Back to top",
   },
   login: {
     title: "Welcome to ClassBARI",

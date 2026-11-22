@@ -33,6 +33,9 @@ test.describe("Landing page", () => {
     await page.goto("/");
     await page.getByRole("link", { name: "Privacy" }).click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Privacy policy");
+    await expect(page.getByRole("heading", { name: "13. Deleting your account" })).toBeVisible(); // the app stores ask for this link
+    await page.goto("/privacy#delete-account");
+    await expect(page.locator("#delete-account")).toBeInViewport();
     await page.goto("/terms");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Terms of use");
     const res = await page.goto("/no-such-page");
