@@ -92,6 +92,11 @@ export function aiWindow(now = new Date()) {
   const next = Date.UTC(bd.getUTCFullYear(), bd.getUTCMonth(), bd.getUTCDate(), (slot + 1) * 12) - 6 * 3600_000;
   return { day: bd.toISOString().slice(0, 10), slot, resetsAt: new Date(next).toISOString() };
 }
+/** One more line for the model, naming the language to answer in: small models otherwise answer English questions in Bangla. */
+export const answerIn = (question: string) =>
+  /[ঀ-৿]/.test(question)
+    ? "The student's latest message is written in Bangla. Answer in Bangla."
+    : "The student's latest message is written in English letters. Answer in English, unless it is Bangla typed in English letters: then answer in Bangla.";
 export const MAX_QUESTION = 1000;
 /** Ends the streamed chat answer; after it comes JSON: the allowance left (%), declined, cut, error. */
 export const TRAILER = "\u001e";

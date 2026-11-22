@@ -1,4 +1,4 @@
-import { chatFile, chatImage, cleanHistory, costUsd, modelMenu, packPlan, TRAILER, usedTokens, withFile } from "@/lib/ai-chat";
+import { answerIn, chatFile, chatImage, cleanHistory, costUsd, modelMenu, packPlan, TRAILER, usedTokens, withFile } from "@/lib/ai-chat";
 import { allowance } from "@/lib/ai-allowance";
 import { modelReady, streamChat } from "@/lib/ai-providers";
 import { embed, findAnswer, saveAnswer, shareable, VET_RULES, vetAsk, vetModel, vetSaysYes } from "@/lib/answer-cache";
@@ -84,7 +84,7 @@ export async function POST(request: Request) {
       let keep = "";
       try {
         let answer = "";
-        const r = await streamChat({ model, system: [{ text: RULES }], messages: withFile(history, file), image, maxTokens: 4000 }, (t) => ((answer += t), send(t)));
+        const r = await streamChat({ model, system: [{ text: RULES }, { text: answerIn(history[history.length - 1].content) }], messages: withFile(history, file), image, maxTokens: 4000 }, (t) => ((answer += t), send(t)));
         keep = !!vec && !r.declined && !r.cut && answer.trim().length > 20 ? answer.trim() : "";
         const tokens = usedTokens(r.usage);
         const cost = costUsd(model, r.usage);

@@ -1,7 +1,7 @@
 // Run: npm test — "Ask AI" about a PDF: checking what the browser sends, the non-AI answer, and cost.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { aiWindow, basicAnswer, cleanHistory, costUsd, usedTokens } from "../src/lib/ai-chat.ts";
+import { aiWindow, answerIn, basicAnswer, cleanHistory, costUsd, usedTokens } from "../src/lib/ai-chat.ts";
 
 test("only a sane conversation ending with a question is accepted", () => {
   assert.deepEqual(cleanHistory([{ role: "user", content: " What is SHM? " }]), [{ role: "user", content: "What is SHM?" }]);
@@ -150,4 +150,11 @@ test("an answer is kept for others only on a clear YES from the second check; th
   assert.equal(vetModel((id) => id.startsWith("claude")), "claude-haiku-5-5");
   assert.equal(vetModel(() => false), undefined); // no key: nothing is kept
   assert.equal(SIMILAR, 0.95);
+});
+
+test("the model is told which language to answer in, from the letters of the question", () => {
+  assert.match(answerIn("Explain Newton's second law with an example"), /Answer in English/);
+  assert.match(answerIn("বেগ ও দ্রুতির পার্থক্য কী?"), /Answer in Bangla\.$/);
+  assert.match(answerIn("F = ma কী?"), /Answer in Bangla\.$/); // any Bangla letter makes it a Bangla question
+  assert.match(answerIn("newton er 2nd law ki?"), /Bangla typed in English letters/); // left to the model to recognise
 });

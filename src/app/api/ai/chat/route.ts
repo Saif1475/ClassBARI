@@ -1,4 +1,4 @@
-import { basicAnswer, cleanHistory, costUsd, MODELS, packPlan, usedTokens } from "@/lib/ai-chat";
+import { answerIn, basicAnswer, cleanHistory, costUsd, MODELS, packPlan, usedTokens } from "@/lib/ai-chat";
 import { allowance } from "@/lib/ai-allowance";
 import { modelReady, streamChat } from "@/lib/ai-providers";
 import { REAL_AUTH } from "@/lib/auth-mode";
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
   try {
     let answer = "";
     // The lesson is the same for every question about this PDF: cached, so follow-up questions cost much less.
-    const r = await streamChat({ model, system: [{ text: RULES }, { text: `Lesson:\n${lesson}`, cache: true }], messages: history, maxTokens: 2000 }, (t) => (answer += t));
+    const r = await streamChat({ model, system: [{ text: RULES }, { text: `Lesson:\n${lesson}`, cache: true }, { text: answerIn(question) }], messages: history, maxTokens: 2000 }, (t) => (answer += t));
     const tokens = usedTokens(r.usage);
     const cost = costUsd(model, r.usage);
     await record(cost, tokens);

@@ -15,11 +15,11 @@ try {
 if (!password) throw new Error("No test accounts found. Run: npm run test:accounts");
 
 let browser;
-/** who: "owner" | "teacher" | "student" | "guardian". */
-export async function as(who) {
+/** who: "owner" | "teacher" | "student" | "guardian". `screen`: browser window options, e.g. a phone-sized one. */
+export async function as(who, screen = {}) {
   const [role, email] = PEOPLE[who];
   browser ??= await chromium.launch();
-  const page = await (await browser.newContext()).newPage();
+  const page = await (await browser.newContext(screen)).newPage();
   await page.goto(`${SITE}/login`).catch(() => {
     throw new Error("The website is not running on port 3000. Start it first (npx next start -p 3000).");
   });
@@ -46,6 +46,6 @@ export async function as(who) {
   };
   /** Any request to the website as this person: gives back { status, text, ms }. */
   const call = (path, body) => page.evaluate(async ([p, b]) => { const t = performance.now(); const r = await fetch(p, b === undefined ? { cache: "no-store" } : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(b) }); return { status: r.status, text: await r.text(), ms: Math.round(performance.now() - t) }; }, [path, body]);
-  return { all, data, send, call };
+  return { page, all, data, send, call };
 }
 export const finish = () => browser?.close();

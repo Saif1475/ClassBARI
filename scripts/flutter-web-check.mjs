@@ -133,6 +133,9 @@ const TOURS = {
     await step("profile", () => tab(4));
   },
   chatbot: async () => {
+    // A real question (a few paisa on the AI account): one of the suggestions, then the finished answer from its end and its start.
+    await step("answer", async () => { await tap(named("Explain Newton")); await see("Try again", 90000); });
+    await step("answer-from-the-top", async () => { await page.mouse.move(195, 400); await page.mouse.wheel(0, -8000); await page.waitForTimeout(600); });
     await step("chat-list", () => tap(page.getByRole("button", { name: "Chats", exact: true })));
     await quietly(async () => { await page.mouse.click(375, 420); await page.waitForTimeout(700); }); // outside the side panel closes it
     await step("choose-a-model", () => tap(named("AI model").or(page.getByRole("button", { name: /Gemini|Qwen|Claude|GPT/ }))));
