@@ -92,27 +92,40 @@ class LoginScreen extends StatelessWidget {
   });
 }
 
-/// "Find your institute": the list to scroll through, or type a name or the institute's code.
+/// The public institutes whose name or code matches ('' gives the whole list).
+Future<List<Json>> findInstitutes(String term) async {
+  final res = await http.get(Uri.parse('$kApiUrl/api/institutes?q=${Uri.encodeQueryComponent(term)}')).timeout(const Duration(seconds: 20));
+  return res.statusCode == 200 ? rows(jsonDecode(res.body)) : const [];
+}
+
+/// "Find your institute", the same drop box as on the website (in the manner of Canvas's "Find your school"): press
+/// the box and the list of institutes drops down under it; typing a name or the institute's code narrows it.
 class InstitutePicker extends StatefulWidget {
-  const InstitutePicker({super.key});
+  const InstitutePicker({super.key, this.find = findInstitutes});
+  final Future<List<Json>> Function(String term) find; // tests hand in their own list
   @override
   State<InstitutePicker> createState() => _InstitutePickerState();
 }
 
 class _InstitutePickerState extends State<InstitutePicker> {
+  final focus = FocusNode();
   List<Json>? found;
   Timer? wait;
-  var asked = 0;
+  var asked = 0, open = false;
 
   @override
   void initState() {
     super.initState();
     search('');
+    focus.addListener(() {
+      if (focus.hasFocus && !open) setState(() => open = true); // the cursor is in the box: show the list
+    });
   }
 
   @override
   void dispose() {
     wait?.cancel();
+    focus.dispose();
     super.dispose();
   }
 
@@ -123,8 +136,7 @@ class _InstitutePickerState extends State<InstitutePicker> {
       final mine = ++asked;
       List<Json> list = const [];
       try {
-        final res = await http.get(Uri.parse('$kApiUrl/api/institutes?q=${Uri.encodeQueryComponent(term)}')).timeout(const Duration(seconds: 20));
-        if (res.statusCode == 200) list = rows(jsonDecode(res.body));
+        list = await widget.find(term);
       } catch (_) {
         // offline: the "no institute found" line shows
       }
@@ -133,35 +145,139 @@ class _InstitutePickerState extends State<InstitutePicker> {
   }
 
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    spacing: 10,
-    children: [
-      H2(t('auth.findInstitute')),
-      Muted(t('auth.findInstituteHelp')),
-      Semantics(
-        container: true,
-        child: TextField(
-          onChanged: search,
-          autocorrect: false,
-          decoration: InputDecoration(hintText: t('auth.institutePh'), prefixIcon: const Icon(Icons.search), labelText: t('auth.findInstitute')),
-        ),
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final tones = [(c.primaryContainer, c.onPrimaryContainer), (c.secondaryContainer, c.onSecondaryContainer), (c.tertiaryContainer, c.onTertiaryContainer)];
+    return TapRegion(
+      // A press anywhere else closes the list (and puts the keyboard away).
+      onTapOutside: (_) {
+        focus.unfocus();
+        if (open) setState(() => open = false);
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 10,
+        children: [
+          H2(t('auth.findInstitute')),
+          Muted(t('auth.findInstituteHelp')),
+          Semantics(
+            container: true,
+            child: TextField(
+              focusNode: focus,
+              onChanged: (typed) {
+                search(typed);
+                if (!open) setState(() => open = true);
+              },
+              onTap: () => setState(() => open = true),
+              autocorrect: false,
+              decoration: InputDecoration(
+                hintText: t('auth.institutePh'),
+                prefixIcon: const Icon(Icons.search),
+                // The arrow opens and closes the list without bringing up the keyboard.
+                suffixIcon: IconButton(
+                  tooltip: t('auth.findInstitute'),
+                  onPressed: () => setState(() => open = !open),
+                  icon: AnimatedRotation(turns: open ? 0.5 : 0, duration: const Duration(milliseconds: 200), child: const Icon(Icons.keyboard_arrow_down_rounded)),
+                ),
+              ),
+            ),
+          ),
+          AnimatedSize(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOutCubic,
+            alignment: Alignment.topCenter,
+            child: !open
+                ? const SizedBox(width: double.infinity)
+                : DecoratedBox(
+                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), boxShadow: context.tone.lift),
+                    child: Material(
+                      color: c.surfaceContainerLowest,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        side: BorderSide(color: c.outlineVariant),
+                      ),
+                      clipBehavior: Clip.antiAlias,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (found == null)
+                            const Padding(
+                              padding: EdgeInsets.all(20),
+                              child: Center(child: CircularProgressIndicator()),
+                            )
+                          else if (found!.isEmpty)
+                            Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Text(t('auth.noInstitute'), textAlign: TextAlign.center, style: context.type.bodySmall),
+                            )
+                          else
+                            // About four institutes show; the rest scroll inside the box.
+                            ConstrainedBox(
+                              constraints: const BoxConstraints(maxHeight: 288),
+                              child: ListView(
+                                shrinkWrap: true,
+                                padding: const EdgeInsets.all(8),
+                                children: [
+                                  for (final (k, i) in found!.indexed)
+                                    Semantics(
+                                      container: true,
+                                      button: true,
+                                      child: InkWell(
+                                        borderRadius: BorderRadius.circular(12),
+                                        onTap: () => store.setInstitute({'id': i['id'], 'name': i['name'], 'code': i['code']}),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                          child: Row(
+                                            spacing: 12,
+                                            children: [
+                                              // The institute's first letter on a coloured tile, as on the website.
+                                              Container(
+                                                width: 40,
+                                                height: 40,
+                                                alignment: Alignment.center,
+                                                decoration: BoxDecoration(
+                                                  color: tones[k % 3].$1,
+                                                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(14), topRight: Radius.circular(14), bottomRight: Radius.circular(14), bottomLeft: Radius.circular(5)),
+                                                ),
+                                                child: ExcludeSemantics(
+                                                  child: Text(
+                                                    '${i['name']}'.trim().isEmpty ? '?' : '${i['name']}'.trim().substring(0, 1).toUpperCase(),
+                                                    textScaler: TextScaler.noScaling,
+                                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: tones[k % 3].$2),
+                                                  ),
+                                                ),
+                                              ),
+                                              Expanded(child: Text('${i['name']}', style: context.type.titleMedium)),
+                                              Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                                decoration: BoxDecoration(color: context.tone.tile, borderRadius: BorderRadius.circular(99)),
+                                                child: Text(
+                                                  '${i['code']}',
+                                                  style: TextStyle(fontFamily: 'monospace', fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 1, color: c.onSurfaceVariant),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          Container(
+                            color: context.tone.tile,
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                            child: Text(t('auth.pickerTip'), textAlign: TextAlign.center, style: context.type.bodySmall),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+          ),
+        ],
       ),
-      if (found == null)
-        const Center(
-          child: Padding(padding: EdgeInsets.all(16), child: CircularProgressIndicator()),
-        ),
-      if (found != null && found!.isEmpty) Muted(t('auth.noInstitute')),
-      for (final i in found ?? const <Json>[])
-        Material(
-          color: context.tone.tile,
-          borderRadius: BorderRadius.circular(14),
-          clipBehavior: Clip.antiAlias,
-          child: Item(icon: Icons.school_outlined, title: '${i['name']}', trailing: Muted('${i['code']}'), onTap: () => store.setInstitute({'id': i['id'], 'name': i['name'], 'code': i['code']})),
-        ),
-      Muted(t('auth.pickerTip')),
-    ],
-  );
+    );
+  }
 }
 
 /// A password box with an eye to show or hide what was typed.

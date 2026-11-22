@@ -1717,7 +1717,7 @@ const en = {
     findInstitute: "Find your institute",
     findInstituteHelp: "Press the box to see the institutes, or type a name or code.",
     pickerTip: "Not in the list? Type the code your institute gave you.",
-    institutePh: "e.g. Tanvir's Physics Care or K7QM2P",
+    institutePh: "Institute name or code",
     noInstitute: "No institute found. Check the spelling, or ask your institute for its code.",
     changeInstitute: "Change",
     notAtInstitute: (name: string) => `This account isn't on the list at ${name}. Check you picked the right institute, or ask them to add your email.`,

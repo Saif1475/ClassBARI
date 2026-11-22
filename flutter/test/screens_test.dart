@@ -391,7 +391,14 @@ void main() {
     await tester.pumpWidget(MaterialApp(theme: classbariTheme(Brightness.light), home: const LoginScreen()));
     await tester.pumpAndSettle(const Duration(milliseconds: 400));
     expect(find.text('Find your institute'), findsWidgets);
+    // The drop box: closed at first; the arrow drops the list down, a press elsewhere closes it again.
+    expect(find.textContaining('No institute found'), findsNothing);
+    await tester.tap(find.byTooltip('Find your institute'));
+    await tester.pumpAndSettle();
     expect(find.text('No institute found. Check the spelling, or ask your institute for its code.'), findsOneWidget); // no server in tests
+    await tester.tapAt(const Offset(160, 880));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('No institute found'), findsNothing);
     store.setInstitute({'id': '00000000-0000-4000-8000-000000000000', 'name': 'Physics Care', 'code': 'K7QM2P'});
     await tester.pumpAndSettle();
     expect(find.text('Physics Care'), findsOneWidget);
@@ -407,6 +414,63 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Use at least 8 characters, with a capital letter, a small letter, a number and a symbol (like ! or @).'), findsNWidgets(2)); // the hint and the error
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('find your institute: the box drops the list down, typing narrows it, a press picks the institute', (tester) async {
+    final handle = tester.ensureSemantics();
+    lang.set('en');
+    store.fake(null, null);
+    store.setInstitute(null);
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final all = [
+      for (final (name, code) in [('Physics Care', 'K7QM2P'), ('Tanvir Academy of Science and Mathematics, Mirpur Branch', 'ABC234'), ('গণিত ঘর', 'XYZ789')]) {'id': code, 'name': name, 'code': code},
+    ];
+    final asked = <String>[];
+    Future<List<Json>> find_(String term) async {
+      asked.add(term);
+      return all.where((i) => '${i['name']}${i['code']}'.toLowerCase().contains(term.toLowerCase())).toList();
+    }
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: classbariTheme(Brightness.light),
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: InstitutePicker(find: find_),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Physics Care'), findsNothing); // closed until the box is pressed
+    await tester.tap(find.byType(TextField));
+    await tester.pumpAndSettle();
+    expect(find.text('Physics Care'), findsOneWidget);
+    // A long list scrolls inside the box (here the long name takes most of it).
+    await tester.scrollUntilVisible(
+      find.text('গণিত ঘর'),
+      100,
+      scrollable: find.descendant(of: find.byType(ListView), matching: find.byType(Scrollable)),
+    );
+    expect(find.text('গণিত ঘর'), findsOneWidget);
+    expect(drawingError(tester), isNull); // the long name wraps beside its code
+    await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
+    await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+    await tester.enterText(find.byType(TextField), 'abc234');
+    await tester.pumpAndSettle(const Duration(milliseconds: 400));
+    expect(asked.last, 'abc234');
+    expect(find.text('Physics Care'), findsNothing);
+    await tester.tap(find.textContaining('Tanvir Academy'));
+    await tester.pumpAndSettle();
+    expect(store.institute?['code'], 'ABC234');
+    store.setInstitute(null);
+    await tester.pumpWidget(const SizedBox());
+    handle.dispose();
   });
 
   testWidgets('AI chat: saved chats sit in topic folders and can be searched; answers keep their formatting', (tester) async {

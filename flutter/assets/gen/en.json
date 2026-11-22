@@ -166,7 +166,7 @@
  "auth.findInstitute": "Find your institute",
  "auth.findInstituteHelp": "Press the box to see the institutes, or type a name or code.",
  "auth.pickerTip": "Not in the list? Type the code your institute gave you.",
- "auth.institutePh": "e.g. Tanvir's Physics Care or K7QM2P",
+ "auth.institutePh": "Institute name or code",
  "auth.noInstitute": "No institute found. Check the spelling, or ask your institute for its code.",
  "auth.changeInstitute": "Change",
  "auth.notAtInstitute": "This account isn't on the list at {0}. Check you picked the right institute, or ask them to add your email.",

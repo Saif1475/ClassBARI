@@ -259,9 +259,11 @@ try {
   await page.evaluate(() => document.querySelector("flt-semantics-placeholder")?.click()); // lets the test find things by name
   await page.waitForTimeout(800);
   if (app !== "institute") {
-    await see(app === "teacher" ? "Find your institute" : "ClassBARI Test Institute");
-    await see("ClassBARI Test Institute");
+    await see("Find your institute");
     await shot("find-institute");
+    await tap(page.getByRole("button", { name: "Find your institute", exact: true })); // the arrow drops the list down
+    await see("ClassBARI Test Institute");
+    await shot("find-institute-list");
     await tap(page.getByText("ClassBARI Test Institute"));
   }
   await page.waitForTimeout(600);
