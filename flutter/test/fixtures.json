@@ -9326,6 +9326,5922 @@
   },
   {
    "lang": "en",
+   "key": "teacher.studentsN",
+   "args": [
+    0
+   ],
+   "out": "0 students"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.studentsN",
+   "args": [
+    0
+   ],
+   "out": "0 students"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.studentsN",
+   "args": [
+    1
+   ],
+   "out": "1 students"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.studentsN",
+   "args": [
+    1
+   ],
+   "out": "1 students"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.studentsN",
+   "args": [
+    2
+   ],
+   "out": "2 students"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.studentsN",
+   "args": [
+    2
+   ],
+   "out": "2 students"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.studentsN",
+   "args": [
+    12
+   ],
+   "out": "12 students"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.studentsN",
+   "args": [
+    12
+   ],
+   "out": "12 students"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.studentsN",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 students"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.studentsN",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 students"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.studentsN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin students"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.studentsN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin students"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.paidPct",
+   "args": [
+    0
+   ],
+   "out": "0% of students paid"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.paidPct",
+   "args": [
+    0
+   ],
+   "out": "0% of students paid"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.paidPct",
+   "args": [
+    1
+   ],
+   "out": "1% of students paid"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.paidPct",
+   "args": [
+    1
+   ],
+   "out": "1% of students paid"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.paidPct",
+   "args": [
+    2
+   ],
+   "out": "2% of students paid"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.paidPct",
+   "args": [
+    2
+   ],
+   "out": "2% of students paid"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.paidPct",
+   "args": [
+    12
+   ],
+   "out": "12% of students paid"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.paidPct",
+   "args": [
+    12
+   ],
+   "out": "12% of students paid"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.paidPct",
+   "args": [
+    1234567
+   ],
+   "out": "1234567% of students paid"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.paidPct",
+   "args": [
+    1234567
+   ],
+   "out": "1234567% of students paid"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.paidPct",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin% of students paid"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.paidPct",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin% of students paid"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.pendingN",
+   "args": [
+    0
+   ],
+   "out": "0 students pending"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.pendingN",
+   "args": [
+    0
+   ],
+   "out": "0 students pending"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.pendingN",
+   "args": [
+    1
+   ],
+   "out": "1 students pending"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.pendingN",
+   "args": [
+    1
+   ],
+   "out": "1 students pending"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.pendingN",
+   "args": [
+    2
+   ],
+   "out": "2 students pending"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.pendingN",
+   "args": [
+    2
+   ],
+   "out": "2 students pending"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.pendingN",
+   "args": [
+    12
+   ],
+   "out": "12 students pending"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.pendingN",
+   "args": [
+    12
+   ],
+   "out": "12 students pending"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.pendingN",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 students pending"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.pendingN",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 students pending"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.pendingN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin students pending"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.pendingN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin students pending"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.courseSummary",
+   "args": [
+    0,
+    3
+   ],
+   "out": "0 modules · 3 students"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.courseSummary",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "0 modules · Batch A students"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.courseSummary",
+   "args": [
+    1,
+    3
+   ],
+   "out": "1 modules · 3 students"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.courseSummary",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "1 modules · Batch A students"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.courseSummary",
+   "args": [
+    2,
+    3
+   ],
+   "out": "2 modules · 3 students"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.courseSummary",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "2 modules · Batch A students"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.courseSummary",
+   "args": [
+    12,
+    3
+   ],
+   "out": "12 modules · 3 students"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.courseSummary",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "12 modules · Batch A students"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.courseSummary",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "1234567 modules · 3 students"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.courseSummary",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "1234567 modules · Batch A students"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.courseSummary",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "Rahim Uddin modules · 3 students"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.courseSummary",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Rahim Uddin modules · Batch A students"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.quizError",
+   "args": [
+    0
+   ],
+   "out": "Question 0 needs at least 2 options and exactly one marked with *."
+  },
+  {
+   "lang": "en",
+   "key": "teacher.quizError",
+   "args": [
+    0
+   ],
+   "out": "Question 0 needs at least 2 options and exactly one marked with *."
+  },
+  {
+   "lang": "en",
+   "key": "teacher.quizError",
+   "args": [
+    1
+   ],
+   "out": "Question 1 needs at least 2 options and exactly one marked with *."
+  },
+  {
+   "lang": "en",
+   "key": "teacher.quizError",
+   "args": [
+    1
+   ],
+   "out": "Question 1 needs at least 2 options and exactly one marked with *."
+  },
+  {
+   "lang": "en",
+   "key": "teacher.quizError",
+   "args": [
+    2
+   ],
+   "out": "Question 2 needs at least 2 options and exactly one marked with *."
+  },
+  {
+   "lang": "en",
+   "key": "teacher.quizError",
+   "args": [
+    2
+   ],
+   "out": "Question 2 needs at least 2 options and exactly one marked with *."
+  },
+  {
+   "lang": "en",
+   "key": "teacher.quizError",
+   "args": [
+    12
+   ],
+   "out": "Question 12 needs at least 2 options and exactly one marked with *."
+  },
+  {
+   "lang": "en",
+   "key": "teacher.quizError",
+   "args": [
+    12
+   ],
+   "out": "Question 12 needs at least 2 options and exactly one marked with *."
+  },
+  {
+   "lang": "en",
+   "key": "teacher.quizError",
+   "args": [
+    1234567
+   ],
+   "out": "Question 1234567 needs at least 2 options and exactly one marked with *."
+  },
+  {
+   "lang": "en",
+   "key": "teacher.quizError",
+   "args": [
+    1234567
+   ],
+   "out": "Question 1234567 needs at least 2 options and exactly one marked with *."
+  },
+  {
+   "lang": "en",
+   "key": "teacher.quizError",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Question Rahim Uddin needs at least 2 options and exactly one marked with *."
+  },
+  {
+   "lang": "en",
+   "key": "teacher.quizError",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Question Rahim Uddin needs at least 2 options and exactly one marked with *."
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteModule",
+   "args": [
+    0
+   ],
+   "out": "Delete the module “0” and everything in it?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteModule",
+   "args": [
+    0
+   ],
+   "out": "Delete the module “0” and everything in it?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteModule",
+   "args": [
+    1
+   ],
+   "out": "Delete the module “1” and everything in it?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteModule",
+   "args": [
+    1
+   ],
+   "out": "Delete the module “1” and everything in it?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteModule",
+   "args": [
+    2
+   ],
+   "out": "Delete the module “2” and everything in it?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteModule",
+   "args": [
+    2
+   ],
+   "out": "Delete the module “2” and everything in it?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteModule",
+   "args": [
+    12
+   ],
+   "out": "Delete the module “12” and everything in it?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteModule",
+   "args": [
+    12
+   ],
+   "out": "Delete the module “12” and everything in it?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteModule",
+   "args": [
+    1234567
+   ],
+   "out": "Delete the module “1234567” and everything in it?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteModule",
+   "args": [
+    1234567
+   ],
+   "out": "Delete the module “1234567” and everything in it?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteModule",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Delete the module “Rahim Uddin” and everything in it?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteModule",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Delete the module “Rahim Uddin” and everything in it?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteItem",
+   "args": [
+    0
+   ],
+   "out": "Delete “0”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteItem",
+   "args": [
+    0
+   ],
+   "out": "Delete “0”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteItem",
+   "args": [
+    1
+   ],
+   "out": "Delete “1”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteItem",
+   "args": [
+    1
+   ],
+   "out": "Delete “1”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteItem",
+   "args": [
+    2
+   ],
+   "out": "Delete “2”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteItem",
+   "args": [
+    2
+   ],
+   "out": "Delete “2”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteItem",
+   "args": [
+    12
+   ],
+   "out": "Delete “12”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteItem",
+   "args": [
+    12
+   ],
+   "out": "Delete “12”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteItem",
+   "args": [
+    1234567
+   ],
+   "out": "Delete “1234567”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteItem",
+   "args": [
+    1234567
+   ],
+   "out": "Delete “1234567”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteItem",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Delete “Rahim Uddin”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteItem",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Delete “Rahim Uddin”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    0
+   ],
+   "out": "Delete the announcement “0”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    0
+   ],
+   "out": "Delete the announcement “0”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    1
+   ],
+   "out": "Delete the announcement “1”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    1
+   ],
+   "out": "Delete the announcement “1”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    2
+   ],
+   "out": "Delete the announcement “2”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    2
+   ],
+   "out": "Delete the announcement “2”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    12
+   ],
+   "out": "Delete the announcement “12”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    12
+   ],
+   "out": "Delete the announcement “12”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    1234567
+   ],
+   "out": "Delete the announcement “1234567”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    1234567
+   ],
+   "out": "Delete the announcement “1234567”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Delete the announcement “Rahim Uddin”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Delete the announcement “Rahim Uddin”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmRemoveStudent",
+   "args": [
+    0
+   ],
+   "out": "Remove 0 from this batch?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmRemoveStudent",
+   "args": [
+    0
+   ],
+   "out": "Remove 0 from this batch?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmRemoveStudent",
+   "args": [
+    1
+   ],
+   "out": "Remove 1 from this batch?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmRemoveStudent",
+   "args": [
+    1
+   ],
+   "out": "Remove 1 from this batch?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmRemoveStudent",
+   "args": [
+    2
+   ],
+   "out": "Remove 2 from this batch?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmRemoveStudent",
+   "args": [
+    2
+   ],
+   "out": "Remove 2 from this batch?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmRemoveStudent",
+   "args": [
+    12
+   ],
+   "out": "Remove 12 from this batch?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmRemoveStudent",
+   "args": [
+    12
+   ],
+   "out": "Remove 12 from this batch?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmRemoveStudent",
+   "args": [
+    1234567
+   ],
+   "out": "Remove 1234567 from this batch?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmRemoveStudent",
+   "args": [
+    1234567
+   ],
+   "out": "Remove 1234567 from this batch?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmRemoveStudent",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Remove Rahim Uddin from this batch?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmRemoveStudent",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Remove Rahim Uddin from this batch?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.annNewFor",
+   "args": [
+    0
+   ],
+   "out": "New announcement for 0"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.annNewFor",
+   "args": [
+    0
+   ],
+   "out": "New announcement for 0"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.annNewFor",
+   "args": [
+    1
+   ],
+   "out": "New announcement for 1"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.annNewFor",
+   "args": [
+    1
+   ],
+   "out": "New announcement for 1"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.annNewFor",
+   "args": [
+    2
+   ],
+   "out": "New announcement for 2"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.annNewFor",
+   "args": [
+    2
+   ],
+   "out": "New announcement for 2"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.annNewFor",
+   "args": [
+    12
+   ],
+   "out": "New announcement for 12"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.annNewFor",
+   "args": [
+    12
+   ],
+   "out": "New announcement for 12"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.annNewFor",
+   "args": [
+    1234567
+   ],
+   "out": "New announcement for 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.annNewFor",
+   "args": [
+    1234567
+   ],
+   "out": "New announcement for 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.annNewFor",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "New announcement for Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.annNewFor",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "New announcement for Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.postedBy",
+   "args": [
+    0,
+    3,
+    7
+   ],
+   "out": "Posted by 0 · 3 · 7"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.postedBy",
+   "args": [
+    0,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "Posted by 0 · Batch A · ৳1,500"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.postedBy",
+   "args": [
+    1,
+    3,
+    7
+   ],
+   "out": "Posted by 1 · 3 · 7"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.postedBy",
+   "args": [
+    1,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "Posted by 1 · Batch A · ৳1,500"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.postedBy",
+   "args": [
+    2,
+    3,
+    7
+   ],
+   "out": "Posted by 2 · 3 · 7"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.postedBy",
+   "args": [
+    2,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "Posted by 2 · Batch A · ৳1,500"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.postedBy",
+   "args": [
+    12,
+    3,
+    7
+   ],
+   "out": "Posted by 12 · 3 · 7"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.postedBy",
+   "args": [
+    12,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "Posted by 12 · Batch A · ৳1,500"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.postedBy",
+   "args": [
+    1234567,
+    3,
+    7
+   ],
+   "out": "Posted by 1234567 · 3 · 7"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.postedBy",
+   "args": [
+    1234567,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "Posted by 1234567 · Batch A · ৳1,500"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.postedBy",
+   "args": [
+    "Rahim Uddin",
+    3,
+    7
+   ],
+   "out": "Posted by Rahim Uddin · 3 · 7"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.postedBy",
+   "args": [
+    "Rahim Uddin",
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "Posted by Rahim Uddin · Batch A · ৳1,500"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.pts",
+   "args": [
+    0
+   ],
+   "out": "0 pts"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.pts",
+   "args": [
+    0
+   ],
+   "out": "0 pts"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.pts",
+   "args": [
+    1
+   ],
+   "out": "1 pts"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.pts",
+   "args": [
+    1
+   ],
+   "out": "1 pts"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.pts",
+   "args": [
+    2
+   ],
+   "out": "2 pts"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.pts",
+   "args": [
+    2
+   ],
+   "out": "2 pts"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.pts",
+   "args": [
+    12
+   ],
+   "out": "12 pts"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.pts",
+   "args": [
+    12
+   ],
+   "out": "12 pts"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.pts",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 pts"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.pts",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 pts"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.pts",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin pts"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.pts",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin pts"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.marks",
+   "args": [
+    0
+   ],
+   "out": "0 marks"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.marks",
+   "args": [
+    0
+   ],
+   "out": "0 marks"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.marks",
+   "args": [
+    1
+   ],
+   "out": "1 marks"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.marks",
+   "args": [
+    1
+   ],
+   "out": "1 marks"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.marks",
+   "args": [
+    2
+   ],
+   "out": "2 marks"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.marks",
+   "args": [
+    2
+   ],
+   "out": "2 marks"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.marks",
+   "args": [
+    12
+   ],
+   "out": "12 marks"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.marks",
+   "args": [
+    12
+   ],
+   "out": "12 marks"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.marks",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 marks"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.marks",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 marks"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.marks",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin marks"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.marks",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin marks"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.questionsN",
+   "args": [
+    0
+   ],
+   "out": "0 questions"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.questionsN",
+   "args": [
+    0
+   ],
+   "out": "0 questions"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.questionsN",
+   "args": [
+    1
+   ],
+   "out": "1 questions"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.questionsN",
+   "args": [
+    1
+   ],
+   "out": "1 questions"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.questionsN",
+   "args": [
+    2
+   ],
+   "out": "2 questions"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.questionsN",
+   "args": [
+    2
+   ],
+   "out": "2 questions"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.questionsN",
+   "args": [
+    12
+   ],
+   "out": "12 questions"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.questionsN",
+   "args": [
+    12
+   ],
+   "out": "12 questions"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.questionsN",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 questions"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.questionsN",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 questions"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.questionsN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin questions"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.questionsN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin questions"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.offlineOnline",
+   "args": [
+    0,
+    3
+   ],
+   "out": "0 offline · 3 online"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.offlineOnline",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "0 offline · Batch A online"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.offlineOnline",
+   "args": [
+    1,
+    3
+   ],
+   "out": "1 offline · 3 online"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.offlineOnline",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "1 offline · Batch A online"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.offlineOnline",
+   "args": [
+    2,
+    3
+   ],
+   "out": "2 offline · 3 online"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.offlineOnline",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "2 offline · Batch A online"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.offlineOnline",
+   "args": [
+    12,
+    3
+   ],
+   "out": "12 offline · 3 online"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.offlineOnline",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "12 offline · Batch A online"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.offlineOnline",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "1234567 offline · 3 online"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.offlineOnline",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "1234567 offline · Batch A online"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.offlineOnline",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "Rahim Uddin offline · 3 online"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.offlineOnline",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Rahim Uddin offline · Batch A online"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.dueVsPaid",
+   "args": [
+    0,
+    3
+   ],
+   "out": "0 due · 3 paid"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.dueVsPaid",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "0 due · Batch A paid"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.dueVsPaid",
+   "args": [
+    1,
+    3
+   ],
+   "out": "1 due · 3 paid"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.dueVsPaid",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "1 due · Batch A paid"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.dueVsPaid",
+   "args": [
+    2,
+    3
+   ],
+   "out": "2 due · 3 paid"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.dueVsPaid",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "2 due · Batch A paid"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.dueVsPaid",
+   "args": [
+    12,
+    3
+   ],
+   "out": "12 due · 3 paid"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.dueVsPaid",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "12 due · Batch A paid"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.dueVsPaid",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "1234567 due · 3 paid"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.dueVsPaid",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "1234567 due · Batch A paid"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.dueVsPaid",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "Rahim Uddin due · 3 paid"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.dueVsPaid",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Rahim Uddin due · Batch A paid"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.enrollTitle",
+   "args": [
+    0
+   ],
+   "out": "Add a student to 0"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.enrollTitle",
+   "args": [
+    0
+   ],
+   "out": "Add a student to 0"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.enrollTitle",
+   "args": [
+    1
+   ],
+   "out": "Add a student to 1"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.enrollTitle",
+   "args": [
+    1
+   ],
+   "out": "Add a student to 1"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.enrollTitle",
+   "args": [
+    2
+   ],
+   "out": "Add a student to 2"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.enrollTitle",
+   "args": [
+    2
+   ],
+   "out": "Add a student to 2"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.enrollTitle",
+   "args": [
+    12
+   ],
+   "out": "Add a student to 12"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.enrollTitle",
+   "args": [
+    12
+   ],
+   "out": "Add a student to 12"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.enrollTitle",
+   "args": [
+    1234567
+   ],
+   "out": "Add a student to 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.enrollTitle",
+   "args": [
+    1234567
+   ],
+   "out": "Add a student to 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.enrollTitle",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Add a student to Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.enrollTitle",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Add a student to Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.feeDueOpt",
+   "args": [
+    0
+   ],
+   "out": "Due (0)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.feeDueOpt",
+   "args": [
+    0
+   ],
+   "out": "Due (0)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.feeDueOpt",
+   "args": [
+    1
+   ],
+   "out": "Due (1)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.feeDueOpt",
+   "args": [
+    1
+   ],
+   "out": "Due (1)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.feeDueOpt",
+   "args": [
+    2
+   ],
+   "out": "Due (2)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.feeDueOpt",
+   "args": [
+    2
+   ],
+   "out": "Due (2)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.feeDueOpt",
+   "args": [
+    12
+   ],
+   "out": "Due (12)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.feeDueOpt",
+   "args": [
+    12
+   ],
+   "out": "Due (12)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.feeDueOpt",
+   "args": [
+    1234567
+   ],
+   "out": "Due (1234567)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.feeDueOpt",
+   "args": [
+    1234567
+   ],
+   "out": "Due (1234567)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.feeDueOpt",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Due (Rahim Uddin)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.feeDueOpt",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Due (Rahim Uddin)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterAll",
+   "args": [
+    0
+   ],
+   "out": "All (0)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterAll",
+   "args": [
+    0
+   ],
+   "out": "All (0)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterAll",
+   "args": [
+    1
+   ],
+   "out": "All (1)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterAll",
+   "args": [
+    1
+   ],
+   "out": "All (1)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterAll",
+   "args": [
+    2
+   ],
+   "out": "All (2)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterAll",
+   "args": [
+    2
+   ],
+   "out": "All (2)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterAll",
+   "args": [
+    12
+   ],
+   "out": "All (12)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterAll",
+   "args": [
+    12
+   ],
+   "out": "All (12)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterAll",
+   "args": [
+    1234567
+   ],
+   "out": "All (1234567)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterAll",
+   "args": [
+    1234567
+   ],
+   "out": "All (1234567)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterAll",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "All (Rahim Uddin)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterAll",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "All (Rahim Uddin)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterOffline",
+   "args": [
+    0
+   ],
+   "out": "Offline (0)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterOffline",
+   "args": [
+    0
+   ],
+   "out": "Offline (0)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterOffline",
+   "args": [
+    1
+   ],
+   "out": "Offline (1)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterOffline",
+   "args": [
+    1
+   ],
+   "out": "Offline (1)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterOffline",
+   "args": [
+    2
+   ],
+   "out": "Offline (2)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterOffline",
+   "args": [
+    2
+   ],
+   "out": "Offline (2)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterOffline",
+   "args": [
+    12
+   ],
+   "out": "Offline (12)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterOffline",
+   "args": [
+    12
+   ],
+   "out": "Offline (12)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterOffline",
+   "args": [
+    1234567
+   ],
+   "out": "Offline (1234567)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterOffline",
+   "args": [
+    1234567
+   ],
+   "out": "Offline (1234567)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterOffline",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Offline (Rahim Uddin)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterOffline",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Offline (Rahim Uddin)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterOnline",
+   "args": [
+    0
+   ],
+   "out": "Online (0)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterOnline",
+   "args": [
+    0
+   ],
+   "out": "Online (0)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterOnline",
+   "args": [
+    1
+   ],
+   "out": "Online (1)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterOnline",
+   "args": [
+    1
+   ],
+   "out": "Online (1)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterOnline",
+   "args": [
+    2
+   ],
+   "out": "Online (2)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterOnline",
+   "args": [
+    2
+   ],
+   "out": "Online (2)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterOnline",
+   "args": [
+    12
+   ],
+   "out": "Online (12)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterOnline",
+   "args": [
+    12
+   ],
+   "out": "Online (12)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterOnline",
+   "args": [
+    1234567
+   ],
+   "out": "Online (1234567)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterOnline",
+   "args": [
+    1234567
+   ],
+   "out": "Online (1234567)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterOnline",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Online (Rahim Uddin)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterOnline",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Online (Rahim Uddin)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterDue",
+   "args": [
+    0
+   ],
+   "out": "Fee due (0)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterDue",
+   "args": [
+    0
+   ],
+   "out": "Fee due (0)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterDue",
+   "args": [
+    1
+   ],
+   "out": "Fee due (1)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterDue",
+   "args": [
+    1
+   ],
+   "out": "Fee due (1)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterDue",
+   "args": [
+    2
+   ],
+   "out": "Fee due (2)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterDue",
+   "args": [
+    2
+   ],
+   "out": "Fee due (2)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterDue",
+   "args": [
+    12
+   ],
+   "out": "Fee due (12)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterDue",
+   "args": [
+    12
+   ],
+   "out": "Fee due (12)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterDue",
+   "args": [
+    1234567
+   ],
+   "out": "Fee due (1234567)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterDue",
+   "args": [
+    1234567
+   ],
+   "out": "Fee due (1234567)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterDue",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Fee due (Rahim Uddin)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.filterDue",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Fee due (Rahim Uddin)"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.examAvg",
+   "args": [
+    0
+   ],
+   "out": "Exam avg 0%"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.examAvg",
+   "args": [
+    0
+   ],
+   "out": "Exam avg 0%"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.examAvg",
+   "args": [
+    1
+   ],
+   "out": "Exam avg 1%"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.examAvg",
+   "args": [
+    1
+   ],
+   "out": "Exam avg 1%"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.examAvg",
+   "args": [
+    2
+   ],
+   "out": "Exam avg 2%"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.examAvg",
+   "args": [
+    2
+   ],
+   "out": "Exam avg 2%"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.examAvg",
+   "args": [
+    12
+   ],
+   "out": "Exam avg 12%"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.examAvg",
+   "args": [
+    12
+   ],
+   "out": "Exam avg 12%"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.examAvg",
+   "args": [
+    1234567
+   ],
+   "out": "Exam avg 1234567%"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.examAvg",
+   "args": [
+    1234567
+   ],
+   "out": "Exam avg 1234567%"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.examAvg",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Exam avg Rahim Uddin%"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.examAvg",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Exam avg Rahim Uddin%"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.monthAtt",
+   "args": [
+    0
+   ],
+   "out": "Attendance 0%"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.monthAtt",
+   "args": [
+    0
+   ],
+   "out": "Attendance 0%"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.monthAtt",
+   "args": [
+    1
+   ],
+   "out": "Attendance 1%"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.monthAtt",
+   "args": [
+    1
+   ],
+   "out": "Attendance 1%"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.monthAtt",
+   "args": [
+    2
+   ],
+   "out": "Attendance 2%"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.monthAtt",
+   "args": [
+    2
+   ],
+   "out": "Attendance 2%"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.monthAtt",
+   "args": [
+    12
+   ],
+   "out": "Attendance 12%"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.monthAtt",
+   "args": [
+    12
+   ],
+   "out": "Attendance 12%"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.monthAtt",
+   "args": [
+    1234567
+   ],
+   "out": "Attendance 1234567%"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.monthAtt",
+   "args": [
+    1234567
+   ],
+   "out": "Attendance 1234567%"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.monthAtt",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Attendance Rahim Uddin%"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.monthAtt",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Attendance Rahim Uddin%"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.msgAbsent",
+   "args": [
+    0,
+    3,
+    7
+   ],
+   "out": "Assalamu alaikum. 0 was absent from today's 3 class. — 7"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.msgAbsent",
+   "args": [
+    0,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "Assalamu alaikum. 0 was absent from today's Batch A class. — ৳1,500"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.msgAbsent",
+   "args": [
+    1,
+    3,
+    7
+   ],
+   "out": "Assalamu alaikum. 1 was absent from today's 3 class. — 7"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.msgAbsent",
+   "args": [
+    1,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "Assalamu alaikum. 1 was absent from today's Batch A class. — ৳1,500"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.msgAbsent",
+   "args": [
+    2,
+    3,
+    7
+   ],
+   "out": "Assalamu alaikum. 2 was absent from today's 3 class. — 7"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.msgAbsent",
+   "args": [
+    2,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "Assalamu alaikum. 2 was absent from today's Batch A class. — ৳1,500"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.msgAbsent",
+   "args": [
+    12,
+    3,
+    7
+   ],
+   "out": "Assalamu alaikum. 12 was absent from today's 3 class. — 7"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.msgAbsent",
+   "args": [
+    12,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "Assalamu alaikum. 12 was absent from today's Batch A class. — ৳1,500"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.msgAbsent",
+   "args": [
+    1234567,
+    3,
+    7
+   ],
+   "out": "Assalamu alaikum. 1234567 was absent from today's 3 class. — 7"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.msgAbsent",
+   "args": [
+    1234567,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "Assalamu alaikum. 1234567 was absent from today's Batch A class. — ৳1,500"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.msgAbsent",
+   "args": [
+    "Rahim Uddin",
+    3,
+    7
+   ],
+   "out": "Assalamu alaikum. Rahim Uddin was absent from today's 3 class. — 7"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.msgAbsent",
+   "args": [
+    "Rahim Uddin",
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "Assalamu alaikum. Rahim Uddin was absent from today's Batch A class. — ৳1,500"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.msgFee",
+   "args": [
+    0,
+    3
+   ],
+   "out": "Assalamu alaikum. 0's fee of 3 for this month is still due. Please pay by bKash or cash. Thank you."
+  },
+  {
+   "lang": "en",
+   "key": "teacher.msgFee",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "Assalamu alaikum. 0's fee of Batch A for this month is still due. Please pay by bKash or cash. Thank you."
+  },
+  {
+   "lang": "en",
+   "key": "teacher.msgFee",
+   "args": [
+    1,
+    3
+   ],
+   "out": "Assalamu alaikum. 1's fee of 3 for this month is still due. Please pay by bKash or cash. Thank you."
+  },
+  {
+   "lang": "en",
+   "key": "teacher.msgFee",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "Assalamu alaikum. 1's fee of Batch A for this month is still due. Please pay by bKash or cash. Thank you."
+  },
+  {
+   "lang": "en",
+   "key": "teacher.msgFee",
+   "args": [
+    2,
+    3
+   ],
+   "out": "Assalamu alaikum. 2's fee of 3 for this month is still due. Please pay by bKash or cash. Thank you."
+  },
+  {
+   "lang": "en",
+   "key": "teacher.msgFee",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "Assalamu alaikum. 2's fee of Batch A for this month is still due. Please pay by bKash or cash. Thank you."
+  },
+  {
+   "lang": "en",
+   "key": "teacher.msgFee",
+   "args": [
+    12,
+    3
+   ],
+   "out": "Assalamu alaikum. 12's fee of 3 for this month is still due. Please pay by bKash or cash. Thank you."
+  },
+  {
+   "lang": "en",
+   "key": "teacher.msgFee",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "Assalamu alaikum. 12's fee of Batch A for this month is still due. Please pay by bKash or cash. Thank you."
+  },
+  {
+   "lang": "en",
+   "key": "teacher.msgFee",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "Assalamu alaikum. 1234567's fee of 3 for this month is still due. Please pay by bKash or cash. Thank you."
+  },
+  {
+   "lang": "en",
+   "key": "teacher.msgFee",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "Assalamu alaikum. 1234567's fee of Batch A for this month is still due. Please pay by bKash or cash. Thank you."
+  },
+  {
+   "lang": "en",
+   "key": "teacher.msgFee",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "Assalamu alaikum. Rahim Uddin's fee of 3 for this month is still due. Please pay by bKash or cash. Thank you."
+  },
+  {
+   "lang": "en",
+   "key": "teacher.msgFee",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Assalamu alaikum. Rahim Uddin's fee of Batch A for this month is still due. Please pay by bKash or cash. Thank you."
+  },
+  {
+   "lang": "en",
+   "key": "teacher.replyAs",
+   "args": [
+    0
+   ],
+   "out": "Replying as 0"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.replyAs",
+   "args": [
+    0
+   ],
+   "out": "Replying as 0"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.replyAs",
+   "args": [
+    1
+   ],
+   "out": "Replying as 1"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.replyAs",
+   "args": [
+    1
+   ],
+   "out": "Replying as 1"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.replyAs",
+   "args": [
+    2
+   ],
+   "out": "Replying as 2"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.replyAs",
+   "args": [
+    2
+   ],
+   "out": "Replying as 2"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.replyAs",
+   "args": [
+    12
+   ],
+   "out": "Replying as 12"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.replyAs",
+   "args": [
+    12
+   ],
+   "out": "Replying as 12"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.replyAs",
+   "args": [
+    1234567
+   ],
+   "out": "Replying as 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.replyAs",
+   "args": [
+    1234567
+   ],
+   "out": "Replying as 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.replyAs",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Replying as Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.replyAs",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Replying as Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.replyPh",
+   "args": [
+    0
+   ],
+   "out": "Reply as 0…"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.replyPh",
+   "args": [
+    0
+   ],
+   "out": "Reply as 0…"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.replyPh",
+   "args": [
+    1
+   ],
+   "out": "Reply as 1…"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.replyPh",
+   "args": [
+    1
+   ],
+   "out": "Reply as 1…"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.replyPh",
+   "args": [
+    2
+   ],
+   "out": "Reply as 2…"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.replyPh",
+   "args": [
+    2
+   ],
+   "out": "Reply as 2…"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.replyPh",
+   "args": [
+    12
+   ],
+   "out": "Reply as 12…"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.replyPh",
+   "args": [
+    12
+   ],
+   "out": "Reply as 12…"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.replyPh",
+   "args": [
+    1234567
+   ],
+   "out": "Reply as 1234567…"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.replyPh",
+   "args": [
+    1234567
+   ],
+   "out": "Reply as 1234567…"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.replyPh",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Reply as Rahim Uddin…"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.replyPh",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Reply as Rahim Uddin…"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.itemPosted",
+   "args": [
+    0
+   ],
+   "out": "Posted “0” ✓"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.itemPosted",
+   "args": [
+    0
+   ],
+   "out": "Posted “0” ✓"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.itemPosted",
+   "args": [
+    1
+   ],
+   "out": "Posted “1” ✓"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.itemPosted",
+   "args": [
+    1
+   ],
+   "out": "Posted “1” ✓"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.itemPosted",
+   "args": [
+    2
+   ],
+   "out": "Posted “2” ✓"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.itemPosted",
+   "args": [
+    2
+   ],
+   "out": "Posted “2” ✓"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.itemPosted",
+   "args": [
+    12
+   ],
+   "out": "Posted “12” ✓"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.itemPosted",
+   "args": [
+    12
+   ],
+   "out": "Posted “12” ✓"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.itemPosted",
+   "args": [
+    1234567
+   ],
+   "out": "Posted “1234567” ✓"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.itemPosted",
+   "args": [
+    1234567
+   ],
+   "out": "Posted “1234567” ✓"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.itemPosted",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Posted “Rahim Uddin” ✓"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.itemPosted",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Posted “Rahim Uddin” ✓"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.itemRemoved",
+   "args": [
+    0
+   ],
+   "out": "Deleted “0”"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.itemRemoved",
+   "args": [
+    0
+   ],
+   "out": "Deleted “0”"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.itemRemoved",
+   "args": [
+    1
+   ],
+   "out": "Deleted “1”"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.itemRemoved",
+   "args": [
+    1
+   ],
+   "out": "Deleted “1”"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.itemRemoved",
+   "args": [
+    2
+   ],
+   "out": "Deleted “2”"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.itemRemoved",
+   "args": [
+    2
+   ],
+   "out": "Deleted “2”"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.itemRemoved",
+   "args": [
+    12
+   ],
+   "out": "Deleted “12”"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.itemRemoved",
+   "args": [
+    12
+   ],
+   "out": "Deleted “12”"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.itemRemoved",
+   "args": [
+    1234567
+   ],
+   "out": "Deleted “1234567”"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.itemRemoved",
+   "args": [
+    1234567
+   ],
+   "out": "Deleted “1234567”"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.itemRemoved",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Deleted “Rahim Uddin”"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.itemRemoved",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Deleted “Rahim Uddin”"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.studentAdded",
+   "args": [
+    0
+   ],
+   "out": "Added 0 ✓"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.studentAdded",
+   "args": [
+    0
+   ],
+   "out": "Added 0 ✓"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.studentAdded",
+   "args": [
+    1
+   ],
+   "out": "Added 1 ✓"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.studentAdded",
+   "args": [
+    1
+   ],
+   "out": "Added 1 ✓"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.studentAdded",
+   "args": [
+    2
+   ],
+   "out": "Added 2 ✓"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.studentAdded",
+   "args": [
+    2
+   ],
+   "out": "Added 2 ✓"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.studentAdded",
+   "args": [
+    12
+   ],
+   "out": "Added 12 ✓"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.studentAdded",
+   "args": [
+    12
+   ],
+   "out": "Added 12 ✓"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.studentAdded",
+   "args": [
+    1234567
+   ],
+   "out": "Added 1234567 ✓"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.studentAdded",
+   "args": [
+    1234567
+   ],
+   "out": "Added 1234567 ✓"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.studentAdded",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Added Rahim Uddin ✓"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.studentAdded",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Added Rahim Uddin ✓"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.modeSwitched",
+   "args": [
+    0
+   ],
+   "out": "Switched 0's mode"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.modeSwitched",
+   "args": [
+    0
+   ],
+   "out": "Switched 0's mode"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.modeSwitched",
+   "args": [
+    1
+   ],
+   "out": "Switched 1's mode"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.modeSwitched",
+   "args": [
+    1
+   ],
+   "out": "Switched 1's mode"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.modeSwitched",
+   "args": [
+    2
+   ],
+   "out": "Switched 2's mode"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.modeSwitched",
+   "args": [
+    2
+   ],
+   "out": "Switched 2's mode"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.modeSwitched",
+   "args": [
+    12
+   ],
+   "out": "Switched 12's mode"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.modeSwitched",
+   "args": [
+    12
+   ],
+   "out": "Switched 12's mode"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.modeSwitched",
+   "args": [
+    1234567
+   ],
+   "out": "Switched 1234567's mode"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.modeSwitched",
+   "args": [
+    1234567
+   ],
+   "out": "Switched 1234567's mode"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.modeSwitched",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Switched Rahim Uddin's mode"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.modeSwitched",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Switched Rahim Uddin's mode"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.studentRemoved",
+   "args": [
+    0
+   ],
+   "out": "Removed 0"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.studentRemoved",
+   "args": [
+    0
+   ],
+   "out": "Removed 0"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.studentRemoved",
+   "args": [
+    1
+   ],
+   "out": "Removed 1"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.studentRemoved",
+   "args": [
+    1
+   ],
+   "out": "Removed 1"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.studentRemoved",
+   "args": [
+    2
+   ],
+   "out": "Removed 2"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.studentRemoved",
+   "args": [
+    2
+   ],
+   "out": "Removed 2"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.studentRemoved",
+   "args": [
+    12
+   ],
+   "out": "Removed 12"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.studentRemoved",
+   "args": [
+    12
+   ],
+   "out": "Removed 12"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.studentRemoved",
+   "args": [
+    1234567
+   ],
+   "out": "Removed 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.studentRemoved",
+   "args": [
+    1234567
+   ],
+   "out": "Removed 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.studentRemoved",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Removed Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.toast.studentRemoved",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Removed Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "fee.dueBy",
+   "args": [
+    0
+   ],
+   "out": "Due by 0"
+  },
+  {
+   "lang": "en",
+   "key": "fee.dueBy",
+   "args": [
+    0
+   ],
+   "out": "Due by 0"
+  },
+  {
+   "lang": "en",
+   "key": "fee.dueBy",
+   "args": [
+    1
+   ],
+   "out": "Due by 1"
+  },
+  {
+   "lang": "en",
+   "key": "fee.dueBy",
+   "args": [
+    1
+   ],
+   "out": "Due by 1"
+  },
+  {
+   "lang": "en",
+   "key": "fee.dueBy",
+   "args": [
+    2
+   ],
+   "out": "Due by 2"
+  },
+  {
+   "lang": "en",
+   "key": "fee.dueBy",
+   "args": [
+    2
+   ],
+   "out": "Due by 2"
+  },
+  {
+   "lang": "en",
+   "key": "fee.dueBy",
+   "args": [
+    12
+   ],
+   "out": "Due by 12"
+  },
+  {
+   "lang": "en",
+   "key": "fee.dueBy",
+   "args": [
+    12
+   ],
+   "out": "Due by 12"
+  },
+  {
+   "lang": "en",
+   "key": "fee.dueBy",
+   "args": [
+    1234567
+   ],
+   "out": "Due by 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "fee.dueBy",
+   "args": [
+    1234567
+   ],
+   "out": "Due by 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "fee.dueBy",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Due by Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "fee.dueBy",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Due by Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.dueToday",
+   "args": [
+    0
+   ],
+   "out": "0 families to call today"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.dueToday",
+   "args": [
+    0
+   ],
+   "out": "0 families to call today"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.dueToday",
+   "args": [
+    1
+   ],
+   "out": "1 families to call today"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.dueToday",
+   "args": [
+    1
+   ],
+   "out": "1 families to call today"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.dueToday",
+   "args": [
+    2
+   ],
+   "out": "2 families to call today"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.dueToday",
+   "args": [
+    2
+   ],
+   "out": "2 families to call today"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.dueToday",
+   "args": [
+    12
+   ],
+   "out": "12 families to call today"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.dueToday",
+   "args": [
+    12
+   ],
+   "out": "12 families to call today"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.dueToday",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 families to call today"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.dueToday",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 families to call today"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.dueToday",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin families to call today"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.dueToday",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin families to call today"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.added",
+   "args": [
+    0
+   ],
+   "out": "Enquiry saved: 0"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.added",
+   "args": [
+    0
+   ],
+   "out": "Enquiry saved: 0"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.added",
+   "args": [
+    1
+   ],
+   "out": "Enquiry saved: 1"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.added",
+   "args": [
+    1
+   ],
+   "out": "Enquiry saved: 1"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.added",
+   "args": [
+    2
+   ],
+   "out": "Enquiry saved: 2"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.added",
+   "args": [
+    2
+   ],
+   "out": "Enquiry saved: 2"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.added",
+   "args": [
+    12
+   ],
+   "out": "Enquiry saved: 12"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.added",
+   "args": [
+    12
+   ],
+   "out": "Enquiry saved: 12"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.added",
+   "args": [
+    1234567
+   ],
+   "out": "Enquiry saved: 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.added",
+   "args": [
+    1234567
+   ],
+   "out": "Enquiry saved: 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.added",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Enquiry saved: Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.added",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Enquiry saved: Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.callOn",
+   "args": [
+    0
+   ],
+   "out": "Call on 0"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.callOn",
+   "args": [
+    0
+   ],
+   "out": "Call on 0"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.callOn",
+   "args": [
+    1
+   ],
+   "out": "Call on 1"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.callOn",
+   "args": [
+    1
+   ],
+   "out": "Call on 1"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.callOn",
+   "args": [
+    2
+   ],
+   "out": "Call on 2"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.callOn",
+   "args": [
+    2
+   ],
+   "out": "Call on 2"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.callOn",
+   "args": [
+    12
+   ],
+   "out": "Call on 12"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.callOn",
+   "args": [
+    12
+   ],
+   "out": "Call on 12"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.callOn",
+   "args": [
+    1234567
+   ],
+   "out": "Call on 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.callOn",
+   "args": [
+    1234567
+   ],
+   "out": "Call on 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.callOn",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Call on Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.callOn",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Call on Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.stageOf",
+   "args": [
+    0
+   ],
+   "out": "Stage of 0"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.stageOf",
+   "args": [
+    0
+   ],
+   "out": "Stage of 0"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.stageOf",
+   "args": [
+    1
+   ],
+   "out": "Stage of 1"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.stageOf",
+   "args": [
+    1
+   ],
+   "out": "Stage of 1"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.stageOf",
+   "args": [
+    2
+   ],
+   "out": "Stage of 2"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.stageOf",
+   "args": [
+    2
+   ],
+   "out": "Stage of 2"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.stageOf",
+   "args": [
+    12
+   ],
+   "out": "Stage of 12"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.stageOf",
+   "args": [
+    12
+   ],
+   "out": "Stage of 12"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.stageOf",
+   "args": [
+    1234567
+   ],
+   "out": "Stage of 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.stageOf",
+   "args": [
+    1234567
+   ],
+   "out": "Stage of 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.stageOf",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Stage of Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.stageOf",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Stage of Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.admitTitle",
+   "args": [
+    0
+   ],
+   "out": "Admit 0"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.admitTitle",
+   "args": [
+    0
+   ],
+   "out": "Admit 0"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.admitTitle",
+   "args": [
+    1
+   ],
+   "out": "Admit 1"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.admitTitle",
+   "args": [
+    1
+   ],
+   "out": "Admit 1"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.admitTitle",
+   "args": [
+    2
+   ],
+   "out": "Admit 2"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.admitTitle",
+   "args": [
+    2
+   ],
+   "out": "Admit 2"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.admitTitle",
+   "args": [
+    12
+   ],
+   "out": "Admit 12"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.admitTitle",
+   "args": [
+    12
+   ],
+   "out": "Admit 12"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.admitTitle",
+   "args": [
+    1234567
+   ],
+   "out": "Admit 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.admitTitle",
+   "args": [
+    1234567
+   ],
+   "out": "Admit 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.admitTitle",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Admit Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "admissions.admitTitle",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Admit Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "staffTool.absentThisMonth",
+   "args": [
+    0
+   ],
+   "out": "0 days absent this month"
+  },
+  {
+   "lang": "en",
+   "key": "staffTool.absentThisMonth",
+   "args": [
+    0
+   ],
+   "out": "0 days absent this month"
+  },
+  {
+   "lang": "en",
+   "key": "staffTool.absentThisMonth",
+   "args": [
+    1
+   ],
+   "out": "1 days absent this month"
+  },
+  {
+   "lang": "en",
+   "key": "staffTool.absentThisMonth",
+   "args": [
+    1
+   ],
+   "out": "1 days absent this month"
+  },
+  {
+   "lang": "en",
+   "key": "staffTool.absentThisMonth",
+   "args": [
+    2
+   ],
+   "out": "2 days absent this month"
+  },
+  {
+   "lang": "en",
+   "key": "staffTool.absentThisMonth",
+   "args": [
+    2
+   ],
+   "out": "2 days absent this month"
+  },
+  {
+   "lang": "en",
+   "key": "staffTool.absentThisMonth",
+   "args": [
+    12
+   ],
+   "out": "12 days absent this month"
+  },
+  {
+   "lang": "en",
+   "key": "staffTool.absentThisMonth",
+   "args": [
+    12
+   ],
+   "out": "12 days absent this month"
+  },
+  {
+   "lang": "en",
+   "key": "staffTool.absentThisMonth",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 days absent this month"
+  },
+  {
+   "lang": "en",
+   "key": "staffTool.absentThisMonth",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 days absent this month"
+  },
+  {
+   "lang": "en",
+   "key": "staffTool.absentThisMonth",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin days absent this month"
+  },
+  {
+   "lang": "en",
+   "key": "staffTool.absentThisMonth",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin days absent this month"
+  },
+  {
+   "lang": "en",
+   "key": "payroll.confirm",
+   "args": [
+    0,
+    3
+   ],
+   "out": "Record a payment of 3 to 0?"
+  },
+  {
+   "lang": "en",
+   "key": "payroll.confirm",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "Record a payment of Batch A to 0?"
+  },
+  {
+   "lang": "en",
+   "key": "payroll.confirm",
+   "args": [
+    1,
+    3
+   ],
+   "out": "Record a payment of 3 to 1?"
+  },
+  {
+   "lang": "en",
+   "key": "payroll.confirm",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "Record a payment of Batch A to 1?"
+  },
+  {
+   "lang": "en",
+   "key": "payroll.confirm",
+   "args": [
+    2,
+    3
+   ],
+   "out": "Record a payment of 3 to 2?"
+  },
+  {
+   "lang": "en",
+   "key": "payroll.confirm",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "Record a payment of Batch A to 2?"
+  },
+  {
+   "lang": "en",
+   "key": "payroll.confirm",
+   "args": [
+    12,
+    3
+   ],
+   "out": "Record a payment of 3 to 12?"
+  },
+  {
+   "lang": "en",
+   "key": "payroll.confirm",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "Record a payment of Batch A to 12?"
+  },
+  {
+   "lang": "en",
+   "key": "payroll.confirm",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "Record a payment of 3 to 1234567?"
+  },
+  {
+   "lang": "en",
+   "key": "payroll.confirm",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "Record a payment of Batch A to 1234567?"
+  },
+  {
+   "lang": "en",
+   "key": "payroll.confirm",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "Record a payment of 3 to Rahim Uddin?"
+  },
+  {
+   "lang": "en",
+   "key": "payroll.confirm",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Record a payment of Batch A to Rahim Uddin?"
+  },
+  {
+   "lang": "en",
+   "key": "payroll.paidOk",
+   "args": [
+    0
+   ],
+   "out": "Payment to 0 recorded ✓"
+  },
+  {
+   "lang": "en",
+   "key": "payroll.paidOk",
+   "args": [
+    0
+   ],
+   "out": "Payment to 0 recorded ✓"
+  },
+  {
+   "lang": "en",
+   "key": "payroll.paidOk",
+   "args": [
+    1
+   ],
+   "out": "Payment to 1 recorded ✓"
+  },
+  {
+   "lang": "en",
+   "key": "payroll.paidOk",
+   "args": [
+    1
+   ],
+   "out": "Payment to 1 recorded ✓"
+  },
+  {
+   "lang": "en",
+   "key": "payroll.paidOk",
+   "args": [
+    2
+   ],
+   "out": "Payment to 2 recorded ✓"
+  },
+  {
+   "lang": "en",
+   "key": "payroll.paidOk",
+   "args": [
+    2
+   ],
+   "out": "Payment to 2 recorded ✓"
+  },
+  {
+   "lang": "en",
+   "key": "payroll.paidOk",
+   "args": [
+    12
+   ],
+   "out": "Payment to 12 recorded ✓"
+  },
+  {
+   "lang": "en",
+   "key": "payroll.paidOk",
+   "args": [
+    12
+   ],
+   "out": "Payment to 12 recorded ✓"
+  },
+  {
+   "lang": "en",
+   "key": "payroll.paidOk",
+   "args": [
+    1234567
+   ],
+   "out": "Payment to 1234567 recorded ✓"
+  },
+  {
+   "lang": "en",
+   "key": "payroll.paidOk",
+   "args": [
+    1234567
+   ],
+   "out": "Payment to 1234567 recorded ✓"
+  },
+  {
+   "lang": "en",
+   "key": "payroll.paidOk",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Payment to Rahim Uddin recorded ✓"
+  },
+  {
+   "lang": "en",
+   "key": "payroll.paidOk",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Payment to Rahim Uddin recorded ✓"
+  },
+  {
+   "lang": "en",
+   "key": "exam.stats",
+   "args": [
+    0,
+    3,
+    7
+   ],
+   "out": "avg 0 · high 3 · low 7 · undefined graded"
+  },
+  {
+   "lang": "en",
+   "key": "exam.stats",
+   "args": [
+    0,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "avg 0 · high Batch A · low ৳1,500 · undefined graded"
+  },
+  {
+   "lang": "en",
+   "key": "exam.stats",
+   "args": [
+    1,
+    3,
+    7
+   ],
+   "out": "avg 1 · high 3 · low 7 · undefined graded"
+  },
+  {
+   "lang": "en",
+   "key": "exam.stats",
+   "args": [
+    1,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "avg 1 · high Batch A · low ৳1,500 · undefined graded"
+  },
+  {
+   "lang": "en",
+   "key": "exam.stats",
+   "args": [
+    2,
+    3,
+    7
+   ],
+   "out": "avg 2 · high 3 · low 7 · undefined graded"
+  },
+  {
+   "lang": "en",
+   "key": "exam.stats",
+   "args": [
+    2,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "avg 2 · high Batch A · low ৳1,500 · undefined graded"
+  },
+  {
+   "lang": "en",
+   "key": "exam.stats",
+   "args": [
+    12,
+    3,
+    7
+   ],
+   "out": "avg 12 · high 3 · low 7 · undefined graded"
+  },
+  {
+   "lang": "en",
+   "key": "exam.stats",
+   "args": [
+    12,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "avg 12 · high Batch A · low ৳1,500 · undefined graded"
+  },
+  {
+   "lang": "en",
+   "key": "exam.stats",
+   "args": [
+    1234567,
+    3,
+    7
+   ],
+   "out": "avg 1234567 · high 3 · low 7 · undefined graded"
+  },
+  {
+   "lang": "en",
+   "key": "exam.stats",
+   "args": [
+    1234567,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "avg 1234567 · high Batch A · low ৳1,500 · undefined graded"
+  },
+  {
+   "lang": "en",
+   "key": "exam.stats",
+   "args": [
+    "Rahim Uddin",
+    3,
+    7
+   ],
+   "out": "avg Rahim Uddin · high 3 · low 7 · undefined graded"
+  },
+  {
+   "lang": "en",
+   "key": "exam.stats",
+   "args": [
+    "Rahim Uddin",
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "avg Rahim Uddin · high Batch A · low ৳1,500 · undefined graded"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.intro",
+   "args": [
+    0,
+    3,
+    7
+   ],
+   "out": "0 questions · 3 minutes · 7 marks"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.intro",
+   "args": [
+    0,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "0 questions · Batch A minutes · ৳1,500 marks"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.intro",
+   "args": [
+    1,
+    3,
+    7
+   ],
+   "out": "1 questions · 3 minutes · 7 marks"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.intro",
+   "args": [
+    1,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "1 questions · Batch A minutes · ৳1,500 marks"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.intro",
+   "args": [
+    2,
+    3,
+    7
+   ],
+   "out": "2 questions · 3 minutes · 7 marks"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.intro",
+   "args": [
+    2,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "2 questions · Batch A minutes · ৳1,500 marks"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.intro",
+   "args": [
+    12,
+    3,
+    7
+   ],
+   "out": "12 questions · 3 minutes · 7 marks"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.intro",
+   "args": [
+    12,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "12 questions · Batch A minutes · ৳1,500 marks"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.intro",
+   "args": [
+    1234567,
+    3,
+    7
+   ],
+   "out": "1234567 questions · 3 minutes · 7 marks"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.intro",
+   "args": [
+    1234567,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "1234567 questions · Batch A minutes · ৳1,500 marks"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.intro",
+   "args": [
+    "Rahim Uddin",
+    3,
+    7
+   ],
+   "out": "Rahim Uddin questions · 3 minutes · 7 marks"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.intro",
+   "args": [
+    "Rahim Uddin",
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "Rahim Uddin questions · Batch A minutes · ৳1,500 marks"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.questionOf",
+   "args": [
+    0,
+    3
+   ],
+   "out": "Question 0 of 3"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.questionOf",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "Question 0 of Batch A"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.questionOf",
+   "args": [
+    1,
+    3
+   ],
+   "out": "Question 1 of 3"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.questionOf",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "Question 1 of Batch A"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.questionOf",
+   "args": [
+    2,
+    3
+   ],
+   "out": "Question 2 of 3"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.questionOf",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "Question 2 of Batch A"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.questionOf",
+   "args": [
+    12,
+    3
+   ],
+   "out": "Question 12 of 3"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.questionOf",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "Question 12 of Batch A"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.questionOf",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "Question 1234567 of 3"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.questionOf",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "Question 1234567 of Batch A"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.questionOf",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "Question Rahim Uddin of 3"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.questionOf",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Question Rahim Uddin of Batch A"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.confirmUnanswered",
+   "args": [
+    0
+   ],
+   "out": "0 question(s) unanswered. Submit anyway?"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.confirmUnanswered",
+   "args": [
+    0
+   ],
+   "out": "0 question(s) unanswered. Submit anyway?"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.confirmUnanswered",
+   "args": [
+    1
+   ],
+   "out": "1 question(s) unanswered. Submit anyway?"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.confirmUnanswered",
+   "args": [
+    1
+   ],
+   "out": "1 question(s) unanswered. Submit anyway?"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.confirmUnanswered",
+   "args": [
+    2
+   ],
+   "out": "2 question(s) unanswered. Submit anyway?"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.confirmUnanswered",
+   "args": [
+    2
+   ],
+   "out": "2 question(s) unanswered. Submit anyway?"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.confirmUnanswered",
+   "args": [
+    12
+   ],
+   "out": "12 question(s) unanswered. Submit anyway?"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.confirmUnanswered",
+   "args": [
+    12
+   ],
+   "out": "12 question(s) unanswered. Submit anyway?"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.confirmUnanswered",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 question(s) unanswered. Submit anyway?"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.confirmUnanswered",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 question(s) unanswered. Submit anyway?"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.confirmUnanswered",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin question(s) unanswered. Submit anyway?"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.confirmUnanswered",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin question(s) unanswered. Submit anyway?"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.yourScore",
+   "args": [
+    0,
+    3
+   ],
+   "out": "You scored 0 / 3"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.yourScore",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "You scored 0 / Batch A"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.yourScore",
+   "args": [
+    1,
+    3
+   ],
+   "out": "You scored 1 / 3"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.yourScore",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "You scored 1 / Batch A"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.yourScore",
+   "args": [
+    2,
+    3
+   ],
+   "out": "You scored 2 / 3"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.yourScore",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "You scored 2 / Batch A"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.yourScore",
+   "args": [
+    12,
+    3
+   ],
+   "out": "You scored 12 / 3"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.yourScore",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "You scored 12 / Batch A"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.yourScore",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "You scored 1234567 / 3"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.yourScore",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "You scored 1234567 / Batch A"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.yourScore",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "You scored Rahim Uddin / 3"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.yourScore",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "You scored Rahim Uddin / Batch A"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.taken",
+   "args": [
+    0,
+    3
+   ],
+   "out": "Done · 0/3"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.taken",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "Done · 0/Batch A"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.taken",
+   "args": [
+    1,
+    3
+   ],
+   "out": "Done · 1/3"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.taken",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "Done · 1/Batch A"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.taken",
+   "args": [
+    2,
+    3
+   ],
+   "out": "Done · 2/3"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.taken",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "Done · 2/Batch A"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.taken",
+   "args": [
+    12,
+    3
+   ],
+   "out": "Done · 12/3"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.taken",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "Done · 12/Batch A"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.taken",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "Done · 1234567/3"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.taken",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "Done · 1234567/Batch A"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.taken",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "Done · Rahim Uddin/3"
+  },
+  {
+   "lang": "en",
+   "key": "quiz.taken",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Done · Rahim Uddin/Batch A"
+  },
+  {
+   "lang": "en",
+   "key": "rubric.total",
+   "args": [
+    0
+   ],
+   "out": "Total 0"
+  },
+  {
+   "lang": "en",
+   "key": "rubric.total",
+   "args": [
+    0
+   ],
+   "out": "Total 0"
+  },
+  {
+   "lang": "en",
+   "key": "rubric.total",
+   "args": [
+    1
+   ],
+   "out": "Total 1"
+  },
+  {
+   "lang": "en",
+   "key": "rubric.total",
+   "args": [
+    1
+   ],
+   "out": "Total 1"
+  },
+  {
+   "lang": "en",
+   "key": "rubric.total",
+   "args": [
+    2
+   ],
+   "out": "Total 2"
+  },
+  {
+   "lang": "en",
+   "key": "rubric.total",
+   "args": [
+    2
+   ],
+   "out": "Total 2"
+  },
+  {
+   "lang": "en",
+   "key": "rubric.total",
+   "args": [
+    12
+   ],
+   "out": "Total 12"
+  },
+  {
+   "lang": "en",
+   "key": "rubric.total",
+   "args": [
+    12
+   ],
+   "out": "Total 12"
+  },
+  {
+   "lang": "en",
+   "key": "rubric.total",
+   "args": [
+    1234567
+   ],
+   "out": "Total 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "rubric.total",
+   "args": [
+    1234567
+   ],
+   "out": "Total 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "rubric.total",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Total Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "rubric.total",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Total Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "merit.title",
+   "args": [
+    0
+   ],
+   "out": "Merit list: 0"
+  },
+  {
+   "lang": "en",
+   "key": "merit.title",
+   "args": [
+    0
+   ],
+   "out": "Merit list: 0"
+  },
+  {
+   "lang": "en",
+   "key": "merit.title",
+   "args": [
+    1
+   ],
+   "out": "Merit list: 1"
+  },
+  {
+   "lang": "en",
+   "key": "merit.title",
+   "args": [
+    1
+   ],
+   "out": "Merit list: 1"
+  },
+  {
+   "lang": "en",
+   "key": "merit.title",
+   "args": [
+    2
+   ],
+   "out": "Merit list: 2"
+  },
+  {
+   "lang": "en",
+   "key": "merit.title",
+   "args": [
+    2
+   ],
+   "out": "Merit list: 2"
+  },
+  {
+   "lang": "en",
+   "key": "merit.title",
+   "args": [
+    12
+   ],
+   "out": "Merit list: 12"
+  },
+  {
+   "lang": "en",
+   "key": "merit.title",
+   "args": [
+    12
+   ],
+   "out": "Merit list: 12"
+  },
+  {
+   "lang": "en",
+   "key": "merit.title",
+   "args": [
+    1234567
+   ],
+   "out": "Merit list: 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "merit.title",
+   "args": [
+    1234567
+   ],
+   "out": "Merit list: 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "merit.title",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Merit list: Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "merit.title",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Merit list: Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "merit.beat",
+   "args": [
+    0
+   ],
+   "out": "Better than 0% of the class"
+  },
+  {
+   "lang": "en",
+   "key": "merit.beat",
+   "args": [
+    0
+   ],
+   "out": "Better than 0% of the class"
+  },
+  {
+   "lang": "en",
+   "key": "merit.beat",
+   "args": [
+    1
+   ],
+   "out": "Better than 1% of the class"
+  },
+  {
+   "lang": "en",
+   "key": "merit.beat",
+   "args": [
+    1
+   ],
+   "out": "Better than 1% of the class"
+  },
+  {
+   "lang": "en",
+   "key": "merit.beat",
+   "args": [
+    2
+   ],
+   "out": "Better than 2% of the class"
+  },
+  {
+   "lang": "en",
+   "key": "merit.beat",
+   "args": [
+    2
+   ],
+   "out": "Better than 2% of the class"
+  },
+  {
+   "lang": "en",
+   "key": "merit.beat",
+   "args": [
+    12
+   ],
+   "out": "Better than 12% of the class"
+  },
+  {
+   "lang": "en",
+   "key": "merit.beat",
+   "args": [
+    12
+   ],
+   "out": "Better than 12% of the class"
+  },
+  {
+   "lang": "en",
+   "key": "merit.beat",
+   "args": [
+    1234567
+   ],
+   "out": "Better than 1234567% of the class"
+  },
+  {
+   "lang": "en",
+   "key": "merit.beat",
+   "args": [
+    1234567
+   ],
+   "out": "Better than 1234567% of the class"
+  },
+  {
+   "lang": "en",
+   "key": "merit.beat",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Better than Rahim Uddin% of the class"
+  },
+  {
+   "lang": "en",
+   "key": "merit.beat",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Better than Rahim Uddin% of the class"
+  },
+  {
+   "lang": "en",
+   "key": "merit.tabSwitches",
+   "args": [
+    0
+   ],
+   "out": "left the test 0 times"
+  },
+  {
+   "lang": "en",
+   "key": "merit.tabSwitches",
+   "args": [
+    0
+   ],
+   "out": "left the test 0 times"
+  },
+  {
+   "lang": "en",
+   "key": "merit.tabSwitches",
+   "args": [
+    1
+   ],
+   "out": "left the test 1 time"
+  },
+  {
+   "lang": "en",
+   "key": "merit.tabSwitches",
+   "args": [
+    1
+   ],
+   "out": "left the test 1 time"
+  },
+  {
+   "lang": "en",
+   "key": "merit.tabSwitches",
+   "args": [
+    2
+   ],
+   "out": "left the test 2 times"
+  },
+  {
+   "lang": "en",
+   "key": "merit.tabSwitches",
+   "args": [
+    2
+   ],
+   "out": "left the test 2 times"
+  },
+  {
+   "lang": "en",
+   "key": "merit.tabSwitches",
+   "args": [
+    12
+   ],
+   "out": "left the test 12 times"
+  },
+  {
+   "lang": "en",
+   "key": "merit.tabSwitches",
+   "args": [
+    12
+   ],
+   "out": "left the test 12 times"
+  },
+  {
+   "lang": "en",
+   "key": "merit.tabSwitches",
+   "args": [
+    1234567
+   ],
+   "out": "left the test 1234567 times"
+  },
+  {
+   "lang": "en",
+   "key": "merit.tabSwitches",
+   "args": [
+    1234567
+   ],
+   "out": "left the test 1234567 times"
+  },
+  {
+   "lang": "en",
+   "key": "merit.tabSwitches",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "left the test Rahim Uddin times"
+  },
+  {
+   "lang": "en",
+   "key": "merit.tabSwitches",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "left the test Rahim Uddin times"
+  },
+  {
+   "lang": "en",
+   "key": "merit.tookLong",
+   "args": [
+    0,
+    3
+   ],
+   "out": "took 0 min (limit 3 min)"
+  },
+  {
+   "lang": "en",
+   "key": "merit.tookLong",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "took 0 min (limit Batch A min)"
+  },
+  {
+   "lang": "en",
+   "key": "merit.tookLong",
+   "args": [
+    1,
+    3
+   ],
+   "out": "took 1 min (limit 3 min)"
+  },
+  {
+   "lang": "en",
+   "key": "merit.tookLong",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "took 1 min (limit Batch A min)"
+  },
+  {
+   "lang": "en",
+   "key": "merit.tookLong",
+   "args": [
+    2,
+    3
+   ],
+   "out": "took 2 min (limit 3 min)"
+  },
+  {
+   "lang": "en",
+   "key": "merit.tookLong",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "took 2 min (limit Batch A min)"
+  },
+  {
+   "lang": "en",
+   "key": "merit.tookLong",
+   "args": [
+    12,
+    3
+   ],
+   "out": "took 12 min (limit 3 min)"
+  },
+  {
+   "lang": "en",
+   "key": "merit.tookLong",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "took 12 min (limit Batch A min)"
+  },
+  {
+   "lang": "en",
+   "key": "merit.tookLong",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "took 1234567 min (limit 3 min)"
+  },
+  {
+   "lang": "en",
+   "key": "merit.tookLong",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "took 1234567 min (limit Batch A min)"
+  },
+  {
+   "lang": "en",
+   "key": "merit.tookLong",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "took Rahim Uddin min (limit 3 min)"
+  },
+  {
+   "lang": "en",
+   "key": "merit.tookLong",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "took Rahim Uddin min (limit Batch A min)"
+  },
+  {
+   "lang": "en",
+   "key": "bank.matching",
+   "args": [
+    0
+   ],
+   "out": "0 questions match"
+  },
+  {
+   "lang": "en",
+   "key": "bank.matching",
+   "args": [
+    0
+   ],
+   "out": "0 questions match"
+  },
+  {
+   "lang": "en",
+   "key": "bank.matching",
+   "args": [
+    1
+   ],
+   "out": "1 questions match"
+  },
+  {
+   "lang": "en",
+   "key": "bank.matching",
+   "args": [
+    1
+   ],
+   "out": "1 questions match"
+  },
+  {
+   "lang": "en",
+   "key": "bank.matching",
+   "args": [
+    2
+   ],
+   "out": "2 questions match"
+  },
+  {
+   "lang": "en",
+   "key": "bank.matching",
+   "args": [
+    2
+   ],
+   "out": "2 questions match"
+  },
+  {
+   "lang": "en",
+   "key": "bank.matching",
+   "args": [
+    12
+   ],
+   "out": "12 questions match"
+  },
+  {
+   "lang": "en",
+   "key": "bank.matching",
+   "args": [
+    12
+   ],
+   "out": "12 questions match"
+  },
+  {
+   "lang": "en",
+   "key": "bank.matching",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 questions match"
+  },
+  {
+   "lang": "en",
+   "key": "bank.matching",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 questions match"
+  },
+  {
+   "lang": "en",
+   "key": "bank.matching",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin questions match"
+  },
+  {
+   "lang": "en",
+   "key": "bank.matching",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin questions match"
+  },
+  {
+   "lang": "en",
+   "key": "bank.made",
+   "args": [
+    0,
+    3
+   ],
+   "out": "\"0\" made with 3 questions"
+  },
+  {
+   "lang": "en",
+   "key": "bank.made",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "\"0\" made with Batch A questions"
+  },
+  {
+   "lang": "en",
+   "key": "bank.made",
+   "args": [
+    1,
+    3
+   ],
+   "out": "\"1\" made with 3 questions"
+  },
+  {
+   "lang": "en",
+   "key": "bank.made",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "\"1\" made with Batch A questions"
+  },
+  {
+   "lang": "en",
+   "key": "bank.made",
+   "args": [
+    2,
+    3
+   ],
+   "out": "\"2\" made with 3 questions"
+  },
+  {
+   "lang": "en",
+   "key": "bank.made",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "\"2\" made with Batch A questions"
+  },
+  {
+   "lang": "en",
+   "key": "bank.made",
+   "args": [
+    12,
+    3
+   ],
+   "out": "\"12\" made with 3 questions"
+  },
+  {
+   "lang": "en",
+   "key": "bank.made",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "\"12\" made with Batch A questions"
+  },
+  {
+   "lang": "en",
+   "key": "bank.made",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "\"1234567\" made with 3 questions"
+  },
+  {
+   "lang": "en",
+   "key": "bank.made",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "\"1234567\" made with Batch A questions"
+  },
+  {
+   "lang": "en",
+   "key": "bank.made",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "\"Rahim Uddin\" made with 3 questions"
+  },
+  {
+   "lang": "en",
+   "key": "bank.made",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "\"Rahim Uddin\" made with Batch A questions"
+  },
+  {
+   "lang": "en",
+   "key": "bank.added",
+   "args": [
+    0
+   ],
+   "out": "0 questions added"
+  },
+  {
+   "lang": "en",
+   "key": "bank.added",
+   "args": [
+    0
+   ],
+   "out": "0 questions added"
+  },
+  {
+   "lang": "en",
+   "key": "bank.added",
+   "args": [
+    1
+   ],
+   "out": "1 questions added"
+  },
+  {
+   "lang": "en",
+   "key": "bank.added",
+   "args": [
+    1
+   ],
+   "out": "1 questions added"
+  },
+  {
+   "lang": "en",
+   "key": "bank.added",
+   "args": [
+    2
+   ],
+   "out": "2 questions added"
+  },
+  {
+   "lang": "en",
+   "key": "bank.added",
+   "args": [
+    2
+   ],
+   "out": "2 questions added"
+  },
+  {
+   "lang": "en",
+   "key": "bank.added",
+   "args": [
+    12
+   ],
+   "out": "12 questions added"
+  },
+  {
+   "lang": "en",
+   "key": "bank.added",
+   "args": [
+    12
+   ],
+   "out": "12 questions added"
+  },
+  {
+   "lang": "en",
+   "key": "bank.added",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 questions added"
+  },
+  {
+   "lang": "en",
+   "key": "bank.added",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 questions added"
+  },
+  {
+   "lang": "en",
+   "key": "bank.added",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin questions added"
+  },
+  {
+   "lang": "en",
+   "key": "bank.added",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin questions added"
+  },
+  {
+   "lang": "en",
+   "key": "bank.list",
+   "args": [
+    0
+   ],
+   "out": "Questions (0)"
+  },
+  {
+   "lang": "en",
+   "key": "bank.list",
+   "args": [
+    0
+   ],
+   "out": "Questions (0)"
+  },
+  {
+   "lang": "en",
+   "key": "bank.list",
+   "args": [
+    1
+   ],
+   "out": "Questions (1)"
+  },
+  {
+   "lang": "en",
+   "key": "bank.list",
+   "args": [
+    1
+   ],
+   "out": "Questions (1)"
+  },
+  {
+   "lang": "en",
+   "key": "bank.list",
+   "args": [
+    2
+   ],
+   "out": "Questions (2)"
+  },
+  {
+   "lang": "en",
+   "key": "bank.list",
+   "args": [
+    2
+   ],
+   "out": "Questions (2)"
+  },
+  {
+   "lang": "en",
+   "key": "bank.list",
+   "args": [
+    12
+   ],
+   "out": "Questions (12)"
+  },
+  {
+   "lang": "en",
+   "key": "bank.list",
+   "args": [
+    12
+   ],
+   "out": "Questions (12)"
+  },
+  {
+   "lang": "en",
+   "key": "bank.list",
+   "args": [
+    1234567
+   ],
+   "out": "Questions (1234567)"
+  },
+  {
+   "lang": "en",
+   "key": "bank.list",
+   "args": [
+    1234567
+   ],
+   "out": "Questions (1234567)"
+  },
+  {
+   "lang": "en",
+   "key": "bank.list",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Questions (Rahim Uddin)"
+  },
+  {
+   "lang": "en",
+   "key": "bank.list",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Questions (Rahim Uddin)"
+  },
+  {
+   "lang": "en",
+   "key": "watch.summary",
+   "args": [
+    0,
+    3
+   ],
+   "out": "0 of 3 watched (almost) all"
+  },
+  {
+   "lang": "en",
+   "key": "watch.summary",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "0 of Batch A watched (almost) all"
+  },
+  {
+   "lang": "en",
+   "key": "watch.summary",
+   "args": [
+    1,
+    3
+   ],
+   "out": "1 of 3 watched (almost) all"
+  },
+  {
+   "lang": "en",
+   "key": "watch.summary",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "1 of Batch A watched (almost) all"
+  },
+  {
+   "lang": "en",
+   "key": "watch.summary",
+   "args": [
+    2,
+    3
+   ],
+   "out": "2 of 3 watched (almost) all"
+  },
+  {
+   "lang": "en",
+   "key": "watch.summary",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "2 of Batch A watched (almost) all"
+  },
+  {
+   "lang": "en",
+   "key": "watch.summary",
+   "args": [
+    12,
+    3
+   ],
+   "out": "12 of 3 watched (almost) all"
+  },
+  {
+   "lang": "en",
+   "key": "watch.summary",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "12 of Batch A watched (almost) all"
+  },
+  {
+   "lang": "en",
+   "key": "watch.summary",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "1234567 of 3 watched (almost) all"
+  },
+  {
+   "lang": "en",
+   "key": "watch.summary",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "1234567 of Batch A watched (almost) all"
+  },
+  {
+   "lang": "en",
+   "key": "watch.summary",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "Rahim Uddin of 3 watched (almost) all"
+  },
+  {
+   "lang": "en",
+   "key": "watch.summary",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Rahim Uddin of Batch A watched (almost) all"
+  },
+  {
+   "lang": "en",
+   "key": "routine.clash",
+   "args": [
+    0,
+    3,
+    7
+   ],
+   "out": "Clash on 0: 3 and 7 (undefined)."
+  },
+  {
+   "lang": "en",
+   "key": "routine.clash",
+   "args": [
+    0,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "Clash on 0: Batch A and ৳1,500 (undefined)."
+  },
+  {
+   "lang": "en",
+   "key": "routine.clash",
+   "args": [
+    1,
+    3,
+    7
+   ],
+   "out": "Clash on 1: 3 and 7 (undefined)."
+  },
+  {
+   "lang": "en",
+   "key": "routine.clash",
+   "args": [
+    1,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "Clash on 1: Batch A and ৳1,500 (undefined)."
+  },
+  {
+   "lang": "en",
+   "key": "routine.clash",
+   "args": [
+    2,
+    3,
+    7
+   ],
+   "out": "Clash on 2: 3 and 7 (undefined)."
+  },
+  {
+   "lang": "en",
+   "key": "routine.clash",
+   "args": [
+    2,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "Clash on 2: Batch A and ৳1,500 (undefined)."
+  },
+  {
+   "lang": "en",
+   "key": "routine.clash",
+   "args": [
+    12,
+    3,
+    7
+   ],
+   "out": "Clash on 12: 3 and 7 (undefined)."
+  },
+  {
+   "lang": "en",
+   "key": "routine.clash",
+   "args": [
+    12,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "Clash on 12: Batch A and ৳1,500 (undefined)."
+  },
+  {
+   "lang": "en",
+   "key": "routine.clash",
+   "args": [
+    1234567,
+    3,
+    7
+   ],
+   "out": "Clash on 1234567: 3 and 7 (undefined)."
+  },
+  {
+   "lang": "en",
+   "key": "routine.clash",
+   "args": [
+    1234567,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "Clash on 1234567: Batch A and ৳1,500 (undefined)."
+  },
+  {
+   "lang": "en",
+   "key": "routine.clash",
+   "args": [
+    "Rahim Uddin",
+    3,
+    7
+   ],
+   "out": "Clash on Rahim Uddin: 3 and 7 (undefined)."
+  },
+  {
+   "lang": "en",
+   "key": "routine.clash",
+   "args": [
+    "Rahim Uddin",
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "Clash on Rahim Uddin: Batch A and ৳1,500 (undefined)."
+  },
+  {
+   "lang": "en",
    "key": "teacher.confirmDeleteAnn",
    "args": [
     0
@@ -18743,6 +24659,5802 @@
     "Rahim Uddin"
    ],
    "out": "প্রতি মাসের Rahim Uddin তারিখের মধ্যে ফি দিতে হবে; এরপর দেরির জরিমানা যোগ হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.studentsN",
+   "args": [
+    0
+   ],
+   "out": "০ জন শিক্ষার্থী"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.studentsN",
+   "args": [
+    0
+   ],
+   "out": "০ জন শিক্ষার্থী"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.studentsN",
+   "args": [
+    1
+   ],
+   "out": "১ জন শিক্ষার্থী"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.studentsN",
+   "args": [
+    1
+   ],
+   "out": "১ জন শিক্ষার্থী"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.studentsN",
+   "args": [
+    2
+   ],
+   "out": "২ জন শিক্ষার্থী"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.studentsN",
+   "args": [
+    2
+   ],
+   "out": "২ জন শিক্ষার্থী"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.studentsN",
+   "args": [
+    12
+   ],
+   "out": "১২ জন শিক্ষার্থী"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.studentsN",
+   "args": [
+    12
+   ],
+   "out": "১২ জন শিক্ষার্থী"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.studentsN",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭ জন শিক্ষার্থী"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.studentsN",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭ জন শিক্ষার্থী"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.studentsN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin জন শিক্ষার্থী"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.studentsN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin জন শিক্ষার্থী"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.paidPct",
+   "args": [
+    0
+   ],
+   "out": "০% শিক্ষার্থী পরিশোধ করেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.paidPct",
+   "args": [
+    0
+   ],
+   "out": "০% শিক্ষার্থী পরিশোধ করেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.paidPct",
+   "args": [
+    1
+   ],
+   "out": "১% শিক্ষার্থী পরিশোধ করেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.paidPct",
+   "args": [
+    1
+   ],
+   "out": "১% শিক্ষার্থী পরিশোধ করেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.paidPct",
+   "args": [
+    2
+   ],
+   "out": "২% শিক্ষার্থী পরিশোধ করেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.paidPct",
+   "args": [
+    2
+   ],
+   "out": "২% শিক্ষার্থী পরিশোধ করেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.paidPct",
+   "args": [
+    12
+   ],
+   "out": "১২% শিক্ষার্থী পরিশোধ করেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.paidPct",
+   "args": [
+    12
+   ],
+   "out": "১২% শিক্ষার্থী পরিশোধ করেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.paidPct",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭% শিক্ষার্থী পরিশোধ করেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.paidPct",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭% শিক্ষার্থী পরিশোধ করেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.paidPct",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin% শিক্ষার্থী পরিশোধ করেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.paidPct",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin% শিক্ষার্থী পরিশোধ করেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.pendingN",
+   "args": [
+    0
+   ],
+   "out": "০ জনের বাকি"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.pendingN",
+   "args": [
+    0
+   ],
+   "out": "০ জনের বাকি"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.pendingN",
+   "args": [
+    1
+   ],
+   "out": "১ জনের বাকি"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.pendingN",
+   "args": [
+    1
+   ],
+   "out": "১ জনের বাকি"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.pendingN",
+   "args": [
+    2
+   ],
+   "out": "২ জনের বাকি"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.pendingN",
+   "args": [
+    2
+   ],
+   "out": "২ জনের বাকি"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.pendingN",
+   "args": [
+    12
+   ],
+   "out": "১২ জনের বাকি"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.pendingN",
+   "args": [
+    12
+   ],
+   "out": "১২ জনের বাকি"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.pendingN",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭ জনের বাকি"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.pendingN",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭ জনের বাকি"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.pendingN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin জনের বাকি"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.pendingN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin জনের বাকি"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.courseSummary",
+   "args": [
+    0,
+    3
+   ],
+   "out": "০টি মডিউল · ৩ জন শিক্ষার্থী"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.courseSummary",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "০টি মডিউল · Batch A জন শিক্ষার্থী"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.courseSummary",
+   "args": [
+    1,
+    3
+   ],
+   "out": "১টি মডিউল · ৩ জন শিক্ষার্থী"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.courseSummary",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "১টি মডিউল · Batch A জন শিক্ষার্থী"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.courseSummary",
+   "args": [
+    2,
+    3
+   ],
+   "out": "২টি মডিউল · ৩ জন শিক্ষার্থী"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.courseSummary",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "২টি মডিউল · Batch A জন শিক্ষার্থী"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.courseSummary",
+   "args": [
+    12,
+    3
+   ],
+   "out": "১২টি মডিউল · ৩ জন শিক্ষার্থী"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.courseSummary",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "১২টি মডিউল · Batch A জন শিক্ষার্থী"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.courseSummary",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "১২,৩৪,৫৬৭টি মডিউল · ৩ জন শিক্ষার্থী"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.courseSummary",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "১২,৩৪,৫৬৭টি মডিউল · Batch A জন শিক্ষার্থী"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.courseSummary",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "Rahim Uddinটি মডিউল · ৩ জন শিক্ষার্থী"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.courseSummary",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Rahim Uddinটি মডিউল · Batch A জন শিক্ষার্থী"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.quizError",
+   "args": [
+    0
+   ],
+   "out": "প্রশ্ন ০-এ অন্তত ২টি অপশন এবং ঠিক একটিতে * থাকতে হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.quizError",
+   "args": [
+    0
+   ],
+   "out": "প্রশ্ন ০-এ অন্তত ২টি অপশন এবং ঠিক একটিতে * থাকতে হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.quizError",
+   "args": [
+    1
+   ],
+   "out": "প্রশ্ন ১-এ অন্তত ২টি অপশন এবং ঠিক একটিতে * থাকতে হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.quizError",
+   "args": [
+    1
+   ],
+   "out": "প্রশ্ন ১-এ অন্তত ২টি অপশন এবং ঠিক একটিতে * থাকতে হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.quizError",
+   "args": [
+    2
+   ],
+   "out": "প্রশ্ন ২-এ অন্তত ২টি অপশন এবং ঠিক একটিতে * থাকতে হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.quizError",
+   "args": [
+    2
+   ],
+   "out": "প্রশ্ন ২-এ অন্তত ২টি অপশন এবং ঠিক একটিতে * থাকতে হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.quizError",
+   "args": [
+    12
+   ],
+   "out": "প্রশ্ন ১২-এ অন্তত ২টি অপশন এবং ঠিক একটিতে * থাকতে হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.quizError",
+   "args": [
+    12
+   ],
+   "out": "প্রশ্ন ১২-এ অন্তত ২টি অপশন এবং ঠিক একটিতে * থাকতে হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.quizError",
+   "args": [
+    1234567
+   ],
+   "out": "প্রশ্ন ১২,৩৪,৫৬৭-এ অন্তত ২টি অপশন এবং ঠিক একটিতে * থাকতে হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.quizError",
+   "args": [
+    1234567
+   ],
+   "out": "প্রশ্ন ১২,৩৪,৫৬৭-এ অন্তত ২টি অপশন এবং ঠিক একটিতে * থাকতে হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.quizError",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "প্রশ্ন Rahim Uddin-এ অন্তত ২টি অপশন এবং ঠিক একটিতে * থাকতে হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.quizError",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "প্রশ্ন Rahim Uddin-এ অন্তত ২টি অপশন এবং ঠিক একটিতে * থাকতে হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteModule",
+   "args": [
+    0
+   ],
+   "out": "“0” মডিউল ও এর ভেতরের সবকিছু মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteModule",
+   "args": [
+    0
+   ],
+   "out": "“0” মডিউল ও এর ভেতরের সবকিছু মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteModule",
+   "args": [
+    1
+   ],
+   "out": "“1” মডিউল ও এর ভেতরের সবকিছু মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteModule",
+   "args": [
+    1
+   ],
+   "out": "“1” মডিউল ও এর ভেতরের সবকিছু মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteModule",
+   "args": [
+    2
+   ],
+   "out": "“2” মডিউল ও এর ভেতরের সবকিছু মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteModule",
+   "args": [
+    2
+   ],
+   "out": "“2” মডিউল ও এর ভেতরের সবকিছু মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteModule",
+   "args": [
+    12
+   ],
+   "out": "“12” মডিউল ও এর ভেতরের সবকিছু মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteModule",
+   "args": [
+    12
+   ],
+   "out": "“12” মডিউল ও এর ভেতরের সবকিছু মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteModule",
+   "args": [
+    1234567
+   ],
+   "out": "“1234567” মডিউল ও এর ভেতরের সবকিছু মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteModule",
+   "args": [
+    1234567
+   ],
+   "out": "“1234567” মডিউল ও এর ভেতরের সবকিছু মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteModule",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "“Rahim Uddin” মডিউল ও এর ভেতরের সবকিছু মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteModule",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "“Rahim Uddin” মডিউল ও এর ভেতরের সবকিছু মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteItem",
+   "args": [
+    0
+   ],
+   "out": "“0” মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteItem",
+   "args": [
+    0
+   ],
+   "out": "“0” মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteItem",
+   "args": [
+    1
+   ],
+   "out": "“1” মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteItem",
+   "args": [
+    1
+   ],
+   "out": "“1” মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteItem",
+   "args": [
+    2
+   ],
+   "out": "“2” মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteItem",
+   "args": [
+    2
+   ],
+   "out": "“2” মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteItem",
+   "args": [
+    12
+   ],
+   "out": "“12” মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteItem",
+   "args": [
+    12
+   ],
+   "out": "“12” মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteItem",
+   "args": [
+    1234567
+   ],
+   "out": "“1234567” মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteItem",
+   "args": [
+    1234567
+   ],
+   "out": "“1234567” মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteItem",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "“Rahim Uddin” মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteItem",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "“Rahim Uddin” মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    0
+   ],
+   "out": "“0” ঘোষণাটি মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    0
+   ],
+   "out": "“0” ঘোষণাটি মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    1
+   ],
+   "out": "“1” ঘোষণাটি মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    1
+   ],
+   "out": "“1” ঘোষণাটি মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    2
+   ],
+   "out": "“2” ঘোষণাটি মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    2
+   ],
+   "out": "“2” ঘোষণাটি মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    12
+   ],
+   "out": "“12” ঘোষণাটি মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    12
+   ],
+   "out": "“12” ঘোষণাটি মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    1234567
+   ],
+   "out": "“1234567” ঘোষণাটি মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    1234567
+   ],
+   "out": "“1234567” ঘোষণাটি মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "“Rahim Uddin” ঘোষণাটি মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "“Rahim Uddin” ঘোষণাটি মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmRemoveStudent",
+   "args": [
+    0
+   ],
+   "out": "0-কে এই ব্যাচ থেকে সরাবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmRemoveStudent",
+   "args": [
+    0
+   ],
+   "out": "0-কে এই ব্যাচ থেকে সরাবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmRemoveStudent",
+   "args": [
+    1
+   ],
+   "out": "1-কে এই ব্যাচ থেকে সরাবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmRemoveStudent",
+   "args": [
+    1
+   ],
+   "out": "1-কে এই ব্যাচ থেকে সরাবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmRemoveStudent",
+   "args": [
+    2
+   ],
+   "out": "2-কে এই ব্যাচ থেকে সরাবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmRemoveStudent",
+   "args": [
+    2
+   ],
+   "out": "2-কে এই ব্যাচ থেকে সরাবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmRemoveStudent",
+   "args": [
+    12
+   ],
+   "out": "12-কে এই ব্যাচ থেকে সরাবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmRemoveStudent",
+   "args": [
+    12
+   ],
+   "out": "12-কে এই ব্যাচ থেকে সরাবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmRemoveStudent",
+   "args": [
+    1234567
+   ],
+   "out": "1234567-কে এই ব্যাচ থেকে সরাবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmRemoveStudent",
+   "args": [
+    1234567
+   ],
+   "out": "1234567-কে এই ব্যাচ থেকে সরাবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmRemoveStudent",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin-কে এই ব্যাচ থেকে সরাবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmRemoveStudent",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin-কে এই ব্যাচ থেকে সরাবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.annNewFor",
+   "args": [
+    0
+   ],
+   "out": "0-এর জন্য নতুন ঘোষণা"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.annNewFor",
+   "args": [
+    0
+   ],
+   "out": "0-এর জন্য নতুন ঘোষণা"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.annNewFor",
+   "args": [
+    1
+   ],
+   "out": "1-এর জন্য নতুন ঘোষণা"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.annNewFor",
+   "args": [
+    1
+   ],
+   "out": "1-এর জন্য নতুন ঘোষণা"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.annNewFor",
+   "args": [
+    2
+   ],
+   "out": "2-এর জন্য নতুন ঘোষণা"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.annNewFor",
+   "args": [
+    2
+   ],
+   "out": "2-এর জন্য নতুন ঘোষণা"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.annNewFor",
+   "args": [
+    12
+   ],
+   "out": "12-এর জন্য নতুন ঘোষণা"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.annNewFor",
+   "args": [
+    12
+   ],
+   "out": "12-এর জন্য নতুন ঘোষণা"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.annNewFor",
+   "args": [
+    1234567
+   ],
+   "out": "1234567-এর জন্য নতুন ঘোষণা"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.annNewFor",
+   "args": [
+    1234567
+   ],
+   "out": "1234567-এর জন্য নতুন ঘোষণা"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.annNewFor",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin-এর জন্য নতুন ঘোষণা"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.annNewFor",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin-এর জন্য নতুন ঘোষণা"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.postedBy",
+   "args": [
+    0,
+    3,
+    7
+   ],
+   "out": "0 · 3 · 7"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.postedBy",
+   "args": [
+    0,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "0 · Batch A · ৳1,500"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.postedBy",
+   "args": [
+    1,
+    3,
+    7
+   ],
+   "out": "1 · 3 · 7"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.postedBy",
+   "args": [
+    1,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "1 · Batch A · ৳1,500"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.postedBy",
+   "args": [
+    2,
+    3,
+    7
+   ],
+   "out": "2 · 3 · 7"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.postedBy",
+   "args": [
+    2,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "2 · Batch A · ৳1,500"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.postedBy",
+   "args": [
+    12,
+    3,
+    7
+   ],
+   "out": "12 · 3 · 7"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.postedBy",
+   "args": [
+    12,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "12 · Batch A · ৳1,500"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.postedBy",
+   "args": [
+    1234567,
+    3,
+    7
+   ],
+   "out": "1234567 · 3 · 7"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.postedBy",
+   "args": [
+    1234567,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "1234567 · Batch A · ৳1,500"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.postedBy",
+   "args": [
+    "Rahim Uddin",
+    3,
+    7
+   ],
+   "out": "Rahim Uddin · 3 · 7"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.postedBy",
+   "args": [
+    "Rahim Uddin",
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "Rahim Uddin · Batch A · ৳1,500"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.pts",
+   "args": [
+    0
+   ],
+   "out": "০ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.pts",
+   "args": [
+    0
+   ],
+   "out": "০ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.pts",
+   "args": [
+    1
+   ],
+   "out": "১ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.pts",
+   "args": [
+    1
+   ],
+   "out": "১ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.pts",
+   "args": [
+    2
+   ],
+   "out": "২ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.pts",
+   "args": [
+    2
+   ],
+   "out": "২ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.pts",
+   "args": [
+    12
+   ],
+   "out": "১২ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.pts",
+   "args": [
+    12
+   ],
+   "out": "১২ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.pts",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.pts",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.pts",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.pts",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.marks",
+   "args": [
+    0
+   ],
+   "out": "০ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.marks",
+   "args": [
+    0
+   ],
+   "out": "০ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.marks",
+   "args": [
+    1
+   ],
+   "out": "১ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.marks",
+   "args": [
+    1
+   ],
+   "out": "১ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.marks",
+   "args": [
+    2
+   ],
+   "out": "২ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.marks",
+   "args": [
+    2
+   ],
+   "out": "২ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.marks",
+   "args": [
+    12
+   ],
+   "out": "১২ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.marks",
+   "args": [
+    12
+   ],
+   "out": "১২ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.marks",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.marks",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.marks",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.marks",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.questionsN",
+   "args": [
+    0
+   ],
+   "out": "০টি প্রশ্ন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.questionsN",
+   "args": [
+    0
+   ],
+   "out": "০টি প্রশ্ন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.questionsN",
+   "args": [
+    1
+   ],
+   "out": "১টি প্রশ্ন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.questionsN",
+   "args": [
+    1
+   ],
+   "out": "১টি প্রশ্ন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.questionsN",
+   "args": [
+    2
+   ],
+   "out": "২টি প্রশ্ন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.questionsN",
+   "args": [
+    2
+   ],
+   "out": "২টি প্রশ্ন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.questionsN",
+   "args": [
+    12
+   ],
+   "out": "১২টি প্রশ্ন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.questionsN",
+   "args": [
+    12
+   ],
+   "out": "১২টি প্রশ্ন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.questionsN",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭টি প্রশ্ন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.questionsN",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭টি প্রশ্ন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.questionsN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddinটি প্রশ্ন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.questionsN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddinটি প্রশ্ন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.offlineOnline",
+   "args": [
+    0,
+    3
+   ],
+   "out": "০ অফলাইন · ৩ অনলাইন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.offlineOnline",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "০ অফলাইন · Batch A অনলাইন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.offlineOnline",
+   "args": [
+    1,
+    3
+   ],
+   "out": "১ অফলাইন · ৩ অনলাইন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.offlineOnline",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "১ অফলাইন · Batch A অনলাইন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.offlineOnline",
+   "args": [
+    2,
+    3
+   ],
+   "out": "২ অফলাইন · ৩ অনলাইন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.offlineOnline",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "২ অফলাইন · Batch A অনলাইন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.offlineOnline",
+   "args": [
+    12,
+    3
+   ],
+   "out": "১২ অফলাইন · ৩ অনলাইন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.offlineOnline",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "১২ অফলাইন · Batch A অনলাইন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.offlineOnline",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "১২,৩৪,৫৬৭ অফলাইন · ৩ অনলাইন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.offlineOnline",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "১২,৩৪,৫৬৭ অফলাইন · Batch A অনলাইন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.offlineOnline",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "Rahim Uddin অফলাইন · ৩ অনলাইন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.offlineOnline",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Rahim Uddin অফলাইন · Batch A অনলাইন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.dueVsPaid",
+   "args": [
+    0,
+    3
+   ],
+   "out": "০ জন বাকি · ৩ জন পরিশোধিত"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.dueVsPaid",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "০ জন বাকি · Batch A জন পরিশোধিত"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.dueVsPaid",
+   "args": [
+    1,
+    3
+   ],
+   "out": "১ জন বাকি · ৩ জন পরিশোধিত"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.dueVsPaid",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "১ জন বাকি · Batch A জন পরিশোধিত"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.dueVsPaid",
+   "args": [
+    2,
+    3
+   ],
+   "out": "২ জন বাকি · ৩ জন পরিশোধিত"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.dueVsPaid",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "২ জন বাকি · Batch A জন পরিশোধিত"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.dueVsPaid",
+   "args": [
+    12,
+    3
+   ],
+   "out": "১২ জন বাকি · ৩ জন পরিশোধিত"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.dueVsPaid",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "১২ জন বাকি · Batch A জন পরিশোধিত"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.dueVsPaid",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "১২,৩৪,৫৬৭ জন বাকি · ৩ জন পরিশোধিত"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.dueVsPaid",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "১২,৩৪,৫৬৭ জন বাকি · Batch A জন পরিশোধিত"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.dueVsPaid",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "Rahim Uddin জন বাকি · ৩ জন পরিশোধিত"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.dueVsPaid",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Rahim Uddin জন বাকি · Batch A জন পরিশোধিত"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.enrollTitle",
+   "args": [
+    0
+   ],
+   "out": "0-এ শিক্ষার্থী যোগ করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.enrollTitle",
+   "args": [
+    0
+   ],
+   "out": "0-এ শিক্ষার্থী যোগ করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.enrollTitle",
+   "args": [
+    1
+   ],
+   "out": "1-এ শিক্ষার্থী যোগ করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.enrollTitle",
+   "args": [
+    1
+   ],
+   "out": "1-এ শিক্ষার্থী যোগ করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.enrollTitle",
+   "args": [
+    2
+   ],
+   "out": "2-এ শিক্ষার্থী যোগ করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.enrollTitle",
+   "args": [
+    2
+   ],
+   "out": "2-এ শিক্ষার্থী যোগ করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.enrollTitle",
+   "args": [
+    12
+   ],
+   "out": "12-এ শিক্ষার্থী যোগ করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.enrollTitle",
+   "args": [
+    12
+   ],
+   "out": "12-এ শিক্ষার্থী যোগ করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.enrollTitle",
+   "args": [
+    1234567
+   ],
+   "out": "1234567-এ শিক্ষার্থী যোগ করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.enrollTitle",
+   "args": [
+    1234567
+   ],
+   "out": "1234567-এ শিক্ষার্থী যোগ করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.enrollTitle",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin-এ শিক্ষার্থী যোগ করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.enrollTitle",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin-এ শিক্ষার্থী যোগ করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.feeDueOpt",
+   "args": [
+    0
+   ],
+   "out": "বাকি (0)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.feeDueOpt",
+   "args": [
+    0
+   ],
+   "out": "বাকি (0)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.feeDueOpt",
+   "args": [
+    1
+   ],
+   "out": "বাকি (1)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.feeDueOpt",
+   "args": [
+    1
+   ],
+   "out": "বাকি (1)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.feeDueOpt",
+   "args": [
+    2
+   ],
+   "out": "বাকি (2)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.feeDueOpt",
+   "args": [
+    2
+   ],
+   "out": "বাকি (2)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.feeDueOpt",
+   "args": [
+    12
+   ],
+   "out": "বাকি (12)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.feeDueOpt",
+   "args": [
+    12
+   ],
+   "out": "বাকি (12)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.feeDueOpt",
+   "args": [
+    1234567
+   ],
+   "out": "বাকি (1234567)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.feeDueOpt",
+   "args": [
+    1234567
+   ],
+   "out": "বাকি (1234567)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.feeDueOpt",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "বাকি (Rahim Uddin)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.feeDueOpt",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "বাকি (Rahim Uddin)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterAll",
+   "args": [
+    0
+   ],
+   "out": "সবাই (০)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterAll",
+   "args": [
+    0
+   ],
+   "out": "সবাই (০)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterAll",
+   "args": [
+    1
+   ],
+   "out": "সবাই (১)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterAll",
+   "args": [
+    1
+   ],
+   "out": "সবাই (১)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterAll",
+   "args": [
+    2
+   ],
+   "out": "সবাই (২)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterAll",
+   "args": [
+    2
+   ],
+   "out": "সবাই (২)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterAll",
+   "args": [
+    12
+   ],
+   "out": "সবাই (১২)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterAll",
+   "args": [
+    12
+   ],
+   "out": "সবাই (১২)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterAll",
+   "args": [
+    1234567
+   ],
+   "out": "সবাই (১২,৩৪,৫৬৭)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterAll",
+   "args": [
+    1234567
+   ],
+   "out": "সবাই (১২,৩৪,৫৬৭)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterAll",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "সবাই (Rahim Uddin)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterAll",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "সবাই (Rahim Uddin)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterOffline",
+   "args": [
+    0
+   ],
+   "out": "অফলাইন (০)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterOffline",
+   "args": [
+    0
+   ],
+   "out": "অফলাইন (০)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterOffline",
+   "args": [
+    1
+   ],
+   "out": "অফলাইন (১)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterOffline",
+   "args": [
+    1
+   ],
+   "out": "অফলাইন (১)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterOffline",
+   "args": [
+    2
+   ],
+   "out": "অফলাইন (২)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterOffline",
+   "args": [
+    2
+   ],
+   "out": "অফলাইন (২)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterOffline",
+   "args": [
+    12
+   ],
+   "out": "অফলাইন (১২)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterOffline",
+   "args": [
+    12
+   ],
+   "out": "অফলাইন (১২)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterOffline",
+   "args": [
+    1234567
+   ],
+   "out": "অফলাইন (১২,৩৪,৫৬৭)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterOffline",
+   "args": [
+    1234567
+   ],
+   "out": "অফলাইন (১২,৩৪,৫৬৭)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterOffline",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "অফলাইন (Rahim Uddin)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterOffline",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "অফলাইন (Rahim Uddin)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterOnline",
+   "args": [
+    0
+   ],
+   "out": "অনলাইন (০)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterOnline",
+   "args": [
+    0
+   ],
+   "out": "অনলাইন (০)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterOnline",
+   "args": [
+    1
+   ],
+   "out": "অনলাইন (১)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterOnline",
+   "args": [
+    1
+   ],
+   "out": "অনলাইন (১)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterOnline",
+   "args": [
+    2
+   ],
+   "out": "অনলাইন (২)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterOnline",
+   "args": [
+    2
+   ],
+   "out": "অনলাইন (২)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterOnline",
+   "args": [
+    12
+   ],
+   "out": "অনলাইন (১২)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterOnline",
+   "args": [
+    12
+   ],
+   "out": "অনলাইন (১২)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterOnline",
+   "args": [
+    1234567
+   ],
+   "out": "অনলাইন (১২,৩৪,৫৬৭)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterOnline",
+   "args": [
+    1234567
+   ],
+   "out": "অনলাইন (১২,৩৪,৫৬৭)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterOnline",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "অনলাইন (Rahim Uddin)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterOnline",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "অনলাইন (Rahim Uddin)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterDue",
+   "args": [
+    0
+   ],
+   "out": "ফি বাকি (০)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterDue",
+   "args": [
+    0
+   ],
+   "out": "ফি বাকি (০)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterDue",
+   "args": [
+    1
+   ],
+   "out": "ফি বাকি (১)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterDue",
+   "args": [
+    1
+   ],
+   "out": "ফি বাকি (১)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterDue",
+   "args": [
+    2
+   ],
+   "out": "ফি বাকি (২)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterDue",
+   "args": [
+    2
+   ],
+   "out": "ফি বাকি (২)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterDue",
+   "args": [
+    12
+   ],
+   "out": "ফি বাকি (১২)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterDue",
+   "args": [
+    12
+   ],
+   "out": "ফি বাকি (১২)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterDue",
+   "args": [
+    1234567
+   ],
+   "out": "ফি বাকি (১২,৩৪,৫৬৭)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterDue",
+   "args": [
+    1234567
+   ],
+   "out": "ফি বাকি (১২,৩৪,৫৬৭)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterDue",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "ফি বাকি (Rahim Uddin)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.filterDue",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "ফি বাকি (Rahim Uddin)"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.examAvg",
+   "args": [
+    0
+   ],
+   "out": "পরীক্ষার গড় ০%"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.examAvg",
+   "args": [
+    0
+   ],
+   "out": "পরীক্ষার গড় ০%"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.examAvg",
+   "args": [
+    1
+   ],
+   "out": "পরীক্ষার গড় ১%"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.examAvg",
+   "args": [
+    1
+   ],
+   "out": "পরীক্ষার গড় ১%"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.examAvg",
+   "args": [
+    2
+   ],
+   "out": "পরীক্ষার গড় ২%"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.examAvg",
+   "args": [
+    2
+   ],
+   "out": "পরীক্ষার গড় ২%"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.examAvg",
+   "args": [
+    12
+   ],
+   "out": "পরীক্ষার গড় ১২%"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.examAvg",
+   "args": [
+    12
+   ],
+   "out": "পরীক্ষার গড় ১২%"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.examAvg",
+   "args": [
+    1234567
+   ],
+   "out": "পরীক্ষার গড় ১২,৩৪,৫৬৭%"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.examAvg",
+   "args": [
+    1234567
+   ],
+   "out": "পরীক্ষার গড় ১২,৩৪,৫৬৭%"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.examAvg",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "পরীক্ষার গড় Rahim Uddin%"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.examAvg",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "পরীক্ষার গড় Rahim Uddin%"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.monthAtt",
+   "args": [
+    0
+   ],
+   "out": "উপস্থিতি ০%"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.monthAtt",
+   "args": [
+    0
+   ],
+   "out": "উপস্থিতি ০%"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.monthAtt",
+   "args": [
+    1
+   ],
+   "out": "উপস্থিতি ১%"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.monthAtt",
+   "args": [
+    1
+   ],
+   "out": "উপস্থিতি ১%"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.monthAtt",
+   "args": [
+    2
+   ],
+   "out": "উপস্থিতি ২%"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.monthAtt",
+   "args": [
+    2
+   ],
+   "out": "উপস্থিতি ২%"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.monthAtt",
+   "args": [
+    12
+   ],
+   "out": "উপস্থিতি ১২%"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.monthAtt",
+   "args": [
+    12
+   ],
+   "out": "উপস্থিতি ১২%"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.monthAtt",
+   "args": [
+    1234567
+   ],
+   "out": "উপস্থিতি ১২,৩৪,৫৬৭%"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.monthAtt",
+   "args": [
+    1234567
+   ],
+   "out": "উপস্থিতি ১২,৩৪,৫৬৭%"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.monthAtt",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "উপস্থিতি Rahim Uddin%"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.monthAtt",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "উপস্থিতি Rahim Uddin%"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.msgAbsent",
+   "args": [
+    0,
+    3,
+    7
+   ],
+   "out": "আসসালামু আলাইকুম। 0 আজ 3 ক্লাসে অনুপস্থিত ছিল। — 7"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.msgAbsent",
+   "args": [
+    0,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "আসসালামু আলাইকুম। 0 আজ Batch A ক্লাসে অনুপস্থিত ছিল। — ৳1,500"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.msgAbsent",
+   "args": [
+    1,
+    3,
+    7
+   ],
+   "out": "আসসালামু আলাইকুম। 1 আজ 3 ক্লাসে অনুপস্থিত ছিল। — 7"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.msgAbsent",
+   "args": [
+    1,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "আসসালামু আলাইকুম। 1 আজ Batch A ক্লাসে অনুপস্থিত ছিল। — ৳1,500"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.msgAbsent",
+   "args": [
+    2,
+    3,
+    7
+   ],
+   "out": "আসসালামু আলাইকুম। 2 আজ 3 ক্লাসে অনুপস্থিত ছিল। — 7"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.msgAbsent",
+   "args": [
+    2,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "আসসালামু আলাইকুম। 2 আজ Batch A ক্লাসে অনুপস্থিত ছিল। — ৳1,500"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.msgAbsent",
+   "args": [
+    12,
+    3,
+    7
+   ],
+   "out": "আসসালামু আলাইকুম। 12 আজ 3 ক্লাসে অনুপস্থিত ছিল। — 7"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.msgAbsent",
+   "args": [
+    12,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "আসসালামু আলাইকুম। 12 আজ Batch A ক্লাসে অনুপস্থিত ছিল। — ৳1,500"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.msgAbsent",
+   "args": [
+    1234567,
+    3,
+    7
+   ],
+   "out": "আসসালামু আলাইকুম। 1234567 আজ 3 ক্লাসে অনুপস্থিত ছিল। — 7"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.msgAbsent",
+   "args": [
+    1234567,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "আসসালামু আলাইকুম। 1234567 আজ Batch A ক্লাসে অনুপস্থিত ছিল। — ৳1,500"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.msgAbsent",
+   "args": [
+    "Rahim Uddin",
+    3,
+    7
+   ],
+   "out": "আসসালামু আলাইকুম। Rahim Uddin আজ 3 ক্লাসে অনুপস্থিত ছিল। — 7"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.msgAbsent",
+   "args": [
+    "Rahim Uddin",
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "আসসালামু আলাইকুম। Rahim Uddin আজ Batch A ক্লাসে অনুপস্থিত ছিল। — ৳1,500"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.msgFee",
+   "args": [
+    0,
+    3
+   ],
+   "out": "আসসালামু আলাইকুম। 0-এর এই মাসের ফি 3 এখনো বাকি আছে। বিকাশ বা নগদে পরিশোধ করুন। ধন্যবাদ।"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.msgFee",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "আসসালামু আলাইকুম। 0-এর এই মাসের ফি Batch A এখনো বাকি আছে। বিকাশ বা নগদে পরিশোধ করুন। ধন্যবাদ।"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.msgFee",
+   "args": [
+    1,
+    3
+   ],
+   "out": "আসসালামু আলাইকুম। 1-এর এই মাসের ফি 3 এখনো বাকি আছে। বিকাশ বা নগদে পরিশোধ করুন। ধন্যবাদ।"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.msgFee",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "আসসালামু আলাইকুম। 1-এর এই মাসের ফি Batch A এখনো বাকি আছে। বিকাশ বা নগদে পরিশোধ করুন। ধন্যবাদ।"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.msgFee",
+   "args": [
+    2,
+    3
+   ],
+   "out": "আসসালামু আলাইকুম। 2-এর এই মাসের ফি 3 এখনো বাকি আছে। বিকাশ বা নগদে পরিশোধ করুন। ধন্যবাদ।"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.msgFee",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "আসসালামু আলাইকুম। 2-এর এই মাসের ফি Batch A এখনো বাকি আছে। বিকাশ বা নগদে পরিশোধ করুন। ধন্যবাদ।"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.msgFee",
+   "args": [
+    12,
+    3
+   ],
+   "out": "আসসালামু আলাইকুম। 12-এর এই মাসের ফি 3 এখনো বাকি আছে। বিকাশ বা নগদে পরিশোধ করুন। ধন্যবাদ।"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.msgFee",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "আসসালামু আলাইকুম। 12-এর এই মাসের ফি Batch A এখনো বাকি আছে। বিকাশ বা নগদে পরিশোধ করুন। ধন্যবাদ।"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.msgFee",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "আসসালামু আলাইকুম। 1234567-এর এই মাসের ফি 3 এখনো বাকি আছে। বিকাশ বা নগদে পরিশোধ করুন। ধন্যবাদ।"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.msgFee",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "আসসালামু আলাইকুম। 1234567-এর এই মাসের ফি Batch A এখনো বাকি আছে। বিকাশ বা নগদে পরিশোধ করুন। ধন্যবাদ।"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.msgFee",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "আসসালামু আলাইকুম। Rahim Uddin-এর এই মাসের ফি 3 এখনো বাকি আছে। বিকাশ বা নগদে পরিশোধ করুন। ধন্যবাদ।"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.msgFee",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "আসসালামু আলাইকুম। Rahim Uddin-এর এই মাসের ফি Batch A এখনো বাকি আছে। বিকাশ বা নগদে পরিশোধ করুন। ধন্যবাদ।"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.replyAs",
+   "args": [
+    0
+   ],
+   "out": "0 হিসেবে উত্তর দিচ্ছেন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.replyAs",
+   "args": [
+    0
+   ],
+   "out": "0 হিসেবে উত্তর দিচ্ছেন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.replyAs",
+   "args": [
+    1
+   ],
+   "out": "1 হিসেবে উত্তর দিচ্ছেন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.replyAs",
+   "args": [
+    1
+   ],
+   "out": "1 হিসেবে উত্তর দিচ্ছেন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.replyAs",
+   "args": [
+    2
+   ],
+   "out": "2 হিসেবে উত্তর দিচ্ছেন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.replyAs",
+   "args": [
+    2
+   ],
+   "out": "2 হিসেবে উত্তর দিচ্ছেন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.replyAs",
+   "args": [
+    12
+   ],
+   "out": "12 হিসেবে উত্তর দিচ্ছেন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.replyAs",
+   "args": [
+    12
+   ],
+   "out": "12 হিসেবে উত্তর দিচ্ছেন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.replyAs",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 হিসেবে উত্তর দিচ্ছেন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.replyAs",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 হিসেবে উত্তর দিচ্ছেন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.replyAs",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin হিসেবে উত্তর দিচ্ছেন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.replyAs",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin হিসেবে উত্তর দিচ্ছেন"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.replyPh",
+   "args": [
+    0
+   ],
+   "out": "0 হিসেবে উত্তর দিন…"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.replyPh",
+   "args": [
+    0
+   ],
+   "out": "0 হিসেবে উত্তর দিন…"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.replyPh",
+   "args": [
+    1
+   ],
+   "out": "1 হিসেবে উত্তর দিন…"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.replyPh",
+   "args": [
+    1
+   ],
+   "out": "1 হিসেবে উত্তর দিন…"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.replyPh",
+   "args": [
+    2
+   ],
+   "out": "2 হিসেবে উত্তর দিন…"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.replyPh",
+   "args": [
+    2
+   ],
+   "out": "2 হিসেবে উত্তর দিন…"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.replyPh",
+   "args": [
+    12
+   ],
+   "out": "12 হিসেবে উত্তর দিন…"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.replyPh",
+   "args": [
+    12
+   ],
+   "out": "12 হিসেবে উত্তর দিন…"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.replyPh",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 হিসেবে উত্তর দিন…"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.replyPh",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 হিসেবে উত্তর দিন…"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.replyPh",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin হিসেবে উত্তর দিন…"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.replyPh",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin হিসেবে উত্তর দিন…"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.itemPosted",
+   "args": [
+    0
+   ],
+   "out": "“0” পোস্ট হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.itemPosted",
+   "args": [
+    0
+   ],
+   "out": "“0” পোস্ট হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.itemPosted",
+   "args": [
+    1
+   ],
+   "out": "“1” পোস্ট হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.itemPosted",
+   "args": [
+    1
+   ],
+   "out": "“1” পোস্ট হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.itemPosted",
+   "args": [
+    2
+   ],
+   "out": "“2” পোস্ট হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.itemPosted",
+   "args": [
+    2
+   ],
+   "out": "“2” পোস্ট হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.itemPosted",
+   "args": [
+    12
+   ],
+   "out": "“12” পোস্ট হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.itemPosted",
+   "args": [
+    12
+   ],
+   "out": "“12” পোস্ট হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.itemPosted",
+   "args": [
+    1234567
+   ],
+   "out": "“1234567” পোস্ট হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.itemPosted",
+   "args": [
+    1234567
+   ],
+   "out": "“1234567” পোস্ট হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.itemPosted",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "“Rahim Uddin” পোস্ট হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.itemPosted",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "“Rahim Uddin” পোস্ট হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.itemRemoved",
+   "args": [
+    0
+   ],
+   "out": "“0” মুছে ফেলা হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.itemRemoved",
+   "args": [
+    0
+   ],
+   "out": "“0” মুছে ফেলা হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.itemRemoved",
+   "args": [
+    1
+   ],
+   "out": "“1” মুছে ফেলা হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.itemRemoved",
+   "args": [
+    1
+   ],
+   "out": "“1” মুছে ফেলা হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.itemRemoved",
+   "args": [
+    2
+   ],
+   "out": "“2” মুছে ফেলা হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.itemRemoved",
+   "args": [
+    2
+   ],
+   "out": "“2” মুছে ফেলা হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.itemRemoved",
+   "args": [
+    12
+   ],
+   "out": "“12” মুছে ফেলা হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.itemRemoved",
+   "args": [
+    12
+   ],
+   "out": "“12” মুছে ফেলা হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.itemRemoved",
+   "args": [
+    1234567
+   ],
+   "out": "“1234567” মুছে ফেলা হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.itemRemoved",
+   "args": [
+    1234567
+   ],
+   "out": "“1234567” মুছে ফেলা হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.itemRemoved",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "“Rahim Uddin” মুছে ফেলা হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.itemRemoved",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "“Rahim Uddin” মুছে ফেলা হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.studentAdded",
+   "args": [
+    0
+   ],
+   "out": "0 যোগ হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.studentAdded",
+   "args": [
+    0
+   ],
+   "out": "0 যোগ হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.studentAdded",
+   "args": [
+    1
+   ],
+   "out": "1 যোগ হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.studentAdded",
+   "args": [
+    1
+   ],
+   "out": "1 যোগ হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.studentAdded",
+   "args": [
+    2
+   ],
+   "out": "2 যোগ হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.studentAdded",
+   "args": [
+    2
+   ],
+   "out": "2 যোগ হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.studentAdded",
+   "args": [
+    12
+   ],
+   "out": "12 যোগ হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.studentAdded",
+   "args": [
+    12
+   ],
+   "out": "12 যোগ হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.studentAdded",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 যোগ হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.studentAdded",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 যোগ হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.studentAdded",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin যোগ হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.studentAdded",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin যোগ হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.modeSwitched",
+   "args": [
+    0
+   ],
+   "out": "0-এর মোড বদলানো হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.modeSwitched",
+   "args": [
+    0
+   ],
+   "out": "0-এর মোড বদলানো হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.modeSwitched",
+   "args": [
+    1
+   ],
+   "out": "1-এর মোড বদলানো হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.modeSwitched",
+   "args": [
+    1
+   ],
+   "out": "1-এর মোড বদলানো হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.modeSwitched",
+   "args": [
+    2
+   ],
+   "out": "2-এর মোড বদলানো হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.modeSwitched",
+   "args": [
+    2
+   ],
+   "out": "2-এর মোড বদলানো হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.modeSwitched",
+   "args": [
+    12
+   ],
+   "out": "12-এর মোড বদলানো হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.modeSwitched",
+   "args": [
+    12
+   ],
+   "out": "12-এর মোড বদলানো হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.modeSwitched",
+   "args": [
+    1234567
+   ],
+   "out": "1234567-এর মোড বদলানো হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.modeSwitched",
+   "args": [
+    1234567
+   ],
+   "out": "1234567-এর মোড বদলানো হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.modeSwitched",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin-এর মোড বদলানো হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.modeSwitched",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin-এর মোড বদলানো হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.studentRemoved",
+   "args": [
+    0
+   ],
+   "out": "0-কে সরানো হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.studentRemoved",
+   "args": [
+    0
+   ],
+   "out": "0-কে সরানো হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.studentRemoved",
+   "args": [
+    1
+   ],
+   "out": "1-কে সরানো হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.studentRemoved",
+   "args": [
+    1
+   ],
+   "out": "1-কে সরানো হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.studentRemoved",
+   "args": [
+    2
+   ],
+   "out": "2-কে সরানো হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.studentRemoved",
+   "args": [
+    2
+   ],
+   "out": "2-কে সরানো হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.studentRemoved",
+   "args": [
+    12
+   ],
+   "out": "12-কে সরানো হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.studentRemoved",
+   "args": [
+    12
+   ],
+   "out": "12-কে সরানো হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.studentRemoved",
+   "args": [
+    1234567
+   ],
+   "out": "1234567-কে সরানো হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.studentRemoved",
+   "args": [
+    1234567
+   ],
+   "out": "1234567-কে সরানো হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.studentRemoved",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin-কে সরানো হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.toast.studentRemoved",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin-কে সরানো হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "fee.dueBy",
+   "args": [
+    0
+   ],
+   "out": "শেষ তারিখ 0"
+  },
+  {
+   "lang": "bn",
+   "key": "fee.dueBy",
+   "args": [
+    0
+   ],
+   "out": "শেষ তারিখ 0"
+  },
+  {
+   "lang": "bn",
+   "key": "fee.dueBy",
+   "args": [
+    1
+   ],
+   "out": "শেষ তারিখ 1"
+  },
+  {
+   "lang": "bn",
+   "key": "fee.dueBy",
+   "args": [
+    1
+   ],
+   "out": "শেষ তারিখ 1"
+  },
+  {
+   "lang": "bn",
+   "key": "fee.dueBy",
+   "args": [
+    2
+   ],
+   "out": "শেষ তারিখ 2"
+  },
+  {
+   "lang": "bn",
+   "key": "fee.dueBy",
+   "args": [
+    2
+   ],
+   "out": "শেষ তারিখ 2"
+  },
+  {
+   "lang": "bn",
+   "key": "fee.dueBy",
+   "args": [
+    12
+   ],
+   "out": "শেষ তারিখ 12"
+  },
+  {
+   "lang": "bn",
+   "key": "fee.dueBy",
+   "args": [
+    12
+   ],
+   "out": "শেষ তারিখ 12"
+  },
+  {
+   "lang": "bn",
+   "key": "fee.dueBy",
+   "args": [
+    1234567
+   ],
+   "out": "শেষ তারিখ 1234567"
+  },
+  {
+   "lang": "bn",
+   "key": "fee.dueBy",
+   "args": [
+    1234567
+   ],
+   "out": "শেষ তারিখ 1234567"
+  },
+  {
+   "lang": "bn",
+   "key": "fee.dueBy",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "শেষ তারিখ Rahim Uddin"
+  },
+  {
+   "lang": "bn",
+   "key": "fee.dueBy",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "শেষ তারিখ Rahim Uddin"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.dueToday",
+   "args": [
+    0
+   ],
+   "out": "আজ 0টি পরিবারকে ফোন করতে হবে"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.dueToday",
+   "args": [
+    0
+   ],
+   "out": "আজ 0টি পরিবারকে ফোন করতে হবে"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.dueToday",
+   "args": [
+    1
+   ],
+   "out": "আজ 1টি পরিবারকে ফোন করতে হবে"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.dueToday",
+   "args": [
+    1
+   ],
+   "out": "আজ 1টি পরিবারকে ফোন করতে হবে"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.dueToday",
+   "args": [
+    2
+   ],
+   "out": "আজ 2টি পরিবারকে ফোন করতে হবে"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.dueToday",
+   "args": [
+    2
+   ],
+   "out": "আজ 2টি পরিবারকে ফোন করতে হবে"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.dueToday",
+   "args": [
+    12
+   ],
+   "out": "আজ 12টি পরিবারকে ফোন করতে হবে"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.dueToday",
+   "args": [
+    12
+   ],
+   "out": "আজ 12টি পরিবারকে ফোন করতে হবে"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.dueToday",
+   "args": [
+    1234567
+   ],
+   "out": "আজ 1234567টি পরিবারকে ফোন করতে হবে"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.dueToday",
+   "args": [
+    1234567
+   ],
+   "out": "আজ 1234567টি পরিবারকে ফোন করতে হবে"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.dueToday",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "আজ Rahim Uddinটি পরিবারকে ফোন করতে হবে"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.dueToday",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "আজ Rahim Uddinটি পরিবারকে ফোন করতে হবে"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.added",
+   "args": [
+    0
+   ],
+   "out": "খোঁজ সেভ হয়েছে: 0"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.added",
+   "args": [
+    0
+   ],
+   "out": "খোঁজ সেভ হয়েছে: 0"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.added",
+   "args": [
+    1
+   ],
+   "out": "খোঁজ সেভ হয়েছে: 1"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.added",
+   "args": [
+    1
+   ],
+   "out": "খোঁজ সেভ হয়েছে: 1"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.added",
+   "args": [
+    2
+   ],
+   "out": "খোঁজ সেভ হয়েছে: 2"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.added",
+   "args": [
+    2
+   ],
+   "out": "খোঁজ সেভ হয়েছে: 2"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.added",
+   "args": [
+    12
+   ],
+   "out": "খোঁজ সেভ হয়েছে: 12"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.added",
+   "args": [
+    12
+   ],
+   "out": "খোঁজ সেভ হয়েছে: 12"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.added",
+   "args": [
+    1234567
+   ],
+   "out": "খোঁজ সেভ হয়েছে: 1234567"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.added",
+   "args": [
+    1234567
+   ],
+   "out": "খোঁজ সেভ হয়েছে: 1234567"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.added",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "খোঁজ সেভ হয়েছে: Rahim Uddin"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.added",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "খোঁজ সেভ হয়েছে: Rahim Uddin"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.callOn",
+   "args": [
+    0
+   ],
+   "out": "0 তারিখে ফোন"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.callOn",
+   "args": [
+    0
+   ],
+   "out": "0 তারিখে ফোন"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.callOn",
+   "args": [
+    1
+   ],
+   "out": "1 তারিখে ফোন"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.callOn",
+   "args": [
+    1
+   ],
+   "out": "1 তারিখে ফোন"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.callOn",
+   "args": [
+    2
+   ],
+   "out": "2 তারিখে ফোন"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.callOn",
+   "args": [
+    2
+   ],
+   "out": "2 তারিখে ফোন"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.callOn",
+   "args": [
+    12
+   ],
+   "out": "12 তারিখে ফোন"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.callOn",
+   "args": [
+    12
+   ],
+   "out": "12 তারিখে ফোন"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.callOn",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 তারিখে ফোন"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.callOn",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 তারিখে ফোন"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.callOn",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin তারিখে ফোন"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.callOn",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin তারিখে ফোন"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.stageOf",
+   "args": [
+    0
+   ],
+   "out": "0 এর অবস্থা"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.stageOf",
+   "args": [
+    0
+   ],
+   "out": "0 এর অবস্থা"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.stageOf",
+   "args": [
+    1
+   ],
+   "out": "1 এর অবস্থা"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.stageOf",
+   "args": [
+    1
+   ],
+   "out": "1 এর অবস্থা"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.stageOf",
+   "args": [
+    2
+   ],
+   "out": "2 এর অবস্থা"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.stageOf",
+   "args": [
+    2
+   ],
+   "out": "2 এর অবস্থা"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.stageOf",
+   "args": [
+    12
+   ],
+   "out": "12 এর অবস্থা"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.stageOf",
+   "args": [
+    12
+   ],
+   "out": "12 এর অবস্থা"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.stageOf",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 এর অবস্থা"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.stageOf",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 এর অবস্থা"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.stageOf",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin এর অবস্থা"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.stageOf",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin এর অবস্থা"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.admitTitle",
+   "args": [
+    0
+   ],
+   "out": "0 কে ভর্তি করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.admitTitle",
+   "args": [
+    0
+   ],
+   "out": "0 কে ভর্তি করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.admitTitle",
+   "args": [
+    1
+   ],
+   "out": "1 কে ভর্তি করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.admitTitle",
+   "args": [
+    1
+   ],
+   "out": "1 কে ভর্তি করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.admitTitle",
+   "args": [
+    2
+   ],
+   "out": "2 কে ভর্তি করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.admitTitle",
+   "args": [
+    2
+   ],
+   "out": "2 কে ভর্তি করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.admitTitle",
+   "args": [
+    12
+   ],
+   "out": "12 কে ভর্তি করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.admitTitle",
+   "args": [
+    12
+   ],
+   "out": "12 কে ভর্তি করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.admitTitle",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 কে ভর্তি করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.admitTitle",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 কে ভর্তি করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.admitTitle",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin কে ভর্তি করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "admissions.admitTitle",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin কে ভর্তি করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "staffTool.absentThisMonth",
+   "args": [
+    0
+   ],
+   "out": "এই মাসে 0 দিন অনুপস্থিত"
+  },
+  {
+   "lang": "bn",
+   "key": "staffTool.absentThisMonth",
+   "args": [
+    0
+   ],
+   "out": "এই মাসে 0 দিন অনুপস্থিত"
+  },
+  {
+   "lang": "bn",
+   "key": "staffTool.absentThisMonth",
+   "args": [
+    1
+   ],
+   "out": "এই মাসে 1 দিন অনুপস্থিত"
+  },
+  {
+   "lang": "bn",
+   "key": "staffTool.absentThisMonth",
+   "args": [
+    1
+   ],
+   "out": "এই মাসে 1 দিন অনুপস্থিত"
+  },
+  {
+   "lang": "bn",
+   "key": "staffTool.absentThisMonth",
+   "args": [
+    2
+   ],
+   "out": "এই মাসে 2 দিন অনুপস্থিত"
+  },
+  {
+   "lang": "bn",
+   "key": "staffTool.absentThisMonth",
+   "args": [
+    2
+   ],
+   "out": "এই মাসে 2 দিন অনুপস্থিত"
+  },
+  {
+   "lang": "bn",
+   "key": "staffTool.absentThisMonth",
+   "args": [
+    12
+   ],
+   "out": "এই মাসে 12 দিন অনুপস্থিত"
+  },
+  {
+   "lang": "bn",
+   "key": "staffTool.absentThisMonth",
+   "args": [
+    12
+   ],
+   "out": "এই মাসে 12 দিন অনুপস্থিত"
+  },
+  {
+   "lang": "bn",
+   "key": "staffTool.absentThisMonth",
+   "args": [
+    1234567
+   ],
+   "out": "এই মাসে 1234567 দিন অনুপস্থিত"
+  },
+  {
+   "lang": "bn",
+   "key": "staffTool.absentThisMonth",
+   "args": [
+    1234567
+   ],
+   "out": "এই মাসে 1234567 দিন অনুপস্থিত"
+  },
+  {
+   "lang": "bn",
+   "key": "staffTool.absentThisMonth",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "এই মাসে Rahim Uddin দিন অনুপস্থিত"
+  },
+  {
+   "lang": "bn",
+   "key": "staffTool.absentThisMonth",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "এই মাসে Rahim Uddin দিন অনুপস্থিত"
+  },
+  {
+   "lang": "bn",
+   "key": "payroll.confirm",
+   "args": [
+    0,
+    3
+   ],
+   "out": "0-কে 3 পরিশোধ লিখবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "payroll.confirm",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "0-কে Batch A পরিশোধ লিখবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "payroll.confirm",
+   "args": [
+    1,
+    3
+   ],
+   "out": "1-কে 3 পরিশোধ লিখবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "payroll.confirm",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "1-কে Batch A পরিশোধ লিখবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "payroll.confirm",
+   "args": [
+    2,
+    3
+   ],
+   "out": "2-কে 3 পরিশোধ লিখবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "payroll.confirm",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "2-কে Batch A পরিশোধ লিখবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "payroll.confirm",
+   "args": [
+    12,
+    3
+   ],
+   "out": "12-কে 3 পরিশোধ লিখবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "payroll.confirm",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "12-কে Batch A পরিশোধ লিখবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "payroll.confirm",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "1234567-কে 3 পরিশোধ লিখবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "payroll.confirm",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "1234567-কে Batch A পরিশোধ লিখবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "payroll.confirm",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "Rahim Uddin-কে 3 পরিশোধ লিখবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "payroll.confirm",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Rahim Uddin-কে Batch A পরিশোধ লিখবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "payroll.paidOk",
+   "args": [
+    0
+   ],
+   "out": "0-এর পেমেন্ট লেখা হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "payroll.paidOk",
+   "args": [
+    0
+   ],
+   "out": "0-এর পেমেন্ট লেখা হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "payroll.paidOk",
+   "args": [
+    1
+   ],
+   "out": "1-এর পেমেন্ট লেখা হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "payroll.paidOk",
+   "args": [
+    1
+   ],
+   "out": "1-এর পেমেন্ট লেখা হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "payroll.paidOk",
+   "args": [
+    2
+   ],
+   "out": "2-এর পেমেন্ট লেখা হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "payroll.paidOk",
+   "args": [
+    2
+   ],
+   "out": "2-এর পেমেন্ট লেখা হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "payroll.paidOk",
+   "args": [
+    12
+   ],
+   "out": "12-এর পেমেন্ট লেখা হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "payroll.paidOk",
+   "args": [
+    12
+   ],
+   "out": "12-এর পেমেন্ট লেখা হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "payroll.paidOk",
+   "args": [
+    1234567
+   ],
+   "out": "1234567-এর পেমেন্ট লেখা হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "payroll.paidOk",
+   "args": [
+    1234567
+   ],
+   "out": "1234567-এর পেমেন্ট লেখা হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "payroll.paidOk",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin-এর পেমেন্ট লেখা হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "payroll.paidOk",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin-এর পেমেন্ট লেখা হয়েছে ✓"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.intro",
+   "args": [
+    0,
+    3,
+    7
+   ],
+   "out": "০টি প্রশ্ন · ৩ মিনিট · ৭ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.intro",
+   "args": [
+    0,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "০টি প্রশ্ন · Batch A মিনিট · ৳1,500 নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.intro",
+   "args": [
+    1,
+    3,
+    7
+   ],
+   "out": "১টি প্রশ্ন · ৩ মিনিট · ৭ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.intro",
+   "args": [
+    1,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "১টি প্রশ্ন · Batch A মিনিট · ৳1,500 নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.intro",
+   "args": [
+    2,
+    3,
+    7
+   ],
+   "out": "২টি প্রশ্ন · ৩ মিনিট · ৭ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.intro",
+   "args": [
+    2,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "২টি প্রশ্ন · Batch A মিনিট · ৳1,500 নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.intro",
+   "args": [
+    12,
+    3,
+    7
+   ],
+   "out": "১২টি প্রশ্ন · ৩ মিনিট · ৭ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.intro",
+   "args": [
+    12,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "১২টি প্রশ্ন · Batch A মিনিট · ৳1,500 নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.intro",
+   "args": [
+    1234567,
+    3,
+    7
+   ],
+   "out": "১২,৩৪,৫৬৭টি প্রশ্ন · ৩ মিনিট · ৭ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.intro",
+   "args": [
+    1234567,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "১২,৩৪,৫৬৭টি প্রশ্ন · Batch A মিনিট · ৳1,500 নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.intro",
+   "args": [
+    "Rahim Uddin",
+    3,
+    7
+   ],
+   "out": "Rahim Uddinটি প্রশ্ন · ৩ মিনিট · ৭ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.intro",
+   "args": [
+    "Rahim Uddin",
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "Rahim Uddinটি প্রশ্ন · Batch A মিনিট · ৳1,500 নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.questionOf",
+   "args": [
+    0,
+    3
+   ],
+   "out": "প্রশ্ন ০ / ৩"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.questionOf",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "প্রশ্ন ০ / Batch A"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.questionOf",
+   "args": [
+    1,
+    3
+   ],
+   "out": "প্রশ্ন ১ / ৩"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.questionOf",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "প্রশ্ন ১ / Batch A"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.questionOf",
+   "args": [
+    2,
+    3
+   ],
+   "out": "প্রশ্ন ২ / ৩"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.questionOf",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "প্রশ্ন ২ / Batch A"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.questionOf",
+   "args": [
+    12,
+    3
+   ],
+   "out": "প্রশ্ন ১২ / ৩"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.questionOf",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "প্রশ্ন ১২ / Batch A"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.questionOf",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "প্রশ্ন ১২,৩৪,৫৬৭ / ৩"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.questionOf",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "প্রশ্ন ১২,৩৪,৫৬৭ / Batch A"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.questionOf",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "প্রশ্ন Rahim Uddin / ৩"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.questionOf",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "প্রশ্ন Rahim Uddin / Batch A"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.confirmUnanswered",
+   "args": [
+    0
+   ],
+   "out": "০টি প্রশ্নের উত্তর দেওয়া হয়নি। তবুও জমা দেবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.confirmUnanswered",
+   "args": [
+    0
+   ],
+   "out": "০টি প্রশ্নের উত্তর দেওয়া হয়নি। তবুও জমা দেবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.confirmUnanswered",
+   "args": [
+    1
+   ],
+   "out": "১টি প্রশ্নের উত্তর দেওয়া হয়নি। তবুও জমা দেবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.confirmUnanswered",
+   "args": [
+    1
+   ],
+   "out": "১টি প্রশ্নের উত্তর দেওয়া হয়নি। তবুও জমা দেবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.confirmUnanswered",
+   "args": [
+    2
+   ],
+   "out": "২টি প্রশ্নের উত্তর দেওয়া হয়নি। তবুও জমা দেবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.confirmUnanswered",
+   "args": [
+    2
+   ],
+   "out": "২টি প্রশ্নের উত্তর দেওয়া হয়নি। তবুও জমা দেবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.confirmUnanswered",
+   "args": [
+    12
+   ],
+   "out": "১২টি প্রশ্নের উত্তর দেওয়া হয়নি। তবুও জমা দেবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.confirmUnanswered",
+   "args": [
+    12
+   ],
+   "out": "১২টি প্রশ্নের উত্তর দেওয়া হয়নি। তবুও জমা দেবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.confirmUnanswered",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭টি প্রশ্নের উত্তর দেওয়া হয়নি। তবুও জমা দেবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.confirmUnanswered",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭টি প্রশ্নের উত্তর দেওয়া হয়নি। তবুও জমা দেবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.confirmUnanswered",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddinটি প্রশ্নের উত্তর দেওয়া হয়নি। তবুও জমা দেবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.confirmUnanswered",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddinটি প্রশ্নের উত্তর দেওয়া হয়নি। তবুও জমা দেবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.yourScore",
+   "args": [
+    0,
+    3
+   ],
+   "out": "আপনি পেয়েছেন ০ / ৩"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.yourScore",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "আপনি পেয়েছেন ০ / Batch A"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.yourScore",
+   "args": [
+    1,
+    3
+   ],
+   "out": "আপনি পেয়েছেন ১ / ৩"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.yourScore",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "আপনি পেয়েছেন ১ / Batch A"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.yourScore",
+   "args": [
+    2,
+    3
+   ],
+   "out": "আপনি পেয়েছেন ২ / ৩"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.yourScore",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "আপনি পেয়েছেন ২ / Batch A"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.yourScore",
+   "args": [
+    12,
+    3
+   ],
+   "out": "আপনি পেয়েছেন ১২ / ৩"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.yourScore",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "আপনি পেয়েছেন ১২ / Batch A"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.yourScore",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "আপনি পেয়েছেন ১২,৩৪,৫৬৭ / ৩"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.yourScore",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "আপনি পেয়েছেন ১২,৩৪,৫৬৭ / Batch A"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.yourScore",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "আপনি পেয়েছেন Rahim Uddin / ৩"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.yourScore",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "আপনি পেয়েছেন Rahim Uddin / Batch A"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.taken",
+   "args": [
+    0,
+    3
+   ],
+   "out": "শেষ · ০/৩"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.taken",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "শেষ · ০/Batch A"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.taken",
+   "args": [
+    1,
+    3
+   ],
+   "out": "শেষ · ১/৩"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.taken",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "শেষ · ১/Batch A"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.taken",
+   "args": [
+    2,
+    3
+   ],
+   "out": "শেষ · ২/৩"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.taken",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "শেষ · ২/Batch A"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.taken",
+   "args": [
+    12,
+    3
+   ],
+   "out": "শেষ · ১২/৩"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.taken",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "শেষ · ১২/Batch A"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.taken",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "শেষ · ১২,৩৪,৫৬৭/৩"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.taken",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "শেষ · ১২,৩৪,৫৬৭/Batch A"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.taken",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "শেষ · Rahim Uddin/৩"
+  },
+  {
+   "lang": "bn",
+   "key": "quiz.taken",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "শেষ · Rahim Uddin/Batch A"
+  },
+  {
+   "lang": "bn",
+   "key": "rubric.total",
+   "args": [
+    0
+   ],
+   "out": "মোট ০"
+  },
+  {
+   "lang": "bn",
+   "key": "rubric.total",
+   "args": [
+    0
+   ],
+   "out": "মোট ০"
+  },
+  {
+   "lang": "bn",
+   "key": "rubric.total",
+   "args": [
+    1
+   ],
+   "out": "মোট ১"
+  },
+  {
+   "lang": "bn",
+   "key": "rubric.total",
+   "args": [
+    1
+   ],
+   "out": "মোট ১"
+  },
+  {
+   "lang": "bn",
+   "key": "rubric.total",
+   "args": [
+    2
+   ],
+   "out": "মোট ২"
+  },
+  {
+   "lang": "bn",
+   "key": "rubric.total",
+   "args": [
+    2
+   ],
+   "out": "মোট ২"
+  },
+  {
+   "lang": "bn",
+   "key": "rubric.total",
+   "args": [
+    12
+   ],
+   "out": "মোট ১২"
+  },
+  {
+   "lang": "bn",
+   "key": "rubric.total",
+   "args": [
+    12
+   ],
+   "out": "মোট ১২"
+  },
+  {
+   "lang": "bn",
+   "key": "rubric.total",
+   "args": [
+    1234567
+   ],
+   "out": "মোট ১২,৩৪,৫৬৭"
+  },
+  {
+   "lang": "bn",
+   "key": "rubric.total",
+   "args": [
+    1234567
+   ],
+   "out": "মোট ১২,৩৪,৫৬৭"
+  },
+  {
+   "lang": "bn",
+   "key": "rubric.total",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "মোট Rahim Uddin"
+  },
+  {
+   "lang": "bn",
+   "key": "rubric.total",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "মোট Rahim Uddin"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.title",
+   "args": [
+    0
+   ],
+   "out": "মেধা তালিকা: 0"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.title",
+   "args": [
+    0
+   ],
+   "out": "মেধা তালিকা: 0"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.title",
+   "args": [
+    1
+   ],
+   "out": "মেধা তালিকা: 1"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.title",
+   "args": [
+    1
+   ],
+   "out": "মেধা তালিকা: 1"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.title",
+   "args": [
+    2
+   ],
+   "out": "মেধা তালিকা: 2"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.title",
+   "args": [
+    2
+   ],
+   "out": "মেধা তালিকা: 2"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.title",
+   "args": [
+    12
+   ],
+   "out": "মেধা তালিকা: 12"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.title",
+   "args": [
+    12
+   ],
+   "out": "মেধা তালিকা: 12"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.title",
+   "args": [
+    1234567
+   ],
+   "out": "মেধা তালিকা: 1234567"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.title",
+   "args": [
+    1234567
+   ],
+   "out": "মেধা তালিকা: 1234567"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.title",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "মেধা তালিকা: Rahim Uddin"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.title",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "মেধা তালিকা: Rahim Uddin"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.beat",
+   "args": [
+    0
+   ],
+   "out": "ক্লাসের 0% এর চেয়ে ভালো"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.beat",
+   "args": [
+    0
+   ],
+   "out": "ক্লাসের 0% এর চেয়ে ভালো"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.beat",
+   "args": [
+    1
+   ],
+   "out": "ক্লাসের 1% এর চেয়ে ভালো"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.beat",
+   "args": [
+    1
+   ],
+   "out": "ক্লাসের 1% এর চেয়ে ভালো"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.beat",
+   "args": [
+    2
+   ],
+   "out": "ক্লাসের 2% এর চেয়ে ভালো"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.beat",
+   "args": [
+    2
+   ],
+   "out": "ক্লাসের 2% এর চেয়ে ভালো"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.beat",
+   "args": [
+    12
+   ],
+   "out": "ক্লাসের 12% এর চেয়ে ভালো"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.beat",
+   "args": [
+    12
+   ],
+   "out": "ক্লাসের 12% এর চেয়ে ভালো"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.beat",
+   "args": [
+    1234567
+   ],
+   "out": "ক্লাসের 1234567% এর চেয়ে ভালো"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.beat",
+   "args": [
+    1234567
+   ],
+   "out": "ক্লাসের 1234567% এর চেয়ে ভালো"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.beat",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "ক্লাসের Rahim Uddin% এর চেয়ে ভালো"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.beat",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "ক্লাসের Rahim Uddin% এর চেয়ে ভালো"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.tabSwitches",
+   "args": [
+    0
+   ],
+   "out": "0 বার পরীক্ষা থেকে বের হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.tabSwitches",
+   "args": [
+    0
+   ],
+   "out": "0 বার পরীক্ষা থেকে বের হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.tabSwitches",
+   "args": [
+    1
+   ],
+   "out": "1 বার পরীক্ষা থেকে বের হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.tabSwitches",
+   "args": [
+    1
+   ],
+   "out": "1 বার পরীক্ষা থেকে বের হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.tabSwitches",
+   "args": [
+    2
+   ],
+   "out": "2 বার পরীক্ষা থেকে বের হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.tabSwitches",
+   "args": [
+    2
+   ],
+   "out": "2 বার পরীক্ষা থেকে বের হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.tabSwitches",
+   "args": [
+    12
+   ],
+   "out": "12 বার পরীক্ষা থেকে বের হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.tabSwitches",
+   "args": [
+    12
+   ],
+   "out": "12 বার পরীক্ষা থেকে বের হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.tabSwitches",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 বার পরীক্ষা থেকে বের হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.tabSwitches",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 বার পরীক্ষা থেকে বের হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.tabSwitches",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin বার পরীক্ষা থেকে বের হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.tabSwitches",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin বার পরীক্ষা থেকে বের হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.tookLong",
+   "args": [
+    0,
+    3
+   ],
+   "out": "০ মিনিট লেগেছে (সীমা ৩ মিনিট)"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.tookLong",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "০ মিনিট লেগেছে (সীমা Batch A মিনিট)"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.tookLong",
+   "args": [
+    1,
+    3
+   ],
+   "out": "১ মিনিট লেগেছে (সীমা ৩ মিনিট)"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.tookLong",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "১ মিনিট লেগেছে (সীমা Batch A মিনিট)"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.tookLong",
+   "args": [
+    2,
+    3
+   ],
+   "out": "২ মিনিট লেগেছে (সীমা ৩ মিনিট)"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.tookLong",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "২ মিনিট লেগেছে (সীমা Batch A মিনিট)"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.tookLong",
+   "args": [
+    12,
+    3
+   ],
+   "out": "১২ মিনিট লেগেছে (সীমা ৩ মিনিট)"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.tookLong",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "১২ মিনিট লেগেছে (সীমা Batch A মিনিট)"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.tookLong",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "১২,৩৪,৫৬৭ মিনিট লেগেছে (সীমা ৩ মিনিট)"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.tookLong",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "১২,৩৪,৫৬৭ মিনিট লেগেছে (সীমা Batch A মিনিট)"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.tookLong",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "Rahim Uddin মিনিট লেগেছে (সীমা ৩ মিনিট)"
+  },
+  {
+   "lang": "bn",
+   "key": "merit.tookLong",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Rahim Uddin মিনিট লেগেছে (সীমা Batch A মিনিট)"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.matching",
+   "args": [
+    0
+   ],
+   "out": "0টি প্রশ্ন মিলেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.matching",
+   "args": [
+    0
+   ],
+   "out": "0টি প্রশ্ন মিলেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.matching",
+   "args": [
+    1
+   ],
+   "out": "1টি প্রশ্ন মিলেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.matching",
+   "args": [
+    1
+   ],
+   "out": "1টি প্রশ্ন মিলেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.matching",
+   "args": [
+    2
+   ],
+   "out": "2টি প্রশ্ন মিলেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.matching",
+   "args": [
+    2
+   ],
+   "out": "2টি প্রশ্ন মিলেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.matching",
+   "args": [
+    12
+   ],
+   "out": "12টি প্রশ্ন মিলেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.matching",
+   "args": [
+    12
+   ],
+   "out": "12টি প্রশ্ন মিলেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.matching",
+   "args": [
+    1234567
+   ],
+   "out": "1234567টি প্রশ্ন মিলেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.matching",
+   "args": [
+    1234567
+   ],
+   "out": "1234567টি প্রশ্ন মিলেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.matching",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddinটি প্রশ্ন মিলেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.matching",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddinটি প্রশ্ন মিলেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.made",
+   "args": [
+    0,
+    3
+   ],
+   "out": "\"0\" বানানো হয়েছে, 3টি প্রশ্ন"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.made",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "\"0\" বানানো হয়েছে, Batch Aটি প্রশ্ন"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.made",
+   "args": [
+    1,
+    3
+   ],
+   "out": "\"1\" বানানো হয়েছে, 3টি প্রশ্ন"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.made",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "\"1\" বানানো হয়েছে, Batch Aটি প্রশ্ন"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.made",
+   "args": [
+    2,
+    3
+   ],
+   "out": "\"2\" বানানো হয়েছে, 3টি প্রশ্ন"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.made",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "\"2\" বানানো হয়েছে, Batch Aটি প্রশ্ন"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.made",
+   "args": [
+    12,
+    3
+   ],
+   "out": "\"12\" বানানো হয়েছে, 3টি প্রশ্ন"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.made",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "\"12\" বানানো হয়েছে, Batch Aটি প্রশ্ন"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.made",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "\"1234567\" বানানো হয়েছে, 3টি প্রশ্ন"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.made",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "\"1234567\" বানানো হয়েছে, Batch Aটি প্রশ্ন"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.made",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "\"Rahim Uddin\" বানানো হয়েছে, 3টি প্রশ্ন"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.made",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "\"Rahim Uddin\" বানানো হয়েছে, Batch Aটি প্রশ্ন"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.added",
+   "args": [
+    0
+   ],
+   "out": "0টি প্রশ্ন যোগ হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.added",
+   "args": [
+    0
+   ],
+   "out": "0টি প্রশ্ন যোগ হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.added",
+   "args": [
+    1
+   ],
+   "out": "1টি প্রশ্ন যোগ হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.added",
+   "args": [
+    1
+   ],
+   "out": "1টি প্রশ্ন যোগ হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.added",
+   "args": [
+    2
+   ],
+   "out": "2টি প্রশ্ন যোগ হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.added",
+   "args": [
+    2
+   ],
+   "out": "2টি প্রশ্ন যোগ হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.added",
+   "args": [
+    12
+   ],
+   "out": "12টি প্রশ্ন যোগ হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.added",
+   "args": [
+    12
+   ],
+   "out": "12টি প্রশ্ন যোগ হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.added",
+   "args": [
+    1234567
+   ],
+   "out": "1234567টি প্রশ্ন যোগ হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.added",
+   "args": [
+    1234567
+   ],
+   "out": "1234567টি প্রশ্ন যোগ হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.added",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddinটি প্রশ্ন যোগ হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.added",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddinটি প্রশ্ন যোগ হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.list",
+   "args": [
+    0
+   ],
+   "out": "প্রশ্ন (0)"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.list",
+   "args": [
+    0
+   ],
+   "out": "প্রশ্ন (0)"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.list",
+   "args": [
+    1
+   ],
+   "out": "প্রশ্ন (1)"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.list",
+   "args": [
+    1
+   ],
+   "out": "প্রশ্ন (1)"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.list",
+   "args": [
+    2
+   ],
+   "out": "প্রশ্ন (2)"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.list",
+   "args": [
+    2
+   ],
+   "out": "প্রশ্ন (2)"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.list",
+   "args": [
+    12
+   ],
+   "out": "প্রশ্ন (12)"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.list",
+   "args": [
+    12
+   ],
+   "out": "প্রশ্ন (12)"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.list",
+   "args": [
+    1234567
+   ],
+   "out": "প্রশ্ন (1234567)"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.list",
+   "args": [
+    1234567
+   ],
+   "out": "প্রশ্ন (1234567)"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.list",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "প্রশ্ন (Rahim Uddin)"
+  },
+  {
+   "lang": "bn",
+   "key": "bank.list",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "প্রশ্ন (Rahim Uddin)"
+  },
+  {
+   "lang": "bn",
+   "key": "watch.summary",
+   "args": [
+    0,
+    3
+   ],
+   "out": "3 জনের মধ্যে 0 জন (প্রায়) পুরোটা দেখেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "watch.summary",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "Batch A জনের মধ্যে 0 জন (প্রায়) পুরোটা দেখেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "watch.summary",
+   "args": [
+    1,
+    3
+   ],
+   "out": "3 জনের মধ্যে 1 জন (প্রায়) পুরোটা দেখেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "watch.summary",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "Batch A জনের মধ্যে 1 জন (প্রায়) পুরোটা দেখেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "watch.summary",
+   "args": [
+    2,
+    3
+   ],
+   "out": "3 জনের মধ্যে 2 জন (প্রায়) পুরোটা দেখেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "watch.summary",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "Batch A জনের মধ্যে 2 জন (প্রায়) পুরোটা দেখেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "watch.summary",
+   "args": [
+    12,
+    3
+   ],
+   "out": "3 জনের মধ্যে 12 জন (প্রায়) পুরোটা দেখেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "watch.summary",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "Batch A জনের মধ্যে 12 জন (প্রায়) পুরোটা দেখেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "watch.summary",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "3 জনের মধ্যে 1234567 জন (প্রায়) পুরোটা দেখেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "watch.summary",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "Batch A জনের মধ্যে 1234567 জন (প্রায়) পুরোটা দেখেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "watch.summary",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "3 জনের মধ্যে Rahim Uddin জন (প্রায়) পুরোটা দেখেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "watch.summary",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Batch A জনের মধ্যে Rahim Uddin জন (প্রায়) পুরোটা দেখেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "routine.clash",
+   "args": [
+    0,
+    3,
+    7
+   ],
+   "out": "0 এ সংঘর্ষ: 3 আর 7 (undefined)।"
+  },
+  {
+   "lang": "bn",
+   "key": "routine.clash",
+   "args": [
+    0,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "0 এ সংঘর্ষ: Batch A আর ৳1,500 (undefined)।"
+  },
+  {
+   "lang": "bn",
+   "key": "routine.clash",
+   "args": [
+    1,
+    3,
+    7
+   ],
+   "out": "1 এ সংঘর্ষ: 3 আর 7 (undefined)।"
+  },
+  {
+   "lang": "bn",
+   "key": "routine.clash",
+   "args": [
+    1,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "1 এ সংঘর্ষ: Batch A আর ৳1,500 (undefined)।"
+  },
+  {
+   "lang": "bn",
+   "key": "routine.clash",
+   "args": [
+    2,
+    3,
+    7
+   ],
+   "out": "2 এ সংঘর্ষ: 3 আর 7 (undefined)।"
+  },
+  {
+   "lang": "bn",
+   "key": "routine.clash",
+   "args": [
+    2,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "2 এ সংঘর্ষ: Batch A আর ৳1,500 (undefined)।"
+  },
+  {
+   "lang": "bn",
+   "key": "routine.clash",
+   "args": [
+    12,
+    3,
+    7
+   ],
+   "out": "12 এ সংঘর্ষ: 3 আর 7 (undefined)।"
+  },
+  {
+   "lang": "bn",
+   "key": "routine.clash",
+   "args": [
+    12,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "12 এ সংঘর্ষ: Batch A আর ৳1,500 (undefined)।"
+  },
+  {
+   "lang": "bn",
+   "key": "routine.clash",
+   "args": [
+    1234567,
+    3,
+    7
+   ],
+   "out": "1234567 এ সংঘর্ষ: 3 আর 7 (undefined)।"
+  },
+  {
+   "lang": "bn",
+   "key": "routine.clash",
+   "args": [
+    1234567,
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "1234567 এ সংঘর্ষ: Batch A আর ৳1,500 (undefined)।"
+  },
+  {
+   "lang": "bn",
+   "key": "routine.clash",
+   "args": [
+    "Rahim Uddin",
+    3,
+    7
+   ],
+   "out": "Rahim Uddin এ সংঘর্ষ: 3 আর 7 (undefined)।"
+  },
+  {
+   "lang": "bn",
+   "key": "routine.clash",
+   "args": [
+    "Rahim Uddin",
+    "Batch A",
+    "৳1,500"
+   ],
+   "out": "Rahim Uddin এ সংঘর্ষ: Batch A আর ৳1,500 (undefined)।"
   },
   {
    "lang": "bn",
