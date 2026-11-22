@@ -375,7 +375,10 @@ class _FeeSheetState extends State<FeeSheet> {
             TextField(controller: discount, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: t('fees.discount'), helperText: t('fees.discountHint'), helperMaxLines: 2)),
             OutlinedButton(
               onPressed: () async {
-                final saved = await store.act('setDiscount', [s['id'], num.tryParse(discount.text.trim()) ?? 0]);
+                final off = num.tryParse(discount.text.trim()) ?? 0;
+                final fee = (store.batches.where((b) => b['name'] == s['batch']).firstOrNull?['fee'] as num?) ?? 0;
+                if (off < 0 || off > fee) return toast(context, t('fees.discountTooBig')); // the server refuses it too
+                final saved = await store.act('setDiscount', [s['id'], off]);
                 if (context.mounted) Navigator.pop(context, result(saved, t('fees.discountSaved')));
               },
               child: Text(t('settings.save')),

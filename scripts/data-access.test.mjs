@@ -398,3 +398,20 @@ test("edge cases found in the audit stay closed", async () => {
   const withNote = runAction(s, "addNote", ["t", "secret", 3], Date.now());
   assert.ok(!viewFor(withNote, owner).notes.some((n) => n.by === 3));
 });
+
+test("website bug hunt: batch names, event times, discounts and poll options are checked on the server", async () => {
+  const { validateStudent, isGmail } = await import("../src/lib/site.ts");
+  const owner = { role: "owner", name: "Owner", studentIds: [] };
+  refused(() => checkAction("addBatch", [{ name: ` ${s.batches[0].name.toUpperCase()} `, fee: 100 }], owner, s));
+  assert.ok(checkAction("addBatch", [{ name: "A brand new batch", fee: 100 }], owner, s));
+  refused(() => checkAction("addCalendarEvent", [{ title: "x", start: "2026-12-01T15:00:00.000Z", end: "2026-12-01T10:00:00.000Z", batch: s.batches[0].name }], owner, s));
+  const st = s.students[0], fee = s.batches.find((b) => b.name === st.batch).fee;
+  refused(() => checkAction("setDiscount", [st.id, fee + 1], owner, s));
+  assert.ok(checkAction("setDiscount", [st.id, fee], owner, s));
+  refused(() => checkAction("addCommunityPost", [0, "q", undefined, { poll: ["Same", " same "] }], student, s));
+  // Gmail: dots and +tags reach the same inbox; ".." is not a Gmail address.
+  const roll = [{ id: 1, email: "nusrat.jahan@gmail.com", guardianEmail: "g@gmail.com" }];
+  const p = { name: "N", email: "nusratjahan+x@gmail.com", guardianName: "G", guardianEmail: "h@gmail.com", phone: "01712345678" };
+  assert.equal(validateStudent(p, roll).email, "emailTaken");
+  assert.equal(isGmail("a..b@gmail.com"), false);
+});

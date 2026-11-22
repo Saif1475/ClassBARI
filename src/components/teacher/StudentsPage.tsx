@@ -57,7 +57,7 @@ export function StudentsPage({ batchNames, notify }: { batchNames: string[]; not
             {waiting.map((s) => (
               <li key={s.id} className="flex flex-wrap items-center gap-3 rounded-[12px] bg-white px-4 py-3 text-sm text-on-surface">
                 <span className="flex min-w-48 flex-1 flex-col">
-                  <b>{s.name}</b>
+                  <b className="[overflow-wrap:anywhere]">{s.name}</b>
                   <span className="text-on-surface-variant">{s.batch} · {s.email} · {s.guardianName} {s.phone}</span>
                 </span>
                 <button type="button" onClick={() => (lms.approveStudent(s.id), notify(`${s.name} ✓`))} className="h-10 rounded-full bg-primary px-5 font-bold text-on-primary">{R.approve}</button>
@@ -103,7 +103,7 @@ export function StudentsPage({ batchNames, notify }: { batchNames: string[]; not
           {shown.map((s) => (
             <li key={s.id} className="flex flex-wrap items-center gap-x-6 gap-y-2 rounded-[16px] border border-outline-variant bg-white px-4 py-3 text-sm">
               <span className="flex min-w-56 flex-1 flex-col">
-                <span className="font-bold">{s.name} <span className="font-normal text-on-surface-variant">· {t.common.roll} {s.id}</span></span>
+                <span className="min-w-0 font-bold [overflow-wrap:anywhere]">{s.name} <span className="font-normal text-on-surface-variant">· {t.common.roll} {s.id}</span></span>
                 <span className="text-on-surface-variant">{s.email}</span>
               </span>
               <span className="flex min-w-56 flex-1 flex-col">

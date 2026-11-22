@@ -196,7 +196,9 @@ function Composer({ author }: { author: Author }) {
   const [audience, setAudience] = useState<Audience>((student && lms.communityProfiles[author as number]?.audience) || "all");
   const [note, setNote] = useState("");
   const left = POST_MAX - text.length;
-  const pollOk = !poll || poll.filter((o) => o.trim()).length >= 2;
+  const filled = poll?.map((o) => o.trim().toLowerCase()).filter(Boolean) ?? [];
+  const pollSame = new Set(filled).size !== filled.length; // the same option twice: votes for it would only count for the first
+  const pollOk = !poll || (filled.length >= 2 && !pollSame);
   const ready = pollOk && (!!text.trim() || images.length > 0 || !!file || !!poll);
 
   const addPhotos = async (files: FileList | null) => {
@@ -256,6 +258,7 @@ function Composer({ author }: { author: Author }) {
         {poll && (
           <fieldset className="flex flex-col gap-2 rounded-[12px] border border-outline-variant p-3">
             <legend className="px-1 text-xs font-bold text-on-surface-variant">{C.poll}</legend>
+            {pollSame && <p role="alert" className="text-xs text-error">{C.pollSame}</p>}
             {poll.map((o, i) => (
               <input key={i} value={o} maxLength={POLL_OPTION_MAX} onChange={(e) => setPoll(poll.map((x, k) => (k === i ? e.target.value : x)))} placeholder={C.pollOption(i + 1)} aria-label={C.pollOption(i + 1)} className="h-10 rounded-[10px] border border-outline bg-transparent px-3 text-sm" />
             ))}

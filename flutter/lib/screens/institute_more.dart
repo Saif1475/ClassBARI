@@ -141,6 +141,8 @@ class _BatchFormState extends State<BatchForm> {
     final money = _num(fee) < 0 ? 0 : _num(fee).round();
     if (b == null) {
       if (name.text.trim().isEmpty) return;
+      // Students, fees and attendance find their batch by name: two batches may never share one (the server refuses it too).
+      if (store.batches.any((x) => '${x['name']}'.trim().toLowerCase() == name.text.trim().toLowerCase())) return toast(context, t('teacher.batchTaken'));
       final saved = await store.act('addBatch', [
         {'name': name.text.trim(), 'days': days.text, 'classDays': classDays, 'subject': subject, 'fee': money, 'lateFine': 0, 'teacher': store.staffName},
       ]);

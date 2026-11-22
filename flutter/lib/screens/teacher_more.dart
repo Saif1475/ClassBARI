@@ -405,6 +405,7 @@ class _BatchCalendarScreenState extends State<BatchCalendarScreen> {
               onPressed: title.text.trim().isEmpty
                   ? null
                   : () async {
+                      if (at(to).compareTo(at(from)) <= 0) return toast(context, t('teacher.evEndBeforeStart'));
                       final saved = await store.act('addCalendarEvent', [
                         {'title': title.text.trim(), 'start': at(from), 'end': at(to), 'meta': '${store.staffName} · ${widget.batch}', 'kind': kind, 'batch': widget.batch},
                       ]);

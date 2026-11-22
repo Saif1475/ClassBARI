@@ -20,8 +20,8 @@ export function FeeDialog({ studentId, onClose, onDone }: { studentId: number; o
   const box = "h-11 rounded-xl border border-outline bg-white px-3 text-sm";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/35 sm:items-center sm:p-4" onClick={onClose}>
-      <div role="dialog" aria-modal="true" aria-labelledby="fee-title" onClick={(e) => e.stopPropagation()} className="flex max-h-[90dvh] w-full max-w-md flex-col gap-4 overflow-y-auto rounded-t-[20px] bg-white p-5 shadow-2xl sm:rounded-[20px]">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/35 sm:items-center sm:p-4" onClick={onClose} onKeyDown={(e) => e.key === "Escape" && onClose()}>
+      <div role="dialog" aria-modal="true" tabIndex={-1} ref={(el) => el?.focus()} aria-labelledby="fee-title" onClick={(e) => e.stopPropagation()} className="flex max-h-[90dvh] w-full max-w-md flex-col gap-4 overflow-y-auto rounded-t-[20px] bg-white p-5 shadow-2xl sm:rounded-[20px]">
         <div className="flex items-center justify-between">
           <h2 id="fee-title" className="text-xl font-bold">{F.title(s.name)}</h2>
           <button type="button" onClick={onClose} aria-label={t.common.close} className="flex h-9 w-9 items-center justify-center rounded-full bg-surface-container">
@@ -73,7 +73,7 @@ export function FeeDialog({ studentId, onClose, onDone }: { studentId: number; o
           <label className="flex flex-col gap-1 text-xs font-bold text-on-surface-variant">
             {F.discount}
             <span className="flex gap-2">
-              <input type="number" min={0} value={discount} onChange={(e) => setDiscount(e.target.value)} className={`${box} flex-1`} />
+              <input type="number" min={0} max={lms.batches.find((b) => b.name === s.batch)?.fee ?? 0} value={discount} onChange={(e) => setDiscount(e.target.value)} onInvalid={(e) => e.currentTarget.setCustomValidity(F.discountTooBig)} onInput={(e) => e.currentTarget.setCustomValidity("")} className={`${box} flex-1`} />
               <button type="submit" className="h-11 rounded-full border border-outline-variant px-4 text-sm font-bold">{t.common.save}</button>
             </span>
           </label>

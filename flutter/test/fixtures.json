@@ -46031,6 +46031,54 @@
    {
     "input": {
      "name": "Sadia",
+     "email": "ra.him+x@gmail.com",
+     "guardianName": "Mrs Akter",
+     "guardianEmail": "akter@gmail.com",
+     "phone": "01712345678"
+    },
+    "out": {
+     "email": "emailTaken"
+    }
+   },
+   {
+    "input": {
+     "name": "Sadia",
+     "email": "a..b@gmail.com",
+     "guardianName": "Mrs Akter",
+     "guardianEmail": "akter@gmail.com",
+     "phone": "01712345678"
+    },
+    "out": {
+     "email": "gmailInvalid"
+    }
+   },
+   {
+    "input": {
+     "name": "Sadia",
+     "email": "sadia@gmail.com",
+     "guardianName": "Mrs Akter",
+     "guardianEmail": "Sa.dia@gmail.com",
+     "phone": "01712345678"
+    },
+    "out": {
+     "guardianEmail": "sameEmail"
+    }
+   },
+   {
+    "input": {
+     "name": "Sadia",
+     "email": "sadia@gmail.com",
+     "guardianName": "Mrs Akter",
+     "guardianEmail": "kar.im@gmail.com",
+     "phone": "01712345678"
+    },
+    "out": {
+     "guardianEmail": "guardianIsStudent"
+    }
+   },
+   {
+    "input": {
+     "name": "Sadia",
      "email": "rahim@gmail.com",
      "guardianName": "Mrs Akter",
      "guardianEmail": "akter@gmail.com",

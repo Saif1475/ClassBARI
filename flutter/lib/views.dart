@@ -122,30 +122,32 @@ List<int> seededOrder(int n, int seed) {
 }
 
 // ---- enrolling a student ------------------------------------------------------------------------------------------
-final _gmail = RegExp(r'^[a-z0-9](?:[a-z0-9._+-]{0,62}[a-z0-9])?@gmail\.com$', caseSensitive: false);
+final _gmail = RegExp(r'^(?!.*\.\.)[a-z0-9](?:[a-z0-9._+-]{0,62}[a-z0-9])?@gmail\.com$', caseSensitive: false); // no ".." (Gmail refuses it)
 final _bdMobile = RegExp(r'^(?:\+?88)?01[3-9]\d{8}$');
 bool isGmail(String email) => _gmail.hasMatch(email.trim());
 String normEmail(String email) => email.trim().toLowerCase();
+/// The inbox a Gmail address reaches: Gmail ignores dots and anything after "+". For "already used" checks (site.ts `inbox`).
+String inbox(String email) => normEmail(email).replaceFirstMapped(RegExp(r'^([^@]+)@gmail\.com$'), (m) => '${m[1]!.split('+').first.replaceAll('.', '')}@gmail.com');
 bool isBdMobile(String phone) => _bdMobile.hasMatch(phone.replaceAll(RegExp(r'[\s-]'), ''));
 
 /// The enrolment rules, field → what is wrong with it (the keys of roster.errors). The server checks the same again.
 Map<String, String> validateStudent(Json s, List<Json> existing, [int? exceptId]) {
   final others = existing.where((x) => x['id'] != exceptId).toList();
   final email = normEmail('${s['email'] ?? ''}'), guardianEmail = normEmail('${s['guardianEmail'] ?? ''}');
-  String mail(Json x, String k) => normEmail('${x[k] ?? ''}');
+  String mail(Json x, String k) => inbox('${x[k] ?? ''}');
   final errors = <String, String>{};
   if ('${s['name'] ?? ''}'.trim().isEmpty) errors['name'] = 'nameRequired';
   if (!isGmail(email)) {
     errors['email'] = 'gmailInvalid';
-  } else if (others.any((x) => mail(x, 'email') == email || mail(x, 'guardianEmail') == email)) {
+  } else if (others.any((x) => mail(x, 'email') == inbox(email) || mail(x, 'guardianEmail') == inbox(email))) {
     errors['email'] = 'emailTaken';
   }
   if ('${s['guardianName'] ?? ''}'.trim().isEmpty) errors['guardianName'] = 'guardianNameRequired';
   if (!isGmail(guardianEmail)) {
     errors['guardianEmail'] = 'guardianGmailInvalid';
-  } else if (guardianEmail == email) {
+  } else if (inbox(guardianEmail) == inbox(email)) {
     errors['guardianEmail'] = 'sameEmail';
-  } else if (others.any((x) => mail(x, 'email') == guardianEmail)) {
+  } else if (others.any((x) => mail(x, 'email') == inbox(guardianEmail))) {
     errors['guardianEmail'] = 'guardianIsStudent';
   }
   if (!isBdMobile('${s['phone'] ?? ''}')) errors['phone'] = 'phoneInvalid';

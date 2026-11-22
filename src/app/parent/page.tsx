@@ -29,9 +29,12 @@ export default function ParentView() {
   const upcoming = lms.calendar.filter((e) => e.batch === child.batch && toDate(e.start).getTime() > Date.now() - 90 * 60000).slice(0, 3);
 
   const last = gradedResults(lms.modules, child.id).at(-1); // the newest marked quiz, exam or homework
-  const toPay = Math.min(child.feeDue, Math.max(1, Number(amount) || child.feeDue));
+  // A part payment must be whole taka from 1 to what is due; anything else is refused, not quietly turned into ৳1.
+  const part = Number(amount);
+  const partOk = amount.trim() === "" || (Number.isInteger(part) && part >= 1 && part <= child.feeDue);
+  const toPay = amount.trim() === "" ? child.feeDue : part;
   const pay = () => {
-    if (!window.confirm(P.confirmPay(taka(toPay)))) return;
+    if (!partOk || !window.confirm(P.confirmPay(taka(toPay)))) return;
     lms.payFee(child.id, "bkash", toPay);
     setAmount("");
   };
@@ -87,7 +90,7 @@ export default function ParentView() {
             <p className="text-base font-semibold">{t.auth.payAtInstitute}</p>
           ) : (
           <>
-          <button type="button" onClick={pay} className="mt-1 flex h-14 items-center justify-center rounded-full bg-bkash text-lg font-bold text-white">
+          <button type="button" onClick={pay} disabled={!partOk} className="mt-1 flex h-14 disabled:opacity-50 items-center justify-center rounded-full bg-bkash text-lg font-bold text-white">
             {P.payBkash} · {taka(toPay)}
           </button>
           <details className="text-base">

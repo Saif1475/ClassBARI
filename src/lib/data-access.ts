@@ -162,6 +162,7 @@ const STUDENT: Record<string, Rule> = {
     const f = x.file as { name?: unknown; url?: unknown } | undefined;
     const file = f === undefined ? undefined : { name: str(f?.name, 200), url: upload(f?.url, "pdf") };
     const poll = x.poll === undefined ? undefined : Array.isArray(x.poll) && x.poll.length >= 2 && x.poll.length <= 4 ? x.poll.map((o) => str(o, POLL_OPTION_MAX)) : refuse("bad poll");
+    if (poll && new Set(poll.map((o) => o.trim().toLowerCase())).size !== poll.length) refuse("the same option twice");
     const audience = x.audience === undefined ? undefined : AUDIENCES.includes(x.audience as never) ? x.audience : refuse("bad audience");
     return [me, str(text, POST_MAX), image === undefined || image === null ? undefined : upload(image, "image"), { images, file, poll, audience }];
   },
@@ -219,6 +220,17 @@ export function checkAction(name: string, args: unknown[], who: Who, s: LmsState
     if (who.role === "teacher" && name === "requestLeave" && (args[0] as { name?: unknown })?.name !== staffName(s, who)) refuse("only your own leave");
     if (name === "payFee" && args[2] !== undefined && !(typeof args[2] === "number" && Number.isFinite(args[2]) && args[2] > 0)) refuse("bad amount");
     if (DATED.has(name) && typeof args[1] === "string" && args[1] > dayKeyAfter(1)) refuse("future date");
+    // Students, fees and attendance find their batch by its name: two batches may never share one.
+    const sameName = (a: unknown, b: unknown) => String(a ?? "").trim().toLowerCase() === String(b ?? "").trim().toLowerCase();
+    if (name === "addBatch" && s.batches.some((b) => sameName(b.name, (args[0] as { name?: unknown })?.name))) refuse("batch name taken");
+    if (name === "addCalendarEvent") {
+      const e = args[0] as { start?: unknown; end?: unknown };
+      if (typeof e?.end === "string" && e.end && typeof e.start === "string" && e.end <= e.start) refuse("ends before it starts");
+    }
+    if (name === "setDiscount") {
+      const fee = s.batches.find((b) => b.name === s.students.find((x) => x.id === args[0])?.batch)?.fee ?? 0;
+      if (!(typeof args[1] === "number" && args[1] >= 0 && args[1] <= fee)) refuse("discount more than the fee");
+    }
     if ((name === "sendChatMessage" || name === "markChatRead") && !privateChatOf(s, args[0], staffName(s, who))) refuse("private chat");
     if (who.role === "teacher" && name === "updateStaffProfile" && args[0] !== staffName(s, who)) refuse("only your own profile");
     // Batches belong to a teacher by name: taking a colleague's name would take their batches.

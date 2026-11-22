@@ -232,7 +232,9 @@ class _ComposerState extends State<_Composer> {
 
   @override
   Widget build(BuildContext context) {
-    final pollOk = poll == null || poll!.where((o) => o.trim().isNotEmpty).length >= 2;
+    final filled = [for (final o in poll ?? const <String>[]) if (o.trim().isNotEmpty) o.trim().toLowerCase()];
+    final pollSame = filled.toSet().length != filled.length; // the same option twice: the server refuses it
+    final pollOk = poll == null || (filled.length >= 2 && !pollSame);
     final ready = pollOk && (text.text.trim().isNotEmpty || images.isNotEmpty || file != null || poll != null);
     return Box(
       title: t('community.compose'),
@@ -272,6 +274,7 @@ class _ComposerState extends State<_Composer> {
           Box(
             title: t('community.poll'),
             children: [
+              if (pollSame) Text(t('community.pollSame'), style: TextStyle(color: context.colors.error)),
               for (final (i, _) in poll!.indexed)
                 Semantics(
                   container: true,

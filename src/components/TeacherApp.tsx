@@ -391,6 +391,8 @@ export default function TeacherApp({
     e.preventDefault();
     const name = batchName.trim();
     if (!name) return;
+    // Students, fees and attendance find their batch by name: two batches may never share one (the server refuses it too).
+    if (lms.batches.some((b) => b.name.trim().toLowerCase() === name.toLowerCase())) return notify(T.batchTaken);
     lms.addBatch({ name, days: batchDays, classDays: batchClassDays, subject: batchSubject, fee: Math.max(0, Number(batchFee) || 0), lateFine: 0, teacher: lms.viewer === "all" ? teacherName : lms.viewer });
     setActiveBatch(name);
     setBatchName("");
@@ -401,6 +403,7 @@ export default function TeacherApp({
   const handleCreateCalendarEvent = (e: React.FormEvent) => {
     e.preventDefault();
     if (!evTitle.trim()) return;
+    if (evEnd && evEnd <= evStart) return notify(T.evEndBeforeStart);
     lms.addCalendarEvent({
       title: evTitle.trim(),
       start: new Date(`${evDate}T${evStart}`).toISOString(),
@@ -1793,9 +1796,9 @@ export default function TeacherApp({
                   {activeChat.messages.map((m) => {
                     const fromTeacher = m.sender === teacherName;
                     return (
-                      <div key={m.id} className={`flex max-w-lg flex-col gap-1 ${fromTeacher ? "ml-auto items-end" : "mr-auto items-start"}`}>
+                      <div key={m.id} className={`flex min-w-0 max-w-[min(32rem,100%)] flex-col gap-1 ${fromTeacher ? "ml-auto items-end" : "mr-auto items-start"}`}>
                         <span className="px-2 text-[11px] font-semibold text-on-surface-variant">{m.sender} · {fmtWhen(m.at, lang)}</span>
-                        <div className={`rounded-[16px] px-4 py-3 text-sm leading-relaxed ${fromTeacher ? "rounded-br-xs bg-primary text-on-primary shadow-sm" : "rounded-bl-xs border border-outline-variant bg-white text-on-surface"}`}>{m.text}</div>
+                        <div className={`rounded-[16px] px-4 py-3 text-sm leading-relaxed [overflow-wrap:anywhere] ${fromTeacher ? "rounded-br-xs bg-primary text-on-primary shadow-sm" : "rounded-bl-xs border border-outline-variant bg-white text-on-surface"}`}>{m.text}</div>
                       </div>
                     );
                   })}

@@ -10,8 +10,10 @@ export function waLink(phone: string, text?: string) {
 }
 
 /** A Gmail address (students and guardians sign in with Google). */
-export const isGmail = (email: string) => /^[a-z0-9](?:[a-z0-9._+-]{0,62}[a-z0-9])?@gmail\.com$/i.test(email.trim());
+export const isGmail = (email: string) => /^(?!.*\.\.)[a-z0-9](?:[a-z0-9._+-]{0,62}[a-z0-9])?@gmail\.com$/i.test(email.trim()); // no ".." (Gmail refuses it)
 export const normEmail = (email: string) => email.trim().toLowerCase();
+/** The inbox a Gmail address reaches: Gmail ignores dots and anything after "+" (a.b+x@ is ab@). For "already used" checks. */
+export const inbox = (email: string) => normEmail(email).replace(/^([^@]+)@gmail\.com$/, (_, local: string) => `${local.split("+")[0].replace(/\./g, "")}@gmail.com`);
 
 /** Valid BD mobile: 01[3-9] + 8 digits, optional +88 / 88 prefix. */
 export const isBdMobile = (phone: string) => /^(?:\+?88)?01[3-9]\d{8}$/.test(phone.replace(/[\s-]/g, ""));
@@ -43,11 +45,11 @@ export function validateStudent(
   const errors: Partial<Record<keyof StudentContact, EnrolError>> = {};
   if (!s.name.trim()) errors.name = "nameRequired";
   if (!isGmail(email)) errors.email = "gmailInvalid";
-  else if (others.some((x) => normEmail(x.email) === email || normEmail(x.guardianEmail) === email)) errors.email = "emailTaken";
+  else if (others.some((x) => inbox(x.email) === inbox(email) || inbox(x.guardianEmail) === inbox(email))) errors.email = "emailTaken";
   if (!s.guardianName.trim()) errors.guardianName = "guardianNameRequired";
   if (!isGmail(guardianEmail)) errors.guardianEmail = "guardianGmailInvalid";
-  else if (guardianEmail === email) errors.guardianEmail = "sameEmail";
-  else if (others.some((x) => normEmail(x.email) === guardianEmail)) errors.guardianEmail = "guardianIsStudent";
+  else if (inbox(guardianEmail) === inbox(email)) errors.guardianEmail = "sameEmail";
+  else if (others.some((x) => inbox(x.email) === inbox(guardianEmail))) errors.guardianEmail = "guardianIsStudent";
   if (!isBdMobile(s.phone)) errors.phone = "phoneInvalid";
   if (s.studentPhone?.trim() && !isBdMobile(s.studentPhone)) errors.studentPhone = "studentPhoneInvalid";
   return errors;

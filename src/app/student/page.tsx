@@ -958,9 +958,9 @@ export default function StudentPage() {
                   </header>
                   <div className="flex flex-1 flex-col gap-3 p-4 md:overflow-y-auto md:p-6">
                     {activeChat.messages.map((m) => (
-                      <div key={m.id} className={`flex max-w-lg flex-col gap-1 ${m.mine ? "ml-auto items-end" : "mr-auto items-start"}`}>
+                      <div key={m.id} className={`flex min-w-0 max-w-[min(32rem,100%)] flex-col gap-1 ${m.mine ? "ml-auto items-end" : "mr-auto items-start"}`}>
                         <span className="px-2 text-[11px] font-semibold text-on-surface-variant">{m.sender} · {fmtWhen(m.at, lang)}</span>
-                        <div className={`rounded-[16px] px-4 py-3 text-sm leading-relaxed ${m.mine ? "rounded-br-xs bg-primary text-on-primary shadow-sm" : "rounded-bl-xs border border-outline-variant bg-white text-on-surface"}`}>{m.text}</div>
+                        <div className={`rounded-[16px] px-4 py-3 text-sm leading-relaxed [overflow-wrap:anywhere] ${m.mine ? "rounded-br-xs bg-primary text-on-primary shadow-sm" : "rounded-bl-xs border border-outline-variant bg-white text-on-surface"}`}>{m.text}</div>
                       </div>
                     ))}
                   </div>
