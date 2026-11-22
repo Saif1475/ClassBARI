@@ -13,7 +13,9 @@ type Device = { token: string; kind: "web" | "fcm"; sub: webpush.PushSubscriptio
 
 /** The website page for each screen and kind of person (the apps open the matching tab themselves). */
 const HOME: Record<string, string> = { student: "/student", guardian: "/parent", teacher: "/teacher", owner: "/institute", manager: "/institute" };
-const page = (role: string, screen: Screen) => (HOME[role] ?? "/") + (screen === "home" ? "" : `?go=${screen}`);
+/** Guardians' pages are separate routes; the others open a tab of their home page. */
+const PARENT: Partial<Record<Screen, string>> = { notices: "/parent/notices", results: "/parent/results", messages: "/parent/messages" };
+const page = (role: string, screen: Screen) => (role === "guardian" && PARENT[screen]) || (HOME[role] ?? "/") + (screen === "home" ? "" : `?go=${screen}`);
 
 /** The devices of everyone in `note.to`, less those who switched its group off and the person who did the action. */
 async function devicesFor(institute: string, note: Note, s: LmsState, actor?: string) {

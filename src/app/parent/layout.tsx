@@ -14,6 +14,7 @@ export default function ParentLayout({ children }: { children: React.ReactNode }
         { href: "/parent", label: c.home, icon: "home" },
         { href: "/parent/results", label: c.results, icon: "exams" },
         { href: "/parent/payments", label: c.payments, icon: "fees" },
+        { href: "/parent/notices", label: t.app.notices, icon: "megaphone" },
         { href: "/parent/messages", label: t.pmsg.messages, icon: "message" },
       ]}
     >

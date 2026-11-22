@@ -334,4 +334,4 @@ export function useLms() {
 }
 
 // Pure views of the data, shared with the phone apps.
-export { monthAttendance, quizResults, quizBoard, itemScores, myRank, leagueRank, incomeByMonth, averagePct, payroll, gradedResults, topicMastery, mistakes, writtenResults } from "./lms-views";
+export { monthAttendance, quizResults, quizBoard, itemScores, myRank, leagueRank, incomeByMonth, averagePct, payroll, gradedResults, topicMastery, mistakes, writtenResults, noticesFor } from "./lms-views";

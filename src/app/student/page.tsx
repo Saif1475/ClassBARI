@@ -19,7 +19,7 @@ import { AI_ENABLED } from "@/lib/ai-plans";
 import { useLang } from "@/lib/i18n/LanguageProvider";
 import { dayKey, fmtAgo, fmtDate, fmtDateTime, fmtDayNum, fmtMonth, fmtTime, fmtWeekday, fmtWhen, liveLabel, toDate } from "@/lib/dates";
 import { levels, subjects, type ItemKind } from "@/lib/mock-data";
-import { gradedResults, mistakes, myRank, quizResults, useLms, writtenResults } from "@/lib/lms-store";
+import { gradedResults, mistakes, myRank, noticesFor, quizResults, useLms, writtenResults } from "@/lib/lms-store";
 import { StreakCard } from "@/components/student/StreakCard";
 import { PointsSummary } from "@/components/dojo/PointsPanel";
 import { StoryFeed } from "@/components/dojo/StoryFeed";
@@ -109,7 +109,7 @@ export default function StudentPage() {
   const course = me?.batch ?? "";
   const teacherName = lms.batches.find((b) => b.name === course)?.teacher ?? lms.teacherName;
   const live = lms.liveClass.batch === course ? lms.liveClass : null; // the live class belongs to one batch
-  const announcements = lms.announcements.filter((a) => a.batch === course);
+  const announcements = noticesFor(lms.announcements, course); // also the notices for every batch
   const todos = lms.todos.filter((td) => td.batch === course);
   const calendar = lms.calendar.filter((e) => !e.batch || e.batch === course);
 

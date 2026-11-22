@@ -176,3 +176,7 @@ export const mistakes = (modules: CourseModule[], studentId: number): QuizQuesti
 
 /** Marked homework and written exams of one student: what "Exam scores" shows with real accounts. */
 export const writtenResults = (modules: CourseModule[], studentId: number) => gradedResults(modules, studentId).filter((r) => r.kind !== "quiz");
+
+/** The notices one batch sees: its own and those for every batch (no batch, "" or "all"). Same rule as the apps. */
+export const noticesFor = <A extends { batch?: string | null }>(announcements: A[], batch: string | undefined) =>
+  announcements.filter((a) => !a.batch || a.batch === "all" || a.batch === batch);
