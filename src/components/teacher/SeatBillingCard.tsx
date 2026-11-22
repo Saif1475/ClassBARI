@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useLang } from "@/lib/i18n/LanguageProvider";
 import { planUsage } from "@/lib/seat-billing";
 import { CONTACT_EMAIL, WHATSAPP_NUMBER, waLink } from "@/lib/site";
+import { REAL_AUTH } from "@/lib/auth-mode";
+import { PayForm } from "@/components/PayForm";
 
 /** Institute plan size: up to 250 students included; bigger institutes contact us for a price. */
 export function SeatBillingCard({ totalStudents }: { totalStudents: number }) {
@@ -30,6 +32,7 @@ export function SeatBillingCard({ totalStudents }: { totalStudents: number }) {
           <Link href="/support" className="rounded-full bg-primary px-4 py-2 text-sm font-bold text-on-primary">{B.callUs}</Link>
         </div>
       )}
+      {REAL_AUTH && <PayForm kind="plan" />}
     </section>
   );
 }

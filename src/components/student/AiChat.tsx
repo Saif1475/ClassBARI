@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/Icon";
+import { PayForm } from "@/components/PayForm";
 import { FILE_TEXT_MAX, modelMenu, PACKS, TRAILER } from "@/lib/ai-chat";
 import { topicOf, TOPICS, type Topic } from "@/lib/chat-topics";
 import { SAMPLE_STUDENT, sampleChats } from "@/lib/sample-chats";
@@ -266,6 +267,7 @@ export function AiChat({ meId, name, premium, email }: { meId: number; name: str
             </li>
           ))}
         </ul>
+        <PayForm kind="ai_pack" />
       </div>
     );
 
@@ -339,6 +341,12 @@ export function AiChat({ meId, name, premium, email }: { meId: number; name: str
               </div>
             </div>
           ))}
+          {REAL_AUTH && (
+            <details className="rounded-[10px] border border-outline-variant">
+              <summary className="cursor-pointer px-3 py-2 text-xs font-bold">{t.pay.buyPack}</summary>
+              <div className="p-2"><PayForm kind="ai_pack" /></div>
+            </details>
+          )}
           {chats.length > 0 && (
             <button type="button" onClick={() => window.confirm(A.confirmDeleteAll) && (save([]), open(0))} className="min-h-10 self-start rounded-[10px] bg-error-container px-3 text-xs font-bold text-on-error-container">
               {A.deleteAll} ({chats.length})

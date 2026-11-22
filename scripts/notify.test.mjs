@@ -71,7 +71,7 @@ test("timed: due tomorrow from 6 pm for those who haven't done it, the fee from 
 });
 
 test("every notification has wording in both languages", () => {
-  const keys = ["new_task", "new_quiz", "new_exam", "dueTomorrow", "graded", "merit", "notice", "live", "answered", "aiEnding", "absent", "paid", "feeDue", "message", "fromGuardian", "doubt", "booked", "cancelled", "reported", "leaveAsked", "leaveYes", "leaveNo", "admission", "order"];
+  const keys = ["new_task", "new_quiz", "new_exam", "dueTomorrow", "graded", "merit", "notice", "live", "answered", "aiEnding", "absent", "paid", "feeDue", "message", "fromGuardian", "doubt", "booked", "cancelled", "reported", "leaveAsked", "leaveYes", "leaveNo", "admission", "order", "payApproved", "payRejected"];
   for (const words of [en.notify, bn.notify])
     for (const k of keys) {
       const [title, body] = words[k]("x", "y");

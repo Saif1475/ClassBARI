@@ -15,6 +15,7 @@ import '../strings.dart';
 import '../ui.dart';
 import '../views.dart';
 import 'login.dart' show PasswordField;
+import 'pay.dart';
 import 'pdf.dart' show clock;
 
 /// What the AI app hands to Settings: its models and pack, what is left of the allowance, and a way to clear the chats.
@@ -71,6 +72,12 @@ class SettingsScreen extends StatelessWidget {
               title: t('aichat.yourPack'),
               children: [
                 if (ai!.pack != null) Item(icon: Icons.auto_awesome, title: '${taka(ai!.pack!)}${t('aichat.perMonth')}', subtitle: t('aichat.packNote.${ai!.pack}')),
+                Item(
+                  icon: Icons.add_card_rounded,
+                  color: context.course(2),
+                  title: t('pay.buyPack'),
+                  onTap: () => push(context, Screen(title: t('pay.buyPack'), children: const [PayForm()])),
+                ),
                 if (ai!.left != null && ai!.resetsAt != null)
                   Item(icon: Icons.hourglass_bottom_rounded, color: context.course(1), title: t('aichat.usage'), subtitle: t('aichat.usageLeft', [ai!.left, clock(ai!.resetsAt)]), below: MarkBar(ai!.left!, plain: true)),
               ],

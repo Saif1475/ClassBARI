@@ -17,7 +17,7 @@ import { quizOrder } from "../src/lib/quiz.ts";
 import { validateStudent } from "../src/lib/site.ts";
 import { streak, totalXp, weekXp } from "../src/lib/xp.ts";
 
-const SECTIONS = ["app", "auth", "aichat", "pdfhl", "pager", "roster", "kid", "tday", "glance", "streak", "settings"];
+const SECTIONS = ["app", "auth", "aichat", "pdfhl", "pager", "roster", "kid", "tday", "glance", "streak", "settings", "pay"];
 const SINGLE = ["notify.title", "notify.help", "notify.open", "notify.groups.classwork", "notify.groups.results", "notify.groups.notices", "notify.groups.ai", "notify.groups.attendance", "notify.groups.fees", "notify.groups.messages", "notify.groups.work", "common.loading", "common.textSize", "support.link", "landing.privacy", "landing.terms", "teacher.phoneInvalid", "quiz.checking", "parent.noClasses", "login.newHere", "login.create", "login.title", "login.sub", "student.progress", "student.actions.video", "student.actions.pdf", "student.actions.quiz", "student.actions.task", "student.actions.exam", "student.tags.inProgress", "student.tags.new", "student.tags.completed", "teacher.greeting"];
 
 // ---- words -------------------------------------------------------------------------------------------------------

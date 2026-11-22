@@ -8,7 +8,7 @@ import { isBdMobile, waLink } from "@/lib/site";
 // ClassBARI staff panel. Staff-only, so English only. Data: /api/platform/admin + /api/leads (ADMIN_TOKEN).
 type Lead = { name: string; phone: string; size: string; at: string };
 type Data = Platform & { overview: ReturnType<typeof overview>; smsLive: boolean; errors?: { at: string; where: string; message: string }[]; alertsOn?: boolean };
-const TABS = ["Overview", "Institutes", "Enquiries", "Support", "Announcements", "Features", "SMS", "Plans", "AI answers", "Activity"] as const;
+const TABS = ["Overview", "Payments", "Institutes", "Enquiries", "Support", "Announcements", "Features", "SMS", "Plans", "AI answers", "Activity"] as const;
 type Tab = (typeof TABS)[number];
 const TOKEN_KEY = "classbari-admin-token"; // this tab only; closed tab = logged out
 const FLAG_INFO: Record<keyof Flags, [string, string]> = {
@@ -188,6 +188,7 @@ export default function Admin() {
           {tab === "Announcements" && <PremiumInstitute token={token} />}
           {tab === "Overview" && <Errors data={data} />}
           {tab === "AI answers" && <SavedAnswers token={token} />}
+          {tab === "Payments" && <Payments token={token} />}
 
           {tab === "Features" && (
             <>
@@ -386,6 +387,53 @@ function Sms({ data, act }: { data: Data; act: Act }) {
 
 type Saved = { id: number; question: string; answer: string; model: string; lang: string; hits: number; created_at: string };
 /** AI answers kept for reuse: the most reused first. Read a few, delete any that are wrong or unsuitable. */
+type Payment = { id: string; created_at: string; institute: string; payer_email: string; payer_role: string; kind: string; item: string; student_id: number | null; months: number; amount: number; method: string; sender: string; trx_id: string; status: string; reason: string | null };
+/** bKash / Nagad payments: check each TrxID in the bKash or Nagad app (amount and sender must match), then approve. */
+function Payments({ token }: { token: string }) {
+  const [list, setList] = useState<Payment[]>([]);
+  const [msg, setMsg] = useState("Loading…");
+  const load = async () => {
+    const res = await fetch("/api/platform/admin/payments", { headers: { Authorization: `Bearer ${token}` } });
+    const d = await res.json().catch(() => ({}));
+    setList(res.ok ? d.payments : []);
+    setMsg(res.ok ? "" : d.error ?? "Failed to load");
+  };
+  useEffect(() => void load(), []); // eslint-disable-line react-hooks/exhaustive-deps
+  const decide = async (p: Payment, approve: boolean) => {
+    const reason = approve ? "" : window.prompt("Why? The payer sees this. (Leave empty for: we couldn't find that transaction.)") ?? null;
+    if (reason === null) return;
+    if (approve && !window.confirm(`Approve ৳${p.amount} by ${p.method} from ${p.sender}, TrxID ${p.trx_id}?\nCheck it in the ${p.method} app first.`)) return;
+    const res = await fetch("/api/platform/admin/payments", { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ id: p.id, approve, reason }) });
+    const d = await res.json().catch(() => ({}));
+    setMsg(res.ok ? (approve ? `Approved${d.until ? `: on until ${d.until}` : ""}` : "Rejected") : d.error ?? "Failed");
+    void load();
+  };
+  const waiting = list.filter((p) => p.status === "pending");
+  return (
+    <section className={`${card} flex flex-col gap-3`}>
+      <h2 className="font-bold">Payments ({waiting.length} waiting)</h2>
+      <p className="text-sm text-on-surface-variant">Open the bKash or Nagad app, find the transaction by its TrxID, and check the amount and the sender's number before approving. An approved AI pack switches on at once; an approved plan makes the institute active. The payer gets a notification either way.</p>
+      {msg && <p role="status" className="text-sm font-semibold">{msg}</p>}
+      {!msg && !list.length && <p className="text-sm text-on-surface-variant">No payments yet.</p>}
+      {list.map((p) => (
+        <article key={p.id} className={`flex flex-wrap items-center gap-3 rounded-[12px] px-4 py-3 text-sm ${p.status === "pending" ? "bg-tertiary-container" : "bg-surface-container"}`}>
+          <div className="min-w-0 flex-1">
+            <p className="font-bold">৳{p.amount.toLocaleString("en-IN")} · {p.method} · TrxID <span className="font-mono">{p.trx_id}</span> · from {p.sender}</p>
+            <p className="text-on-surface-variant">{p.kind === "ai_pack" ? `AI pack ৳${p.item}, student #${p.student_id}` : `Plan ${p.item}`} · {p.months} month(s) · {p.payer_email} ({p.payer_role}) · {p.institute} · {new Date(p.created_at).toLocaleString()}</p>
+            {p.status !== "pending" && <p className="font-semibold">{p.status}{p.reason ? `: ${p.reason}` : ""}</p>}
+          </div>
+          {p.status === "pending" && (
+            <span className="flex gap-2">
+              <button type="button" onClick={() => void decide(p, true)} className={`${btn} bg-primary text-on-primary`}>Approve</button>
+              <button type="button" onClick={() => void decide(p, false)} className={`${btn} bg-white text-error`}>Reject</button>
+            </span>
+          )}
+        </article>
+      ))}
+    </section>
+  );
+}
+
 function SavedAnswers({ token }: { token: string }) {
   const [list, setList] = useState<Saved[]>([]);
   const [total, setTotal] = useState(0);

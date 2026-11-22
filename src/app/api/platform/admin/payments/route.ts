@@ -1,0 +1,76 @@
+import { REAL_AUTH } from "@/lib/auth-mode";
+import { act, admin, loadDoc } from "@/lib/data-server";
+import { send } from "@/lib/notify-server";
+import { packUntil } from "@/lib/pay";
+import { isAdmin, updatePlatform } from "@/lib/platform-server";
+import type { Plan } from "@/lib/platform";
+
+export const dynamic = "force-dynamic";
+
+/** ClassBARI team: payments waiting to be checked first, then the latest ones. */
+export async function GET(request: Request) {
+  if (!isAdmin(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  if (!REAL_AUTH) return Response.json({ error: "demo mode" }, { status: 404 });
+  const db = admin();
+  const [{ data: waiting }, { data: done }, { data: insts }] = await Promise.all([
+    db.from("payments").select("*").eq("status", "pending").order("created_at"),
+    db.from("payments").select("*").neq("status", "pending").order("decided_at", { ascending: false }).limit(50),
+    db.from("institutes").select("id, name, code"),
+  ]);
+  const name = Object.fromEntries((insts ?? []).map((i) => [i.id, `${i.name} (${i.code})`]));
+  return Response.json({ payments: [...(waiting ?? []), ...(done ?? [])].map((p) => ({ ...p, institute: name[p.institute_id] ?? p.institute_id })) });
+}
+
+/**
+ * Approve or reject after checking the TrxID in the bKash or Nagad app: { id, approve, reason }. Approving an AI pack
+ * switches it on (or adds the months to the one running); approving a plan makes the institute active on that plan.
+ * The payer is told either way.
+ */
+export async function POST(request: Request) {
+  if (!isAdmin(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  if (!REAL_AUTH) return Response.json({ error: "demo mode" }, { status: 404 });
+  const body = (await request.json().catch(() => null)) as { id?: unknown; approve?: unknown; reason?: unknown } | null;
+  if (typeof body?.id !== "string" || typeof body.approve !== "boolean") return Response.json({ error: "bad request" }, { status: 400 });
+  const db = admin();
+  // Claimed in one step: two people pressing at once can't both approve it.
+  const { data: p } = await db
+    .from("payments")
+    .update({ status: body.approve ? "approved" : "rejected", reason: typeof body.reason === "string" ? body.reason.slice(0, 200) : null, decided_at: new Date().toISOString() })
+    .eq("id", body.id)
+    .eq("status", "pending")
+    .select("*")
+    .maybeSingle();
+  if (!p) return Response.json({ error: "already decided" }, { status: 409 });
+
+  const system = { institute: p.institute_id as string, who: { role: "owner" as const, name: "ClassBARI", studentIds: [] } };
+  let until = "";
+  if (body.approve && p.kind === "ai_pack") {
+    const today = new Date(Date.now() + 6 * 3600_000).toISOString().slice(0, 10);
+    await act(system, "setStudentPremium", [], Date.now(), (s) => {
+      const st = s.students.find((x) => x.id === p.student_id);
+      if (!st) return null;
+      until = packUntil(st.premiumUntil, today, p.months);
+      return [st.id, until, Number(p.item)];
+    });
+    if (!until) {
+      await db.from("payments").update({ status: "pending", decided_at: null }).eq("id", p.id); // nothing changed: back in the queue
+      return Response.json({ error: "student not found" }, { status: 404 });
+    }
+  }
+  if (body.approve && p.kind === "plan")
+    await updatePlatform((pl) => {
+      const inst = pl.institutes.find((i) => i.email.toLowerCase() === String(p.payer_email).toLowerCase());
+      if (inst) Object.assign(inst, { plan: p.item as Plan, status: "active" });
+      pl.audit.unshift({ at: new Date().toISOString(), action: "plan paid", detail: `${p.payer_email} ${p.item} ×${p.months} ৳${p.amount} ${p.method} ${p.trx_id}` });
+    });
+
+  // Tell the payer: the student (and their guardians) for a pack, the owner for a plan.
+  const state = (await loadDoc(p.institute_id)).state;
+  const what = p.kind === "ai_pack" ? `AI ৳${p.item}` : String(p.item);
+  const text: [string, ...(string | number)[]] = body.approve ? ["payApproved", what, until] : ["payRejected", what, String(p.reason ?? "")];
+  if (p.kind === "ai_pack") {
+    await send(p.institute_id, { to: { students: [p.student_id] }, group: "ai", text, screen: "home" }, state);
+    await send(p.institute_id, { to: { guardians: [p.student_id] }, group: "fees", text, screen: "home" }, state);
+  } else await send(p.institute_id, { to: { owners: true }, group: "work", text, screen: "home" }, state);
+  return Response.json({ ok: true, status: p.status, until });
+}

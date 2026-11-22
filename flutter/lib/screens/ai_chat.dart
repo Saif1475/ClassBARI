@@ -15,6 +15,7 @@ import '../ui.dart';
 import '../views.dart';
 import 'lesson.dart' show pickPhoto;
 import 'pdf.dart' show clock;
+import 'pay.dart';
 import 'settings.dart';
 
 const _trailer = '\u001e'; // ends the streamed answer; after it comes JSON: allowance left, declined, cut, error
@@ -578,6 +579,8 @@ class _AiChatAppState extends State<AiChatApp> {
         title: t('aichat.packLabel'),
         children: [for (final p in packs) Item(icon: Icons.auto_awesome, title: '${taka(p)}${t('aichat.perMonth')}', subtitle: t('aichat.packNote.$p'))],
       ),
+      const SizedBox(height: 16),
+      const PayForm(),
     ],
   );
 

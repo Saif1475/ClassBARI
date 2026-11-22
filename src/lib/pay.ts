@@ -1,0 +1,44 @@
+// Paying ClassBARI by bKash or Nagad "Send Money" with the transaction ID. Plain logic only (tested in
+// scripts/pay.test.mjs); the API routes save, the admin page approves.
+import { PACKS } from "./ai-chat.ts";
+import { isBdMobile } from "./site.ts";
+
+export type PayMethod = "bkash" | "nagad";
+export type PayKind = "ai_pack" | "plan";
+export const MONTHS = [1, 3, 6, 12] as const;
+
+/** The numbers that receive payments (PAY_BKASH_NUMBER / PAY_NAGAD_NUMBER in .env.local); a method without one is not offered. */
+export const payNumbers = (env: Record<string, string | undefined> = process.env) =>
+  (["bkash", "nagad"] as const).flatMap((m) => {
+    const n = env[`PAY_${m.toUpperCase()}_NUMBER`]?.trim();
+    return n && isBdMobile(n) ? [{ method: m, number: n }] : [];
+  });
+
+/**
+ * A payment as typed, checked: the price comes from our own list (never from the payer), the TrxID is 8–12 letters
+ * and digits, the sender a Bangladeshi mobile number.
+ */
+export function checkPayment(input: Record<string, unknown>, planPrices: Record<string, number>) {
+  const kind = input.kind;
+  const months = Number(input.months);
+  const method = input.method;
+  const sender = String(input.sender ?? "").replace(/[\s-]/g, "");
+  const trxId = String(input.trxId ?? "").trim().toUpperCase();
+  if (kind !== "ai_pack" && kind !== "plan") return { error: "bad kind" } as const;
+  if (method !== "bkash" && method !== "nagad") return { error: "bad method" } as const;
+  if (!MONTHS.includes(months as (typeof MONTHS)[number])) return { error: "bad months" } as const;
+  if (!isBdMobile(sender)) return { error: "bad sender" } as const;
+  if (!/^[A-Z0-9]{8,12}$/.test(trxId)) return { error: "bad trx" } as const;
+  const item = String(input.item ?? "");
+  const monthly = kind === "ai_pack" ? ((PACKS as readonly number[]).includes(Number(item)) ? Number(item) : 0) : (planPrices[item] ?? 0);
+  if (!monthly) return { error: "bad item" } as const;
+  return { kind, item, months, amount: monthly * months, method, sender, trxId } as const;
+}
+
+/** The new last day of an AI pack: from today, or from the day it already runs to if that is later. */
+export function packUntil(current: string | undefined, today: string, months: number) {
+  const from = current && current > today ? current : today;
+  const d = new Date(`${from}T00:00:00Z`);
+  d.setUTCMonth(d.getUTCMonth() + months);
+  return d.toISOString().slice(0, 10);
+}
