@@ -338,7 +338,8 @@ class _PostState extends State<_Post> {
     final p = widget.p, me = _me!, id = p['id'], a = p['author'], who = _who(a), c = context.colors;
     final mine = a == me, other = a is int && !mine ? a : null;
     final myProfile = _profile(me);
-    final liked = _ids(p['likes']).contains(me), saved = _ids(myProfile['saved']).contains(id), reported = _ids(p['reports']).contains(me);
+    // Flipped while on their way (offline), so a second tap is not needed to see it.
+    final liked = _ids(p['likes']).contains(me) != store.pending('toggleLike', [id, me]).isOdd, saved = _ids(myProfile['saved']).contains(id) != store.pending('toggleSave', [me, id]).isOdd, reported = _ids(p['reports']).contains(me);
     final muted = other != null && _ids(myProfile['muted']).contains(other);
     final images = [for (final x in (p['images'] as List?) ?? [?p['image']]) '$x'];
     final comments = rows(p['comments']);
@@ -414,7 +415,7 @@ class _PostState extends State<_Post> {
           spacing: 4,
           children: [
             count(I.message, t('community.comments', [comments.length]), comments.length, open, c.primary, () => setState(() => open = !open)),
-            count(I.heart, liked ? t('community.liked') : t('community.like'), _ids(p['likes']).length, liked, c.error, () => _act(context, 'toggleLike', [id, me])),
+            count(I.heart, liked ? t('community.liked') : t('community.like'), _ids(p['likes']).where((x) => x != me).length + (liked ? 1 : 0), liked, c.error, () => _act(context, 'toggleLike', [id, me])),
             count(I.bookmark, saved ? t('community.unsave') : t('community.savePost'), 0, saved, c.primary, () => _act(context, 'toggleSave', [me, id])),
             if (reported) Padding(padding: const EdgeInsets.all(12), child: Ico(I.flag, color: c.tertiary, semanticLabel: t('community.reported'))),
           ],

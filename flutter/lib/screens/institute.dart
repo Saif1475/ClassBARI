@@ -17,7 +17,7 @@ class InstituteApp extends StatelessWidget {
     (context) => Tabs(
       [
         AppTab(I.dashboard, t('app.tabs2.dashboard'), const Dashboard()),
-        AppTab(I.fees, t('app.tabs2.fees'), const Fees(), badge: store.students.where((s) => ((s['feeDue'] as num?) ?? 0) > 0).length),
+        AppTab(I.fees, t('app.tabs2.fees'), const Fees(), badge: store.students.where((s) => feeDueOf(s) > 0).length),
         AppTab(I.users, t('app.tabs2.students'), const Students()),
         AppTab(I.megaphone, t('app.tabs2.notices'), const Notices(), screen: 'notices'),
       ],
@@ -37,7 +37,7 @@ class Dashboard extends StatelessWidget {
       if (p['at'] is String && dayKey(toDate(p['at'] as String)).startsWith(month)) collected += (p['amount'] as num?) ?? 0;
     }
     for (final s in students) {
-      final d = (s['feeDue'] as num?) ?? 0;
+      final d = feeDueOf(s);
       if (d > 0) due += d;
     }
     final taken = (store.state?['attendance'] as Map?)?.containsKey(dayKey()) ?? false;
@@ -112,7 +112,7 @@ class Fees extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Live((context) {
-    final owing = store.students.where((s) => ((s['feeDue'] as num?) ?? 0) > 0).toList()..sort((a, b) => (b['feeDue'] as num).compareTo(a['feeDue'] as num));
+    final owing = store.students.where((s) => feeDueOf(s) > 0).toList()..sort((a, b) => feeDueOf(b).compareTo(feeDueOf(a)));
     final recent = rows(store.state?['payments']).take(10).toList();
     return Screen(
       title: pushed ? t('app.whoOwes') : null,
@@ -129,7 +129,7 @@ class Fees extends StatelessWidget {
                   leading: Avatar('${s['name']}', size: 38, color: context.course(batchNo(s['batch']))),
                   title: '${s['name']}',
                   subtitle: '${s['batch']} · ${s['phone'] ?? ''}',
-                  trailing: Strong(taka(s['feeDue'] as num), color: context.colors.error),
+                  trailing: Strong(taka(feeDueOf(s)), color: context.colors.error),
                   onTap: () => record(context, s),
                 ),
               ),
@@ -216,7 +216,7 @@ class _StudentsState extends State<Students> {
               items: list,
               resetKey: needle,
               row: (s) {
-                final due = (s['feeDue'] as num?) ?? 0;
+                final due = feeDueOf(s);
                 return Item(
                   leading: Avatar('${s['name']}', size: 38, color: context.course(batchNo(s['batch']))),
                   title: '${s['id']}. ${s['name']}',
@@ -331,7 +331,7 @@ class FeeSheet extends StatefulWidget {
 }
 
 class _FeeSheetState extends State<FeeSheet> {
-  late final amount = TextEditingController(text: show(widget.student['feeDue'] ?? 0));
+  late final amount = TextEditingController(text: show(feeDueOf(widget.student)));
   late final discount = TextEditingController(text: show(widget.student['discount'] ?? 0));
   var method = 'cash';
 
@@ -346,7 +346,7 @@ class _FeeSheetState extends State<FeeSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final s = widget.student, due = (s['feeDue'] as num?) ?? 0;
+    final s = widget.student, due = feeDueOf(s);
     final pay = num.tryParse(amount.text.trim());
     final okPay = pay != null && pay >= 1 && pay <= due;
     return AlertDialog(

@@ -101,6 +101,7 @@ class VoiceRecorder extends StatefulWidget {
 class _VoiceRecorderState extends State<VoiceRecorder> {
   AudioRecorder? rec;
   Timer? timer;
+  String? path; // the recording, deleted if this closes mid-recording
   var on = false, noMic = false;
 
   Future<void> start() async {
@@ -109,7 +110,7 @@ class _VoiceRecorderState extends State<VoiceRecorder> {
       if (!await r.hasPermission()) return setState(() => noMic = true);
       await r.start(
         const RecordConfig(encoder: AudioEncoder.aacLc, bitRate: 24000, sampleRate: 22050, numChannels: 1), // ~24 kbps, as the website records
-        path: '${Directory.systemTemp.path}/voice-${DateTime.now().millisecondsSinceEpoch}.m4a',
+        path: path = '${Directory.systemTemp.path}/voice-${DateTime.now().millisecondsSinceEpoch}.m4a',
       );
       timer = Timer(const Duration(seconds: maxVoiceSeconds), stop);
       setState(() => on = true);
@@ -132,7 +133,8 @@ class _VoiceRecorderState extends State<VoiceRecorder> {
   @override
   void dispose() {
     timer?.cancel();
-    rec?.dispose();
+    final p = on ? path : null;
+    rec?.dispose().whenComplete(() => p == null ? null : File(p).delete().ignore());
     super.dispose();
   }
 
@@ -154,11 +156,12 @@ class _VoicePlayerState extends State<VoicePlayer> {
   AudioPlayer? player; // made on the first tap, so a list of notes doesn't open a player each
   StreamSubscription<PlayerState>? sub;
   var playing = false, failed = false;
+  File? file;
 
   Future<void> load(AudioPlayer p) async {
     final s = widget.src, comma = s.indexOf(',');
     if (s.startsWith('data:') && comma > 0) {
-      final f = File('${Directory.systemTemp.path}/voice-${s.hashCode}.${s.startsWith('data:audio/webm') ? 'webm' : 'm4a'}');
+      final f = file = File('${Directory.systemTemp.path}/voice-${s.hashCode}.${s.startsWith('data:audio/webm') ? 'webm' : 'm4a'}');
       await f.writeAsBytes(base64Decode(s.substring(comma + 1)));
       await p.setFilePath(f.path);
     } else {
@@ -177,11 +180,16 @@ class _VoicePlayerState extends State<VoicePlayer> {
           if (mounted) setState(() => playing = s.playing && s.processingState != ProcessingState.completed);
         });
         await load(p);
+        if (failed && mounted) setState(() => failed = false);
       }
       if (playing) return await p.pause();
       if (p.processingState == ProcessingState.completed) await p.seek(Duration.zero);
       unawaited(p.play()); // finishes only when playback stops
     } catch (_) {
+      // A failed load: the next tap ("Try again") makes a new player and loads again.
+      sub?.cancel();
+      player?.dispose();
+      player = null;
       if (mounted) setState(() => failed = true);
     }
   }
@@ -190,6 +198,7 @@ class _VoicePlayerState extends State<VoicePlayer> {
   void dispose() {
     sub?.cancel();
     player?.dispose();
+    file?.delete().ignore();
     super.dispose();
   }
 
@@ -852,7 +861,7 @@ class _LiveRoomScreenState extends State<LiveRoomScreen> {
     super.initState();
     if (room == null) store.act('ensureLiveRoom', [widget.batch]); // this batch's secret room, shared with students when the class starts
     load();
-    timer = Timer.periodic(const Duration(seconds: 2), (_) => load());
+    timer = Timer.periodic(const Duration(seconds: 2), (_) => store.active ? load() : null); // none while the app is in the background
   }
 
   @override
@@ -864,16 +873,25 @@ class _LiveRoomScreenState extends State<LiveRoomScreen> {
     super.dispose();
   }
 
+  var busy = false; // on slow internet the next ask waits for the last answer
+
   Future<void> load() async {
+    if (busy) return;
+    busy = true;
     try {
       final res = await Future.wait([api('/api/class?batch=$b&voter=$voter'), api('/api/poll?batch=$b')]);
+      if (res.any((r) => r.statusCode != 200)) return; // an error answer keeps what is shown (a running class stays running)
       final c = jsonDecode(res[0].body) as Map, p = jsonDecode(res[1].body) as Map;
       if (!mounted) return;
       setState(() {
         v = c['live'] == true ? c.cast<String, dynamic>() : null;
         poll = (p['poll'] as Map?)?.cast<String, dynamic>();
       });
-    } catch (_) {} // offline: try again in 2 s
+    } catch (_) {
+      // offline: try again in 2 s
+    } finally {
+      busy = false;
+    }
   }
 
   Future<bool> post(String path, Json body) async {

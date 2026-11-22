@@ -139,7 +139,7 @@ class StudentHome extends StatelessWidget {
           if (it['done'] != true && const ['video', 'pdf'].contains(it['kind'])) (m: m, it: it),
     ].firstOrNull;
     final live = liveFor(me['batch'], grace: const Duration(minutes: 90));
-    final due = (me['feeDue'] as num?) ?? 0;
+    final due = feeDueOf(me);
     return Screen(
       children: [
         Column(

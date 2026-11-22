@@ -48,7 +48,7 @@ class GuardianHome extends StatelessWidget {
     final child = store.child;
     if (child == null) return Screen(children: [Muted(t('auth.notEnrolled'))]);
     final id = child['id'] as int;
-    final due = (child['feeDue'] as num?) ?? 0;
+    final due = feeDueOf(child);
     final last = gradedResults(store.modules, id).reversed.take(3).toList();
     final att = attendanceOf(child);
     final live = liveFor(child['batch']);

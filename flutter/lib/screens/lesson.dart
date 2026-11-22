@@ -67,7 +67,7 @@ class LessonScreen extends StatelessWidget {
     if (m == null || it == null || me == null) return Screen(title: '', children: [Muted(t('app.noChapters'))]);
     final color = context.course(chapterNo(moduleId));
     final kind = it['kind'], url = it['url'] as String?;
-    final done = it['done'] == true;
+    final done = (it['done'] == true) != store.pending('toggleItemDone', [moduleId, itemId, me]).isOdd; // flipped while on its way
     final work = kind == 'quiz' || kind == 'task' || kind == 'exam';
     final sub = (it['submissions'] as Map?)?['$me'] as Map?;
     final Map? scores = it['scores'];
@@ -245,7 +245,7 @@ class _QuizBoxState extends State<QuizBox> {
   void initState() {
     super.initState();
     // Opening the quiz starts the clock on the server (the teacher sees if it took much longer than allowed).
-    if (taken == null) Future.microtask(() => store.act('startQuiz', [widget.moduleId, widget.item['id'], widget.me])); // after this screen is drawn
+    if (taken == null && store.pending('startQuiz', [widget.moduleId, widget.item['id'], widget.me]) == 0) Future.microtask(() => store.act('startQuiz', [widget.moduleId, widget.item['id'], widget.me])); // after this screen is drawn
   }
 
   Future<void> submit() async {
@@ -382,7 +382,7 @@ class _HomeworkState extends State<Homework> {
           ],
         ),
         OutlinedButton.icon(onPressed: pdf, icon: Ico(I.file), label: Text(t('community.addPdf'))),
-        Doing(label: t('app.handIn'), icon: I.upload, onPressed: photo == null ? null : send),
+        Doing(label: t('app.handIn'), icon: I.upload, onPressed: photo == null || store.pending('submitAssignment', [widget.moduleId, widget.item['id'], widget.me]) > 0 ? null : send), // not twice while waiting for internet
       ],
     );
   }

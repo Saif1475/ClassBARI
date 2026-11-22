@@ -28,9 +28,15 @@ class DataPicture extends StatelessWidget {
   Widget build(BuildContext context) {
     final comma = url.indexOf(',');
     if (!url.startsWith('data:image/') || comma < 0) return const SizedBox.shrink();
+    final Uint8List bytes;
+    try {
+      bytes = base64Decode(url.substring(comma + 1));
+    } catch (_) {
+      return Ico(I.image, semanticLabel: t('doubts.photo')); // a broken picture, as the website shows one
+    }
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
-      child: Image.memory(base64Decode(url.substring(comma + 1)), height: 280, fit: BoxFit.contain, semanticLabel: t('doubts.photo')),
+      child: Image.memory(bytes, height: 280, fit: BoxFit.contain, semanticLabel: t('doubts.photo'), errorBuilder: (_, _, _) => Ico(I.image, semanticLabel: t('doubts.photo'))),
     );
   }
 }
@@ -400,10 +406,12 @@ class VoiceNote extends StatefulWidget {
 
 class _VoiceNoteState extends State<VoiceNote> {
   AudioPlayer? player;
+  File? file;
 
   @override
   void dispose() {
     player?.dispose();
+    file?.delete().ignore();
     super.dispose();
   }
 
@@ -414,7 +422,7 @@ class _VoiceNoteState extends State<VoiceNote> {
       if (p.audioSource == null) {
         // The player reads files, not data: links: the note goes to the app's temporary folder first.
         final d = _data(widget.url)!, ext = d.mimeType.split('/').last.replaceAll(RegExp(r'[^a-z0-9]'), '');
-        final f = File('${Directory.systemTemp.path}/voice-${widget.url.hashCode.toUnsigned(32)}.${ext == 'mp4' ? 'm4a' : ext}');
+        final f = file = File('${Directory.systemTemp.path}/voice-${widget.url.hashCode.toUnsigned(32)}.${ext == 'mp4' ? 'm4a' : ext}');
         await f.writeAsBytes(d.contentAsBytes());
         await p.setFilePath(f.path);
       }
@@ -709,7 +717,7 @@ class _LiveClassScreenState extends State<LiveClassScreen> {
   void initState() {
     super.initState();
     load();
-    timer = Timer.periodic(const Duration(seconds: 2), (_) => load());
+    timer = Timer.periodic(const Duration(seconds: 2), (_) => store.active ? load() : null); // none while the app is in the background
   }
 
   @override
@@ -776,7 +784,7 @@ class _LiveClassScreenState extends State<LiveClassScreen> {
       return Screen(
         title: t('liveRoom.badge'),
         children: [
-          if (!loaded) const Loading() else Box(children: [H2(t('liveRoom.notLive')), if (next != null) Muted('${t('app.nextLive')}: ${next['topic']} · ${fmtDateTime(next['start'] as String)}')]),
+          if (!loaded && batch.isNotEmpty) const Center(child: CircularProgressIndicator()) else Box(children: [H2(t('liveRoom.notLive')), if (next != null) Muted('${t('app.nextLive')}: ${next['topic']} · ${fmtDateTime(next['start'] as String)}')]),
         ],
       );
     }

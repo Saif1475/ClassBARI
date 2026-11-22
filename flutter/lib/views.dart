@@ -20,6 +20,9 @@ DateTime _shift(DateTime d, int days) => DateTime(d.year, d.month, d.day + days)
 /// JavaScript's Math.round (halves go up, also below zero).
 int jsRound(num x) => (x + 0.5).floor();
 
+/// What a student owes: a number, whatever form it came in ("500" as text, or missing).
+num feeDueOf(Json s) => s['feeDue'] is num ? s['feeDue'] as num : num.tryParse('${s['feeDue'] ?? ''}') ?? 0;
+
 List<Json> rows(Object? list) => ((list as List?) ?? const []).cast<Json>();
 
 // ---- XP -----------------------------------------------------------------------------------------------------------

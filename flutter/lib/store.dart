@@ -196,8 +196,16 @@ class Store extends ChangeNotifier {
   }
 
   void _keepQueue() {
-    final text = jsonEncode(_outbox);
-    text.length <= _queueMax ? prefs.setString(_queue, text) : prefs.remove(_queue);
+    // What does not fit (a big photo) stays only in memory; every smaller change is still saved, in order.
+    final kept = <String>[];
+    var size = 2;
+    for (final e in _outbox) {
+      final one = jsonEncode(e);
+      if (size + one.length + 1 > _queueMax) continue;
+      kept.add(one);
+      size += one.length + 1;
+    }
+    prefs.setString(_queue, '[${kept.join(',')}]');
   }
 
   /// Make a change: `name` and `args` are an action of the website (src/lib/lms-actions.ts). Returns true once the

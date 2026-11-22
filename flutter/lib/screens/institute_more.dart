@@ -240,7 +240,7 @@ class StudentScreen extends StatelessWidget {
             Pair(_label('roster.guardianEmail'), '${s['guardianEmail'] ?? ''}'),
             Pair(_label('roster.guardianPhone'), '${s['phone'] ?? ''}'),
             if ('${s['studentPhone'] ?? ''}'.isNotEmpty) Pair(_label('roster.studentPhone'), '${s['studentPhone']}'),
-            Pair(t('fees.due'), taka((s['feeDue'] as num?) ?? 0)),
+            Pair(t('fees.due'), taka(feeDueOf(s))),
             Doing(label: t('roster.edit'), icon: I.edit, soft: true, onPressed: () async => push(context, NewStudent(student: s))),
             Doing(label: t(s['photo'] == null ? 'cards.addPhoto' : 'cards.changePhoto'), icon: I.camera, soft: true, onPressed: () => setPhoto(context, id)),
           ],

@@ -23,7 +23,7 @@ class Line extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 6),
-    child: Row(spacing: 12, children: [Expanded(child: Text(label)), Strong(value)]),
+    child: Row(spacing: 12, children: [Expanded(child: Text(label)), Flexible(child: Text(value, textAlign: TextAlign.end, style: context.type.titleMedium))]),
   );
 }
 
@@ -49,9 +49,9 @@ class PaymentsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Live((context) {
     final child = store.child;
-    if (child == null) return const Loading();
-    final due = (child['feeDue'] as num?) ?? 0;
-    final list = rows(store.state?['payments']).where((p) => p['studentId'] == child['id']).toList();
+    if (child == null) return Screen(children: [Muted(t('auth.notEnrolled'))]);
+    final due = feeDueOf(child);
+    final list = rows(store.state?['payments']).where((p) => p['studentId'] == child['id']).toList()..sort((a, b) => '${b['at'] ?? ''}'.compareTo('${a['at'] ?? ''}')); // newest first
     return Screen(
       title: t('parent.paymentsTitle'),
       children: [
@@ -62,14 +62,17 @@ class PaymentsScreen extends StatelessWidget {
           children: [
             Item(icon: I.file, title: t('fees.invoice'), onTap: () => push(context, const InvoiceScreen())),
             if (list.isEmpty) Padding(padding: const EdgeInsets.all(16), child: Muted(t('parent.noPayments'))),
-            for (final p in list)
-              Item(
+            Paged(
+              items: list,
+              resetKey: '${child['id']}',
+              row: (p) => Item(
                 icon: I.fees,
                 title: taka(p['amount'] as num? ?? 0),
-                subtitle: '${p['at'] is String ? fmtDate(p['at'] as String) : ''} · ${t('parent.methods.${p['method']}')}',
+                subtitle: [if (p['at'] is String) fmtDate(p['at'] as String), if (p['method'] != null) t('parent.methods.${p['method']}')].join(' · '),
                 trailing: Tag(t('parent.receipt'), kind: 'plain'),
                 onTap: () => push(context, ReceiptScreen(payment: p)),
               ),
+            ),
           ],
         ),
       ],
@@ -95,7 +98,7 @@ class ReceiptScreen extends StatelessWidget {
             Line(t('parent.student'), '${student?['name'] ?? ''} (${t('batch.roll')} ${p['studentId']})'),
             Line(t('parent.batch'), '${p['batch'] ?? ''}'),
             if (at != null) Line(t('parent.date'), '${fmtDate(at)} ${toDate(at).year} · ${fmtTime(at)}'),
-            Line(t('parent.method'), t('parent.methods.${p['method']}')),
+            if (p['method'] != null) Line(t('parent.method'), t('parent.methods.${p['method']}')),
             Total(t('parent.amount'), taka(p['amount'] as num? ?? 0)),
             Muted(t('parent.receiptNote')),
           ],
@@ -111,7 +114,7 @@ class InvoiceScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Live((context) {
     final s = store.child;
-    if (s == null) return const Loading();
+    if (s == null) return Screen(children: [Muted(t('auth.notEnrolled'))]);
     final month = _month(), batch = _batchOf(s);
     final paid = rows(store.state?['payments']).where((p) => p['studentId'] == s['id'] && p['at'] is String && dayKey(toDate(p['at'] as String)).startsWith(month)).fold<num>(0, (n, p) => n + ((p['amount'] as num?) ?? 0));
     final discount = (s['discount'] as num?) ?? 0, fine = (batch?['lateFine'] as num?) ?? 0;
@@ -125,7 +128,7 @@ class InvoiceScreen extends StatelessWidget {
             if (discount > 0) Line(t('fees.discountLine'), '− ${taka(discount)}'),
             if (s['fineMonth'] == month && fine > 0) Line(t('fees.fineLine'), '+ ${taka(fine)}'),
             Line(t('fees.paidThisMonth'), taka(paid)),
-            Total(t('fees.balance'), taka((s['feeDue'] as num?) ?? 0), warm: true),
+            Total(t('fees.balance'), taka(feeDueOf(s)), warm: true),
             Muted(t('fees.invoiceNote', [kFeeDueDay])),
           ],
         ),
@@ -140,12 +143,13 @@ class ReportCardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Live((context) {
     final s = store.child;
-    if (s == null) return const Loading();
+    if (s == null) return Screen(children: [Muted(t('auth.notEnrolled'))]);
     final id = s['id'] as int;
     final att = attendanceOf(s);
-    final results = gradedResults(store.modules, id);
+    final mods = store.modules.where((m) => m['batch'] == s['batch'] && m['published'] == true).toList(); // as ReportCard.tsx
+    final results = gradedResults(mods, id);
     final quizzes = results.where((r) => r.kind == 'quiz').toList();
-    final tasks = [for (final m in store.modules) ...rows(m['items']).where((it) => it['kind'] == 'task' || it['kind'] == 'exam')];
+    final tasks = [for (final m in mods) ...rows(m['items']).where((it) => it['kind'] == 'task' || it['kind'] == 'exam')];
     final comment = '${(store.state?['reportComments'] as Map?)?['$id'] ?? ''}';
     return Screen(
       title: t('report.title'),
@@ -188,7 +192,7 @@ class ChildPointsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Live((context) {
     final s = store.child;
-    if (s == null) return const Loading();
+    if (s == null) return Screen(children: [Muted(t('auth.notEnrolled'))]);
     return Screen(
       title: t('dojo.points'),
       children: [

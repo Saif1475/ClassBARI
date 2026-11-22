@@ -474,6 +474,7 @@ class _StudioScreenState extends State<StudioScreen> {
   @override
   Widget build(BuildContext context) => Live((context) {
     final color = context.course(batchNo(widget.batch)), modules = batchModules(widget.batch);
+    bool published(Json m) => (m['published'] == true) != store.pending('toggleModulePublish', [m['id']]).isOdd; // flipped while on its way
     return Screen(
       title: t('teacher.courseStudio'),
       subtitle: widget.batch,
@@ -514,12 +515,12 @@ class _StudioScreenState extends State<StudioScreen> {
                 runSpacing: 8,
                 children: [
                   Doing(
-                    label: t(m['published'] == true ? 'teacher.published' : 'teacher.unpublished'),
-                    soft: m['published'] != true,
+                    label: t(published(m) ? 'teacher.published' : 'teacher.unpublished'),
+                    soft: !published(m),
                     small: true,
                     color: color,
                     onPressed: () async {
-                      final was = m['published'] == true;
+                      final was = published(m);
                       if (await store.act('toggleModulePublish', [m['id']]) && context.mounted) toast(context, t(was ? 'teacher.toast.moduleHidden' : 'teacher.toast.modulePublished'));
                     },
                   ),
@@ -565,7 +566,7 @@ class _StudioScreenState extends State<StudioScreen> {
                   title: '${it['title']}',
                   subtitle: about(it),
                   below: it['kind'] == 'video' || it['kind'] == 'pdf'
-                      ? FilterChip(label: Text(t('courses.previewToggle')), selected: it['preview'] == true, onSelected: (_) => store.act('toggleItemPreview', [m['id'], it['id']]))
+                      ? FilterChip(label: Text(t('courses.previewToggle')), selected: (it['preview'] == true) != store.pending('toggleItemPreview', [m['id'], it['id']]).isOdd, onSelected: (_) => store.act('toggleItemPreview', [m['id'], it['id']]))
                       : null,
                   trailing: IconButton(
                     tooltip: t('common.delete'),

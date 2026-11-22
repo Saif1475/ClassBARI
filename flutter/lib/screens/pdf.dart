@@ -47,6 +47,8 @@ class _PdfScreenState extends State<PdfScreen> {
         next = 'none';
       } else if (res.statusCode == 402) {
         next = 'locked';
+      } else if (res.statusCode != 200) {
+        next = 'failed'; // an error answer: stop asking every 5 s
       } else {
         final d = jsonDecode(res.body) as Json;
         next = d['status'] == 'ready' ? 'ready' : (d['status'] == 'failed' ? 'failed' : 'preparing');
