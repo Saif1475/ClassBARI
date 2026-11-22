@@ -11,6 +11,7 @@
     "test:e2e": "NEXT_PUBLIC_AUTH_MODE=demo NEXT_DIST_DIR=.next-demo next build --webpack && playwright test",
     "db:migrate": "node scripts/db-migrate.mjs",
     "check:real": "node scripts/real-check.mjs",
+    "check:files": "node scripts/check-files.mjs",
     "check:ai": "node --experimental-strip-types --no-warnings scripts/check-ai.mjs",
     "flutter:config": "node scripts/flutter-config.mjs",
     "flutter:gen": "node --experimental-strip-types --no-warnings scripts/flutter-gen.mjs",
