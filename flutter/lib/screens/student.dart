@@ -6,6 +6,7 @@ import '../ui.dart';
 import '../views.dart';
 import 'lesson.dart';
 import 'guardian.dart' show ChatThread;
+import 'student_more.dart';
 import '../icon.dart';
 import '../icons.g.dart';
 
@@ -182,6 +183,16 @@ class StudentHome extends StatelessWidget {
               ),
             ],
           ),
+        // The website's other student pages, one tap away.
+        Group(
+          title: t('app.moreForYou'),
+          children: [
+            if (rows(store.state?['exploreVideos']).isNotEmpty) Item(icon: I.video, title: t('student.explore'), onTap: () => push(context, const ExploreScreen())),
+            Item(icon: I.calendar, title: t('student.calendar'), subtitle: t('student.calendarSub'), onTap: () => push(context, const CalendarScreen())),
+            Item(icon: I.sparkle, title: t('practice.title'), subtitle: t('practice.sub'), onTap: () => push(context, const PracticeScreen())),
+            Item(icon: I.quiz, title: t('doubts.ask'), subtitle: t('doubts.askPh'), onTap: () => push(context, const DoubtsScreen())),
+          ],
+        ),
         Section(t('app.chapters')),
         if (modules.isEmpty) Muted(t('app.noChapters')),
         if (modules.isNotEmpty)
