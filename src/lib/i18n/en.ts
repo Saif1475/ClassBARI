@@ -1703,7 +1703,7 @@ const en = {
     lockedTitle: "Get an AI pack to start chatting",
     lockedBody: "Ask your institute to switch on a pack for you. Every pack also opens highlighted PDFs and Ask AI in lessons.",
     perMonth: "/month",
-    packNote: { 0: "Qwen Flash, 10,000 tokens every 12 hours. Buy a pack for more models and more chat.", 150: "Starter: Gemini Flash-Lite, Qwen", 400: "Standard: + Claude Haiku, Gemini 3 Flash", 800: "Plus: + GPT Luna, Qwen Plus, 50% more chat", 1500: "Pro: + Claude Sonnet, Qwen Max, double the chat" } as Record<number, string>,
+    packNote: { 0: "Qwen Flash, 10,000 tokens every 12 hours. Buy a pack for more models and more chat.", 150: "Starter: Gemini Flash-Lite, Qwen Flash, Qwen 3.8 Flash", 400: "Standard: + Claude Haiku, Qwen Plus", 800: "Plus: + GPT Luna, Gemini 3 Flash, 50% more chat", 1500: "Pro: + Qwen Max, double the chat" } as Record<number, string>,
     packLabel: "AI pack",
     free: "Free",
     freePlan: "Free plan",

@@ -48,11 +48,12 @@ test("AI packs: models and allowance by pack; photos are checked", async () => {
   const { packPlan, chatImage, windowTokens, MODELS } = await import("../src/lib/ai-chat.ts");
   assert.equal(packPlan(undefined).pack, 150); // premium from before packs
   assert.equal(packPlan(999).pack, 150);
-  assert.deepEqual(packPlan(150).models, ["qwen3.7-flash", "gemini-2.5-flash-lite"]);
+  assert.deepEqual(packPlan(150).models, ["qwen3.7-flash", "gemini-2.5-flash-lite", "qwen3.8-flash"]); // cheapest first
   assert.equal(windowTokens(packPlan(150).daily), 50_000);
   assert.equal(windowTokens(packPlan(800).daily), 75_000);
   assert.equal(windowTokens(packPlan(1500).daily), 100_000);
-  assert.ok(!packPlan(800).models.includes("claude-sonnet-5-5") && packPlan(1500).models.includes("claude-sonnet-5-5"));
+  assert.ok(Object.values({ 150: packPlan(150), 1500: packPlan(1500) }).every((p) => !p.models.includes("claude-sonnet-5-5"))); // no Sonnet in any pack
+  assert.ok(packPlan(150).models.includes("qwen3.8-flash") && packPlan(400).models.includes("qwen3.7-plus") && !packPlan(400).models.includes("gemini-3-flash-preview") && packPlan(800).models.includes("gemini-3-flash-preview"));
   assert.ok(packPlan(1500).models.every((id) => MODELS[id])); // every pack model has a provider and a price
   assert.ok(packPlan(800).models.includes("qwen3.7-plus") && !packPlan(800).models.includes("qwen3.8-max") && packPlan(1500).models.includes("qwen3.8-max"));
   assert.deepEqual(chatImage("data:image/png;base64,AAAA"), { media_type: "image/png", data: "AAAA" });
@@ -96,9 +97,9 @@ test("thinking that a provider leaves out of completion_tokens is still counted 
 test("the model picker lists every model and locks the ones a bigger pack has", async () => {
   const { modelMenu } = await import("../src/lib/ai-chat.ts");
   const m150 = modelMenu(150);
-  assert.equal(m150.length, 9);
-  assert.deepEqual(m150.filter((m) => !m.locked).map((m) => m.id), ["gemini-2.5-flash-lite", "qwen3.7-flash"]);
-  assert.equal(m150.find((m) => m.id === "claude-sonnet-5-5").pack, 1500);
+  assert.equal(m150.length, 8);
+  assert.deepEqual(m150.filter((m) => !m.locked).map((m) => m.id), ["gemini-2.5-flash-lite", "qwen3.7-flash", "qwen3.8-flash"]);
+  assert.equal(m150.find((m) => m.id === "qwen3.8-max").pack, 1500);
   assert.ok(modelMenu(1500).every((m) => !m.locked));
 });
 
@@ -152,8 +153,8 @@ test("only a first question on its own, with nothing personal in it, is shared b
   assert.equal(personal("Explain the photoelectric effect"), false);
   assert.equal(langOf("তরঙ্গ কী?"), "bn");
   assert.equal(langOf("What is a wave?"), "en");
-  assert.ok(goodEnough("gemini-2.5-flash-lite").includes("claude-sonnet-5-5")); // a cheap pack may get a better model's answer
-  assert.ok(!goodEnough("claude-sonnet-5-5").includes("gemini-2.5-flash-lite")); // never a weaker one
+  assert.ok(goodEnough("gemini-2.5-flash-lite").includes("qwen3.8-max")); // a cheap pack may get a better model's answer
+  assert.ok(!goodEnough("qwen3.8-max").includes("gemini-2.5-flash-lite")); // never a weaker one
 });
 
 test("profit guard: each pack's AI may cost at most 65% of its price; overuse comes off the next window", async () => {

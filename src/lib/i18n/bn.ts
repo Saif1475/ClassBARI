@@ -1704,7 +1704,7 @@ const bn: Dict = {
     lockedTitle: "চ্যাট শুরু করতে একটি AI প্যাক নাও",
     lockedBody: "তোমার প্রতিষ্ঠানকে একটি প্যাক চালু করে দিতে বলো। প্রতিটি প্যাকে হাইলাইট করা PDF ও লেসনের Ask AI-ও খুলে যায়।",
     perMonth: "/মাস",
-    packNote: { 0: "Qwen Flash, প্রতি ১২ ঘণ্টায় ১০,০০০ টোকেন। আরও মডেল ও বেশি চ্যাটের জন্য প্যাক কেনো।", 150: "স্টার্টার: Gemini Flash-Lite, Qwen", 400: "স্ট্যান্ডার্ড: + Claude Haiku, Gemini 3 Flash", 800: "প্লাস: + GPT Luna, Qwen Plus, ৫০% বেশি চ্যাট", 1500: "প্রো: + Claude Sonnet, Qwen Max, দ্বিগুণ চ্যাট" } as Record<number, string>,
+    packNote: { 0: "Qwen Flash, প্রতি ১২ ঘণ্টায় ১০,০০০ টোকেন। আরও মডেল ও বেশি চ্যাটের জন্য প্যাক কেনো।", 150: "স্টার্টার: Gemini Flash-Lite, Qwen Flash, Qwen 3.8 Flash", 400: "স্ট্যান্ডার্ড: + Claude Haiku, Qwen Plus", 800: "প্লাস: + GPT Luna, Gemini 3 Flash, ৫০% বেশি চ্যাট", 1500: "প্রো: + Qwen Max, দ্বিগুণ চ্যাট" } as Record<number, string>,
     packLabel: "AI প্যাক",
     free: "ফ্রি",
     freePlan: "ফ্রি প্ল্যান",

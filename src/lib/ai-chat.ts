@@ -25,10 +25,11 @@ export const MODELS: Record<string, { label: string; provider: "anthropic" | "go
 /** Student AI packs (৳ per month): tokens a day, and the models added at that pack (a bigger pack keeps the smaller packs' models). */
 export const PACKS = [150, 400, 800, 1500] as const;
 const PLANS: Record<number, { daily: number; adds: string[] }> = {
-  150: { daily: 100_000, adds: ["gemini-2.5-flash-lite", "qwen3.7-flash"] },
-  400: { daily: 100_000, adds: ["claude-haiku-5-5", "gemini-3-flash-preview"] },
-  800: { daily: 150_000, adds: ["gpt-5.6-luna", "qwen3.7-plus"] },
-  1500: { daily: 200_000, adds: ["claude-sonnet-5-5", "qwen3.8-flash", "qwen3.8-max"] },
+  150: { daily: 100_000, adds: ["gemini-2.5-flash-lite", "qwen3.7-flash", "qwen3.8-flash"] },
+  400: { daily: 100_000, adds: ["claude-haiku-5-5", "qwen3.7-plus"] },
+  800: { daily: 150_000, adds: ["gpt-5.6-luna", "gemini-3-flash-preview"] },
+  // No Claude Sonnet (decided 2026-11-23): no older Sonnet is cheaper than Sonnet 5.5, and it cost more than the pack earns at full use.
+  1500: { daily: 200_000, adds: ["qwen3.8-max"] },
 };
 /** Students without a pack: the cheapest model, 10,000 answer tokens every 12 hours. pack 0 means free. */
 export const FREE = { pack: 0, daily: 20_000, models: ["qwen3.7-flash"] };
