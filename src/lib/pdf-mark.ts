@@ -2,7 +2,7 @@
 // PDF app shows, prints, and lets a teacher delete). Text stays selectable; nothing else on the page changes.
 // Where each highlight sits is found from the page's own text (pdf.js), exactly as the server read it.
 import { PDFDocument, PDFName, PDFString, StandardFonts, type PDFContext } from "pdf-lib";
-import { findInText, type Highlight, type HighlightType } from "./pdf-insights.ts";
+import { locate, type Highlight, type HighlightType } from "./pdf-insights.ts";
 
 /** The highlighter colours (as on the website): yellow terms, green definitions, blue formulas, orange exam points. */
 const RGB: Record<HighlightType, [number, number, number]> = { term: [1, 0.878, 0.4], definition: [0.698, 0.949, 0.733], formula: [0.647, 0.847, 1], exam: [1, 0.753, 0.471] };
@@ -38,7 +38,7 @@ export async function highlightRects(pdf: Uint8Array, highlights: Highlight[]) {
     // Marks of one kind that overlap become one ("law of inertia" and "inertia"): a doubled mark looks darker.
     const ranges: { type: HighlightType; a: number; b: number }[] = [];
     for (const h of mine) {
-      const found = findInText(text, h.text);
+      const found = locate(text, h.text);
       if (!found) continue; // not on the page's text (a scanned page, or text the PDF stores scrambled)
       const [a, b] = wholeWords(text, found);
       const same = ranges.find((r) => r.type === h.type && r.a < b && a < r.b);

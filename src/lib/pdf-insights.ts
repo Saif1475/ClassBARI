@@ -117,3 +117,73 @@ export const aiSeconds = (pages: number) => Math.min(300, 60 + 5 * pages);
 export const stuckAfterMs = (status: string, pages: number) => (status === "failed" ? 10 * 60 : pages ? aiSeconds(pages) + 60 : 180) * 1000;
 /** Without the "null" character PDFs often hold: the database refuses text that has one. */
 export const clean = <T>(x: T): T => JSON.parse(JSON.stringify(x).replace(/\\u0000/g, ""));
+
+// ---- finding Bangla in a PDF whose Bangla text is stored scrambled ------------------------------------------------
+// Many PDFs (Word, Chrome, most Bangla fonts) store Bangla in drawing order, not reading order: vowel signs come
+// before their letter ("িশখন" for "শিখন") and joined letters are often stored as unknown characters (\u0000). So
+// a Bangla phrase is looked for by its letters only (vowel signs, hasanta and marks left out on both sides), and
+// an unknown character on the page may stand for up to three letters of the phrase.
+const SIGN = /[ঁ-ঃ়া-্ৗ]/; // ঁ ং ঃ, nukta, vowel signs, hasanta
+const KEEP = /[অ-হৎড়-য়০-৯\p{L}\p{N}]/u;
+// NFD first: "য়" is stored either as one character or as য with a dot below; both become য here.
+// A রেফ (র with hasanta, drawn on top of the next letter: সামর্থ্য) is stored elsewhere by many PDFs: left out here,
+// and a র on the page may be passed over while matching.
+const skeleton = (s: string) => [...s.normalize("NFD").replace(/\u09B0\u09CD/g, "")].filter((c) => !SIGN.test(c) && KEEP.test(c)).join("").toLowerCase();
+
+/** Where a highlight's text is on the page: exactly (spaces ignored), or for Bangla by its letters. */
+export function locate(page: string, phrase: string): [number, number] | null {
+  const exact = findInText(page, phrase);
+  if (exact || !/[ঀ-৿]/.test(phrase)) return exact;
+  const want = skeleton(phrase);
+  // Which of the phrase's letters are part of a joined letter (next to a hasanta: ক্ত, স্ক): only those may be
+  // hidden in one of the PDF's unknown characters.
+  const joined: boolean[] = [];
+  const chars = [...phrase.normalize("NFD").replace(/\u09B0\u09CD/g, "")];
+  chars.forEach((c, i) => {
+    if (SIGN.test(c) || !KEEP.test(c)) return;
+    const next = chars.slice(i + 1).find((x) => x === "\u09CD" || KEEP.test(x));
+    const prev = [...chars.slice(0, i)].reverse().find((x) => x === "\u09CD" || KEEP.test(x));
+    joined.push(next === "\u09CD" || prev === "\u09CD");
+  });
+  if (want.length < 2) return null;
+  // The page's letters (an unknown character kept as a gap), with where each one is in the page's text.
+  const at: number[] = [];
+  let flat = "";
+  for (let i = 0; i < page.length; i++) {
+    for (const c of page[i].normalize("NFD")) {
+      if (c === "\u0000" ? flat.endsWith("\u0000") : SIGN.test(c) || !KEEP.test(c)) continue; // several unknowns in a row: one gap
+      flat += c === "\u0000" ? c : c.toLowerCase();
+      at.push(i);
+    }
+  }
+  // Match from position p of the page against the phrase from q. A gap stands for 0 to 2 of the phrase's letters (a
+  // joined letter); more than half of the phrase's letters must be real matches, so a gap can't make a match by itself.
+  const need = want.length <= 3 ? 1 : Math.max(2, Math.ceil(want.length * 0.55)); // a short word like শক্তি may be mostly unknown letters
+  const from = (p: number, q: number, real: number, steps: number): number => {
+    if (q === want.length) return real >= need ? p : -1;
+    if (p >= flat.length || steps > 4000) return -1;
+    if (flat[p] === "\u0000") {
+      for (let k = Math.min(2, want.length - q); k >= 0; k--) { // the gap takes as much as it can first: a match never runs into the next word
+        if (joined.slice(q, q + k).some((j) => !j)) continue; // a gap hides joined letters only
+        const end = from(p + 1, q + k, real, steps + 1);
+        if (end >= 0) return end;
+      }
+      return -1;
+    }
+    if (flat[p] === want[q]) return from(p + 1, q + 1, real + 1, steps + 1);
+    return flat[p] === "\u09B0" && q > 0 ? from(p + 1, q, real, steps + 1) : -1; // a রেফ stored out of place
+  };
+  // Starting on the phrase's first letter is tried everywhere first; starting on a gap (a phrase that begins with a
+  // joined letter, like স্ক) only when that finds nothing.
+  for (const onGap of [false, true])
+    for (let p = 0; p < flat.length; p++) {
+      if (onGap ? flat[p] !== "\u0000" : flat[p] !== want[0]) continue;
+      const end = from(p, 0, 0, 0);
+      if (end <= p) continue;
+      const range: [number, number] = [at[p], at[end - 1] + 1];
+      // A match never crosses a comma or full stop the phrase doesn't have (it would run into the next words).
+      if (/[,।;:?!]/.test(page.slice(...range)) && !/[,।;:?!]/.test(phrase)) continue;
+      return range;
+    }
+  return null;
+}

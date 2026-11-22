@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { REAL_AUTH } from "@/lib/auth-mode";
 import { loadFile } from "@/lib/file-store";
 import { useLang } from "@/lib/i18n/LanguageProvider";
-import { findInText, type HighlightType } from "@/lib/pdf-insights";
+import { findInText, locate, type HighlightType } from "@/lib/pdf-insights";
 
 type Shown = { i: number; page: number; text: string; type: HighlightType; hidden?: boolean };
 type Insights =
@@ -106,7 +106,7 @@ function Viewer({ url, title, data, start, onClose }: { url: string; title: stri
           }
           const boxes: Box[] = [];
           for (const hl of data.highlights.filter((x) => x.page === n)) {
-            const at = findInText(text, hl.text);
+            const at = locate(text, hl.text);
             if (!at) continue;
             for (const s of spans) {
               const from = Math.max(at[0], s.a);

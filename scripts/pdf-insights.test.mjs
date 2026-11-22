@@ -62,3 +62,51 @@ test("text with a 'null' character can be saved (the database refuses it otherwi
   const { clean } = await import("../src/lib/pdf-insights.ts");
   assert.deepEqual(clean({ text: "a\u0000b", list: ["\u0000x"] }), { text: "ab", list: ["x"] });
 });
+
+test("Bangla stored scrambled in a PDF is still found by its letters", async () => {
+  const { locate } = await import("../src/lib/pdf-insights.ts");
+  // How the test chapter's text comes out of the PDF: vowel signs before their letter, joined letters unknown.
+  const page = "চ ত\u0000 থ\u0000   অ ধ\u0000া য় :   কা জ, ক্ষম তা   ও শ \u0000\u0000 \nিশ খনফল।   এই অ ধ\u0000া য়   প েড়   ত\u0000 িম   কা জ, ক্ষম তা   ও শ \u0000\u0000 র অ থ\u0000";
+  const hit = locate(page, "কাজ, ক্ষমতা ও শক্তি");
+  assert.ok(hit, "found");
+  assert.equal(page.slice(...hit).replace(/\s+/g, ""), "কাজ,ক্ষমতাওশ\u0000"); // its place on the page, up to the unknown joined letter of শক্তি
+  assert.ok(locate(page, "শিখনফল"));
+  assert.equal(locate(page, "বিদ্যুৎশক্তি"), null); // not on this page
+  assert.deepEqual(locate("Force equals mass", "equals"), [6, 12]); // English: exactly as before
+});
+
+test("Bangla: either way of writing য় matches, and a phrase may start with an unknown joined letter", async () => {
+  const { locate } = await import("../src/lib/pdf-insights.ts");
+  const page = "\u0000কা েনা   বস্তুর ওপর বল প্র েয়া েগ র ফ েল   য িদ ।  কাজ এক\u0000 \u0000লা র রা িশ ।";
+  assert.ok(locate(page, "প্রয়োগের"), "য় written as one character");
+  assert.ok(locate(page, "প্রয়োগের"), "য় written as য with a dot");
+  assert.ok(locate(page, "স্কেলার রাশি"), "starts with a joined letter the PDF doesn't know");
+});
+
+test("Bangla: a রেফ stored out of place still matches", async () => {
+  const { locate } = await import("../src/lib/pdf-insights.ts");
+  assert.ok(locate("কাজ করা র সাম থ\u0000\u0000 র েক শ\u0000\u0000 ব েল ।", "কাজ করার সামর্থ্যকে শক্তি বলে।"));
+});
+
+test("Bangla: a short word is not 'found' in unrelated text through the PDF's unknown letters", async () => {
+  const { locate } = await import("../src/lib/pdf-insights.ts");
+  const page = "শক্তি র অ থ\u0000 ব\u0000া খ\u0000া কর েত পা র েব ।  \n৪.৩ শ\u0000\u0000 \nকাজ করা র সাম থ\u0000\u0000 র েক শ\u0000\u0000 ব েল ।";
+  const hit = locate(page, "কাজ করার সামর্থ্যকে শক্তি বলে।");
+  assert.ok(hit && page.slice(...hit).startsWith("কাজ"), "the definition starts at its own first word, not on the heading above");
+  assert.equal(locate("এই অধ\u0000া য় প েড় ত\u0000 িম কা জ", "গতিশক্তি"), null);
+});
+
+test("Bangla: a word ending in a joined letter is marked up to its end, not into the next word", async () => {
+  const { locate } = await import("../src/lib/pdf-insights.ts");
+  const page = "যেমন যা \u0000\u0000ক শ\u0000\u0000 , তা পশ\u0000\u0000 ।";
+  const hit = locate(page, "শক্তি");
+  assert.ok(hit);
+  assert.ok(!page.slice(...hit).includes("তা"), page.slice(...hit));
+});
+
+test("Bangla: an unknown character stands only for joined letters (ওয়াট is not found in 'হলেও \\0েয়াল')", async () => {
+  const { locate } = await import("../src/lib/pdf-insights.ts");
+  assert.equal(locate("ক্লা\u0000 হ েলও \u0000 েয়া ল না সর েল", "ওয়াট"), null);
+  assert.ok(locate("ক্ষমতা র একক ওয়া ট।", "ওয়াট"));
+  assert.ok(locate("ক্ষম তা   ও শ \u0000\u0000 \n", "শক্তি"));
+});

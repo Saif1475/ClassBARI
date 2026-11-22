@@ -7,7 +7,7 @@ import { readFileSync } from "node:fs";
 import { basename, resolve } from "node:path";
 import { createClient } from "@supabase/supabase-js";
 import sharp from "sharp";
-import { findInText, isScanned } from "../src/lib/pdf-insights.ts";
+import { isScanned, locate } from "../src/lib/pdf-insights.ts";
 import { as, finish, INSTITUTE } from "./test-login.mjs";
 
 const pdfFile = process.argv[2];
@@ -123,7 +123,7 @@ if (pdfFile) {
       kinds[h.type]++;
       const page = pages.find((p) => p.n === h.page);
       const text = page?.scanned ? (got.scanned.find((p) => p.n === h.page)?.text ?? "") : (page?.text ?? "");
-      if (findInText(text, h.text)) found++;
+      if (locate(text, h.text)) found++;
       else lost.push(h);
     }
     const all = got.highlights.length;
