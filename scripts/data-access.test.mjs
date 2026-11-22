@@ -370,3 +370,31 @@ test("a student's chat with their teacher is private: not the owner, not guardia
   refused(() => checkAction("sendChatMessage", ["student-3", "Owner", "hi", false], owner, next));
   refused(() => checkAction("sendChatMessage", ["parent-3", otherTeacher.name, "hi", false], otherTeacher, next)); // nor another batch's guardians
 });
+
+test("edge cases found in the audit stay closed", async () => {
+  const { checkPayment, packUntil } = await import("../src/lib/pay.ts");
+  const owner = { role: "owner", name: "Owner", studentIds: [] };
+  const other = s.batches.find((b) => b.teacher !== teacher.name);
+  const otherStudent = s.students.find((x) => x.batch === other.name);
+  const otherModule = s.modules.find((m) => m.batch === other.name);
+  // Files must be real photos/PDFs, not text that stays in the institute's record.
+  refused(() => checkAction("askDoubt", [0, 0, "q", "x".repeat(1000)], student, s));
+  refused(() => checkAction("submitAssignment", [1, 105, 3, { fileName: "a", file: "https://evil.example/a.png" }], student, s));
+  assert.ok(checkAction("askDoubt", [0, 0, "q", "data:image/png;base64,AAAA"], student, s));
+  // Staff can't act as a student or guardian, or outside their batches.
+  for (const [n, a] of [["sendStudentMessage", [otherStudent.id, "hi"]], ["earnXp", [otherStudent.id, 50]], ["toggleLike", [1, otherStudent.id]], ["setCommunityProfile", [otherStudent.id, {}]], ["requestFriend", [1, 2]]])
+    refused(() => checkAction(n, a, teacher, s)), refused(() => checkAction(n, a, owner, s));
+  refused(() => checkAction("submitQuiz", [otherModule.id, otherModule.items[0]?.id, otherStudent.id, 999, [], 0], teacher, s));
+  refused(() => checkAction("addCommunityPost", [otherStudent.id, "hi"], teacher, s));
+  assert.ok(checkAction("addCommunityPost", ["teacher", "hi"], teacher, s));
+  refused(() => checkAction("requestLeave", [{ name: other.teacher, from: "2026-01-01", to: "2026-01-02", reason: "x" }], teacher, s));
+  // Money and dates.
+  refused(() => checkAction("payFee", [3, "cash", "abc"], owner, s));
+  refused(() => checkAction("toggleAttendance", [3, "2099-01-01"], owner, s));
+  assert.equal(checkPayment({ kind: "plan", item: "constructor", months: 1, method: "bkash", sender: "01711000000", trxId: "ABCD1234" }, {}).error, "bad item");
+  assert.equal(checkPayment({ kind: "ai_pack", item: "0x96", months: 1, method: "bkash", sender: "01711000000", trxId: "ABCD1234" }).error, "bad item");
+  assert.equal(packUntil(undefined, "2026-01-31", 1), "2026-02-28");
+  // Owners don't see students' private notes.
+  const withNote = runAction(s, "addNote", ["t", "secret", 3], Date.now());
+  assert.ok(!viewFor(withNote, owner).notes.some((n) => n.by === 3));
+});

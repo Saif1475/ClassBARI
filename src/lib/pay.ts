@@ -30,7 +30,8 @@ export function checkPayment(input: Record<string, unknown>, planPrices: Record<
   if (!isBdMobile(sender)) return { error: "bad sender" } as const;
   if (!/^[A-Z0-9]{8,12}$/.test(trxId)) return { error: "bad trx" } as const;
   const item = String(input.item ?? "");
-  const monthly = kind === "ai_pack" ? ((PACKS as readonly number[]).includes(Number(item)) ? Number(item) : 0) : (planPrices[item] ?? 0);
+  // Exactly a pack's price ("150", not "0x96" or "1.5e2"); a plan by its own name only (never "constructor" and the like).
+  const monthly = kind === "ai_pack" ? (/^\d+$/.test(item) && (PACKS as readonly number[]).includes(Number(item)) ? Number(item) : 0) : Object.hasOwn(planPrices, item) ? planPrices[item] : 0;
   if (!monthly) return { error: "bad item" } as const;
   return { kind, item, months, amount: monthly * months, method, sender, trxId } as const;
 }
@@ -39,6 +40,10 @@ export function checkPayment(input: Record<string, unknown>, planPrices: Record<
 export function packUntil(current: string | undefined, today: string, months: number) {
   const from = current && current > today ? current : today;
   const d = new Date(`${from}T00:00:00Z`);
+  const day = d.getUTCDate();
+  d.setUTCDate(1);
   d.setUTCMonth(d.getUTCMonth() + months);
+  // 31 January + 1 month is the last day of February, not 3 March.
+  d.setUTCDate(Math.min(day, new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).getUTCDate()));
   return d.toISOString().slice(0, 10);
 }

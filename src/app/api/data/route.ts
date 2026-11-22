@@ -5,6 +5,7 @@ import { afterSaved } from "@/lib/notify-server";
 import { afterAction } from "@/lib/pdf-pipeline";
 import { holdPost } from "@/lib/image-check";
 import { unkind } from "@/lib/word-filter";
+import { MAX_IMAGES } from "@/lib/community";
 import { limited } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
@@ -33,21 +34,34 @@ export async function POST(request: Request) {
   if (Number(request.headers.get("content-length")) > 12_000_000) return Response.json({ error: "too large" }, { status: 413 });
   const over = limited(request, "data", 240, 60_000, `${me.institute}:${me.who.role}:${me.who.studentIds[0] ?? me.who.email}`);
   if (over) return over;
-  const body = (await request.json().catch(() => null)) as { name?: unknown; args?: unknown; base?: unknown } | null;
+  // Read with a limit even when the sender gave no length.
+  const text = await request.text().catch(() => "");
+  if (text.length > 12_000_000) return Response.json({ error: "too large" }, { status: 413 });
+  const body = (() => {
+    try {
+      return JSON.parse(text) as { name?: unknown; args?: unknown; base?: unknown } | null;
+    } catch {
+      return null;
+    }
+  })();
   if (!body || typeof body.name !== "string" || !Array.isArray(body.args) || !Number.isSafeInteger(body.base))
     return Response.json({ error: "bad request" }, { status: 400 });
   const { name, args, base } = body as { name: string; args: unknown[]; base: number };
   try {
     // A student's community post is checked first: unkind words or a flagged photo, and it waits for a teacher.
+    const images = (args[3] as { images?: unknown } | undefined)?.images;
+    if (name === "addCommunityPost" && Array.isArray(images) && images.length > MAX_IMAGES) return Response.json({ error: "not allowed" }, { status: 403 }); // before any photo is checked
     const hold = name === "addCommunityPost" && me.who.role === "student" && (unkind(String(args[1] ?? "")) || (await holdPost(args)));
+    let checked: unknown[] = args; // what was really saved: notifications use this, never the raw request
     const doc = await act(me, name, args, base, (s) => {
       const ok = checkAction(name, args, me.who, s);
       if (ok && hold) ok[3] = { ...(ok[3] as object), held: true }; // set here, never taken from the browser
+      if (ok) checked = ok;
       return ok;
     });
-    void afterAction(me.institute, name, args).catch(() => {}); // premium: read and highlight a new PDF lesson
+    void afterAction(me.institute, name, checked).catch(() => {}); // premium: read and highlight a new PDF lesson
     // Notifications it causes (homework posted, marks, absent, messages…), sent after the answer: never slows the save.
-    if ("before" in doc && doc.before) void afterSaved(me.institute, name, args, doc.before, doc.state, { email: me.who.email, staff: ["owner", "manager", "teacher"].includes(me.who.role) });
+    if ("before" in doc && doc.before) void afterSaved(me.institute, name, checked, doc.before, doc.state, { email: me.who.email, staff: ["owner", "manager", "teacher"].includes(me.who.role) });
     return Response.json({ state: viewFor(doc.state, me.who), version: doc.version, role: me.who.role });
   } catch (e) {
     if (e instanceof Refused) return Response.json({ error: "not allowed" }, { status: 403 });

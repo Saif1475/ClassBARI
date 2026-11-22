@@ -42,7 +42,7 @@ const privateChatOf = (s: LmsState, thread: unknown, me: string) => {
 };
 /** The batches each teacher action touches: a teacher works only in the batches the institute gave them. */
 const TEACHER_BATCH: Record<string, (a: A, s: LmsState) => (string | undefined)[]> = {
-  addAnnouncement: inInput, updateLiveClass: inInput, addCalendarEvent: inInput, addStudent: inInput,
+  addAnnouncement: inInput, addCalendarEvent: inInput, addStudent: inInput,
   deleteAnnouncement: ([id], s) => [s.announcements.find((x) => x.id === id)?.batch],
   addModule: ([, b]) => [b as string], addStoryPost: ([b]) => [b as string], ensureLiveRoom: ([b]) => [b as string],
   deleteStoryPost: ([id], s) => [s.story.find((x) => x.id === id)?.batch],
@@ -53,6 +53,14 @@ const TEACHER_BATCH: Record<string, (a: A, s: LmsState) => (string | undefined)[
   updateStudent: (a, s) => [...viaStudent(a, s), (a[1] as { batch?: string }).batch], // not moved into someone else's batch either
   markAllPresent: viaStudents, markAllAbsent: viaStudents,
   sendChatMessage: viaThread, markChatRead: viaThread, // a teacher writes only in their own batches' threads
+  submitQuiz: viaModule, // marks from OMR sheets
+  addExploreVideo: ([v], s) => ((v as { moduleId?: unknown })?.moduleId === undefined ? [] : viaModule([(v as { moduleId: unknown }).moduleId], s)),
+  removePoint: ([id], s) => [s.students.find((x) => x.id === s.points.find((p) => p.id === id)?.studentId)?.batch],
+  addMeetingSlots: ([slots], s) => (Array.isArray(slots) ? slots.map((m) => (m as { batch?: string })?.batch) : [undefined]),
+  removeMeeting: ([id], s) => [s.meetings.find((m) => m.id === id)?.batch],
+  addSlot: inInput, removeSlot: ([id], s) => [s.routine.find((x) => x.id === id)?.batch],
+  // The institute has one live class at a time: a teacher may replace only their own (or none).
+  updateLiveClass: ([x], s) => [(x as { batch?: string })?.batch, ...(s.liveClass.batch ? [s.liveClass.batch] : [])],
   replyDoubt: ([id], s) => [s.doubts.find((d) => d.id === id)?.batch], setDoubtSolved: ([id], s) => [s.doubts.find((d) => d.id === id)?.batch],
 };
 function ownBatches(name: string, args: A, who: Who, s: LmsState) {
@@ -96,6 +104,9 @@ const badStudent = (input: unknown, s: LmsState, exceptId?: unknown) => {
 /** A photo or PDF the student uploads with a post: only as a file (data URL) of that kind, never a link to elsewhere. */
 const upload = (x: unknown, kind: "image" | "pdf") =>
   typeof x === "string" && x.length <= FILE_MAX && (kind === "image" ? /^data:image\/(png|jpeg|webp|gif);base64,/ : /^data:application\/pdf;base64,/).test(x) ? x : refuse("bad file");
+/** A homework hand-in: a photo or a PDF, as a file (data URL), never a link or other text. */
+const handIn = (x: unknown) =>
+  typeof x === "string" && x.length <= FILE_MAX && /^data:(image\/(png|jpeg|webp|gif)|application\/pdf);base64,[A-Za-z0-9+/=]*$/.test(x) ? x : refuse("bad file");
 /** A community post this student may see (and so like, reply to, vote on or bookmark). */
 const seenPost = (s: LmsState, me: number, id: unknown) => {
   const p = s.community.find((x) => x.id === id);
@@ -108,6 +119,11 @@ const ids = (x: unknown, s: LmsState) =>
 const today = (list: { at: string }[]) => list.filter((x) => x.at.slice(0, 10) === new Date().toISOString().slice(0, 10)).length;
 
 type Rule = (a: unknown[], me: number, s: LmsState, who: Who) => unknown[] | null; // null: nothing to save
+/** Things only a student or guardian does for themselves (taking a quiz, liking, chatting as the student…). */
+const FAMILY_ONLY = new Set(["startQuiz", "submitAssignment", "toggleItemDone", "earnXp", "recordWatch", "sendStudentMessage", "sendParentMessage", "askDoubt", "toggleLike", "toggleSave", "votePoll", "reportPost", "requestFriend", "answerFriend", "setCommunityProfile", "bookMeeting", "cancelMeeting", "addPortfolio", "deletePortfolio"]);
+/** Attendance changes take a date second: not more than a day ahead (time zones), so no absence alerts for the future. */
+const DATED = new Set(["toggleAttendance", "markPresent", "markAllPresent", "markAllAbsent"]);
+const dayKeyAfter = (days: number) => new Date(Date.now() + days * 86_400_000).toISOString().slice(0, 10);
 const STUDENT: Record<string, Rule> = {
   toggleItemDone: ([m, i], me, s) => (myItem(s, me, m, i), [m, i, me]),
   earnXp: ([, amount], me) => [me, Math.round(num(amount, 0, 50))],
@@ -129,7 +145,7 @@ const STUDENT: Record<string, Rule> = {
     const it = myItem(s, me, m, i);
     if (it.submissions?.[me]?.grade !== undefined) refuse("already marked");
     const x = (sub ?? {}) as Record<string, unknown>;
-    return [m, i, me, { fileName: str(x.fileName, 200), file: optStr(x.file, FILE_MAX) }]; // never the student's own grade or comment
+    return [m, i, me, { fileName: str(x.fileName, 200), file: x.file === undefined || x.file === null ? undefined : handIn(x.file) }]; // never the student's own grade or comment
   },
   recordWatch: ([itemId, , sec, dur], me, s) => {
     const m = s.modules.find((x) => x.items.some((it) => it.id === itemId));
@@ -138,7 +154,7 @@ const STUDENT: Record<string, Rule> = {
   },
   addNote: ([title, text], me, s) => (s.notes.filter((n) => n.by === me).length < 300 ? [str(title, 200), str(text, 20_000), me] : refuse("too many notes")),
   deleteNote: ([id], me, s) => (s.notes.find((n) => n.id === id)?.by === me ? [id] : refuse("not your note")),
-  askDoubt: ([, , text, image], me, s) => (today(s.doubts.filter((d) => d.studentId === me)) < 20 ? [me, batchOf(s, me), str(text, 2000), optStr(image, FILE_MAX)] : refuse("too many today")),
+  askDoubt: ([, , text, image], me, s) => (today(s.doubts.filter((d) => d.studentId === me)) < 20 ? [me, batchOf(s, me), str(text, 2000), image === undefined || image === null ? undefined : upload(image, "image")] : refuse("too many today")),
   addCommunityPost: ([, text, image, extra], me, s) => {
     if (today(s.community.filter((p) => p.author === me)) >= 20) refuse("too many today");
     const x = (extra ?? {}) as Record<string, unknown>;
@@ -180,11 +196,12 @@ const STUDENT: Record<string, Rule> = {
 };
 const FAMILY: Record<string, Rule> = {
   addPortfolio: ([id, title, image], _me, s, who) =>
-    who.studentIds.includes(id as number) && s.portfolio.filter((p) => p.studentId === id).length < 100 ? [id, str(title, 200), str(image, FILE_MAX)] : refuse("not your child"),
+    who.studentIds.includes(id as number) && s.portfolio.filter((p) => p.studentId === id).length < 100 ? [id, str(title, 200), upload(image, "image")] : refuse("not your child"),
   markChatRead: () => null, // the unread count is the teacher's
 };
 const GUARDIAN: Record<string, Rule> = {
-  bookMeeting: ([id, child], _me, _s, who) => (who.studentIds.includes(child as number) ? [int(id), child] : refuse("not your child")),
+  bookMeeting: ([id, child], _me, s, who) =>
+    who.studentIds.includes(child as number) && s.meetings.find((m) => m.id === id)?.batch === batchOf(s, child as number) ? [int(id), child] : refuse("not your child's teacher"),
   cancelMeeting: ([id], _me, s, who) => (who.studentIds.includes(s.meetings.find((m) => m.id === id)?.bookedBy ?? -1) ? [id] : refuse("not your booking")),
   sendParentMessage: ([child, text], _me, _s, who) => (who.studentIds.includes(child as number) ? [child, str(text, 2000)] : refuse("not your child")),
 };
@@ -194,14 +211,23 @@ export function checkAction(name: string, args: unknown[], who: Who, s: LmsState
   if (LOCAL_ONLY.has(name) || NEVER.has(name)) refuse("not allowed");
   if (who.role === "owner" || who.role === "manager" || who.role === "teacher") {
     if (who.role === "teacher" && OWNER.has(name)) refuse("owner only");
+    // A student's or guardian's own actions: staff may not do them in someone's name.
+    if (FAMILY_ONLY.has(name)) refuse("students and guardians only");
+    if ((name === "addCommunityPost" && args[0] !== "teacher") || (name === "addComment" && args[1] !== "teacher")) refuse("staff post as the teacher");
+    if (name === "addNote" && args[2] !== undefined) refuse("not your note");
+    if (name === "deleteNote" && s.notes.find((n) => n.id === args[0])?.by !== undefined) refuse("not your note");
+    if (who.role === "teacher" && name === "requestLeave" && (args[0] as { name?: unknown })?.name !== staffName(s, who)) refuse("only your own leave");
+    if (name === "payFee" && args[2] !== undefined && !(typeof args[2] === "number" && Number.isFinite(args[2]) && args[2] > 0)) refuse("bad amount");
+    if (DATED.has(name) && typeof args[1] === "string" && args[1] > dayKeyAfter(1)) refuse("future date");
     if ((name === "sendChatMessage" || name === "markChatRead") && !privateChatOf(s, args[0], staffName(s, who))) refuse("private chat");
     if (who.role === "teacher" && name === "updateStaffProfile" && args[0] !== staffName(s, who)) refuse("only your own profile");
     // Batches belong to a teacher by name: taking a colleague's name would take their batches.
-    if (name === "updateStaffProfile" && s.staff.some((x) => x.name !== args[0] && x.name === String(args[1]).trim().slice(0, 60))) refuse("name taken");
+    const newName = String(args[1]).trim().slice(0, 60);
+    if (name === "updateStaffProfile" && newName !== args[0] && (s.staff.some((x) => x.name === newName) || s.batches.some((b) => b.teacher === newName))) refuse("name taken");
     if (who.role === "teacher" && Object.hasOwn(TEACHER_BATCH, name) && !ownBatches(name, args, who, s)) refuse("not your batch");
     // Sign-in follows the student list, so its Gmail rules (valid, one role each) are checked here too, not only in the browser.
     // Typed text is small; only uploads (which go to file storage) are big. Stops one account filling the institute's space.
-    if (name !== "importBackup" && JSON.stringify(args).replace(/"data:[^"]*"/g, '""').length > STAFF_TEXT_MAX) refuse("too large");
+    if (name !== "importBackup" && JSON.stringify(args).replace(/"data:[a-z]+\/[\w.+-]+;base64,[A-Za-z0-9+/=]*"/g, '""').length > STAFF_TEXT_MAX) refuse("too large");
     if (name === "addStudent" && badStudent(args[0], s)) refuse("bad student");
     if (name === "updateStudent" && badStudent(args[1], s, args[0])) refuse("bad student");
     return args;
@@ -268,6 +294,7 @@ export function viewFor(s: LmsState, who: Who): LmsState {
       ...s,
       teacherLogin: s.teacherName,
       viewer: "all",
+      notes: s.notes.filter((n) => n.by === undefined), // students' own notes are private to them, as for teachers
       chats: s.chats.filter((c) => privateChatOf(s, c.id, staffName(s, who))), // students' private chats only if they teach that batch
       // Even the owner isn't sent who voted for what, or whom each student muted or blocked.
       community: s.community.map((p) => (p.poll ? { ...p, poll: pollFor(p.poll, undefined) } : p)),
