@@ -24,22 +24,33 @@ export const MODELS: Record<string, { label: string; provider: "anthropic" | "go
 
 /** Student AI packs (৳ per month): tokens a day, and the models added at that pack (a bigger pack keeps the smaller packs' models). */
 export const PACKS = [150, 400, 800, 1500] as const;
+/**
+ * Which plan a model belongs to, by its price for answers (US$ per million output tokens), decided by the owner
+ * 2026-11-23: under $0.20 free, under $0.50 ৳150, under $1.20 ৳400, under $3 ৳800, up to $6 ৳1500. Dearer models
+ * (Claude Sonnet, Opus) are in no plan. A new model lands in its plan from its price alone.
+ */
+export function planOf(id: string): number | null {
+  const out = MODELS[id]?.price[1];
+  if (out === undefined || id === "claude-opus-5-5") return null; // Opus: staff previews only
+  return out < 0.2 ? 0 : out < 0.5 ? 150 : out < 1.2 ? 400 : out < 3 ? 800 : out <= 6 ? 1500 : null;
+}
+const inPlan = (plan: number) => Object.keys(MODELS).filter((id) => planOf(id) === plan);
 const PLANS: Record<number, { daily: number; adds: string[] }> = {
-  150: { daily: 100_000, adds: ["gemini-2.5-flash-lite", "qwen3.7-flash", "qwen3.8-flash"] },
-  400: { daily: 100_000, adds: ["claude-haiku-5-5", "qwen3.7-plus"] },
-  800: { daily: 150_000, adds: ["gpt-5.6-luna", "gemini-3-flash-preview"] },
-  // No Claude Sonnet (decided 2026-11-23): no older Sonnet is cheaper than Sonnet 5.5, and it cost more than the pack earns at full use.
-  1500: { daily: 200_000, adds: ["qwen3.8-max"] },
+  150: { daily: 100_000, adds: inPlan(150) },
+  400: { daily: 100_000, adds: inPlan(400) },
+  800: { daily: 150_000, adds: inPlan(800) },
+  1500: { daily: 200_000, adds: inPlan(1500) },
 };
-/** Students without a pack: the cheapest model, 10,000 answer tokens every 12 hours. pack 0 means free. */
-export const FREE = { pack: 0, daily: 20_000, models: ["qwen3.7-flash"] };
+/** The most AI money one student's pack may use in a calendar month (Dhaka time), US$, owner's decision 2026-11-23. */
+export const PACK_MONTHLY_USD: Record<number, number> = { 150: 1, 400: 2.2, 800: 4.2, 1500: 8.8 };
+/** Students without a pack: the free models (under $0.20 for answers), 10,000 answer tokens every 12 hours. pack 0 means free. */
+export const FREE = { pack: 0, daily: 20_000, models: inPlan(0) };
 /** Free: the most AI money one student may use in a 12-hour window (a backstop to the tokens; ~$0.0015 at full use). */
 const FREE_WINDOW_USD = Number(process.env.AI_FREE_WINDOW_USD) || 0.004;
 export function packPlan(pack: number | undefined, s: AiSettings = {}) {
   const price = PLANS[pack ?? 0] ? (pack as number) : 150; // premium given before packs existed counts as the smallest
   // Cheapest model first: the first one that is set up is the default; students switch to a stronger one when they want.
-  const models = PACKS.filter((p) => p <= price)
-    .flatMap((p) => PLANS[p].adds)
+  const models = [...FREE.models, ...PACKS.filter((p) => p <= price).flatMap((p) => PLANS[p].adds)] // a pack keeps the free models too
     .filter((id) => modelOn(id, s))
     .sort((a, b) => MODELS[a].price[1] - MODELS[b].price[1]);
   return { pack: price, daily: s.packDaily?.[price] ?? PLANS[price].daily, models };
@@ -59,7 +70,7 @@ export type AiSettings = {
   freeDaily?: number; // tokens a day (two 12-hour windows)
   freeWindowUsd?: number;
   packDaily?: Record<string, number>; // by pack price
-  costShare?: number;
+  packMonthlyUsd?: Record<string, number>; // by pack price: the most AI money one student may use in a month
 };
 export const PROVIDERS = ["anthropic", "google", "qwen", "openai"] as const;
 /** Switched on in the admin panel (both the model and its provider). */
@@ -71,18 +82,16 @@ export const aiDefaults = () => ({
   freeOn: true,
   freeDaily: FREE.daily,
   freeWindowUsd: FREE_WINDOW_USD,
-  costShare: PACK_COST_SHARE,
+  packMonthlyUsd: Object.fromEntries(PACKS.map((p) => [p, PACK_MONTHLY_USD[p]])) as Record<string, number>,
   packDaily: Object.fromEntries(PACKS.map((p) => [p, PLANS[p].daily])) as Record<string, number>,
 });
 
-/**
- * Profit guard: a student's AI may cost us at most this share of their pack's price, whatever the models cost.
- * 0.65 leaves at least 35% of every pack (30% target plus room for bKash fees and the dollar rate).
- */
-export const PACK_COST_SHARE = Number(process.env.AI_PACK_COST_SHARE) || 0.65;
-const usdToBdt = () => Number(process.env.USD_TO_BDT) || 122;
-/** US$ a student's pack may spend in one 12-hour window (a month has 60 of them). */
-export const windowCostUsd = (pack: number, s: AiSettings = {}) => (pack ? (pack * (s.costShare ?? PACK_COST_SHARE)) / usdToBdt() / 60 : (s.freeWindowUsd ?? FREE_WINDOW_USD));
+/** A pack's monthly AI money cap (US$) as the admin panel set it, else the owner's default. */
+export const packMonthlyUsd = (pack: number, s: AiSettings = {}) => s.packMonthlyUsd?.[pack] ?? PACK_MONTHLY_USD[pack] ?? 0;
+/** The free plan's money backstop per 12-hour window (packs have a monthly cap instead). */
+export const windowCostUsd = (pack: number, s: AiSettings = {}) => (pack ? Infinity : (s.freeWindowUsd ?? FREE_WINDOW_USD));
+/** When the next calendar month starts in Dhaka (UTC+6), as a time: when a pack's monthly AI cap refills. */
+export const monthStartAfter = (day: string) => new Date(Date.UTC(Number(day.slice(0, 4)), Number(day.slice(5, 7)), 1) - 6 * 3600_000).toISOString();
 /** The window just before this one (overuse in it is taken from this one). */
 export function previousWindow(w: { day: string; slot: number }) {
   if (w.slot > 0) return { day: w.day, slot: w.slot - 1 };
@@ -122,12 +131,13 @@ export async function takeTurn(key: string) {
  * this student's pack doesn't (so they see what a bigger pack would give them). Free (pack 0): the free model shows
  * pack 0, every other one is locked.
  */
-export const modelMenu = (pack: number | undefined, s: AiSettings = {}) =>
-  PACKS.flatMap((p) =>
-    PLANS[p].adds.filter((id) => modelOn(id, s)).map((id) =>
-      pack === 0 && FREE.models.includes(id) ? { id, label: MODELS[id].label, pack: 0, locked: false } : { id, label: MODELS[id].label, pack: p as number, locked: pack === 0 || p > packPlan(pack).pack },
-    ),
+export const modelMenu = (pack: number | undefined, s: AiSettings = {}) => {
+  const mine = pack === 0 ? 0 : packPlan(pack).pack;
+  // The free models first (every student has them), then each pack's, cheapest pack first.
+  return ([[0, FREE.models], ...PACKS.map((p) => [p, PLANS[p].adds])] as [number, string[]][]).flatMap(([p, ids]) =>
+    ids.filter((id) => modelOn(id, s)).map((id) => ({ id, label: MODELS[id].label, pack: p, locked: p > mine })),
   );
+};
 
 /** How much of an attached file's text goes with a chat (it is sent again with every question, so it uses the allowance). */
 export const FILE_TEXT_MAX = 30_000;

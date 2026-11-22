@@ -53,7 +53,12 @@ test("AI packs: models and allowance by pack; photos are checked", async () => {
   assert.equal(windowTokens(packPlan(800).daily), 75_000);
   assert.equal(windowTokens(packPlan(1500).daily), 100_000);
   assert.ok(Object.values({ 150: packPlan(150), 1500: packPlan(1500) }).every((p) => !p.models.includes("claude-sonnet-5-5"))); // no Sonnet in any pack
-  assert.ok(packPlan(150).models.includes("qwen3.8-flash") && packPlan(400).models.includes("qwen3.7-plus") && !packPlan(400).models.includes("gemini-3-flash-preview") && packPlan(800).models.includes("gemini-3-flash-preview"));
+  // The owner's rule (2026-11-23), by price for answers: <$0.20 free, <$0.50 ৳150, <$1.20 ৳400, <$3 ৳800, ≤$6 ৳1500.
+  const { planOf } = await import("../src/lib/ai-chat.ts");
+  assert.deepEqual(Object.fromEntries(Object.keys(MODELS).map((id) => [id, planOf(id)])), {
+    "qwen3.7-flash": 0, "gemini-2.5-flash-lite": 150, "qwen3.8-flash": 150, "claude-haiku-5-5": 400, "gpt-5.6-luna": 800, "qwen3.7-plus": 800,
+    "gemini-3-flash-preview": 1500, "qwen3.8-max": 1500, "claude-sonnet-5-5": null, "claude-opus-5-5": null,
+  });
   assert.ok(packPlan(1500).models.every((id) => MODELS[id])); // every pack model has a provider and a price
   assert.ok(packPlan(800).models.includes("qwen3.7-plus") && !packPlan(800).models.includes("qwen3.8-max") && packPlan(1500).models.includes("qwen3.8-max"));
   assert.deepEqual(chatImage("data:image/png;base64,AAAA"), { media_type: "image/png", data: "AAAA" });
@@ -98,7 +103,7 @@ test("the model picker lists every model and locks the ones a bigger pack has", 
   const { modelMenu } = await import("../src/lib/ai-chat.ts");
   const m150 = modelMenu(150);
   assert.equal(m150.length, 8);
-  assert.deepEqual(m150.filter((m) => !m.locked).map((m) => m.id), ["gemini-2.5-flash-lite", "qwen3.7-flash", "qwen3.8-flash"]);
+  assert.deepEqual(m150.filter((m) => !m.locked).map((m) => m.id), ["qwen3.7-flash", "gemini-2.5-flash-lite", "qwen3.8-flash"]); // free model first
   assert.equal(m150.find((m) => m.id === "qwen3.8-max").pack, 1500);
   assert.ok(modelMenu(1500).every((m) => !m.locked));
 });
@@ -157,12 +162,14 @@ test("only a first question on its own, with nothing personal in it, is shared b
   assert.ok(!goodEnough("qwen3.8-max").includes("gemini-2.5-flash-lite")); // never a weaker one
 });
 
-test("profit guard: each pack's AI may cost at most 65% of its price; overuse comes off the next window", async () => {
-  const { windowCostUsd, previousWindow, carried, leftPct, packPlan, MODELS, PACKS } = await import("../src/lib/ai-chat.ts");
-  for (const pack of PACKS) {
-    const monthUsd = windowCostUsd(pack) * 60;
-    assert.ok(Math.abs(monthUsd * 122 - pack * 0.65) < 1e-6, `৳${pack}`); // the rest (35%) is ours whatever the student does
-  }
+test("profit guard: each pack has a monthly AI money cap below its price; overuse comes off the next window", async () => {
+  const { windowCostUsd, previousWindow, carried, leftPct, packPlan, MODELS, PACKS, PACK_MONTHLY_USD, packMonthlyUsd, monthStartAfter } = await import("../src/lib/ai-chat.ts");
+  assert.deepEqual(PACK_MONTHLY_USD, { 150: 1, 400: 2.2, 800: 4.2, 1500: 8.8 }); // the owner's caps, US$ per student per month
+  for (const pack of PACKS) assert.ok(packMonthlyUsd(pack) * 122 < pack, `৳${pack}`); // at ৳122 a dollar, always less than the pack's price
+  assert.equal(packMonthlyUsd(400, { packMonthlyUsd: { 400: 3 } }), 3); // the admin panel can change it
+  assert.equal(windowCostUsd(150), Infinity); // packs: no 12-hour money cap, the monthly one instead
+  assert.equal(monthStartAfter("2026-11-23"), "2026-11-30T18:00:00.000Z"); // 1 December, midnight in Dhaka
+  assert.equal(monthStartAfter("2026-12-31"), "2026-12-31T18:00:00.000Z");
   assert.deepEqual(previousWindow({ day: "2026-11-21", slot: 1 }), { day: "2026-11-21", slot: 0 });
   assert.deepEqual(previousWindow({ day: "2026-12-01", slot: 0 }), { day: "2026-11-30", slot: 1 });
   assert.deepEqual(carried({ tokens: 60_000, cost_usd: 0.2 }, 50_000, 0.13), { tokens: 10_000, cost: 0.2 - 0.13 });

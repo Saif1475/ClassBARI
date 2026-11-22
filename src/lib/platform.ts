@@ -138,15 +138,22 @@ function setAi(ai: AiSettings, a: Record<string, unknown>): string | { error: st
       ai.packDaily = daily;
       return `pack ৳${a.pack} tokens/day=${v ?? "default"}`;
     }
+    case "packMonthlyUsd": {
+      if (!(PACKS as readonly number[]).includes(Number(a.pack)) || (v !== null && !num(v, 1000))) return { error: "bad cap" };
+      const caps = { ...ai.packMonthlyUsd };
+      if (v === null) delete caps[String(a.pack)];
+      else caps[String(a.pack)] = v as number;
+      ai.packMonthlyUsd = caps;
+      return `pack ৳${a.pack} monthly cap=$${v ?? "default"}`;
+    }
   }
   const ok: Record<string, (x: unknown) => boolean> = {
     budgetUsd: (x) => num(x, 100_000),
     freeOn: (x) => typeof x === "boolean",
     freeDaily: (x) => num(x, 10_000_000, true),
     freeWindowUsd: (x) => num(x, 10),
-    costShare: (x) => num(x, 1) && (x as number) > 0,
   };
-  const key = a.key as "budgetUsd" | "freeOn" | "freeDaily" | "freeWindowUsd" | "costShare";
+  const key = a.key as "budgetUsd" | "freeOn" | "freeDaily" | "freeWindowUsd";
   if (typeof a.key !== "string" || !Object.hasOwn(ok, key) || (v !== null && !ok[key](v))) return { error: "bad AI setting" };
   if (v === null) delete ai[key];
   else Object.assign(ai, { [key]: v });

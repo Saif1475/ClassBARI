@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { adminAction, defaultPlatform, isSuspended } from "../src/lib/platform.ts";
-import { aiDefaults, freePlan, modelMenu, modelOn, monthlyBudgetUsd, packPlan, windowCostUsd } from "../src/lib/ai-chat.ts";
+import { aiDefaults, freePlan, modelMenu, modelOn, monthlyBudgetUsd, packMonthlyUsd, packPlan, windowCostUsd } from "../src/lib/ai-chat.ts";
 
 const now = new Date("2026-11-23T10:00:00Z");
 const ID = "0b5c3f7e-1a2b-4c3d-8e9f-0123456789ab";
@@ -24,8 +24,9 @@ test("AI settings are validated, logged, take effect, and null goes back to the 
   assert.equal(monthlyBudgetUsd(p.ai), 50);
   assert.deepEqual(ai({ key: "budgetUsd", value: -1 }), { error: "bad AI setting" });
   assert.deepEqual(ai({ key: "budgetUsd", value: "50" }), { error: "bad AI setting" });
-  assert.deepEqual(ai({ key: "costShare", value: 0 }), { error: "bad AI setting" });
-  assert.deepEqual(ai({ key: "costShare", value: 1.5 }), { error: "bad AI setting" });
+  assert.deepEqual(ai({ key: "costShare", value: 0.5 }), { error: "bad AI setting" }); // replaced by monthly caps
+  assert.deepEqual(ai({ key: "packMonthlyUsd", pack: 999, value: 1 }), { error: "bad cap" });
+  assert.deepEqual(ai({ key: "packMonthlyUsd", pack: 400, value: -1 }), { error: "bad cap" });
   assert.deepEqual(ai({ key: "__proto__", value: 1 }), { error: "bad AI setting" });
   assert.deepEqual(ai({ key: "freeDaily", value: 1.5 }), { error: "bad AI setting" });
   assert.deepEqual(ai({ key: "packDaily", pack: 999, value: 1000 }), { error: "bad tokens" });
@@ -40,8 +41,8 @@ test("AI settings are validated, logged, take effect, and null goes back to the 
   assert.deepEqual(freePlan(p.ai).models, []);
   ai({ key: "freeWindowUsd", value: 0.01 });
   assert.equal(windowCostUsd(0, p.ai), 0.01);
-  ai({ key: "costShare", value: 0.5 });
-  assert.ok(windowCostUsd(150, p.ai) < windowCostUsd(150));
+  ai({ key: "packMonthlyUsd", pack: 400, value: 3 });
+  assert.equal(packMonthlyUsd(400, p.ai), 3);
 
   ai({ key: "budgetUsd", value: null });
   assert.equal(p.ai.budgetUsd, undefined);
