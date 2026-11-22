@@ -418,10 +418,37 @@ class StaffScreen extends StatefulWidget {
 class _StaffScreenState extends State<StaffScreen> {
   final name = TextEditingController(), phone = TextEditingController(), email = TextEditingController();
   var badPhone = false;
+  // A leave request (the website's Staff tool): who, from, to, why.
+  final reason = TextEditingController();
+  late var leaveWho = store.staffName;
+  var leaveFrom = dayKey(), leaveTo = dayKey();
+
+  Future<void> pickLeaveDay(bool from) async {
+    final now = DateTime.now();
+    final d = await showDatePicker(context: context, initialDate: toDate(from ? leaveFrom : leaveTo), firstDate: now.subtract(const Duration(days: 365)), lastDate: now.add(const Duration(days: 365)));
+    if (d == null) return;
+    setState(() {
+      if (from) {
+        leaveFrom = dayKey(d);
+        if (leaveTo.compareTo(leaveFrom) < 0) leaveTo = leaveFrom;
+      } else if (dayKey(d).compareTo(leaveFrom) >= 0) {
+        leaveTo = dayKey(d);
+      }
+    });
+  }
+
+  Future<void> requestLeave() async {
+    if (reason.text.trim().isEmpty) return;
+    final saved = await store.act('requestLeave', [
+      {'name': leaveWho, 'from': leaveFrom, 'to': leaveTo, 'reason': reason.text.trim()},
+    ]);
+    reason.clear();
+    if (mounted) toast(context, _said(saved, t('staffTool.requested')));
+  }
 
   @override
   void dispose() {
-    for (final c in [name, phone, email]) {
+    for (final c in [name, phone, email, reason]) {
       c.dispose();
     }
     super.dispose();
@@ -514,6 +541,23 @@ class _StaffScreenState extends State<StaffScreen> {
                       )
                     : null,
               ),
+          ],
+        ),
+        Box(
+          title: t('staffTool.ask'),
+          children: [
+            Strong(t('staffTool.who')),
+            Chips(value: leaveWho, options: [for (final x in rows(store.state?['staff'])) '${x['name']}'], onChanged: (v) => setState(() => leaveWho = v)),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                Doing(label: '${t('staffTool.from')} ${fmtDate(leaveFrom)}', icon: I.calendar, soft: true, small: true, onPressed: () => pickLeaveDay(true)),
+                Doing(label: '${t('staffTool.to')} ${fmtDate(leaveTo)}', icon: I.calendar, soft: true, small: true, onPressed: () => pickLeaveDay(false)),
+              ],
+            ),
+            TextField(controller: reason, maxLength: 300, onChanged: (_) => setState(() {}), decoration: InputDecoration(labelText: t('staffTool.reason'))),
+            Doing(label: t('staffTool.send'), icon: I.send, onPressed: reason.text.trim().isEmpty ? null : requestLeave),
           ],
         ),
         Group(
