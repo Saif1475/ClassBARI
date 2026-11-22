@@ -89,7 +89,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Add item'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('New quiz'));
+    await tester.tap(find.text('MCQ quiz'));
     await tester.pump();
     await tester.enterText(find.byType(TextField).at(0), 'Waves quiz');
     await tester.enterText(find.byType(TextField).at(1), '50');

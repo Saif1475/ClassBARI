@@ -15266,6 +15266,294 @@
   },
   {
    "lang": "en",
+   "key": "centre.batchesN",
+   "args": [
+    0
+   ],
+   "out": "0 batches"
+  },
+  {
+   "lang": "en",
+   "key": "centre.batchesN",
+   "args": [
+    0
+   ],
+   "out": "0 batches"
+  },
+  {
+   "lang": "en",
+   "key": "centre.batchesN",
+   "args": [
+    1
+   ],
+   "out": "1 batches"
+  },
+  {
+   "lang": "en",
+   "key": "centre.batchesN",
+   "args": [
+    1
+   ],
+   "out": "1 batches"
+  },
+  {
+   "lang": "en",
+   "key": "centre.batchesN",
+   "args": [
+    2
+   ],
+   "out": "2 batches"
+  },
+  {
+   "lang": "en",
+   "key": "centre.batchesN",
+   "args": [
+    2
+   ],
+   "out": "2 batches"
+  },
+  {
+   "lang": "en",
+   "key": "centre.batchesN",
+   "args": [
+    12
+   ],
+   "out": "12 batches"
+  },
+  {
+   "lang": "en",
+   "key": "centre.batchesN",
+   "args": [
+    12
+   ],
+   "out": "12 batches"
+  },
+  {
+   "lang": "en",
+   "key": "centre.batchesN",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 batches"
+  },
+  {
+   "lang": "en",
+   "key": "centre.batchesN",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 batches"
+  },
+  {
+   "lang": "en",
+   "key": "centre.batchesN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin batches"
+  },
+  {
+   "lang": "en",
+   "key": "centre.batchesN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin batches"
+  },
+  {
+   "lang": "en",
+   "key": "courses.perMonth",
+   "args": [
+    0
+   ],
+   "out": "0 / month"
+  },
+  {
+   "lang": "en",
+   "key": "courses.perMonth",
+   "args": [
+    0
+   ],
+   "out": "0 / month"
+  },
+  {
+   "lang": "en",
+   "key": "courses.perMonth",
+   "args": [
+    1
+   ],
+   "out": "1 / month"
+  },
+  {
+   "lang": "en",
+   "key": "courses.perMonth",
+   "args": [
+    1
+   ],
+   "out": "1 / month"
+  },
+  {
+   "lang": "en",
+   "key": "courses.perMonth",
+   "args": [
+    2
+   ],
+   "out": "2 / month"
+  },
+  {
+   "lang": "en",
+   "key": "courses.perMonth",
+   "args": [
+    2
+   ],
+   "out": "2 / month"
+  },
+  {
+   "lang": "en",
+   "key": "courses.perMonth",
+   "args": [
+    12
+   ],
+   "out": "12 / month"
+  },
+  {
+   "lang": "en",
+   "key": "courses.perMonth",
+   "args": [
+    12
+   ],
+   "out": "12 / month"
+  },
+  {
+   "lang": "en",
+   "key": "courses.perMonth",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 / month"
+  },
+  {
+   "lang": "en",
+   "key": "courses.perMonth",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 / month"
+  },
+  {
+   "lang": "en",
+   "key": "courses.perMonth",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin / month"
+  },
+  {
+   "lang": "en",
+   "key": "courses.perMonth",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin / month"
+  },
+  {
+   "lang": "en",
+   "key": "courses.firstFee",
+   "args": [
+    0
+   ],
+   "out": "First month's fee: 0"
+  },
+  {
+   "lang": "en",
+   "key": "courses.firstFee",
+   "args": [
+    0
+   ],
+   "out": "First month's fee: 0"
+  },
+  {
+   "lang": "en",
+   "key": "courses.firstFee",
+   "args": [
+    1
+   ],
+   "out": "First month's fee: 1"
+  },
+  {
+   "lang": "en",
+   "key": "courses.firstFee",
+   "args": [
+    1
+   ],
+   "out": "First month's fee: 1"
+  },
+  {
+   "lang": "en",
+   "key": "courses.firstFee",
+   "args": [
+    2
+   ],
+   "out": "First month's fee: 2"
+  },
+  {
+   "lang": "en",
+   "key": "courses.firstFee",
+   "args": [
+    2
+   ],
+   "out": "First month's fee: 2"
+  },
+  {
+   "lang": "en",
+   "key": "courses.firstFee",
+   "args": [
+    12
+   ],
+   "out": "First month's fee: 12"
+  },
+  {
+   "lang": "en",
+   "key": "courses.firstFee",
+   "args": [
+    12
+   ],
+   "out": "First month's fee: 12"
+  },
+  {
+   "lang": "en",
+   "key": "courses.firstFee",
+   "args": [
+    1234567
+   ],
+   "out": "First month's fee: 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "courses.firstFee",
+   "args": [
+    1234567
+   ],
+   "out": "First month's fee: 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "courses.firstFee",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "First month's fee: Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "courses.firstFee",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "First month's fee: Rahim Uddin"
+  },
+  {
+   "lang": "en",
    "key": "teacher.confirmDeleteAnn",
    "args": [
     0
@@ -30623,6 +30911,294 @@
     "Physics"
    ],
    "out": "Rahim Uddin এ সংঘর্ষ: Batch A আর ৳1,500 (Physics)।"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.batchesN",
+   "args": [
+    0
+   ],
+   "out": "০টি ব্যাচ"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.batchesN",
+   "args": [
+    0
+   ],
+   "out": "০টি ব্যাচ"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.batchesN",
+   "args": [
+    1
+   ],
+   "out": "১টি ব্যাচ"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.batchesN",
+   "args": [
+    1
+   ],
+   "out": "১টি ব্যাচ"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.batchesN",
+   "args": [
+    2
+   ],
+   "out": "২টি ব্যাচ"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.batchesN",
+   "args": [
+    2
+   ],
+   "out": "২টি ব্যাচ"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.batchesN",
+   "args": [
+    12
+   ],
+   "out": "১২টি ব্যাচ"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.batchesN",
+   "args": [
+    12
+   ],
+   "out": "১২টি ব্যাচ"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.batchesN",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭টি ব্যাচ"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.batchesN",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭টি ব্যাচ"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.batchesN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddinটি ব্যাচ"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.batchesN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddinটি ব্যাচ"
+  },
+  {
+   "lang": "bn",
+   "key": "courses.perMonth",
+   "args": [
+    0
+   ],
+   "out": "0 / মাস"
+  },
+  {
+   "lang": "bn",
+   "key": "courses.perMonth",
+   "args": [
+    0
+   ],
+   "out": "0 / মাস"
+  },
+  {
+   "lang": "bn",
+   "key": "courses.perMonth",
+   "args": [
+    1
+   ],
+   "out": "1 / মাস"
+  },
+  {
+   "lang": "bn",
+   "key": "courses.perMonth",
+   "args": [
+    1
+   ],
+   "out": "1 / মাস"
+  },
+  {
+   "lang": "bn",
+   "key": "courses.perMonth",
+   "args": [
+    2
+   ],
+   "out": "2 / মাস"
+  },
+  {
+   "lang": "bn",
+   "key": "courses.perMonth",
+   "args": [
+    2
+   ],
+   "out": "2 / মাস"
+  },
+  {
+   "lang": "bn",
+   "key": "courses.perMonth",
+   "args": [
+    12
+   ],
+   "out": "12 / মাস"
+  },
+  {
+   "lang": "bn",
+   "key": "courses.perMonth",
+   "args": [
+    12
+   ],
+   "out": "12 / মাস"
+  },
+  {
+   "lang": "bn",
+   "key": "courses.perMonth",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 / মাস"
+  },
+  {
+   "lang": "bn",
+   "key": "courses.perMonth",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 / মাস"
+  },
+  {
+   "lang": "bn",
+   "key": "courses.perMonth",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin / মাস"
+  },
+  {
+   "lang": "bn",
+   "key": "courses.perMonth",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin / মাস"
+  },
+  {
+   "lang": "bn",
+   "key": "courses.firstFee",
+   "args": [
+    0
+   ],
+   "out": "প্রথম মাসের ফি: 0"
+  },
+  {
+   "lang": "bn",
+   "key": "courses.firstFee",
+   "args": [
+    0
+   ],
+   "out": "প্রথম মাসের ফি: 0"
+  },
+  {
+   "lang": "bn",
+   "key": "courses.firstFee",
+   "args": [
+    1
+   ],
+   "out": "প্রথম মাসের ফি: 1"
+  },
+  {
+   "lang": "bn",
+   "key": "courses.firstFee",
+   "args": [
+    1
+   ],
+   "out": "প্রথম মাসের ফি: 1"
+  },
+  {
+   "lang": "bn",
+   "key": "courses.firstFee",
+   "args": [
+    2
+   ],
+   "out": "প্রথম মাসের ফি: 2"
+  },
+  {
+   "lang": "bn",
+   "key": "courses.firstFee",
+   "args": [
+    2
+   ],
+   "out": "প্রথম মাসের ফি: 2"
+  },
+  {
+   "lang": "bn",
+   "key": "courses.firstFee",
+   "args": [
+    12
+   ],
+   "out": "প্রথম মাসের ফি: 12"
+  },
+  {
+   "lang": "bn",
+   "key": "courses.firstFee",
+   "args": [
+    12
+   ],
+   "out": "প্রথম মাসের ফি: 12"
+  },
+  {
+   "lang": "bn",
+   "key": "courses.firstFee",
+   "args": [
+    1234567
+   ],
+   "out": "প্রথম মাসের ফি: 1234567"
+  },
+  {
+   "lang": "bn",
+   "key": "courses.firstFee",
+   "args": [
+    1234567
+   ],
+   "out": "প্রথম মাসের ফি: 1234567"
+  },
+  {
+   "lang": "bn",
+   "key": "courses.firstFee",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "প্রথম মাসের ফি: Rahim Uddin"
+  },
+  {
+   "lang": "bn",
+   "key": "courses.firstFee",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "প্রথম মাসের ফি: Rahim Uddin"
   },
   {
    "lang": "bn",

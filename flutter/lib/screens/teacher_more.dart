@@ -444,13 +444,7 @@ CbIcon kindIcon(Object? kind) => switch (kind) {
   'exam' => I.exams,
   _ => I.editNote,
 };
-// shortcut: the website's kinds.video/pdf/task/quiz words are not in assets/gen yet; these are its nearest own words.
-String kindLabel(String k) => t(switch (k) {
-  'video' => 'teacher.publishVideo',
-  'pdf' => 'teacher.uploadPdf',
-  'task' => 'teacher.newAssignment',
-  _ => 'teacher.newQuiz',
-});
+String kindLabel(String k) => t('kinds.$k');
 
 /// The batch's chapters: add one, publish or hide it, delete it; add and delete the videos, PDFs, homework and quizzes inside.
 /// shortcut: files are added by link only (no file picker in the app); written exams, rubrics and quiz settings are on the website.
@@ -557,10 +551,10 @@ class _StudioScreenState extends State<StudioScreen> {
                   title: '${it['title']}',
                   subtitle: about(it),
                   trailing: IconButton(
-                    tooltip: t('community.delete'),
+                    tooltip: t('common.delete'),
                     icon: Ico(I.trash),
                     onPressed: () async {
-                      if (!await confirm(context, t('community.delete'), t('teacher.confirmDeleteItem', ['${it['title']}']))) return;
+                      if (!await confirm(context, t('common.delete'), t('teacher.confirmDeleteItem', ['${it['title']}']))) return;
                       if (await store.act('deleteModuleItem', [m['id'], it['id']]) && context.mounted) toast(context, t('teacher.toast.itemRemoved', ['${it['title']}']));
                     },
                   ),
@@ -684,7 +678,7 @@ class WatchTimeScreen extends StatelessWidget {
     ];
     final kids = batchKids(batch);
     return Screen(
-      title: t('batch.recorded'),
+      title: t('app.watchTime'),
       subtitle: batch,
       color: context.course(batchNo(batch)),
       children: [

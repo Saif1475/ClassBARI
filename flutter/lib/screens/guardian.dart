@@ -266,7 +266,7 @@ class _ChatThreadState extends State<ChatThread> {
                 maxLines: 5,
                 maxLength: 2000,
                 onChanged: (_) => setState(() {}),
-                decoration: InputDecoration(hintText: t(widget.family ? 'app.writeTeacher' : (widget.threadId.startsWith('student-') ? 'app.writeStudent' : 'app.writeGuardian')), labelText: t('app.tabs2.messages'), counterText: '', fillColor: context.colors.surface),
+                decoration: InputDecoration(hintText: t(widget.family ? 'app.writeTeacher' : (widget.threadId.startsWith('student-') ? 'app.writeStudent' : 'app.writeGuardian')), counterText: '', fillColor: context.colors.surface),
               ),
             ),
             Doing(label: t('app.send'), icon: I.send, onPressed: text.text.trim().isEmpty ? null : send),

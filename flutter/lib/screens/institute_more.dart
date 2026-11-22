@@ -121,10 +121,12 @@ class _BatchFormState extends State<BatchForm> {
   late var classDays = [for (final d in (b?['classDays'] as List?) ?? const [6, 1, 3]) (d as num).toInt()];
   late var teacher = '${b?['teacher'] ?? ''}';
   late var league = b?['hideLeague'] != true;
+  late var public = b?['public'] == true;
+  late final about = TextEditingController(text: '${b?['about'] ?? ''}');
 
   @override
   void dispose() {
-    for (final c in [name, days, fee, fine]) {
+    for (final c in [name, days, fee, fine, about]) {
       c.dispose();
     }
     super.dispose();
@@ -146,6 +148,8 @@ class _BatchFormState extends State<BatchForm> {
         if (lateFine != ((b!['lateFine'] as num?) ?? 0)) 'lateFine': lateFine,
         if (!_same(classDays, b!['classDays'])) 'classDays': classDays,
         if (league != (b!['hideLeague'] != true)) 'hideLeague': !league,
+        if (public != (b!['public'] == true)) 'public': public,
+        if (about.text.trim() != '${b!['about'] ?? ''}') 'about': about.text.trim(),
       };
       if (patch.isNotEmpty) {
         final saved = await store.act('updateBatch', [b!['id'], patch]);
@@ -192,6 +196,9 @@ class _BatchFormState extends State<BatchForm> {
               ],
             ),
             if (b != null) SwitchListTile(contentPadding: EdgeInsets.zero, title: Text(t('streak.leagueToggle')), value: league, onChanged: (v) => setState(() => league = v)),
+            // The website's public Courses page: whether this batch is listed there, and what it says about it.
+            if (b != null) SwitchListTile(contentPadding: EdgeInsets.zero, title: Text(t('courses.publicToggle')), value: public, onChanged: (v) => setState(() => public = v)),
+            if (b != null && public) TextField(controller: about, minLines: 2, maxLines: 5, maxLength: 1000, decoration: InputDecoration(labelText: t('courses.about'))),
             Doing(label: b == null ? t('teacher.createBatch') : t('settings.save'), onPressed: save),
           ],
         ),
@@ -264,11 +271,11 @@ class StudentScreen extends StatelessWidget {
           ],
         ),
         Doing(
-          label: t('community.remove'),
+          label: t('common.remove'),
           icon: I.trash,
           danger: true,
           onPressed: () async {
-            if (!await confirm(context, t('community.remove'), t('teacher.confirmRemoveStudent', ['${s['name']}']))) return;
+            if (!await confirm(context, t('common.remove'), t('teacher.confirmRemoveStudent', ['${s['name']}']))) return;
             final saved = await store.act('removeStudent', [id]);
             if (!context.mounted) return;
             toast(context, _said(saved, t('teacher.toast.studentRemoved', ['${s['name']}'])));
@@ -359,7 +366,7 @@ class _MoneyScreenState extends State<MoneyScreen> {
               Item(
                 title: '${expenseKinds.contains(e['category']) ? t('money.cats.${e['category']}') : e['category']}${'${e['note'] ?? ''}'.isEmpty ? '' : ' · ${e['note']}'}',
                 subtitle: '${e['date']} · ${taka((e['amount'] as num?) ?? 0)}',
-                trailing: IconButton(tooltip: t('community.remove'), icon: Ico(I.trash), onPressed: () => store.act('removeExpense', [e['id']])),
+                trailing: IconButton(tooltip: t('common.remove'), icon: Ico(I.trash), onPressed: () => store.act('removeExpense', [e['id']])),
               ),
           ],
         ),
@@ -513,15 +520,15 @@ class _StaffScreenState extends State<StaffScreen> {
         Box(
           title: t('app.teachers'),
           children: [
-            TextField(controller: name, textCapitalization: TextCapitalization.words, decoration: InputDecoration(labelText: t('settings.yourName'))),
+            TextField(controller: name, textCapitalization: TextCapitalization.words, decoration: InputDecoration(labelText: t('centre.name'))),
             TextField(
               controller: phone,
               keyboardType: TextInputType.phone,
               onChanged: (_) => setState(() => badPhone = false),
-              decoration: InputDecoration(labelText: t('settings.phone'), hintText: '01XXXXXXXXX', errorText: badPhone ? t('teacher.phoneInvalid') : null, errorMaxLines: 2),
+              decoration: InputDecoration(labelText: t('centre.phone'), hintText: '01XXXXXXXXX', errorText: badPhone ? t('teacher.phoneInvalid') : null, errorMaxLines: 2),
             ),
             TextField(controller: email, keyboardType: TextInputType.emailAddress, autocorrect: false, decoration: InputDecoration(labelText: t('auth.email'))),
-            Doing(label: t('settings.save'), icon: I.personAdd, onPressed: add),
+            Doing(label: t('centre.addTeacher'), icon: I.personAdd, onPressed: add),
           ],
         ),
       ],
@@ -570,12 +577,12 @@ class _AdmissionsScreenState extends State<AdmissionsScreen> {
     final today = dayKey(), list = rows(store.state?['admissions']);
     final due = list.where((a) => a['stage'] != 'admitted' && a['stage'] != 'lost' && '${a['followUp'] ?? ''}'.isNotEmpty && '${a['followUp']}'.compareTo(today) <= 0).length;
     return Screen(
-      title: t('admissions.add'),
+      title: t('app.admissions'),
       children: [
         if (due > 0) Box(color: context.colors.tertiaryContainer, children: [Strong(t('admissions.dueToday', [due]))]),
         Wrap(spacing: 6, runSpacing: 6, children: [for (final s in stages) Tag('${t('admissions.stages.$s')}: ${list.where((a) => a['stage'] == s).length}', kind: 'plain')]),
         Box(
-          title: t('admissions.add'),
+          title: t('app.admissions'),
           children: [
             TextField(controller: name, textCapitalization: TextCapitalization.words, decoration: InputDecoration(labelText: t('admissions.name'))),
             TextField(controller: guardian, textCapitalization: TextCapitalization.words, decoration: InputDecoration(labelText: t('admissions.guardian'))),
