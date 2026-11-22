@@ -8,6 +8,7 @@ import 'student.dart' show Stat;
 import 'teacher.dart' show BatchScreen, Notices, absentOn, batchNo;
 import '../icon.dart';
 import '../icons.g.dart';
+import 'institute_more.dart';
 
 class InstituteApp extends StatelessWidget {
   const InstituteApp({super.key});
@@ -81,6 +82,16 @@ class Dashboard extends StatelessWidget {
               onTap: () => push(context, BatchScreen(batch: '${b['name']}')),
             ),
         ]),
+        // The owner's tools, as on the website.
+        Group(
+          title: t('app.moreForYou'),
+          children: [
+            Item(icon: I.batches, title: t('tday.batchSettings'), subtitle: t('teacher.newBatch'), onTap: () => push(context, const BatchesScreen())),
+            Item(icon: I.insights, title: t('tday.money'), subtitle: '${t('money.profit')} · ${t('income.title')}', onTap: () => push(context, const MoneyScreen())),
+            Item(icon: I.school, title: t('app.teachers'), subtitle: '${t('payroll.title')} · ${t('staffTool.requests')}', onTap: () => push(context, const StaffScreen())),
+            Item(icon: I.personAdd, title: t('admissions.add'), subtitle: t('admissions.followUp'), onTap: () => push(context, const AdmissionsScreen())),
+          ],
+        ),
       ],
     );
   });
@@ -208,6 +219,7 @@ class _StudentsState extends State<Students> {
                   title: '${s['id']}. ${s['name']}',
                   subtitle: '${s['batch']} · ${s['guardianName'] ?? ''} · ${s['phone'] ?? ''}',
                   trailing: due > 0 ? Tag(taka(due), kind: 'bad') : null,
+                  onTap: () => push(context, StudentScreen(id: s['id'] as int)),
                 );
               },
             ),
@@ -219,8 +231,10 @@ class _StudentsState extends State<Students> {
 }
 
 /// Enrol a student: the same fields and checks as the website (their Gmail, and the guardian's, open the apps).
+/// With `student`: edit their details (updateStudent; a new batch moves them). With `admission`: admit that enquiry.
 class NewStudent extends StatefulWidget {
-  const NewStudent({super.key});
+  const NewStudent({super.key, this.student, this.admission});
+  final Json? student, admission;
   @override
   State<NewStudent> createState() => _NewStudentState();
 }
@@ -233,10 +247,12 @@ class _NewStudentState extends State<NewStudent> {
     ('guardianEmail', 'roster.guardianEmail', TextInputType.emailAddress),
     ('phone', 'roster.guardianPhone', TextInputType.phone),
   ];
-  final inputs = {for (final f in fields) f.$1: TextEditingController()};
+  late final Json from = widget.student ?? {if (widget.admission case final a?) ...{'name': a['name'], 'guardianName': a['guardian'], 'phone': a['phone'], 'batch': a['wants']}};
+  late final inputs = {for (final f in fields) f.$1: TextEditingController(text: '${from[f.$1] ?? ''}')};
   var errors = <String, String>{};
-  var gender = '', noGender = false;
-  late var batch = '${store.batches.firstOrNull?['name'] ?? ''}';
+  var noGender = false;
+  late var gender = '${from['gender'] ?? ''}';
+  late var batch = '${from['batch'] ?? ''}'.isEmpty ? '${store.batches.firstOrNull?['name'] ?? ''}' : '${from['batch']}';
 
   @override
   void dispose() {
@@ -248,18 +264,25 @@ class _NewStudentState extends State<NewStudent> {
 
   Future<void> save() async {
     final input = <String, dynamic>{for (final e in inputs.entries) e.key: e.value.text};
-    final errs = validateStudent(input, store.students);
+    final s = widget.student;
+    final errs = validateStudent(input, [...store.students, ...store.pendingStudents], s?['id'] as int?); // a Gmail waiting for approval is taken too
     setState(() {
       errors = errs;
       noGender = gender.isEmpty;
     });
     if (errs.isNotEmpty || gender.isEmpty || batch.isEmpty) return;
-    final saved = await store.act('addStudent', [
-      {...input, 'gender': gender, 'batch': batch, 'mode': 'offline', 'feePaid': false},
-    ]);
+    final saved = s != null
+        ? await store.act('updateStudent', [
+            s['id'],
+            {for (final k in ['studentPhone', 'dob', 'school', 'address']) k: '${s[k] ?? ''}', ...input, 'batch': batch, 'mode': s['mode'] ?? 'offline', 'gender': gender, 'feePaid': true},
+          ])
+        : await store.act('addStudent', [
+            {...input, 'gender': gender, 'batch': batch, 'mode': 'offline', 'feePaid': false},
+          ]);
+    if (widget.admission case final a? when s == null) await store.act('updateAdmission', [a['id'], {'stage': 'admitted'}]);
     if (!mounted) return;
     if (saved) {
-      toast(context, t('roster.added', [input['name'].toString().trim()]));
+      toast(context, s != null ? t('roster.updated') : t('roster.added', [input['name'].toString().trim()]));
       return Navigator.pop(context);
     }
     toast(context, store.status == Status.offline ? t('app.sentLater') : t('auth.syncFailed'));
@@ -268,7 +291,7 @@ class _NewStudentState extends State<NewStudent> {
 
   @override
   Widget build(BuildContext context) => Screen(
-    title: t('app.addStudent'),
+    title: widget.student != null ? t('roster.editTitle', ['${widget.student!['name']}']) : (widget.admission != null ? t('admissions.admitTitle', ['${widget.admission!['name']}']) : t('app.addStudent')),
     refresh: false,
     children: [
       Box(
@@ -289,7 +312,7 @@ class _NewStudentState extends State<NewStudent> {
           if (noGender && gender.isEmpty) Strong(t('roster.genderRequired'), color: context.colors.error),
           Strong(t('roster.batch')),
           Chips(value: batch, options: [for (final b in store.batches) '${b['name']}'], onChanged: (v) => setState(() => batch = v)),
-          Doing(label: t('roster.enrol'), onPressed: batch.isEmpty ? null : save),
+          Doing(label: t(widget.student != null ? 'roster.save' : (widget.admission != null ? 'admissions.admitBtn' : 'roster.enrol')), onPressed: batch.isEmpty ? null : save),
         ],
       ),
     ],

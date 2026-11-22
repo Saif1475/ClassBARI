@@ -13470,9 +13470,10 @@
    "args": [
     0,
     3,
-    7
+    7,
+    9
    ],
-   "out": "avg 0 · high 3 · low 7 · undefined graded"
+   "out": "avg 0 · high 3 · low 7 · 9 graded"
   },
   {
    "lang": "en",
@@ -13480,9 +13481,10 @@
    "args": [
     0,
     "Batch A",
-    "৳1,500"
+    "৳1,500",
+    "Physics"
    ],
-   "out": "avg 0 · high Batch A · low ৳1,500 · undefined graded"
+   "out": "avg 0 · high Batch A · low ৳1,500 · Physics graded"
   },
   {
    "lang": "en",
@@ -13490,9 +13492,10 @@
    "args": [
     1,
     3,
-    7
+    7,
+    9
    ],
-   "out": "avg 1 · high 3 · low 7 · undefined graded"
+   "out": "avg 1 · high 3 · low 7 · 9 graded"
   },
   {
    "lang": "en",
@@ -13500,9 +13503,10 @@
    "args": [
     1,
     "Batch A",
-    "৳1,500"
+    "৳1,500",
+    "Physics"
    ],
-   "out": "avg 1 · high Batch A · low ৳1,500 · undefined graded"
+   "out": "avg 1 · high Batch A · low ৳1,500 · Physics graded"
   },
   {
    "lang": "en",
@@ -13510,9 +13514,10 @@
    "args": [
     2,
     3,
-    7
+    7,
+    9
    ],
-   "out": "avg 2 · high 3 · low 7 · undefined graded"
+   "out": "avg 2 · high 3 · low 7 · 9 graded"
   },
   {
    "lang": "en",
@@ -13520,9 +13525,10 @@
    "args": [
     2,
     "Batch A",
-    "৳1,500"
+    "৳1,500",
+    "Physics"
    ],
-   "out": "avg 2 · high Batch A · low ৳1,500 · undefined graded"
+   "out": "avg 2 · high Batch A · low ৳1,500 · Physics graded"
   },
   {
    "lang": "en",
@@ -13530,9 +13536,10 @@
    "args": [
     12,
     3,
-    7
+    7,
+    9
    ],
-   "out": "avg 12 · high 3 · low 7 · undefined graded"
+   "out": "avg 12 · high 3 · low 7 · 9 graded"
   },
   {
    "lang": "en",
@@ -13540,9 +13547,10 @@
    "args": [
     12,
     "Batch A",
-    "৳1,500"
+    "৳1,500",
+    "Physics"
    ],
-   "out": "avg 12 · high Batch A · low ৳1,500 · undefined graded"
+   "out": "avg 12 · high Batch A · low ৳1,500 · Physics graded"
   },
   {
    "lang": "en",
@@ -13550,9 +13558,10 @@
    "args": [
     1234567,
     3,
-    7
+    7,
+    9
    ],
-   "out": "avg 1234567 · high 3 · low 7 · undefined graded"
+   "out": "avg 1234567 · high 3 · low 7 · 9 graded"
   },
   {
    "lang": "en",
@@ -13560,9 +13569,10 @@
    "args": [
     1234567,
     "Batch A",
-    "৳1,500"
+    "৳1,500",
+    "Physics"
    ],
-   "out": "avg 1234567 · high Batch A · low ৳1,500 · undefined graded"
+   "out": "avg 1234567 · high Batch A · low ৳1,500 · Physics graded"
   },
   {
    "lang": "en",
@@ -13570,9 +13580,10 @@
    "args": [
     "Rahim Uddin",
     3,
-    7
+    7,
+    9
    ],
-   "out": "avg Rahim Uddin · high 3 · low 7 · undefined graded"
+   "out": "avg Rahim Uddin · high 3 · low 7 · 9 graded"
   },
   {
    "lang": "en",
@@ -13580,9 +13591,10 @@
    "args": [
     "Rahim Uddin",
     "Batch A",
-    "৳1,500"
+    "৳1,500",
+    "Physics"
    ],
-   "out": "avg Rahim Uddin · high Batch A · low ৳1,500 · undefined graded"
+   "out": "avg Rahim Uddin · high Batch A · low ৳1,500 · Physics graded"
   },
   {
    "lang": "en",
@@ -15126,9 +15138,10 @@
    "args": [
     0,
     3,
-    7
+    7,
+    9
    ],
-   "out": "Clash on 0: 3 and 7 (undefined)."
+   "out": "Clash on 0: 3 and 7 (9)."
   },
   {
    "lang": "en",
@@ -15136,9 +15149,10 @@
    "args": [
     0,
     "Batch A",
-    "৳1,500"
+    "৳1,500",
+    "Physics"
    ],
-   "out": "Clash on 0: Batch A and ৳1,500 (undefined)."
+   "out": "Clash on 0: Batch A and ৳1,500 (Physics)."
   },
   {
    "lang": "en",
@@ -15146,9 +15160,10 @@
    "args": [
     1,
     3,
-    7
+    7,
+    9
    ],
-   "out": "Clash on 1: 3 and 7 (undefined)."
+   "out": "Clash on 1: 3 and 7 (9)."
   },
   {
    "lang": "en",
@@ -15156,9 +15171,10 @@
    "args": [
     1,
     "Batch A",
-    "৳1,500"
+    "৳1,500",
+    "Physics"
    ],
-   "out": "Clash on 1: Batch A and ৳1,500 (undefined)."
+   "out": "Clash on 1: Batch A and ৳1,500 (Physics)."
   },
   {
    "lang": "en",
@@ -15166,9 +15182,10 @@
    "args": [
     2,
     3,
-    7
+    7,
+    9
    ],
-   "out": "Clash on 2: 3 and 7 (undefined)."
+   "out": "Clash on 2: 3 and 7 (9)."
   },
   {
    "lang": "en",
@@ -15176,9 +15193,10 @@
    "args": [
     2,
     "Batch A",
-    "৳1,500"
+    "৳1,500",
+    "Physics"
    ],
-   "out": "Clash on 2: Batch A and ৳1,500 (undefined)."
+   "out": "Clash on 2: Batch A and ৳1,500 (Physics)."
   },
   {
    "lang": "en",
@@ -15186,9 +15204,10 @@
    "args": [
     12,
     3,
-    7
+    7,
+    9
    ],
-   "out": "Clash on 12: 3 and 7 (undefined)."
+   "out": "Clash on 12: 3 and 7 (9)."
   },
   {
    "lang": "en",
@@ -15196,9 +15215,10 @@
    "args": [
     12,
     "Batch A",
-    "৳1,500"
+    "৳1,500",
+    "Physics"
    ],
-   "out": "Clash on 12: Batch A and ৳1,500 (undefined)."
+   "out": "Clash on 12: Batch A and ৳1,500 (Physics)."
   },
   {
    "lang": "en",
@@ -15206,9 +15226,10 @@
    "args": [
     1234567,
     3,
-    7
+    7,
+    9
    ],
-   "out": "Clash on 1234567: 3 and 7 (undefined)."
+   "out": "Clash on 1234567: 3 and 7 (9)."
   },
   {
    "lang": "en",
@@ -15216,9 +15237,10 @@
    "args": [
     1234567,
     "Batch A",
-    "৳1,500"
+    "৳1,500",
+    "Physics"
    ],
-   "out": "Clash on 1234567: Batch A and ৳1,500 (undefined)."
+   "out": "Clash on 1234567: Batch A and ৳1,500 (Physics)."
   },
   {
    "lang": "en",
@@ -15226,9 +15248,10 @@
    "args": [
     "Rahim Uddin",
     3,
-    7
+    7,
+    9
    ],
-   "out": "Clash on Rahim Uddin: 3 and 7 (undefined)."
+   "out": "Clash on Rahim Uddin: 3 and 7 (9)."
   },
   {
    "lang": "en",
@@ -15236,9 +15259,10 @@
    "args": [
     "Rahim Uddin",
     "Batch A",
-    "৳1,500"
+    "৳1,500",
+    "Physics"
    ],
-   "out": "Clash on Rahim Uddin: Batch A and ৳1,500 (undefined)."
+   "out": "Clash on Rahim Uddin: Batch A and ৳1,500 (Physics)."
   },
   {
    "lang": "en",
@@ -28802,6 +28826,138 @@
   },
   {
    "lang": "bn",
+   "key": "exam.stats",
+   "args": [
+    0,
+    3,
+    7,
+    9
+   ],
+   "out": "গড় ০ · সর্বোচ্চ ৩ · সর্বনিম্ন ৭ · ৯ জনের নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "exam.stats",
+   "args": [
+    0,
+    "Batch A",
+    "৳1,500",
+    "Physics"
+   ],
+   "out": "গড় ০ · সর্বোচ্চ Batch A · সর্বনিম্ন ৳1,500 · Physics জনের নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "exam.stats",
+   "args": [
+    1,
+    3,
+    7,
+    9
+   ],
+   "out": "গড় ১ · সর্বোচ্চ ৩ · সর্বনিম্ন ৭ · ৯ জনের নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "exam.stats",
+   "args": [
+    1,
+    "Batch A",
+    "৳1,500",
+    "Physics"
+   ],
+   "out": "গড় ১ · সর্বোচ্চ Batch A · সর্বনিম্ন ৳1,500 · Physics জনের নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "exam.stats",
+   "args": [
+    2,
+    3,
+    7,
+    9
+   ],
+   "out": "গড় ২ · সর্বোচ্চ ৩ · সর্বনিম্ন ৭ · ৯ জনের নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "exam.stats",
+   "args": [
+    2,
+    "Batch A",
+    "৳1,500",
+    "Physics"
+   ],
+   "out": "গড় ২ · সর্বোচ্চ Batch A · সর্বনিম্ন ৳1,500 · Physics জনের নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "exam.stats",
+   "args": [
+    12,
+    3,
+    7,
+    9
+   ],
+   "out": "গড় ১২ · সর্বোচ্চ ৩ · সর্বনিম্ন ৭ · ৯ জনের নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "exam.stats",
+   "args": [
+    12,
+    "Batch A",
+    "৳1,500",
+    "Physics"
+   ],
+   "out": "গড় ১২ · সর্বোচ্চ Batch A · সর্বনিম্ন ৳1,500 · Physics জনের নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "exam.stats",
+   "args": [
+    1234567,
+    3,
+    7,
+    9
+   ],
+   "out": "গড় ১২,৩৪,৫৬৭ · সর্বোচ্চ ৩ · সর্বনিম্ন ৭ · ৯ জনের নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "exam.stats",
+   "args": [
+    1234567,
+    "Batch A",
+    "৳1,500",
+    "Physics"
+   ],
+   "out": "গড় ১২,৩৪,৫৬৭ · সর্বোচ্চ Batch A · সর্বনিম্ন ৳1,500 · Physics জনের নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "exam.stats",
+   "args": [
+    "Rahim Uddin",
+    3,
+    7,
+    9
+   ],
+   "out": "গড় Rahim Uddin · সর্বোচ্চ ৩ · সর্বনিম্ন ৭ · ৯ জনের নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "exam.stats",
+   "args": [
+    "Rahim Uddin",
+    "Batch A",
+    "৳1,500",
+    "Physics"
+   ],
+   "out": "গড় Rahim Uddin · সর্বোচ্চ Batch A · সর্বনিম্ন ৳1,500 · Physics জনের নম্বর"
+  },
+  {
+   "lang": "bn",
    "key": "quiz.intro",
    "args": [
     0,
@@ -30342,9 +30498,10 @@
    "args": [
     0,
     3,
-    7
+    7,
+    9
    ],
-   "out": "0 এ সংঘর্ষ: 3 আর 7 (undefined)।"
+   "out": "0 এ সংঘর্ষ: 3 আর 7 (9)।"
   },
   {
    "lang": "bn",
@@ -30352,9 +30509,10 @@
    "args": [
     0,
     "Batch A",
-    "৳1,500"
+    "৳1,500",
+    "Physics"
    ],
-   "out": "0 এ সংঘর্ষ: Batch A আর ৳1,500 (undefined)।"
+   "out": "0 এ সংঘর্ষ: Batch A আর ৳1,500 (Physics)।"
   },
   {
    "lang": "bn",
@@ -30362,9 +30520,10 @@
    "args": [
     1,
     3,
-    7
+    7,
+    9
    ],
-   "out": "1 এ সংঘর্ষ: 3 আর 7 (undefined)।"
+   "out": "1 এ সংঘর্ষ: 3 আর 7 (9)।"
   },
   {
    "lang": "bn",
@@ -30372,9 +30531,10 @@
    "args": [
     1,
     "Batch A",
-    "৳1,500"
+    "৳1,500",
+    "Physics"
    ],
-   "out": "1 এ সংঘর্ষ: Batch A আর ৳1,500 (undefined)।"
+   "out": "1 এ সংঘর্ষ: Batch A আর ৳1,500 (Physics)।"
   },
   {
    "lang": "bn",
@@ -30382,9 +30542,10 @@
    "args": [
     2,
     3,
-    7
+    7,
+    9
    ],
-   "out": "2 এ সংঘর্ষ: 3 আর 7 (undefined)।"
+   "out": "2 এ সংঘর্ষ: 3 আর 7 (9)।"
   },
   {
    "lang": "bn",
@@ -30392,9 +30553,10 @@
    "args": [
     2,
     "Batch A",
-    "৳1,500"
+    "৳1,500",
+    "Physics"
    ],
-   "out": "2 এ সংঘর্ষ: Batch A আর ৳1,500 (undefined)।"
+   "out": "2 এ সংঘর্ষ: Batch A আর ৳1,500 (Physics)।"
   },
   {
    "lang": "bn",
@@ -30402,9 +30564,10 @@
    "args": [
     12,
     3,
-    7
+    7,
+    9
    ],
-   "out": "12 এ সংঘর্ষ: 3 আর 7 (undefined)।"
+   "out": "12 এ সংঘর্ষ: 3 আর 7 (9)।"
   },
   {
    "lang": "bn",
@@ -30412,9 +30575,10 @@
    "args": [
     12,
     "Batch A",
-    "৳1,500"
+    "৳1,500",
+    "Physics"
    ],
-   "out": "12 এ সংঘর্ষ: Batch A আর ৳1,500 (undefined)।"
+   "out": "12 এ সংঘর্ষ: Batch A আর ৳1,500 (Physics)।"
   },
   {
    "lang": "bn",
@@ -30422,9 +30586,10 @@
    "args": [
     1234567,
     3,
-    7
+    7,
+    9
    ],
-   "out": "1234567 এ সংঘর্ষ: 3 আর 7 (undefined)।"
+   "out": "1234567 এ সংঘর্ষ: 3 আর 7 (9)।"
   },
   {
    "lang": "bn",
@@ -30432,9 +30597,10 @@
    "args": [
     1234567,
     "Batch A",
-    "৳1,500"
+    "৳1,500",
+    "Physics"
    ],
-   "out": "1234567 এ সংঘর্ষ: Batch A আর ৳1,500 (undefined)।"
+   "out": "1234567 এ সংঘর্ষ: Batch A আর ৳1,500 (Physics)।"
   },
   {
    "lang": "bn",
@@ -30442,9 +30608,10 @@
    "args": [
     "Rahim Uddin",
     3,
-    7
+    7,
+    9
    ],
-   "out": "Rahim Uddin এ সংঘর্ষ: 3 আর 7 (undefined)।"
+   "out": "Rahim Uddin এ সংঘর্ষ: 3 আর 7 (9)।"
   },
   {
    "lang": "bn",
@@ -30452,9 +30619,10 @@
    "args": [
     "Rahim Uddin",
     "Batch A",
-    "৳1,500"
+    "৳1,500",
+    "Physics"
    ],
-   "out": "Rahim Uddin এ সংঘর্ষ: Batch A আর ৳1,500 (undefined)।"
+   "out": "Rahim Uddin এ সংঘর্ষ: Batch A আর ৳1,500 (Physics)।"
   },
   {
    "lang": "bn",

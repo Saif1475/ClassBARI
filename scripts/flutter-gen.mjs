@@ -72,7 +72,7 @@ function words(dict, lang) {
   // Every text function is tried with real values: the template must say exactly what the website says.
   const check = (key, fn) => {
     for (const first of [0, 1, 2, 12, 1234567, "Rahim Uddin"])
-      for (const rest of [[3, 7], ["Batch A", "৳1,500"]]) {
+      for (const rest of [[3, 7, 9], ["Batch A", "৳1,500", "Physics"]]) {
         const args = [first, ...rest].slice(0, fn.length);
         let want;
         try {

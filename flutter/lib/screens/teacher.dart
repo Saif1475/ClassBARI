@@ -145,6 +145,51 @@ class BatchScreen extends StatelessWidget {
             Item(icon: I.factCheck, color: color, title: t('tday.toMark', [toMark().where((x) => x.m['batch'] == batch).length]), onTap: () => push(context, const Marking(pushed: true))),
           ],
         ),
+        // The website's course studio for this batch.
+        Group(
+          children: [
+            Item(
+              icon: I.books,
+              color: color,
+              title: t('teacher.courseStudio'),
+              subtitle: t('teacher.courseSummary', [batchModules(batch).length, kids.length]),
+              onTap: () => push(context, StudioScreen(batch: batch)),
+            ),
+            Item(
+              icon: I.insights,
+              color: color,
+              title: t('teacher.sections.grades'),
+              onTap: () => push(context, GradebookScreen(batch: batch)),
+            ),
+            Item(
+              icon: I.live,
+              color: color,
+              title: t('teacher.sections.live'),
+              subtitle: liveTopic(batch),
+              onTap: () => push(context, LiveClassScreen(batch: batch)),
+            ),
+            Item(
+              icon: I.calendar,
+              color: color,
+              title: t('student.calendar'),
+              subtitle: t('teacher.calSub'),
+              onTap: () => push(context, BatchCalendarScreen(batch: batch)),
+            ),
+            Item(
+              icon: I.play,
+              color: color,
+              title: t('batch.recorded'),
+              subtitle: t('watch.how'),
+              onTap: () => push(context, WatchTimeScreen(batch: batch)),
+            ),
+            Item(
+              icon: I.award,
+              color: color,
+              title: t('merit.title', [batch]),
+              onTap: () => push(context, MeritScreen(batch: batch)),
+            ),
+          ],
+        ),
         if (pdfs.isNotEmpty)
           Group(
             title: t('pdfhl.open'),
