@@ -2,44 +2,16 @@
 // Puts a few sample lessons into the ClassBARI Test Institute, so the website and the phone apps have something to
 // show: a chapter with a video, two quizzes and two homeworks, a notice, meeting slots, one marked attendance day,
 // one homework handed in, one quiz taken and a guardian–teacher chat. Safe to run again: it adds nothing twice.
-// It logs in as the test teacher, student and guardian, like a person would; the password is never printed.
-import { readFileSync } from "node:fs";
-import { chromium } from "playwright";
+// It logs in as the test teacher, student and guardian, like a person would (scripts/test-login.mjs).
 import sharp from "sharp";
+import { as, finish, INSTITUTE } from "./test-login.mjs";
 
-const SITE = "http://localhost:3000", INSTITUTE = "ClassBARI Test Institute", BATCH = "Teacher Batch", CHAPTER = "Chapter 1: Motion";
-const password = readFileSync("data/test-accounts.txt", "utf8").match(/Password for [^:\n]*: (\S+)/)?.[1];
-if (!password) throw new Error("No test accounts found. Run: npm run test:accounts");
+const BATCH = "Teacher Batch", CHAPTER = "Chapter 1: Motion";
 const day = (n) => new Date(Date.now() + n * 86_400_000);
 const key = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 const at = (n, h, m) => { const d = day(n); d.setHours(h, m, 0, 0); return d.toISOString(); };
 
-const browser = await chromium.launch();
-/** Log in on the website as one of the test people; returns helpers that read and change data as them. */
-async function as(role, email) {
-  const page = await (await browser.newContext()).newPage();
-  await page.goto(`${SITE}/login`);
-  await page.getByRole("button", { name: role, exact: true }).click();
-  await page.getByRole("combobox").click();
-  await page.getByRole("option", { name: new RegExp(INSTITUTE) }).click();
-  if (role === "Instructor") await page.locator('input[type="email"]').fill(email);
-  else {
-    await page.getByPlaceholder("you@gmail.com").fill(email);
-    await page.getByRole("button", { name: "Continue", exact: true }).click();
-  }
-  await page.locator('input[autocomplete="current-password"]').fill(password);
-  await page.getByRole("button", { name: "Sign in" }).click();
-  await page.waitForURL(/\/(teacher|student|parent)$/, { timeout: 30000 });
-  const data = () => page.evaluate(async () => (await (await fetch("/api/data", { cache: "no-store" })).json()).state);
-  const send = async (name, args) => {
-    const out = await page.evaluate(async ([n, a]) => { const r = await fetch("/api/data", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: n, args: a, base: Date.now() }) }); return { status: r.status, state: r.ok ? (await r.json()).state : null }; }, [name, args]);
-    if (out.status !== 200) throw new Error(`${name} was refused (${out.status})`);
-    return out.state;
-  };
-  return { data, send };
-}
-
-const teacher = await as("Instructor", "classbari.test.teacher@example.com");
+const teacher = await as("teacher");
 let state = await teacher.data();
 let chapter = state.modules.find((m) => m.batch === BATCH && m.title === CHAPTER);
 const did = [];
@@ -62,7 +34,7 @@ if (!chapter) {
 }
 const item = (title) => chapter.items.find((it) => it.title.startsWith(title));
 
-const student = await as("Student", "cb.s@gmail.com");
+const student = await as("student");
 let mine = await student.data();
 const me = mine.meId;
 const find = (title) => mine.modules.find((m) => m.id === chapter.id)?.items.find((it) => it.title.startsWith(title));
@@ -78,12 +50,12 @@ if (!find("Homework 1")?.submissions?.[me]) {
   did.push("the student handed in a homework photo");
 }
 
-const guardian = await as("Parent", "cb.g@gmail.com");
+const guardian = await as("guardian");
 const theirs = await guardian.data();
 if (!theirs.chats.find((c) => c.id === `parent-${me}`)?.messages.length) {
   await guardian.send("sendParentMessage", [me, "Assalamu alaikum. Is there a class tomorrow?"]);
   await teacher.send("sendChatMessage", [`parent-${me}`, "Test Teacher", "Wa alaikum assalam. Yes, at 5 pm as usual.", false]);
   did.push("the guardian and the teacher exchanged a message");
 }
-await browser.close();
+await finish();
 console.log(did.length ? `Added to ${INSTITUTE}: ${did.join("; ")}.` : `${INSTITUTE} already has its sample lessons. Nothing added.`);
