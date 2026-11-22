@@ -1,10 +1,11 @@
-import { chatFile, chatImage, chatPrefs, cleanHistory, costUsd, FREE, modelMenu, packPlan, prefsRule, takeTurn, TRAILER, usedTokens, withFile } from "@/lib/ai-chat";
+import { chatFile, chatImage, chatPrefs, cleanHistory, costUsd, freePlan, modelOn, modelMenu, monthlyBudgetUsd, packPlan, prefsRule, takeTurn, TRAILER, usedTokens, withFile } from "@/lib/ai-chat";
 import { allowance } from "@/lib/ai-allowance";
 import { modelReady, streamChat } from "@/lib/ai-providers";
 import { embed, findAnswer, saveAnswer, shareable, VET_RULES, vetAsk, vetModel, vetSaysYes } from "@/lib/answer-cache";
 import { REAL_AUTH } from "@/lib/auth-mode";
 import { admin, aiSpent, loadPart, whoIs } from "@/lib/data-server";
 import { dayKey } from "@/lib/dates";
+import { readPlatform } from "@/lib/platform-server";
 import { limited } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
@@ -26,8 +27,9 @@ async function gate(request: Request) {
   const student = students.find((s) => s.id === me.who.studentIds[0]);
   if (!student) return { error: Response.json({ error: "sign in" }, { status: 401 }) };
   const paid = !!student.premiumUntil && student.premiumUntil >= dayKey();
-  const plan = paid ? packPlan(student.aiPack) : FREE; // no pack (or it ended): the free plan
-  return { me, student, plan, models: plan.models.filter(modelReady) };
+  const ai = (await readPlatform()).ai; // models, providers and limits as set in the admin panel
+  const plan = paid ? packPlan(student.aiPack, ai) : freePlan(ai); // no pack (or it ended): the free plan
+  return { me, student, plan, ai, models: plan.models.filter(modelReady) };
 }
 
 /** Every model for the picker: which this student's pack has, which need a bigger pack, which aren't switched on yet. */
@@ -35,8 +37,8 @@ export async function GET(request: Request) {
   const g = await gate(request);
   if ("error" in g) return g.error;
   // Also how much of this 12-hour allowance is left and when it refills (shown in Chat settings).
-  const a = await allowance(`${g.me.institute}:student:${g.student.id}`, g.me.institute, g.plan);
-  return Response.json({ pack: g.plan.pack, pick: g.models[0] ?? null, left: a.left(), resetsAt: a.resetsAt, models: modelMenu(g.plan.pack).map((m) => ({ ...m, soon: !m.locked && !g.models.includes(m.id) })) });
+  const a = await allowance(`${g.me.institute}:student:${g.student.id}`, g.me.institute, g.plan, g.ai);
+  return Response.json({ pack: g.plan.pack, pick: g.models[0] ?? null, left: a.left(), resetsAt: a.resetsAt, models: modelMenu(g.plan.pack, g.ai).map((m) => ({ ...m, soon: !m.locked && !g.models.includes(m.id) })) });
 }
 
 /**
@@ -46,7 +48,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const g = await gate(request);
   if ("error" in g) return g.error;
-  const { me, student, plan } = g;
+  const { me, student, plan, ai } = g;
   if (Number(request.headers.get("content-length")) > 6_000_000) return Response.json({ error: "too large" }, { status: 413 });
   const body = (await request.json().catch(() => null)) as { messages?: unknown; image?: unknown; model?: unknown; file?: unknown; fresh?: unknown; prefs?: unknown } | null;
   const prefs = chatPrefs(body?.prefs); // the student's own answer language and length, if they set any
@@ -65,7 +67,7 @@ export async function POST(request: Request) {
   const release = await takeTurn(key); // one answer at a time per student, so the count read below is never out of date
   let streaming = false; // an answer on its way lets go itself, once it is counted
   try {
-    const a = await allowance(key, me.institute, plan); // tokens and money for this 12-hour window
+    const a = await allowance(key, me.institute, plan, ai); // tokens and money for this 12-hour window
     const leftNow = a.left();
 
     // Asked before by someone? Answer from the saved copy: instant, and it uses none of the student's allowance.
@@ -78,7 +80,7 @@ export async function POST(request: Request) {
 
     if (a.over) return Response.json({ error: "limit", resetsAt: a.resetsAt }, { status: 429 });
     // Free chats stop at 80% of the monthly budget, so students who paid always have the last 20%.
-    if ((await aiSpent(`${a.day.slice(0, 7)}-01`)) >= Number(process.env.AI_MONTHLY_BUDGET_USD || 30) * (plan.pack ? 1 : 0.8)) return Response.json({ error: "paused" }, { status: 503 });
+    if ((await aiSpent(`${a.day.slice(0, 7)}-01`)) >= monthlyBudgetUsd(ai) * (plan.pack ? 1 : 0.8)) return Response.json({ error: "paused" }, { status: 503 });
 
     const enc = new TextEncoder();
     const out = new ReadableStream<Uint8Array>({
@@ -115,7 +117,7 @@ export async function POST(request: Request) {
         // The student has their answer; now decide (with a second, cheap AI look) whether to keep it for others.
         if (keep && vec) {
           try {
-            const checker = vetModel(modelReady);
+            const checker = vetModel((id) => modelOn(id, ai) && modelReady(id));
             let verdict = "";
             // shortcut: this small check is our cost and isn't counted in the monthly AI budget; add it if it ever matters.
             if (checker) await streamChat({ model: checker, system: [{ text: VET_RULES }], messages: [{ role: "user", content: vetAsk(question, keep) }], maxTokens: 200 }, (t) => (verdict += t));

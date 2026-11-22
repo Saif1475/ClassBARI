@@ -44,7 +44,7 @@ function useLmsState() {
   const latest = useRef(state);
   latest.current = state;
   const lastRoll = useRef(0); // several students added before a re-render must still get different roll numbers
-  const [saveError, setSaveError] = useState(false);
+  const [saveError, setSaveError] = useState<boolean | "suspended">(false); // "suspended": ClassBARI suspended the institute
 
   // ---- Real accounts: the institute's data lives on the server; each action is sent there and checked.
   const version = useRef(0);
@@ -105,7 +105,8 @@ function useLmsState() {
         tries.current = 0;
         outbox.current.shift();
         if (!res.ok) {
-          setSaveError(true); // refused or failed: show what the server really has
+          const why = res.status === 403 ? ((await res.json().catch(() => ({}))) as { error?: string }).error : "";
+          setSaveError(why === "suspended" ? "suspended" : true); // refused or failed: show what the server really has
           outbox.current = [];
           keep();
           await pull();

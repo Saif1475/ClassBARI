@@ -13,6 +13,26 @@ const providerOf = (model: string): Provider => MODELS[model]?.provider ?? "anth
 /** Is this model's API key set on the server? */
 export const modelReady = (model: string) => !!process.env[providerOf(model) === "anthropic" ? "ANTHROPIC_API_KEY" : SETUP[providerOf(model) as keyof typeof SETUP].key];
 
+/** The .env.local name of each provider's API key. */
+export const PROVIDER_KEY: Record<Provider, string> = { anthropic: "ANTHROPIC_API_KEY", google: SETUP.google.key, qwen: SETUP.qwen.key, openai: SETUP.openai.key };
+
+/** Does the key work? Asks the provider's free "list models" endpoint (never a paid answer). The key never leaves the server. */
+export async function checkProvider(p: Provider): Promise<{ ok: boolean; status: number | string }> {
+  if (!process.env[PROVIDER_KEY[p]]) return { ok: false, status: "missing" };
+  try {
+    if (p === "anthropic") {
+      await new Anthropic({ timeout: 10_000, maxRetries: 0 }).models.list({ limit: 1 });
+      return { ok: true, status: 200 };
+    }
+    const { key, url } = SETUP[p];
+    const res = await fetch(`${url}/models`, { headers: { Authorization: `Bearer ${process.env[key]}` }, signal: AbortSignal.timeout(10_000) });
+    await res.body?.cancel();
+    return { ok: res.ok, status: res.status };
+  } catch (e) {
+    return { ok: false, status: (e as { status?: number }).status ?? "unreachable" };
+  }
+}
+
 export type Ask = {
   model: string;
   system: { text: string; cache?: boolean }[]; // cache: the same for every question (a lesson's text), so Claude re-reads it cheaply

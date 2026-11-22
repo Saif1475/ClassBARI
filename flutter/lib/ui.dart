@@ -616,7 +616,7 @@ class Screen extends StatelessWidget {
         children: [
           TopBar(title: title ?? TabScope.of(context)?.label ?? kAppName, subtitle: subtitle, actions: actions, color: color),
           if (store.status == Status.offline) _Banner(waiting > 0 ? '${t('app.offline')} · ${t('app.waiting', [waiting])}' : t('app.offline'), context.tone.tile, context.colors.onSurface),
-          if (store.syncFailed) _Banner(t('auth.syncFailed'), context.colors.error, context.colors.onError),
+          if (store.syncFailed) _Banner(t(store.suspended ? 'auth.suspended' : 'auth.syncFailed'), context.colors.error, context.colors.onError),
           if (waiting > 0 && store.status != Status.offline) const LinearProgressIndicator(minHeight: 3),
           Expanded(
             child: MediaQuery.removePadding(

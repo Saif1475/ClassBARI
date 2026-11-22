@@ -55,6 +55,27 @@ class _AiChatAppState extends State<AiChatApp> {
   int get meId => store.me?['id'] as int? ?? 0;
   String get storeKey => 'classbari-ai-chats-$meId';
   Json? get chat => chats.where((c) => c['id'] == openId).firstOrNull;
+  var pdfBusy = false;
+
+  /// The whole chat as a PDF, made by the server (the same file the website gives) and saved where the student picks.
+  Future<void> downloadPdf() async {
+    final c = chat;
+    if (c == null || pdfBusy) return;
+    setState(() => pdfBusy = true);
+    try {
+      final res = await api('/api/ai/pdf', body: {
+        'title': c['title'] ?? '',
+        'lang': lang.code,
+        'messages': [for (final m in msgs) {'role': m['role'], 'content': '${m['content'] ?? ''}', if (m['photo'] == true) 'photo': true}],
+      });
+      if (res.statusCode != 200) throw Exception();
+      final name = '${c['title'] ?? 'chat'}'.replaceAll(RegExp(r'[\\/:*?"<>|]'), '').trim();
+      await FilePicker.saveFile(fileName: '${name.isEmpty ? 'chat' : (name.length > 60 ? name.substring(0, 60) : name)}.pdf', bytes: res.bodyBytes, mimeType: 'application/pdf');
+    } catch (_) {
+      if (mounted) toast(context, t('aichat.pdfFailed'));
+    }
+    if (mounted) setState(() => pdfBusy = false);
+  }
   List<Json> get msgs => rows(chat?['msgs']);
   Json? get chosen => models.where((m) => m['id'] == model && m['locked'] != true && m['soon'] != true).firstOrNull ?? models.where((m) => m['locked'] != true && m['soon'] != true).firstOrNull;
 
@@ -514,6 +535,7 @@ class _AiChatAppState extends State<AiChatApp> {
               },
             ),
             if (last && access == 'ok') IconButton(tooltip: t('aichat.retry'), icon: Ico(I.refresh, size: 20), onPressed: retry),
+            if (last) IconButton(tooltip: t(pdfBusy ? 'aichat.pdfMaking' : 'aichat.downloadPdf'), icon: pdfBusy ? const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2)) : Ico(I.file, size: 20), onPressed: pdfBusy ? null : downloadPdf),
           ],
         ),
     ],

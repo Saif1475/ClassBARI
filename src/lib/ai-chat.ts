@@ -34,14 +34,45 @@ const PLANS: Record<number, { daily: number; adds: string[] }> = {
 export const FREE = { pack: 0, daily: 20_000, models: ["qwen3.7-flash"] };
 /** Free: the most AI money one student may use in a 12-hour window (a backstop to the tokens; ~$0.0015 at full use). */
 const FREE_WINDOW_USD = Number(process.env.AI_FREE_WINDOW_USD) || 0.004;
-export function packPlan(pack: number | undefined) {
+export function packPlan(pack: number | undefined, s: AiSettings = {}) {
   const price = PLANS[pack ?? 0] ? (pack as number) : 150; // premium given before packs existed counts as the smallest
   // Cheapest model first: the first one that is set up is the default; students switch to a stronger one when they want.
   const models = PACKS.filter((p) => p <= price)
     .flatMap((p) => PLANS[p].adds)
+    .filter((id) => modelOn(id, s))
     .sort((a, b) => MODELS[a].price[1] - MODELS[b].price[1]);
-  return { pack: price, daily: PLANS[price].daily, models };
+  return { pack: price, daily: s.packDaily?.[price] ?? PLANS[price].daily, models };
 }
+/** The free plan as the admin panel set it (off: no models at all). */
+export const freePlan = (s: AiSettings = {}) => ({ pack: 0, daily: s.freeDaily ?? FREE.daily, models: s.freeOn === false ? [] : FREE.models.filter((id) => modelOn(id, s)) });
+
+/**
+ * What the admin panel changed (kept in platform settings). Anything left out keeps the value in this file or .env.local,
+ * so nothing changes until the admin edits it.
+ */
+export type AiSettings = {
+  budgetUsd?: number; // monthly AI budget for the whole site
+  offProviders?: string[];
+  offModels?: string[];
+  freeOn?: boolean;
+  freeDaily?: number; // tokens a day (two 12-hour windows)
+  freeWindowUsd?: number;
+  packDaily?: Record<string, number>; // by pack price
+  costShare?: number;
+};
+export const PROVIDERS = ["anthropic", "google", "qwen", "openai"] as const;
+/** Switched on in the admin panel (both the model and its provider). */
+export const modelOn = (id: string, s: AiSettings = {}) => !!MODELS[id] && !s.offModels?.includes(id) && !s.offProviders?.includes(MODELS[id].provider);
+export const monthlyBudgetUsd = (s: AiSettings = {}) => s.budgetUsd ?? Number(process.env.AI_MONTHLY_BUDGET_USD || 30);
+/** The values used when the admin panel has not changed them. */
+export const aiDefaults = () => ({
+  budgetUsd: Number(process.env.AI_MONTHLY_BUDGET_USD || 30),
+  freeOn: true,
+  freeDaily: FREE.daily,
+  freeWindowUsd: FREE_WINDOW_USD,
+  costShare: PACK_COST_SHARE,
+  packDaily: Object.fromEntries(PACKS.map((p) => [p, PLANS[p].daily])) as Record<string, number>,
+});
 
 /**
  * Profit guard: a student's AI may cost us at most this share of their pack's price, whatever the models cost.
@@ -50,7 +81,7 @@ export function packPlan(pack: number | undefined) {
 export const PACK_COST_SHARE = Number(process.env.AI_PACK_COST_SHARE) || 0.65;
 const usdToBdt = () => Number(process.env.USD_TO_BDT) || 122;
 /** US$ a student's pack may spend in one 12-hour window (a month has 60 of them). */
-export const windowCostUsd = (pack: number) => (pack ? (pack * PACK_COST_SHARE) / usdToBdt() / 60 : FREE_WINDOW_USD);
+export const windowCostUsd = (pack: number, s: AiSettings = {}) => (pack ? (pack * (s.costShare ?? PACK_COST_SHARE)) / usdToBdt() / 60 : (s.freeWindowUsd ?? FREE_WINDOW_USD));
 /** The window just before this one (overuse in it is taken from this one). */
 export function previousWindow(w: { day: string; slot: number }) {
   if (w.slot > 0) return { day: w.day, slot: w.slot - 1 };
@@ -90,9 +121,9 @@ export async function takeTurn(key: string) {
  * this student's pack doesn't (so they see what a bigger pack would give them). Free (pack 0): the free model shows
  * pack 0, every other one is locked.
  */
-export const modelMenu = (pack: number | undefined) =>
+export const modelMenu = (pack: number | undefined, s: AiSettings = {}) =>
   PACKS.flatMap((p) =>
-    PLANS[p].adds.map((id) =>
+    PLANS[p].adds.filter((id) => modelOn(id, s)).map((id) =>
       pack === 0 && FREE.models.includes(id) ? { id, label: MODELS[id].label, pack: 0, locked: false } : { id, label: MODELS[id].label, pack: p as number, locked: pack === 0 || p > packPlan(pack).pack },
     ),
   );

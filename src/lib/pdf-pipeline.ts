@@ -7,7 +7,8 @@ import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { z } from "zod";
 import { admin, aiSpent, loadPart, whoIs } from "./data-server";
 import { dayKey } from "./dates";
-import { aiWindow, costUsd, usedTokens } from "./ai-chat";
+import { aiWindow, costUsd, monthlyBudgetUsd, usedTokens } from "./ai-chat";
+import { readPlatform } from "./platform-server";
 import { aiSeconds, basicHighlights, clean, canSeeInsights, dedupe, geminiAnswer, geminiPdfAsk, isScanned, type Highlight, type PdfPage } from "./pdf-insights";
 
 const AI_MAX_BYTES = 20 * 1024 * 1024; // the API takes up to 32 MB per request; base64 adds a third
@@ -90,7 +91,7 @@ async function aiRead(path: string, pdf: Uint8Array, pages: PdfPage[]) {
   const reader = pdfReader();
   if (!reader || pdf.byteLength > AI_MAX_BYTES || pages.length > AI_MAX_PAGES) return null;
   // The monthly AI budget covers highlighting too: over it, PDFs get the basic highlights.
-  if ((await aiSpent(`${aiWindow().day.slice(0, 7)}-01`)) >= Number(process.env.AI_MONTHLY_BUDGET_USD || 30)) return null;
+  if ((await aiSpent(`${aiWindow().day.slice(0, 7)}-01`)) >= monthlyBudgetUsd((await readPlatform()).ai)) return null;
   const scanned = pages.filter((p) => p.scanned).map((p) => p.n);
   const note = scanned.length
     ? `Pages ${scanned.join(", ")} are scans or photos with no text layer: for those pages put the full text you read from the image in "transcript" (original language). For all other pages leave "transcript" empty.`

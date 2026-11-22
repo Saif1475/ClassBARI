@@ -26,6 +26,8 @@ class Store extends ChangeNotifier {
   String? role, email;
   Status status = Status.loading;
   bool signedIn = false, syncFailed = false;
+  /// ClassBARI suspended this institute: saves are refused; the banner says why (the website shows the same).
+  var suspended = false;
   final List<Json> _outbox = [];
   int _version = 0, _lastBase = 0;
   Timer? _timer;
@@ -233,6 +235,7 @@ class Store extends ChangeNotifier {
       while (_outbox.isNotEmpty) {
         final res = await api('/api/data', body: _outbox.first);
         if (res.statusCode == 200) {
+          suspended = false;
           _outbox.removeAt(0);
           _adopt(jsonDecode(res.body) as Json);
           status = Status.ready;
@@ -240,6 +243,7 @@ class Store extends ChangeNotifier {
           if (res.statusCode != 401) status = Status.offline; // busy or too fast: kept, and tried again on the next refresh
           break;
         } else {
+          suspended = res.statusCode == 403 && res.body.contains('"suspended"');
           _outbox.clear(); // refused: later changes may depend on it, so show what the server really has
           refused = syncFailed = true;
         }

@@ -527,7 +527,7 @@ export default function TeacherApp({
       {scanning && <QrAttendance students={batchStudents} onPresent={(id) => lms.markPresent(id, attDate)} onClose={() => setScanning(false)} />}
       {liveQuiz && <LiveHost title={liveQuiz.title} questions={liveQuiz.questions} onClose={() => setLiveQuiz(null)} />}
       {isInstitute && showRemind && <RemindDialog students={batchStudents.filter((s) => s.feeDue > 0)} onClose={() => setShowRemind(false)} />}
-      {lms.saveError && <div role="alert" className="bg-error-container px-4 py-2 text-center text-sm font-semibold text-on-error-container">{REAL_AUTH ? t.auth.syncFailed : t.sub.storageFull}</div>}
+      {lms.saveError && <div role="alert" className="bg-error-container px-4 py-2 text-center text-sm font-semibold text-on-error-container">{lms.saveError === "suspended" ? t.auth.suspended : REAL_AUTH ? t.auth.syncFailed : t.sub.storageFull}</div>}
 
       <header className="glass-header hidden min-h-19 shrink-0 flex-wrap items-center justify-between gap-x-5 gap-y-2 px-6 py-2.5 md:flex">
         <div className="flex items-center gap-3">

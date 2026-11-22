@@ -32,6 +32,7 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ["playwright-core"], // the chat → PDF route starts a real browser; it must not be bundled
   allowedDevOrigins: ["192.168.0.225"],
   poweredByHeader: false,
   distDir: process.env.NEXT_DIST_DIR || ".next", // the real-accounts check builds a separate copy (scripts/real-check.mjs)

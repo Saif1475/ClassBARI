@@ -52,7 +52,7 @@ function Rich({ text }: { text: string }) {
 
 /** The AI chat section (student AI packs): chats kept on this device, answers streamed from /api/ai/assistant. */
 export function AiChat({ meId, name, email }: { meId: number; name: string; email?: string }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const A = t.aichat;
   const storeKey = `edunest-ai-chats-${meId}`;
   // Chat settings, kept on this device: the model picked last, and how the student wants answers (language, length).
@@ -230,6 +230,19 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
     const last = msgs.findLast((m) => m.role === "user");
     if (last && !busy) void ask(last.content, msgs.slice(0, msgs.lastIndexOf(last)), "", openId, true); // "try again" always asks the AI afresh
   };
+  // The whole chat as a PDF (drawn on the server, the same file the apps get).
+  const [pdf, setPdf] = useState<"" | "busy" | "failed">("");
+  const downloadPdf = async () => {
+    if (!chat || pdf === "busy") return;
+    setPdf("busy");
+    const res = await fetch("/api/ai/pdf", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title: chat.title, lang, messages: chat.msgs.map(({ role, content, photo }) => ({ role, content, ...(photo ? { photo } : {}) })) }) }).catch(() => null);
+    if (!res?.ok) return setPdf("failed");
+    const url = URL.createObjectURL(await res.blob());
+    const a = Object.assign(document.createElement("a"), { href: url, download: `${chat.title.slice(0, 60) || "chat"}.pdf` });
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 10_000);
+    setPdf("");
+  };
   const copy = (text: string, i: number) => void navigator.clipboard?.writeText(text).then(() => (setCopied(i), setTimeout(() => setCopied(-1), 1500)));
   /** A photo goes as a picture; a PDF, Word, Excel or text file is read here in the browser and its text goes with the chat. */
   const pick = async (file?: File) => {
@@ -384,6 +397,8 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
                     <span className="flex gap-1">
                       <button type="button" onClick={() => copy(m.content, i)} className="min-h-9 rounded-full px-3 text-xs font-bold text-primary hover:bg-surface-container">{copied === i ? A.copied : A.copy}</button>
                       {i === msgs.length - 1 && <button type="button" onClick={retry} className="min-h-9 rounded-full px-3 text-xs font-bold text-primary hover:bg-surface-container">{A.retry}</button>}
+                      {i === msgs.length - 1 && <button type="button" disabled={pdf === "busy"} onClick={downloadPdf} className="min-h-9 rounded-full px-3 text-xs font-bold text-primary hover:bg-surface-container disabled:opacity-60">{pdf === "busy" ? A.pdfMaking : A.downloadPdf}</button>}
+                      {i === msgs.length - 1 && pdf === "failed" && <span role="alert" className="self-center text-xs text-error">{A.pdfFailed}</span>}
                     </span>
                   )}
                 </div>

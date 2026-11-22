@@ -1704,6 +1704,10 @@ const en = {
     free: "Free",
     freePlan: "Free plan",
     disclaimer: "AI can make mistakes. Check important answers with your teacher.",
+    downloadPdf: "Download as PDF",
+    pdfYou: "You",
+    pdfMaking: "Making the PDF…",
+    pdfFailed: "Couldn't make the PDF. Try again.",
     ideas: ["Explain Newton's second law with an example", "Make me a 7-day revision plan for my exam", "Quiz me on Chapter 3 with 5 MCQs", "এই অঙ্কটা ধাপে ধাপে বুঝিয়ে দাও"],
     saved: "Chats are saved on this device only.",
     // Chat settings (website and the AI app)
@@ -1768,6 +1772,7 @@ const en = {
     signIn: "Sign in",
     forgot: "Forgot password?",
     checkEmail: "Almost done! We sent a confirmation link to your email. Open it to finish creating your account.",
+    suspended: "This institute is suspended by ClassBARI, so changes can't be saved. Please contact ClassBARI support.",
     syncFailed: "Couldn't save your last change — it wasn't allowed or you're offline. Showing what's saved.",
     payAtInstitute: "Online payment is coming soon. Please pay at the institute — your receipt will appear here.",
     wrongApp: (app: string) => `This account can't open ${app}. Log out and sign in with the right account, or use the ClassBARI app for this account.`,

@@ -61,6 +61,9 @@ export async function POST(request: Request) {
     await updatePlatform((pl) => {
       const inst = pl.institutes.find((i) => i.email.toLowerCase() === String(p.payer_email).toLowerCase());
       if (inst) Object.assign(inst, { plan: p.item as Plan, status: "active" });
+      // The subscription shown in the admin panel's Subscriptions tab: paid months added on from today or the date it already runs to.
+      const today = new Date(Date.now() + 6 * 3600_000).toISOString().slice(0, 10);
+      pl.subs = { ...pl.subs, [p.institute_id]: { plan: p.item as Plan, paidUntil: packUntil(pl.subs[p.institute_id]?.paidUntil, today, p.months) } };
       pl.audit.unshift({ at: new Date().toISOString(), action: "plan paid", detail: `${p.payer_email} ${p.item} ×${p.months} ৳${p.amount} ${p.method} ${p.trx_id}` });
     });
 

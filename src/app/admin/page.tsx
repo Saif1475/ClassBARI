@@ -4,11 +4,13 @@ import { useCallback, useEffect, useState } from "react";
 import { Logo } from "@/components/Brand";
 import { PLANS, type Flags, type Institute, type overview, type Platform, type Plan } from "@/lib/platform";
 import { isBdMobile, waLink } from "@/lib/site";
+import { PACKS } from "@/lib/ai-chat";
+import { packUntil } from "@/lib/pay";
 
 // ClassBARI staff panel. Staff-only, so English only. Data: /api/platform/admin + /api/leads (ADMIN_TOKEN).
 type Lead = { name: string; phone: string; size: string; at: string };
 type Data = Platform & { overview: ReturnType<typeof overview>; smsLive: boolean; errors?: { at: string; where: string; message: string }[]; alertsOn?: boolean };
-const TABS = ["Overview", "Payments", "Institutes", "Enquiries", "Support", "Announcements", "Features", "SMS", "Plans", "AI answers", "Activity"] as const;
+const TABS = ["Overview", "Payments", "Institutes", "Subscriptions", "Students", "AI control", "API keys", "Enquiries", "Support", "Announcements", "Features", "SMS", "Plans", "AI answers", "Activity"] as const;
 type Tab = (typeof TABS)[number];
 const TOKEN_KEY = "classbari-admin-token"; // this tab only; closed tab = logged out
 const FLAG_INFO: Record<keyof Flags, [string, string]> = {
@@ -189,6 +191,10 @@ export default function Admin() {
           {tab === "Overview" && <Errors data={data} />}
           {tab === "AI answers" && <SavedAnswers token={token} />}
           {tab === "Payments" && <Payments token={token} />}
+          {tab === "Subscriptions" && <Subscriptions token={token} act={act} />}
+          {tab === "Students" && <Students token={token} />}
+          {tab === "AI control" && <AiControl token={token} act={act} />}
+          {tab === "API keys" && <ApiKeys token={token} />}
 
           {tab === "Features" && (
             <>
@@ -520,5 +526,238 @@ function PremiumInstitute({ token }: { token: string }) {
       </div>
       {msg && <p role="status" className="text-sm font-semibold">{msg}</p>}
     </section>
+  );
+}
+
+/** GET an admin route; `msg` says what went wrong (or "" when fine). */
+function useAdminGet<T>(token: string, url: string) {
+  const [data, setData] = useState<T | null>(null);
+  const [msg, setMsg] = useState("Loading…");
+  const load = useCallback(async () => {
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+    const d = await res.json().catch(() => ({}));
+    setData(res.ok ? d : null);
+    setMsg(res.ok ? "" : d.error ?? `Failed to load (${res.status})`);
+  }, [token, url]);
+  useEffect(() => void load(), [load]);
+  return { data, msg, setMsg, load };
+}
+const today = () => new Date(Date.now() + 6 * 3600_000).toISOString().slice(0, 10); // Dhaka date
+
+type Sub = { id: string; name: string; code: string; premium: boolean; createdAt: string; students: number; seats: number; plan: Plan; paidUntil: string; suspended: boolean; aiUsd: number };
+/** Each institute's plan, paid-until date, seats, premium and suspension. */
+function Subscriptions({ token, act }: { token: string; act: Act }) {
+  const { data, msg, setMsg, load } = useAdminGet<{ institutes: Sub[] }>(token, "/api/platform/admin/institutes");
+  const [q, setQ] = useState("");
+  const change = async (body: Record<string, unknown>) => (await act(body), void load());
+  const premium = async (i: Sub, on: boolean) => {
+    const res = await fetch("/api/platform/admin/premium", { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ code: i.code, premium: on }) });
+    const d = await res.json().catch(() => ({}));
+    setMsg(res.ok ? "" : d.error ?? "Failed");
+    void load();
+  };
+  const list = (data?.institutes ?? []).filter((i) => `${i.name} ${i.code}`.toLowerCase().includes(q.toLowerCase()));
+  return (
+    <>
+      <p className="text-sm text-on-surface-variant">Every institute with a real account. Seats: students now / the plan&apos;s limit. A suspended institute can still sign in and look, but no change is saved and they see a message saying so.</p>
+      <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search name or code…" aria-label="Search institutes" className={`${input} min-w-56`} />
+      {msg && <p role="status" className="text-sm font-semibold">{msg}</p>}
+      {data && !list.length && <p className="text-on-surface-variant">No institutes.</p>}
+      {list.map((i) => (
+        <article key={i.id} className={`${card} flex flex-col gap-3 ${i.suspended ? "ring-2 ring-error" : ""}`}>
+          <div className="flex flex-wrap items-center gap-2">
+            <b className="text-lg">{i.name}</b>
+            <span className="rounded-full bg-surface-container px-2 font-mono text-xs">{i.code}</span>
+            {i.suspended && <span className="rounded-full bg-error px-2 text-xs font-bold text-white">Suspended</span>}
+            <span className="ml-auto text-xs text-on-surface-variant">Since {when(i.createdAt)}</span>
+          </div>
+          <p className="text-sm">Seats <b className={i.students > i.seats ? "text-error" : ""}>{i.students} / {i.seats}</b> · AI this month <b>${i.aiUsd.toFixed(2)}</b></p>
+          <div className="flex flex-wrap items-end gap-3 text-sm">
+            <label className="flex flex-col gap-1 font-semibold">Plan
+              <select value={i.plan} onChange={(e) => change({ type: "sub", id: i.id, name: i.name, plan: e.target.value })} aria-label={`Plan of ${i.name}`} className={`${input} capitalize`}>
+                {PLANS.map((p) => <option key={p} value={p}>{p}</option>)}
+              </select>
+            </label>
+            <label className="flex flex-col gap-1 font-semibold">Paid until
+              <input type="date" value={i.paidUntil} onChange={(e) => change({ type: "sub", id: i.id, name: i.name, paidUntil: e.target.value })} aria-label={`Paid until for ${i.name}`} className={input} />
+            </label>
+            <button type="button" onClick={() => premium(i, !i.premium)} className={`${btn} ${i.premium ? "bg-primary text-on-primary" : "bg-surface-container"}`}>{i.premium ? "Premium ON (turn off)" : "Make premium"}</button>
+            <button type="button" onClick={() => (i.suspended || confirm(`Suspend ${i.name}? Nobody there can save changes until you unsuspend it.`)) && change({ type: "suspend", id: i.id, name: i.name, on: !i.suspended })} className={`${btn} ${i.suspended ? "bg-primary text-on-primary" : "bg-error text-white"}`}>
+              {i.suspended ? "Unsuspend" : "Suspend"}
+            </button>
+          </div>
+        </article>
+      ))}
+    </>
+  );
+}
+
+type StudentRow = { institute: string; instituteName: string; code: string; id: number; name: string; email: string; batch: string; pack: number | null; until: string | null; paid: boolean; tokens: number; costUsd: number; questions: number; limit: number };
+/** Students of every institute: their AI pack, and this 12-hour window's use. */
+function Students({ token }: { token: string }) {
+  const [q, setQ] = useState("");
+  const [search, setSearch] = useState("");
+  const { data, msg, setMsg, load } = useAdminGet<{ total: number; resetsAt: string; students: StudentRow[] }>(token, `/api/platform/admin/students?q=${encodeURIComponent(search)}`);
+  const send = async (body: Record<string, unknown>, done: string) => {
+    const res = await fetch("/api/platform/admin/students", { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const d = await res.json().catch(() => ({}));
+    await load();
+    setMsg(res.ok ? done : d.error ?? "Failed");
+  };
+  return (
+    <>
+      <form className="flex flex-wrap gap-2" onSubmit={(e) => (e.preventDefault(), setSearch(q))}>
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Name, email, institute or code" aria-label="Search students" className={`${input} min-w-0 flex-1`} />
+        <button type="submit" className={`${btn} bg-primary text-on-primary`}>Search</button>
+      </form>
+      {msg && <p role="status" className="text-sm font-semibold">{msg}</p>}
+      {data && <p className="text-sm text-on-surface-variant">{data.total} found{data.total > data.students.length ? `, first ${data.students.length} shown` : ""}. This AI window refills {when(data.resetsAt)}.</p>}
+      {data?.students.map((s) => <StudentCard key={`${s.institute}:${s.id}`} s={s} send={send} />)}
+    </>
+  );
+}
+
+function StudentCard({ s, send }: { s: StudentRow; send: (body: Record<string, unknown>, done: string) => Promise<void> }) {
+  const [pack, setPack] = useState(String(s.pack ?? 150));
+  const [until, setUntil] = useState(s.until && s.until >= today() ? s.until : packUntil(undefined, today(), 1));
+  const who = { institute: s.institute, id: s.id };
+  return (
+    <article className={`${card} flex flex-col gap-2 text-sm`}>
+      <p className="flex flex-wrap items-center gap-2">
+        <b className="text-base">{s.name}</b>
+        <span className="text-on-surface-variant">{s.email} · {s.batch} · {s.instituteName} ({s.code})</span>
+      </p>
+      <p>
+        AI: {s.paid ? <b>pack ৳{s.pack ?? 150} until {s.until}</b> : <b>free{s.until ? ` (pack ended ${s.until})` : ""}</b>} · this window {s.tokens.toLocaleString()} of {s.limit.toLocaleString()} tokens, ${s.costUsd.toFixed(4)}, {s.questions} questions
+      </p>
+      <div className="flex flex-wrap items-end gap-2">
+        <label className="flex flex-col gap-1 font-semibold">Pack
+          <select value={pack} onChange={(e) => setPack(e.target.value)} aria-label={`Pack for ${s.name}`} className={input}>
+            {PACKS.map((p) => <option key={p} value={p}>৳{p}</option>)}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1 font-semibold">Until
+          <input type="date" value={until} min={today()} onChange={(e) => setUntil(e.target.value)} aria-label={`Pack end for ${s.name}`} className={input} />
+        </label>
+        <button type="button" onClick={() => setUntil(packUntil(until, today(), 1))} className={`${btn} bg-surface-container`}>+1 month</button>
+        <button type="button" onClick={() => confirm(`Give ${s.name} the ৳${pack} pack until ${until}? (No payment is recorded.)`) && send({ ...who, action: "pack", pack: Number(pack), until }, "Pack saved")} className={`${btn} bg-primary text-on-primary`}>{s.paid ? "Save pack" : "Give pack"}</button>
+        {s.paid && <button type="button" onClick={() => confirm(`Stop ${s.name}'s AI pack now?`) && send({ ...who, action: "stop" }, "Pack stopped")} className={`${btn} bg-error text-white`}>Stop pack</button>}
+        <button type="button" onClick={() => confirm(`Reset ${s.name}'s AI use for this 12-hour window? (It still counts in the month's spending.)`) && send({ ...who, action: "reset" }, "AI window reset")} className={`${btn} bg-surface-container`}>Reset AI window</button>
+      </div>
+    </article>
+  );
+}
+
+type AiData = {
+  settings: { budgetUsd?: number; freeOn?: boolean; freeDaily?: number; freeWindowUsd?: number; costShare?: number; packDaily?: Record<string, number> };
+  defaults: { budgetUsd: number; freeOn: boolean; freeDaily: number; freeWindowUsd: number; costShare: number; packDaily: Record<string, number> };
+  since: string;
+  spend: { total: number; byInstitute: { name: string; usd: number }[] } | null;
+  providers: { id: string; key: string; keySet: boolean; on: boolean }[];
+  models: { id: string; label: string; provider: string; price: [number, number, number]; pack: number | null; on: boolean; ready: boolean }[];
+};
+/** AI switches, limits and budget. A blank box means the value from the code / .env.local (shown as the placeholder). */
+function AiControl({ token, act }: { token: string; act: Act }) {
+  const { data, msg, load } = useAdminGet<AiData>(token, "/api/platform/admin/ai");
+  if (!data) return <p role="status" className="text-sm font-semibold">{msg}</p>;
+  const set = async (body: Record<string, unknown>) => (await act({ type: "ai", ...body }), void load());
+  const { settings: s, defaults: d } = data;
+  const swatch = (on: boolean, change: (on: boolean) => void, label: string) => (
+    <label className="flex items-center gap-2 text-sm font-bold">
+      <input type="checkbox" role="switch" checked={on} onChange={(e) => change(e.target.checked)} aria-label={label} className="h-5 w-5 accent-[var(--color-primary)]" />
+      <span className={on ? "text-primary" : "text-error"}>{on ? "On" : "Off"}</span>
+    </label>
+  );
+  return (
+    <>
+      <section className={`${card} flex flex-col gap-2`}>
+        <h2 className="font-bold">This month&apos;s AI spending (since {data.since})</h2>
+        {data.spend ? (
+          <>
+            <p className="text-2xl font-bold">${data.spend.total.toFixed(2)} <span className="text-sm font-normal text-on-surface-variant">of ${(s.budgetUsd ?? d.budgetUsd).toFixed(2)} budget</span></p>
+            {data.spend.byInstitute.slice(0, 20).map((x) => <p key={x.name} className="flex justify-between text-sm"><span>{x.name}</span><b>${x.usd.toFixed(3)}</b></p>)}
+            <p className="text-xs text-on-surface-variant">Spending is not recorded per model (the server log has a line for each answer).</p>
+          </>
+        ) : <p className="text-sm text-on-surface-variant">Only with real accounts (Supabase).</p>}
+      </section>
+      <section className={`${card} flex flex-col gap-3`}>
+        <h2 className="font-bold">Limits</h2>
+        <p className="text-sm text-on-surface-variant">Empty box: the value from the code or .env.local (shown greyed). Save with Enter; clear the box and save to go back to it.</p>
+        <Setting label="Monthly AI budget (US$, whole site)" value={s.budgetUsd} def={d.budgetUsd} step="0.01" onSave={(v) => set({ key: "budgetUsd", value: v })} />
+        <div className="flex flex-wrap items-center gap-3"><b className="text-sm">Free plan (students without a pack)</b>{swatch(s.freeOn ?? d.freeOn, (on) => set({ key: "freeOn", value: on }), "Free plan")}</div>
+        <Setting label="Free plan: tokens a day (half per 12-hour window)" value={s.freeDaily} def={d.freeDaily} onSave={(v) => set({ key: "freeDaily", value: v })} />
+        <Setting label="Free plan: most money per 12-hour window (US$)" value={s.freeWindowUsd} def={d.freeWindowUsd} step="0.0001" onSave={(v) => set({ key: "freeWindowUsd", value: v })} />
+        {PACKS.map((p) => <Setting key={p} label={`Pack ৳${p}: tokens a day`} value={s.packDaily?.[p]} def={d.packDaily[p]} onSave={(v) => set({ key: "packDaily", pack: p, value: v })} />)}
+        <Setting label="Pack cost share (most of a pack's price AI may cost, 0–1)" value={s.costShare} def={d.costShare} step="0.01" onSave={(v) => set({ key: "costShare", value: v })} />
+      </section>
+      <section className={`${card} flex flex-col gap-2`}>
+        <h2 className="font-bold">Providers</h2>
+        {data.providers.map((p) => (
+          <div key={p.id} className="flex flex-wrap items-center gap-3 text-sm">
+            <b className="w-24 capitalize">{p.id}</b>
+            <span className={p.keySet ? "text-primary" : "text-error"}>{p.key} {p.keySet ? "set" : "missing"}</span>
+            <span className="ml-auto">{swatch(p.on, (on) => set({ key: "provider", id: p.id, value: on }), `Provider ${p.id}`)}</span>
+          </div>
+        ))}
+      </section>
+      <section className={`${card} flex flex-col gap-2`}>
+        <h2 className="font-bold">Models</h2>
+        <p className="text-sm text-on-surface-variant">A model switched off (or whose provider is off) is hidden from students&apos; pickers and never used by the chat.</p>
+        {data.models.map((m) => (
+          <div key={m.id} className="flex flex-wrap items-center gap-3 text-sm">
+            <span className="min-w-48 flex-1"><b>{m.label}</b> <span className="font-mono text-xs text-on-surface-variant">{m.id}</span></span>
+            <span className="text-on-surface-variant">{m.pack === null ? "staff only" : m.pack ? `from ৳${m.pack}` : "free"} · ${m.price[0]}/${m.price[1]} per M</span>
+            {!m.ready && <span className="text-xs font-bold text-error">no key</span>}
+            {swatch(m.on, (on) => set({ key: "model", id: m.id, value: on }), `Model ${m.label}`)}
+          </div>
+        ))}
+      </section>
+    </>
+  );
+}
+
+function Setting({ label, value, def, step = "1", onSave }: { label: string; value: number | undefined; def: number; step?: string; onSave: (v: number | null) => void }) {
+  const [v, setV] = useState(value === undefined ? "" : String(value));
+  useEffect(() => setV(value === undefined ? "" : String(value)), [value]);
+  const changed = v !== (value === undefined ? "" : String(value));
+  return (
+    <form onSubmit={(e) => (e.preventDefault(), onSave(v.trim() === "" ? null : Number(v)))} className="flex flex-wrap items-center gap-2 text-sm">
+      <span className="min-w-48 flex-1">{label}</span>
+      <input type="number" min={0} step={step} value={v} placeholder={String(def)} onChange={(e) => setV(e.target.value)} aria-label={label} className={`${input} w-36`} />
+      {changed && <button type="submit" className={`${btn} bg-primary text-on-primary`}>Save</button>}
+    </form>
+  );
+}
+
+type KeyRow = { group: string; name: string; secret: boolean; set: boolean; check?: string };
+/** Which server settings are set in .env.local. Values never leave the server; change them in .env.local and restart. */
+function ApiKeys({ token }: { token: string }) {
+  const { data, msg } = useAdminGet<{ keys: KeyRow[] }>(token, "/api/platform/admin/keys");
+  const [checked, setChecked] = useState<Record<string, string>>({});
+  const check = async (provider: string) => {
+    setChecked((c) => ({ ...c, [provider]: "Checking…" }));
+    const res = await fetch("/api/platform/admin/keys", { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ provider }) });
+    const d = await res.json().catch(() => ({}));
+    setChecked((c) => ({ ...c, [provider]: d.ok ? "Works ✓" : `Not working (${d.status ?? d.error ?? res.status})` }));
+  };
+  return (
+    <>
+      <p className="text-sm text-on-surface-variant">Keys live only in .env.local on the server. This page shows whether each is set, never its value. To change one, edit .env.local and restart the server. &quot;Check&quot; asks the provider&apos;s free model list (no AI answer is paid for).</p>
+      {msg && <p role="status" className="text-sm font-semibold">{msg}</p>}
+      {[...new Set(data?.keys.map((k) => k.group))].map((g) => (
+        <section key={g} className={`${card} flex flex-col gap-2`}>
+          <h2 className="font-bold">{g}</h2>
+          {data!.keys.filter((k) => k.group === g).map((k) => (
+            <div key={k.name} className="flex flex-wrap items-center gap-3 text-sm">
+              <span className="min-w-56 flex-1 break-all font-mono">{k.name}</span>
+              {k.secret && <span className="rounded-full bg-surface-container px-2 text-xs font-bold">secret</span>}
+              <b className={k.set ? "text-primary" : "text-on-surface-variant"}>{k.set ? "Set" : "Not set"}</b>
+              {k.check && k.set && <button type="button" onClick={() => void check(k.check!)} className={`${btn} bg-surface-container text-primary`}>Check</button>}
+              {k.check && checked[k.check] && <span className="font-semibold">{checked[k.check]}</span>}
+            </div>
+          ))}
+        </section>
+      ))}
+    </>
   );
 }

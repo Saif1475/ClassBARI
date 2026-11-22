@@ -1,17 +1,17 @@
 // Server only: one student's AI allowance for the current 12-hour window (tokens and, for packs, money), shared by
 // the AI chat and "Ask AI" on a PDF. Overuse in the previous window is taken from this one.
-import { aiWindow, carried, leftPct, previousWindow, windowCostUsd, windowTokens } from "./ai-chat.ts";
+import { aiWindow, carried, leftPct, previousWindow, windowCostUsd, windowTokens, type AiSettings } from "./ai-chat.ts";
 import { admin } from "./data-server.ts";
 
 /** Read it only while holding the person's turn (`takeTurn` in ai-chat.ts), so no other answer is counted in between. */
-export async function allowance(key: string, institute: string, plan: { daily: number; pack: number } | null) {
+export async function allowance(key: string, institute: string, plan: { daily: number; pack: number } | null, settings: AiSettings = {}) {
   const db = admin();
   const w = aiWindow();
   const p = previousWindow(w);
   const row = (day: string, slot: number) => db.from("ai_usage").select("questions, cost_usd, tokens").eq("user_key", key).eq("day", day).eq("slot", slot).maybeSingle();
   const [{ data: mine }, { data: before }] = await Promise.all([row(w.day, w.slot), row(p.day, p.slot)]);
   const limit = windowTokens(plan?.daily);
-  const costLimit = plan ? windowCostUsd(plan.pack) : Infinity; // staff previews: tokens only (the monthly budget still applies)
+  const costLimit = plan ? windowCostUsd(plan.pack, settings) : Infinity; // staff previews: tokens only (the monthly budget still applies)
   const carry = carried(before, limit, costLimit);
   const tokens = Number(mine?.tokens ?? 0) + carry.tokens;
   const cost = Number(mine?.cost_usd ?? 0) + carry.cost;

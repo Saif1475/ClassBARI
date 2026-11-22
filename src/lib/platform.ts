@@ -1,6 +1,7 @@
 // ClassBARI platform data run by our own staff (admin panel): institutes, support tickets,
 // announcements, feature switches, plan prices and an activity log. Pure functions only
 // (also loaded by scripts/platform.test.mjs); saving happens in src/lib/platform-server.ts.
+import { MODELS, PACKS, PROVIDERS, type AiSettings } from "./ai-chat.ts";
 
 export type Plan = "free" | "basic" | "pro";
 export type InstituteStatus = "trial" | "active" | "suspended";
@@ -44,6 +45,11 @@ export type Platform = {
   smsLog: SmsEntry[];
   push: PushSub[];
   pushSent: { day: string; count: number };
+  /** Institutes (Supabase ids) whose changes are refused: they can still sign in and look, not save. */
+  suspended: string[];
+  /** Subscription of each Supabase institute (by id), set in the admin panel or by an approved plan payment. */
+  subs: Record<string, { plan: Plan; paidUntil: string }>;
+  ai: AiSettings;
 };
 
 export const PLANS: Plan[] = ["free", "basic", "pro"];
@@ -64,6 +70,9 @@ export const defaultPlatform = (): Platform => ({
   smsLog: [],
   push: [],
   pushSent: { day: "", count: 0 },
+  suspended: [],
+  subs: {},
+  ai: {},
 });
 
 /** What every visitor's app may read: no institutes, tickets or log. */
@@ -100,6 +109,48 @@ export function addTicket(p: Platform, input: Record<string, unknown>, id: strin
   p.tickets.unshift(t);
   p.tickets.length = Math.min(p.tickets.length, 5000); // keeps the newest
   return t;
+}
+
+/** A suspended institute may read its data but not change it (checked by /api/data before every save). */
+export const isSuspended = (p: Platform, institute: string) => p.suspended.includes(institute);
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const DAY = /^\d{4}-\d{2}-\d{2}$/;
+const num = (v: unknown, max: number, whole = false) => typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= max && (!whole || Number.isInteger(v));
+/** One AI setting from the admin panel: { key, value } (value null: back to the default in the code / .env.local). */
+function setAi(ai: AiSettings, a: Record<string, unknown>): string | { error: string } {
+  const v = a.value;
+  const toggle = (list: string[] | undefined, id: string) => (v ? (list ?? []).filter((x) => x !== id) : [...new Set([...(list ?? []), id])]);
+  switch (a.key) {
+    case "provider":
+      if (!PROVIDERS.includes(a.id as (typeof PROVIDERS)[number]) || typeof v !== "boolean") return { error: "bad provider" };
+      ai.offProviders = toggle(ai.offProviders, a.id as string);
+      return `provider ${a.id}=${v ? "on" : "off"}`;
+    case "model":
+      if (typeof a.id !== "string" || !Object.hasOwn(MODELS, a.id) || typeof v !== "boolean") return { error: "bad model" };
+      ai.offModels = toggle(ai.offModels, a.id);
+      return `model ${a.id}=${v ? "on" : "off"}`;
+    case "packDaily": {
+      if (!(PACKS as readonly number[]).includes(Number(a.pack)) || (v !== null && !num(v, 10_000_000, true))) return { error: "bad tokens" };
+      const daily = { ...ai.packDaily };
+      if (v === null) delete daily[String(a.pack)];
+      else daily[String(a.pack)] = v as number;
+      ai.packDaily = daily;
+      return `pack ৳${a.pack} tokens/day=${v ?? "default"}`;
+    }
+  }
+  const ok: Record<string, (x: unknown) => boolean> = {
+    budgetUsd: (x) => num(x, 100_000),
+    freeOn: (x) => typeof x === "boolean",
+    freeDaily: (x) => num(x, 10_000_000, true),
+    freeWindowUsd: (x) => num(x, 10),
+    costShare: (x) => num(x, 1) && (x as number) > 0,
+  };
+  const key = a.key as "budgetUsd" | "freeOn" | "freeDaily" | "freeWindowUsd" | "costShare";
+  if (typeof a.key !== "string" || !Object.hasOwn(ok, key) || (v !== null && !ok[key](v))) return { error: "bad AI setting" };
+  if (v === null) delete ai[key];
+  else Object.assign(ai, { [key]: v });
+  return `${key}=${v ?? "default"}`;
 }
 
 /** Every admin change goes through here and is written to the activity log. */
@@ -170,6 +221,33 @@ export function adminAction(p: Platform, a: Record<string, unknown>, now: Date):
       if (!Number.isInteger(n) || n < 0 || n > SMS_LOG_KEEP) return { error: "bad limit" }; // today's count comes from the log
       p.smsDailyLimit = n;
       log("sms", `daily limit=${n}`);
+      return { ok: true };
+    }
+    case "ai": {
+      const res = setAi(p.ai, a);
+      if (typeof res !== "string") return res;
+      log("ai", res);
+      return { ok: true };
+    }
+    case "suspend": {
+      if (typeof a.id !== "string" || !UUID.test(a.id) || typeof a.on !== "boolean") return { error: "bad institute" };
+      p.suspended = a.on ? [...new Set([...p.suspended, a.id])] : p.suspended.filter((x) => x !== a.id);
+      log("institute", `${String(a.name ?? a.id).slice(0, 120)}: ${a.on ? "suspended" : "unsuspended"}`);
+      return { ok: true };
+    }
+    case "sub": {
+      if (typeof a.id !== "string" || !UUID.test(a.id)) return { error: "bad institute" };
+      const sub = p.subs[a.id] ? { ...p.subs[a.id] } : { plan: "free" as Plan, paidUntil: "" };
+      if (a.plan !== undefined) {
+        if (!PLANS.includes(a.plan as Plan)) return { error: "bad plan" };
+        sub.plan = a.plan as Plan;
+      }
+      if (a.paidUntil !== undefined) {
+        if (a.paidUntil !== "" && (typeof a.paidUntil !== "string" || !DAY.test(a.paidUntil))) return { error: "bad date" };
+        sub.paidUntil = a.paidUntil as string;
+      }
+      p.subs = { ...p.subs, [a.id]: sub };
+      log("subscription", `${String(a.name ?? a.id).slice(0, 120)}: plan=${sub.plan}, paid until ${sub.paidUntil || "-"}`);
       return { ok: true };
     }
     case "price": {

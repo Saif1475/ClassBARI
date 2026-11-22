@@ -6,6 +6,8 @@ import { afterAction } from "@/lib/pdf-pipeline";
 import { holdPost } from "@/lib/image-check";
 import { unkind } from "@/lib/word-filter";
 import { MAX_IMAGES } from "@/lib/community";
+import { isSuspended } from "@/lib/platform";
+import { readPlatform } from "@/lib/platform-server";
 import { limited } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
@@ -30,6 +32,9 @@ export async function POST(request: Request) {
   if (!REAL_AUTH) return Response.json({ error: "demo mode" }, { status: 404 });
   const me = await whoIs(request);
   if (!me) return Response.json({ error: "sign in" }, { status: 401 });
+  // Suspended by ClassBARI (admin panel): everyone there can still look, but nothing is saved.
+  if (isSuspended(await readPlatform(), me.institute))
+    return Response.json({ error: "suspended", message: "This institute is suspended by ClassBARI, so changes can't be saved. Please contact ClassBARI support." }, { status: 403 });
   // A homework photo is a few MB; nothing a person does by hand needs more than this, or more often.
   if (Number(request.headers.get("content-length")) > 12_000_000) return Response.json({ error: "too large" }, { status: 413 });
   const over = limited(request, "data", 240, 60_000, `${me.institute}:${me.who.role}:${me.who.studentIds[0] ?? me.who.email}`);
