@@ -51,7 +51,7 @@ export async function whoIs(request: Request): Promise<Me | null> {
   const role = rows.some((r) => r.role === "student") ? "student" : "guardian";
   const first = rows.find((r) => r.role === role)!;
   const ids = rows.filter((r) => r.role === role && r.institute_id === first.institute_id).map((r) => r.student_id as number);
-  return { institute: first.institute_id, who: { role, name: "", studentIds: ids } };
+  return { institute: first.institute_id, who: { role, name: "", studentIds: ids, email } }; // email: notification devices and switches are kept per person
 }
 
 export const STAFF_ROLES = ["owner", "manager", "teacher"];

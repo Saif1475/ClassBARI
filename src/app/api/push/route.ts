@@ -24,8 +24,8 @@ export async function POST(request: Request) {
     if (!me) return Response.json({ error: "sign in" }, { status: 401 });
     if (typeof sub?.endpoint !== "string" || !sub.endpoint.startsWith("https://") || typeof sub.keys?.p256dh !== "string" || typeof sub.keys?.auth !== "string")
       return Response.json({ error: "bad subscription" }, { status: 400 });
-    await saveDevice(me.institute, me.who, { kind: "web", token: sub.endpoint, sub: { endpoint: sub.endpoint, keys: { p256dh: sub.keys.p256dh, auth: sub.keys.auth } }, lang: body.lang });
-    return Response.json({ ok: true });
+    const saved = await saveDevice(me.institute, me.who, { kind: "web", token: sub.endpoint, sub: { endpoint: sub.endpoint, keys: { p256dh: sub.keys.p256dh, auth: sub.keys.auth } }, lang: body.lang });
+    return saved ? Response.json({ ok: true }) : Response.json({ error: "try again" }, { status: 503 });
   }
   const res = await updatePlatform((p) => addPushSub(p, body, new Date()));
   return Response.json(res, { status: "error" in res ? 400 : 200 });

@@ -6,6 +6,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show SignOutScope;
 
 import 'api.dart';
 import 'config.dart';
@@ -182,6 +183,8 @@ class Store extends ChangeNotifier {
       } else if (res.statusCode == 204) {
         status = Status.ready;
       } else if (res.statusCode == 401) {
+        // The login may have been ended elsewhere: renewing it finds out (and logs out on this phone if so).
+        if (!await renewLogin()) return;
         status = Status.noAccess; // signed in, but not on any list (or not at the institute picked)
       } else {
         status = state == null ? Status.loading : Status.offline;
@@ -267,7 +270,7 @@ class Store extends ChangeNotifier {
     await beforeSignOut?.call(); // e.g. this phone stops getting notifications (needs the login still)
     _forget();
     notifyListeners();
-    await auth.signOut();
+    await auth.signOut(scope: SignOutScope.local); // this phone only
   }
 
   // ---- who is looking --------------------------------------------------------------------------------------------

@@ -45,7 +45,7 @@ Future<void> registerPush() async {
     // id). They still work and the server sends by token; move both together once Google's send-by-id API is checked.
     // ignore: deprecated_member_use
     final token = await FirebaseMessaging.instance.getToken();
-    if (token == null) return;
+    if (token == null) return debugPrint('notifications: Google gave no address for this phone');
     await _send(token);
     // ignore: deprecated_member_use
     _refresh ??= FirebaseMessaging.instance.onTokenRefresh.listen(_send); // Google changes it now and then
@@ -57,6 +57,7 @@ Future<void> registerPush() async {
 Future<void> _send(String token) async {
   final res = await api('/api/notify/device', body: {'token': token, 'lang': lang.code});
   if (res.statusCode == 200) _token = token;
+  debugPrint('notifications: ${res.statusCode == 200 ? 'this phone is registered' : 'not registered (${res.statusCode})'}');
 }
 
 /// Before logging out: this phone gets nothing more for this person.

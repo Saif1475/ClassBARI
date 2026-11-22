@@ -68,6 +68,7 @@ class _ClassbariAppState extends State<ClassbariApp> {
       },
     );
     store.addListener(leftScreens);
+    if (store.signedIn && store.role != null) registerPush(); // opened already logged in: nothing may change to call it
     // A notification while the app is open: shown at the bottom, with a button to go to it.
     onForeground = (title, body, screen) => messenger.currentState?.showSnackBar(
       SnackBar(

@@ -14,8 +14,8 @@ export async function POST(request: Request) {
   if (!me) return Response.json({ error: "sign in" }, { status: 401 });
   const body = (await request.json().catch(() => null)) as { token?: unknown; lang?: unknown } | null;
   if (typeof body?.token !== "string" || body.token.length < 20 || body.token.length > 4096) return Response.json({ error: "bad token" }, { status: 400 });
-  await saveDevice(me.institute, me.who, { kind: "fcm", token: body.token, lang: body.lang });
-  return Response.json({ ok: true });
+  const saved = await saveDevice(me.institute, me.who, { kind: "fcm", token: body.token, lang: body.lang });
+  return saved ? Response.json({ ok: true }) : Response.json({ error: "try again" }, { status: 503 }); // the phone tries again next time
 }
 
 /** Logging out: this phone gets nothing more. { token } */

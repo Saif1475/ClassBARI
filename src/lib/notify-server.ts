@@ -41,6 +41,7 @@ export async function send(institute: string, note: Note, s: LmsState, actor?: s
     if (error) return 0; // already sent (or the table is missing: then nothing is sent twice either)
   }
   const devices = await devicesFor(institute, note, s, actor);
+  console.info(`notify: ${note.text[0]} → ${devices.length} device(s)`); // counts only, no names
   const gone: string[] = [];
   await Promise.allSettled(
     devices.map(async (d) => {
@@ -98,8 +99,10 @@ export async function runTimed(now = new Date()) {
 
 /** Add or refresh this device for this person. */
 export async function saveDevice(institute: string, who: { email?: string; role: string; studentIds: number[] }, d: { kind: "web" | "fcm"; token: string; sub?: unknown; lang?: unknown }) {
-  if (!who.email) return;
-  await admin().from("push_devices").upsert({ token: d.token, kind: d.kind, sub: d.sub ?? null, institute_id: institute, email: who.email, role: who.role, student_ids: who.studentIds, lang: d.lang === "bn" ? "bn" : "en", updated_at: new Date().toISOString() });
+  if (!who.email) return false;
+  const { error } = await admin().from("push_devices").upsert({ token: d.token, kind: d.kind, sub: d.sub ?? null, institute_id: institute, email: who.email, role: who.role, student_ids: who.studentIds, lang: d.lang === "bn" ? "bn" : "en", updated_at: new Date().toISOString() });
+  if (error) console.error("notify: saving the device failed:", error.message);
+  return !error;
 }
 export const forgetDevice = (token: string, email: string) => admin().from("push_devices").delete().eq("token", token).eq("email", email);
 

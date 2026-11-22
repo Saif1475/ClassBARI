@@ -11,14 +11,27 @@ GoTrueClient get auth => Supabase.instance.client.auth;
 /// The login token, renewed first if it has run out.
 Future<String?> _token() async {
   var s = auth.currentSession;
-  if (s != null && s.isExpired) {
-    try {
-      s = (await auth.refreshSession()).session;
-    } catch (_) {
-      // offline, or the login has ended: the server answers 401 and the screens say so
-    }
-  }
+  if (s != null && s.isExpired) s = await renewLogin() ? auth.currentSession : s;
   return s?.accessToken;
+}
+
+/// Renew the login. Without internet it stays as it is (true); a login ended elsewhere (a password change, or "log
+/// out everywhere") logs out on this phone, which shows the login screen again (false).
+Future<bool> renewLogin() async {
+  try {
+    return (await auth.refreshSession()).session != null || await _ended();
+  } on AuthRetryableFetchException {
+    return true; // no internet: keep what there is
+  } on AuthException {
+    return _ended();
+  } catch (_) {
+    return true;
+  }
+}
+
+Future<bool> _ended() async {
+  await auth.signOut(scope: SignOutScope.local).catchError((_) {});
+  return false;
 }
 
 Future<Map<String, String>> _headers() async {
