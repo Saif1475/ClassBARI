@@ -154,7 +154,23 @@ test("only a first question on its own, with nothing personal in it, is shared b
   assert.equal(await findAnswer(db([near]), [], "x", "নিউটনের দ্বিতীয় সূত্র কী?"), null);
   assert.equal((await findAnswer(db([near, exact]), [], "x", "নিউটনের দ্বিতীয় সূত্র কী?")).id, 2);
   assert.equal(await findAnswer(db([{ ...exact, question: undefined }]), [], "x", "নিউটনের দ্বিতীয় সূত্র কী?"), null);
-  assert.equal(await findAnswer(db([{ ...exact, similarity: 0.9 }]), [], "x", "নিউটনের দ্বিতীয় সূত্র কী?"), null);
+  assert.equal((await findAnswer(db([{ ...exact, similarity: 0.9 }]), [], "x", "নিউটনের দ্বিতীয় সূত্র কী?")).id, 2); // same key words: 0.9 is enough
+  assert.equal(await findAnswer(db([{ ...exact, similarity: 0.7 }]), [], "x", "নিউটনের দ্বিতীয় সূত্র কী?"), null); // below the floor
+  // Reworded questions (similarities measured with the real model) reuse the answer; different ones never do.
+  const { closeEnough } = await import("../src/lib/answer-cache.ts");
+  for (const [sim, a, b, want] of [
+    [0.965, "What is Newton's second law?", "Explain Newton's second law", true],
+    [0.916, "What is Newton's second law?", "what is newtons 2nd law", true],
+    [0.948, "Explain photosynthesis", "What is photosynthesis?", true],
+    [0.779, "নিউটনের দ্বিতীয় সূত্র কী?", "নিউটনের ২য় সূত্র ব্যাখ্যা করো", true],
+    [0.899, "তরঙ্গের বেগ কীভাবে বের করব?", "তরঙ্গের বেগ বের করার সূত্র কী?", true],
+    [0.978, "Solve x^2 - 5x + 6 = 0", "Solve x^2 - 5x + 4 = 0", false],
+    [0.97, "নিউটনের দ্বিতীয় সূত্র কী?", "নিউটনের তৃতীয় সূত্র কী?", false],
+    [0.95, "What is osmosis?", "Why is osmosis?", false],
+    [0.95, "divide 10 by 2", "divide 2 by 10", false],
+    [0.9, "What is an acid?", "What is a base?", false],
+    [0.8, "Explain photosynthesis", "Explain photosynthesis in plants and its stages", false], // too few shared words for 0.8
+  ]) assert.equal(closeEnough(sim, a, b), want, `${a} / ${b}`);
   assert.equal(personal("Explain the photoelectric effect"), false);
   assert.equal(langOf("তরঙ্গ কী?"), "bn");
   assert.equal(langOf("What is a wave?"), "en");
@@ -190,7 +206,7 @@ test("an answer is kept for others only on a clear YES from the second check; th
   assert.equal(vetModel(() => true), "qwen3.7-flash");
   assert.equal(vetModel((id) => id.startsWith("claude")), "claude-haiku-5-5");
   assert.equal(vetModel(() => false), undefined); // no key: nothing is kept
-  assert.equal(SIMILAR, 0.95);
+  assert.equal(SIMILAR, 0.75);
 });
 
 test("the model is told which language to answer in, from the letters of the question", () => {
