@@ -180,7 +180,7 @@ details > summary::-webkit-details-marker {
 }
 html {
   scroll-behavior: smooth;
-  font-size: var(--text-size, 100%); /* A / A+ / A++ */
+  font-size: var(--text-size, 100%); /* Settings: the text-size slider (90%–130%); headers: A / A+ / A++ */
 }
 /* Phones: everything sized in rem comes out a little smaller (15px instead of 16px at "A"). */
 @media (max-width: 767px) {

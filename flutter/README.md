@@ -112,6 +112,8 @@ Email and password login (with the verification code) works without this.
 
 - `lib/config.dart` — the five apps and who may open each
 - `lib/theme.dart`, `lib/ui.dart` — the look (the website's phone look) and the parts every screen is built from
+- `assets/fonts/` — Plus Jakarta Sans (English letters) and Hind Siliguri (Bangla, ৳), the website's fonts; from
+  github.com/google/fonts, SIL Open Font Licence
 - `lib/store.dart` — loading data, sending changes, working without internet
 - `lib/views.dart` — the read-only helpers copied from the website (tested against it)
 - `lib/screens/` — `login`, `student`, `lesson`, `pdf`, `guardian`, `teacher`, `institute`, `ai_chat`, `settings`
@@ -121,7 +123,7 @@ Email and password login (with the verification code) works without this.
 ## Settings
 
 Every app has one Settings page (`lib/screens/settings.dart`), opened from the side menu, or from the gear in the AI
-app's chat list. Choices (colours, theme, text size, rows per page, AI model, answer language and length) are kept on
+app's chat list. Choices (colours, theme, text size on a slider from 90% to 130%, rows per page, AI model, answer language and length) are kept on
 the phone. Anything Settings offers must also be on the website: `src/app/settings/page.tsx`, and "Chat settings" in
 `src/components/student/AiChat.tsx`. The version shown comes from `kVersion` in `lib/config.dart`; a test keeps it
 the same as `version:` in `pubspec.yaml`.

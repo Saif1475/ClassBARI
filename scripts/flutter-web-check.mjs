@@ -171,14 +171,26 @@ const TOURS = {
     await settings(["password-and-help"], async () => {
       await quietly(() => down(-2000)); // back to the top
       await step("settings-dark-theme", () => tap(named("Dark")));
-      await step("settings-biggest-letters", async () => { await tap(named("Same as phone")); await tap(named("A++")); });
-      await quietly(() => tap(page.getByRole("button", { name: "A", exact: true })));
+      await quietly(() => tap(named("Same as phone")));
     });
     await quietly(menu);
     await step("menu-in-bangla", () => tap(named("বাংলা")));
     await quietly(outside);
     await step("dashboard-in-bangla", () => tab(0));
     await step("to-do-in-bangla", () => tab(1));
+    // Last, as it changes every screen after it: Settings in Bangla with the text-size slider pulled to its big end.
+    await quietly(() => tap(page.getByRole("button", { name: "মেনু", exact: true }))); // the menu button, now named in Bangla
+    await step("settings-in-bangla-biggest-letters", async () => {
+      await tap(named("সেটিংস"));
+      // Through the screen-reader layer a press moves the slider one step, and the page under it grows with every
+      // step: so one press for every step there is, each time where the slider is now.
+      for (let i = 0; i < 8; i++) {
+        const slider = await page.getByRole("slider").first().boundingBox({ timeout: 15000 });
+        await page.mouse.click(slider.x + slider.width - 4, slider.y + slider.height / 2);
+        await page.waitForTimeout(500);
+      }
+    });
+    await step("dashboard-in-bangla-biggest-letters", async () => { await back(); await tab(0); });
   },
   guardian: async () => {
     await step("home-lower-part", () => down(175));

@@ -77,7 +77,8 @@ ThemeData classbariTheme(Brightness brightness, {bool sky = false}) {
     courses: const [Color(0xFF157347), Color(0xFF1D6FB8), Color(0xFFB5416B), Color(0xFFC2580C), Color(0xFF6D3FC0), Color(0xFF0E7C86), Color(0xFF8A6A00), Color(0xFFBE3A3A)],
   );
   const corner = BorderRadius.all(Radius.circular(14));
-  final base = ThemeData(colorScheme: scheme, scaffoldBackgroundColor: surface, extensions: [tone]);
+  // The website's fonts: Plus Jakarta Sans for English letters; Bangla and ৳ fall through to Hind Siliguri.
+  final base = ThemeData(colorScheme: scheme, scaffoldBackgroundColor: surface, extensions: [tone], fontFamily: 'PlusJakartaSans', fontFamilyFallback: const ['HindSiliguri']);
   return base.copyWith(
     textTheme: base.textTheme.copyWith(
       headlineMedium: base.textTheme.headlineMedium?.copyWith(fontSize: 28, height: 1.15, fontWeight: FontWeight.w800, letterSpacing: -0.3, color: text),

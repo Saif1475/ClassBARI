@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Icon } from "@/components/Icon";
-import { Logo, TextSize } from "@/components/Brand";
+import { Logo, TextSizeSlider } from "@/components/Brand";
 import { PasswordInput } from "@/components/PasswordInput";
 import { strongPassword } from "@/components/auth/StepLogin";
 import { PushToggle } from "@/components/PushToggle";
@@ -120,7 +120,7 @@ function Appearance() {
       </div>
       <div className={field}>
         {t.common.textSize}
-        <div className="self-start"><TextSize /></div>
+        <TextSizeSlider />
       </div>
       <div className={field}>
         {t.common.language}

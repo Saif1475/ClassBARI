@@ -9,14 +9,40 @@ import { applyThemeMode } from "@/lib/theme";
 
 const TEXT_KEY = "classbari-text-size";
 const SIZES = ["100%", "112.5%", "125%"]; // A, A+, A++ (everything is sized in rem, so this scales the whole app)
+const SMALLEST = 90, BIGGEST = 130; // the slider on the Settings page, in %
+/** The saved size as a number, or 100 when nothing sensible is saved. */
+const savedSize = () => {
+  const n = parseFloat(localStorage.getItem(TEXT_KEY) ?? "");
+  return n >= SMALLEST && n <= BIGGEST ? n : 100;
+};
 
 /** Applies the saved text size on every page. */
 export function TextSizeInit() {
   useEffect(() => {
-    const saved = localStorage.getItem(TEXT_KEY);
-    if (saved && SIZES.includes(saved)) document.documentElement.style.setProperty("--text-size", saved);
+    if (savedSize() !== 100) document.documentElement.style.setProperty("--text-size", `${savedSize()}%`);
   }, []);
   return null;
+}
+
+/** The text size as a slider from a small A to a big A (Settings page; the phone apps have the same one). */
+export function TextSizeSlider() {
+  const { t, lang } = useLang();
+  const [size, setSize] = useState(100);
+  useEffect(() => setSize(savedSize()), []);
+  const shown = `${size.toLocaleString(lang === "bn" ? "bn-BD" : "en")}%`;
+  const pick = (n: number) => {
+    setSize(n);
+    localStorage.setItem(TEXT_KEY, `${n}%`);
+    document.documentElement.style.setProperty("--text-size", `${n}%`);
+  };
+  return (
+    <div className="flex w-full max-w-sm items-center gap-3">
+      <span aria-hidden className="text-[13px] font-bold">A</span>
+      <input type="range" min={SMALLEST} max={BIGGEST} step={5} value={size} onChange={(e) => pick(Number(e.target.value))} aria-label={t.common.textSize} aria-valuetext={shown} className="h-11 min-w-0 flex-1 accent-primary" />
+      <span aria-hidden className="text-[24px] font-bold leading-none">A</span>
+      <span className="w-14 text-right text-sm font-semibold tabular-nums text-on-surface-variant">{shown}</span>
+    </div>
+  );
 }
 
 /** A / A+ / A++ — bigger text for anyone who needs it. */

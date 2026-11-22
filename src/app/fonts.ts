@@ -1,10 +1,10 @@
 // The site's fonts, served from our own address (no request to Google when a page opens).
 // next/font fetches the Google files once, when the site is built, and keeps them with the site's other files.
-import { Hind_Siliguri, Roboto_Flex } from "next/font/google";
+import { Hind_Siliguri, Plus_Jakarta_Sans } from "next/font/google";
 import localFont from "next/font/local";
 
-/** English text and numbers: one file for every weight, fetched early on every page. */
-export const latin = Roboto_Flex({ subsets: ["latin"], axes: ["opsz"], display: "swap", preload: false, variable: "--font-latin" });
+/** English text and numbers: one file for every weight. The phone apps use the same font (flutter/assets/fonts). */
+export const latin = Plus_Jakarta_Sans({ subsets: ["latin"], display: "swap", preload: false, variable: "--font-latin" });
 
 /** Bangla text. Not fetched early: only pages that show Bangla need it, and then only the weights they use. */
 export const bangla = Hind_Siliguri({ weight: ["400", "500", "600", "700"], subsets: ["bengali"], display: "swap", preload: false, variable: "--font-bn" });

@@ -38,3 +38,12 @@ test("text size: bigger text everywhere, remembered after reload", async ({ page
   await page.reload();
   await expect.poll(() => page.evaluate(() => document.documentElement.style.getPropertyValue("--text-size"))).toBe("125%");
 });
+
+test("text size slider on the Settings page: any size from 90% to 130%, remembered after reload", async ({ page }) => {
+  await loginAs(page, "parent");
+  await page.goto("/settings");
+  await page.getByRole("slider", { name: "Text size" }).fill("130");
+  await expect.poll(() => page.evaluate(() => document.documentElement.style.getPropertyValue("--text-size"))).toBe("130%");
+  await page.reload();
+  await expect(page.getByRole("slider", { name: "Text size" })).toHaveValue("130");
+});

@@ -131,10 +131,38 @@ class SettingsScreen extends StatelessWidget {
                 onChanged: (v) => store.setting('classbari-theme', v == 'system' ? null : v),
               ),
             ),
+            // A slider from 90% to 130%, as on the website's Settings page; the page follows it while it moves.
             choice(
-              t('common.textSize'),
-              // By name, not by the number's text: 1.0 prints as "1.0" on a phone but as "1" in a browser.
-              Chips(value: store.textSize >= 1.25 ? 'A++' : (store.textSize > 1 ? 'A+' : 'A'), options: const ['A', 'A+', 'A++'], onChanged: (v) => store.setting('classbari-text-size', const {'A+': 1.125, 'A++': 1.25}[v])),
+              '${t('common.textSize')} · ${localNumber((store.textSize * 1000).round() / 10, lang.code)}%',
+              Row(
+                children: [
+                  const ExcludeSemantics(
+                    child: Text(
+                      'A',
+                      textScaler: TextScaler.noScaling,
+                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                  Expanded(
+                    child: Slider(
+                      value: store.textSize.clamp(0.9, 1.3),
+                      min: 0.9,
+                      max: 1.3,
+                      divisions: 8,
+                      semanticFormatterCallback: (v) => '${(v * 100).round()}%',
+                      // Whole steps of 5%, so 100% is exactly 1 (and is then not kept at all: the default).
+                      onChanged: (v) => store.setting('classbari-text-size', (v * 20).round() == 20 ? null : (v * 20).round() / 20),
+                    ),
+                  ),
+                  const ExcludeSemantics(
+                    child: Text(
+                      'A',
+                      textScaler: TextScaler.noScaling,
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                ],
+              ),
             ),
             choice(t('app.language'), Chips(value: lang.code, options: const ['en', 'bn'], labels: const {'en': 'English', 'bn': 'বাংলা'}, onChanged: store.setLang)),
           ],

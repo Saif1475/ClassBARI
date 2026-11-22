@@ -18,7 +18,7 @@ let browser;
 /** who: "owner" | "teacher" | "student" | "guardian". `screen`: browser window options, e.g. a phone-sized one. */
 export async function as(who, screen = {}) {
   const [role, email] = PEOPLE[who];
-  browser ??= await chromium.launch();
+  browser ??= await chromium.launch({ args: ["--font-render-hinting=none"] }); // letters spaced as on phones, not as this computer's font hinting bends them
   const page = await (await browser.newContext(screen)).newPage();
   await page.goto(`${SITE}/login`).catch(() => {
     throw new Error("The website is not running on port 3000. Start it first (npx next start -p 3000).");

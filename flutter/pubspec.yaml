@@ -26,3 +26,19 @@ flutter:
   assets:
     - assets/gen/
     - assets/icons/
+  # English letters: Plus Jakarta Sans (one file, every weight). Bangla and the ৳ sign: Hind Siliguri, as on the website.
+  # Both from github.com/google/fonts (SIL Open Font Licence; each file carries its own licence note).
+  fonts:
+    - family: PlusJakartaSans
+      fonts:
+        - asset: assets/fonts/PlusJakartaSans.ttf
+    - family: HindSiliguri
+      fonts:
+        - asset: assets/fonts/HindSiliguri-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/HindSiliguri-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/HindSiliguri-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/HindSiliguri-Bold.ttf
+          weight: 700

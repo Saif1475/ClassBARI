@@ -205,7 +205,7 @@ void main() {
   for (final (code, dark) in [('en', false), ('bn', true)]) {
     testWidgets('every tab of the four institute apps opens without a layout error ($code${dark ? ', dark' : ''})', (tester) async {
       for (final (app, role, tabs) in [(const StudentApp(), 'student', 4), (const GuardianApp(), 'guardian', 4), (const TeacherApp(), 'teacher', 4), (const InstituteApp(), 'owner', 4)]) {
-        await open(tester, app, code: code, dark: dark, role: role, letters: dark ? 1.25 : 1); // the dark run also with the biggest letters (A++)
+        await open(tester, app, code: code, dark: dark, role: role, letters: dark ? 1.3 : 1); // the dark run also with the biggest letters (130%)
         for (var i = 0; i < tabs; i++) {
           await tester.tap(find.byType(TabItem).at(i));
           await tester.pumpAndSettle();
@@ -481,7 +481,7 @@ void main() {
         SettingsScreen(details: const [('Name', 'Sadia Akter Chowdhury'), ('Batch', 'Batch A')], note: 'To change these, ask your institute.', ai: ai()),
         code: code,
         dark: dark,
-        letters: dark ? 1.25 : 1, // the dark run also with the biggest letters (A++)
+        letters: dark ? 1.3 : 1, // the dark run also with the biggest letters (130%)
       );
       await tester.pumpAndSettle();
       final page = find.byType(Scrollable).hitTestable().first;
@@ -540,10 +540,13 @@ void main() {
     expect(store.themeMode, 'dark');
     await press(tester, find.text('Same as phone'));
     expect(store.themeMode, 'system');
-    await press(tester, find.text('A++'));
-    expect(store.textSize, 1.25);
-    await press(tester, find.text('A'));
-    expect(store.textSize, 1);
+    await tester.scrollUntilVisible(find.byType(Slider), 150, scrollable: find.byType(Scrollable).hitTestable().first);
+    await tester.pumpAndSettle();
+    await tester.drag(find.byType(Slider), const Offset(400, 0)); // the text-size slider, pulled to its big end
+    expect(store.textSize, 1.3);
+    await tester.drag(find.byType(Slider), const Offset(-400, 0));
+    await tester.pumpAndSettle();
+    expect(store.textSize, 0.9);
     await press(tester, find.text('বাংলা'));
     await tester.pumpAndSettle();
     expect(lang.code, 'bn');
