@@ -87,7 +87,11 @@ class LiveBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Group(
     title: t('app.nextLive'),
-    children: [Item(icon: I.live, color: context.colors.error, title: '${live['topic'] ?? ''}', subtitle: fmtDateTime(live['start'] as String))],
+    children: [
+      Item(icon: I.live, color: context.colors.error, title: '${live['topic'] ?? ''}', subtitle: fmtDateTime(live['start'] as String)),
+      // The teacher's class link (Zoom, Meet…), as on the website.
+      if ('${live['link'] ?? ''}'.startsWith('http')) Doing(label: t('batch.joinZoom'), icon: I.external, onPressed: () => openLink(context, '${live['link']}')),
+    ],
   );
 }
 

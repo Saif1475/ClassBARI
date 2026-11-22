@@ -94,7 +94,7 @@ class LessonScreen extends StatelessWidget {
             ),
           ],
         ),
-        if (kind == 'video') VideoBox(url),
+        if (kind == 'video') VideoBox(url, itemId: itemId),
         if (kind == 'pdf') OpenFile(url),
         if (kind == 'pdf' && url != null && url.startsWith('/api/files/'))
           Doing(
@@ -120,8 +120,10 @@ class OpenFile extends StatelessWidget {
 
 /// Stored videos play here; YouTube and other web links open in their own app or the browser.
 class VideoBox extends StatefulWidget {
-  const VideoBox(this.url, {super.key});
+  const VideoBox(this.url, {super.key, this.itemId});
   final String? url;
+  /// The lesson item: watched time is sent to the teacher's "who watched" list, as on the website.
+  final int? itemId;
   @override
   State<VideoBox> createState() => _VideoBoxState();
 }
@@ -129,6 +131,7 @@ class VideoBox extends StatefulWidget {
 class _VideoBoxState extends State<VideoBox> {
   VideoPlayerController? player;
   var failed = false;
+  double last = 0, watched = 0, reported = 0; // seconds: where it was, how much was really watched, how much was sent
   bool get web => RegExp(r'youtube\.com|youtu\.be|vimeo\.com|drive\.google').hasMatch(widget.url ?? '');
 
   @override
@@ -145,11 +148,26 @@ class _VideoBoxState extends State<VideoBox> {
     player = p;
     try {
       await p.initialize();
-      p.addListener(() => mounted ? setState(() {}) : null);
+      p.addListener(() {
+        progress(p);
+        if (mounted) setState(() {});
+      });
     } catch (_) {
       failed = true;
     }
     if (mounted) setState(() {});
+  }
+
+  /// Same rule as the website's player: only time actually played counts (no skipping ahead); sent every 5 seconds and at the end.
+  void progress(VideoPlayerController p) {
+    final at = p.value.position.inMilliseconds / 1000, dur = p.value.duration.inMilliseconds / 1000;
+    final step = at - last;
+    last = at;
+    if (step > 0 && step < 2) watched += step;
+    final ended = dur > 0 && at >= dur - 0.5;
+    if (widget.itemId == null || dur <= 0 || store.status == Status.offline || (watched < reported + 5 && !(ended && watched > reported))) return;
+    reported = watched;
+    store.act('recordWatch', [widget.itemId, store.me?['id'], watched.clamp(0, dur), dur]);
   }
 
   @override
