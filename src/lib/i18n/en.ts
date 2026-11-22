@@ -1787,6 +1787,10 @@ const en = {
     search: "Search",
     chooseBatch: "Choose a batch first.",
     guardianChats: "Messages from guardians",
+    waiting: (n: number) => `${n} change(s) waiting for internet`,
+    sentLater: "No internet. It will be sent when you're back online — keep the app open.",
+    tooBig: "This photo is too large. Take it again from a little further away.",
+    openAi: "Open AI chat",
   },
   pdfhl: {
     open: "Highlighted version",

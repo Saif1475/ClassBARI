@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* The Flutter phone apps are not part of the website: their files are not searched for class names. */
+@source not "../../flutter";
 
 /* Material 3 Expressive — teal seed with iOS-inspired frosted glass. */
 @theme {

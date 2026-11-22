@@ -1,0 +1,22 @@
+{
+ "topics": {
+  "physics": "physics force newton velocity acceleration motion gravity gravitation wave sound light optics lens mirror current voltage resistance ohm magnet magnetic energy momentum friction pressure heat thermodynamics electric electricity projectile vector refraction reflection পদার্থবিজ্ঞান পদার্থ বল বেগ ত্বরণ গতি মহাকর্ষ অভিকর্ষ তরঙ্গ শব্দ আলো লেন্স দর্পণ তড়িৎ বিদ্যুৎ রোধ চুম্বক শক্তি ভরবেগ ঘর্ষণ চাপ তাপ প্রতিসরণ প্রতিফলন",
+  "chemistry": "chemistry atom atomic molecule element compound reaction acid base salt mole periodic bond organic carbon oxidation reduction isomer ion ionic valency electrolysis রসায়ন পরমাণু অণু মৌল যৌগ বিক্রিয়া এসিড অম্ল ক্ষার লবণ মোল পর্যায় বন্ধন জৈব কার্বন জারণ বিজারণ আয়ন যোজ্যতা তড়িৎবিশ্লেষণ",
+  "math": "math maths mathematics equation solve integral integration derivative differentiation calculus algebra geometry triangle circle matrix probability trigonometry sin cos tan log function limit polynomial factor fraction percentage ratio statistics গণিত অঙ্ক উচ্চতর সমীকরণ সমাধান যোগজ অন্তরজ ক্যালকুলাস বীজগণিত জ্যামিতি ত্রিভুজ বৃত্ত ম্যাট্রিক্স সম্ভাবনা ত্রিকোণমিতি লগারিদম ফাংশন উৎপাদক ভগ্নাংশ শতকরা অনুপাত পরিসংখ্যান",
+  "biology": "biology cell dna gene genetics photosynthesis plant animal blood heart enzyme protein respiration digestion evolution bacteria virus tissue organ hormone nerve জীববিজ্ঞান কোষ জিন সালোকসংশ্লেষণ উদ্ভিদ প্রাণী রক্ত হৃৎপিণ্ড এনজাইম প্রোটিন শ্বসন পরিপাক বিবর্তন ব্যাকটেরিয়া ভাইরাস টিস্যু কলা হরমোন স্নায়ু",
+  "ict": "ict computer program programming code coding html css python java javascript loop array database sql network internet binary algorithm website আইসিটি কম্পিউটার প্রোগ্রাম প্রোগ্রামিং কোড ডেটাবেস নেটওয়ার্ক ইন্টারনেট বাইনারি অ্যালগরিদম ওয়েবসাইট",
+  "english": "english grammar tense verb noun adjective adverb essay paragraph letter application translate translation sentence vocabulary synonym antonym narration preposition article passive active voice clause spelling comprehension idiom ইংরেজি অনুবাদ গ্রামার",
+  "bangla": "bangla bengali ব্যাকরণ সমাস সন্ধি কারক বিভক্তি রচনা কবিতা উপন্যাস গল্প বাংলা প্রবন্ধ ভাবসম্প্রসারণ সারাংশ সারমর্ম",
+  "business": "accounting account accounts ledger journal profit loss finance economics demand supply business marketing bank banking হিসাববিজ্ঞান হিসাব খতিয়ান জাবেদা লাভ ক্ষতি অর্থনীতি চাহিদা যোগান ব্যবসায় ব্যাংক ফিন্যান্স",
+  "plans": "plan routine schedule revision prepare preparation tips career university admission motivation focus পরিকল্পনা রুটিন রিভিশন প্রস্তুতি পড়াশোনা ভর্তি ক্যারিয়ার মনোযোগ"
+ },
+ "weights": {
+  "plans": 0.6
+ },
+ "packs": [
+  150,
+  400,
+  800,
+  1500
+ ]
+}

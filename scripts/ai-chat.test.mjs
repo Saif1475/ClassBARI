@@ -12,6 +12,10 @@ test("only a sane conversation ending with a question is accepted", () => {
   const long = Array.from({ length: 14 }, (_, i) => ({ role: i % 2 ? "assistant" : "user", content: `m${i}` }));
   assert.equal(cleanHistory(long), null); // ends with the assistant
   assert.equal(cleanHistory([...long, { role: "user", content: "q" }]).length <= 10, true);
+  // A long earlier answer doesn't end the chat: it is passed on shortened, and the next question still goes through.
+  const after = cleanHistory([{ role: "user", content: "explain" }, { role: "assistant", content: "a".repeat(9000) }, { role: "user", content: "and then?" }]);
+  assert.equal(after.length, 3);
+  assert.equal(after[1].content.length, 6000);
 });
 
 test("without AI, the answer quotes the most relevant sentences with their page", () => {

@@ -96,16 +96,17 @@ export const MAX_QUESTION = 1000;
 /** Ends the streamed chat answer; after it comes JSON: the allowance left (%), declined, cut, error. */
 export const TRAILER = "\u001e";
 
-/** The conversation sent by the browser, checked: at most the last 10 turns, short texts, ending with a question. */
+/** The conversation sent by the browser or a phone app, checked: at most the last 10 turns, short questions, ending with a question. */
 export function cleanHistory(raw: unknown): ChatTurn[] | null {
   if (!Array.isArray(raw) || !raw.length) return null;
   const turns = raw.slice(-10);
   for (const t of turns) {
-    const ok = t && (t.role === "user" || t.role === "assistant") && typeof t.content === "string" && t.content.trim() && t.content.length <= (t.role === "user" ? MAX_QUESTION : 6000);
+    const ok = t && (t.role === "user" || t.role === "assistant") && typeof t.content === "string" && t.content.trim() && (t.role === "assistant" || t.content.length <= MAX_QUESTION);
     if (!ok) return null;
   }
   while (turns.length && turns[0].role !== "user") turns.shift(); // the API wants the user first
-  return turns.length && turns[turns.length - 1].role === "user" ? turns.map((t) => ({ role: t.role, content: t.content.trim() })) : null;
+  // An earlier answer that ran long is passed on shortened, not refused: refusing it ended the chat after every long answer.
+  return turns.length && turns[turns.length - 1].role === "user" ? turns.map((t) => ({ role: t.role, content: t.content.trim().slice(0, t.role === "user" ? MAX_QUESTION : 6000) })) : null;
 }
 
 const word = /[\p{L}\p{M}\p{N}]{3,}/gu;

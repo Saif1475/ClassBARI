@@ -4,7 +4,7 @@
 export const TOPICS = ["physics", "chemistry", "math", "biology", "ict", "english", "bangla", "business", "plans", "other"] as const;
 export type Topic = (typeof TOPICS)[number];
 
-const WORDS: Record<Exclude<Topic, "other">, string> = {
+export const WORDS: Record<Exclude<Topic, "other">, string> = {
   physics:
     "physics force newton velocity acceleration motion gravity gravitation wave sound light optics lens mirror current voltage resistance ohm magnet magnetic energy momentum friction pressure heat thermodynamics electric electricity projectile vector refraction reflection " +
     "পদার্থবিজ্ঞান পদার্থ বল বেগ ত্বরণ গতি মহাকর্ষ অভিকর্ষ তরঙ্গ শব্দ আলো লেন্স দর্পণ তড়িৎ বিদ্যুৎ রোধ চুম্বক শক্তি ভরবেগ ঘর্ষণ চাপ তাপ প্রতিসরণ প্রতিফলন",
@@ -32,7 +32,7 @@ const WORDS: Record<Exclude<Topic, "other">, string> = {
     "পরিকল্পনা রুটিন রিভিশন প্রস্তুতি পড়াশোনা ভর্তি ক্যারিয়ার মনোযোগ",
 };
 const ORDER = Object.keys(WORDS) as Exclude<Topic, "other">[];
-const WEIGHT: Partial<Record<Topic, number>> = { plans: 0.6 }; // "make a physics revision plan" is still physics
+export const WEIGHT: Partial<Record<Topic, number>> = { plans: 0.6 }; // "make a physics revision plan" is still physics
 
 // Keyword → which topics list it (one bit per topic), so a word is looked up, not compared with every keyword.
 // Longer keywords (3+ letters) also match word forms ("waves", "integrals", "তরঙ্গের"): those are found by the word's beginnings.
