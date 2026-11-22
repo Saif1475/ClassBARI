@@ -81,6 +81,9 @@ export default function TeacherApp({
   const teacherName = lms.teacherName;
 
   const [navTab, setNavTab] = useState<GlobalTab>(initialTab);
+  useEffect(() => {
+    if (new URLSearchParams(location.search).get("go") === "messages") setNavTab("inbox"); // opened from a notification
+  }, []);
   const [section, setSection] = useState<CourseSection>(initialSection);
   const [pickedBatch, setActiveBatch] = useState(lms.batches[0]?.name ?? "");
   const [openModules, setOpenModules] = useState<Record<number, boolean>>({ 1: true, 2: true });

@@ -177,6 +177,7 @@ class SettingsScreen extends StatelessWidget {
               ),
             ],
           ),
+        const NotifySwitches(),
         const ChangePassword(),
         Group(
           title: t('settings.help'),
@@ -226,6 +227,68 @@ class _AiChatsState extends State<AiChats> {
       ],
     );
   }
+}
+
+/// Which notifications this person gets: one switch per kind, kept on the server, so the website shows the same.
+class NotifySwitches extends StatefulWidget {
+  const NotifySwitches({super.key});
+  @override
+  State<NotifySwitches> createState() => _NotifySwitchesState();
+}
+
+class _NotifySwitchesState extends State<NotifySwitches> {
+  List<String> groups = const [];
+  Set<String> off = {};
+
+  @override
+  void initState() {
+    super.initState();
+    () async {
+      try {
+        final res = await api('/api/notify');
+        if (res.statusCode == 200 && mounted) {
+          final d = jsonDecode(res.body) as Json;
+          setState(() {
+            groups = [for (final g in d['groups'] as List) '$g'];
+            off = {for (final g in d['off'] as List) '$g'};
+          });
+        }
+      } catch (_) {
+        // offline: the switches are not shown
+      }
+    }();
+  }
+
+  Future<void> flip(String g, bool on) async {
+    final was = off;
+    setState(() => off = on ? (off.toSet()..remove(g)) : {...off, g});
+    try {
+      final res = await api('/api/notify', body: {'off': off.toList()});
+      if (res.statusCode != 200) throw Exception();
+    } catch (_) {
+      if (mounted) setState(() => off = was); // not saved: show it as it was
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => groups.isEmpty
+      ? const SizedBox.shrink()
+      : Box(
+          title: t('notify.title'),
+          children: [
+            Muted(t('notify.help')),
+            for (final g in groups)
+              Semantics(
+                container: true,
+                child: SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  value: !off.contains(g),
+                  onChanged: (on) => flip(g, on),
+                  title: Text(t('notify.groups.$g'), style: context.type.titleMedium),
+                ),
+              ),
+          ],
+        );
 }
 
 /// Teachers and owners change their own name and mobile here; owners also the institute's name and bKash number.

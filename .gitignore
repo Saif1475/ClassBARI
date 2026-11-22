@@ -4,7 +4,7 @@ out
 .env*
 *.tsbuildinfo
 next-env.d.ts
-data/
+/data/
 ocr-service/.venv/
 __pycache__/
 e2e-results/
@@ -27,3 +27,8 @@ screenshots/
 # The phone app keeps its own Git history inside its folder (mobile/.git).
 /mobile/
 /android/*/*.idsig
+
+# Firebase: the server's service-account key and the apps' config (never in Git)
+*firebase*service*account*.json
+*firebase-adminsdk*.json
+flutter/android/app/google-services.json

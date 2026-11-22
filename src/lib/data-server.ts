@@ -186,7 +186,7 @@ export async function act(me: Me, name: string, args: unknown[], base: number, c
       const { error } = await admin().from("institutes").update({ name: next.instituteName }).eq("id", me.institute);
       if (error) console.error("data: institute name update failed:", error.message);
     }
-    return { state: next, version };
+    return { state: next, version, before: doc.state };
   }
   throw new Error("busy");
 }

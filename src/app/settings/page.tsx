@@ -49,7 +49,7 @@ export default function Settings() {
         {staff ? <TeacherProfile institute={role === "institute"} /> : role === "student" ? <StudentProfile /> : <GuardianProfile />}
         <Appearance />
         {REAL_AUTH && <Password />}
-        {!staff && <Notifications role={role} />}
+        {(REAL_AUTH || !staff) && <Notifications role={role} />}
         {role === "institute" && <SeatBillingCard totalStudents={lms.students.length} />}
         {staff && <Backup />}
 
@@ -173,15 +173,37 @@ function Password() {
 function Notifications({ role }: { role: Role }) {
   const { t } = useLang();
   const lms = useLms();
+  const N = t.notify;
   const batches =
     role === "student"
       ? [lms.students.find((s) => s.id === lms.meId)?.batch ?? ""]
       : [...new Set(lms.students.filter((s) => lms.parentChildren.includes(s.id)).map((s) => s.batch))];
+  // With real accounts: one switch per kind of notification, the same for the website and the phone apps.
+  const [prefs, setPrefs] = useState<{ groups: (keyof typeof N.groups)[]; off: string[] } | null>(null);
+  useEffect(() => {
+    if (REAL_AUTH) void fetch("/api/notify").then((r) => (r.ok ? r.json() : null)).then(setPrefs).catch(() => {});
+  }, []);
+  const flip = (g: string) => {
+    if (!prefs) return;
+    const off = prefs.off.includes(g) ? prefs.off.filter((x) => x !== g) : [...prefs.off, g];
+    setPrefs({ ...prefs, off });
+    void fetch("/api/notify", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ off }) });
+  };
   return (
     <section className={card}>
-      <h2 className="text-lg font-bold">{t.settings.notifications}</h2>
+      <h2 className="text-lg font-bold">{N.title}</h2>
       <PushToggle role={role === "student" ? "student" : "parent"} batches={batches.filter(Boolean)} />
-      <p className="text-sm text-on-surface-variant">{t.settings.notificationsHelp}</p>
+      <p className="text-sm text-on-surface-variant">{REAL_AUTH ? N.help : t.settings.notificationsHelp}</p>
+      {prefs && (
+        <div className="flex flex-col divide-y divide-outline-variant">
+          {prefs.groups.map((g) => (
+            <label key={g} className="flex min-h-12 cursor-pointer items-center justify-between gap-3 py-2 font-semibold">
+              {N.groups[g]}
+              <input type="checkbox" role="switch" checked={!prefs.off.includes(g)} onChange={() => flip(g)} className="h-6 w-11 shrink-0 accent-primary" />
+            </label>
+          ))}
+        </div>
+      )}
     </section>
   );
 }

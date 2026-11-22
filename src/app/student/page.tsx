@@ -77,6 +77,13 @@ export default function StudentPage() {
   const [mode, setMode] = useState<Mode>("courses");
   const [navTab, setNavTab] = useState<NavTab>("dashboard"); // children start on a simple home, not the course menu
   const [section, setSection] = useState(2); // "Modules"
+  // Opened from a notification (?go=todo|results|notices|messages): straight to that part.
+  useEffect(() => {
+    const at = new URLSearchParams(location.search).get("go");
+    const sec = ({ todo: 3, results: 5, notices: 1 } as Record<string, number>)[at ?? ""];
+    if (at === "messages") setNavTab("inbox");
+    else if (sec !== undefined) (setNavTab("courses"), setSection(sec));
+  }, []);
   const [open, setOpen] = useState<Record<number, boolean>>({ 1: true, 2: true });
   const [chip, setChip] = useState("all");
   const [query, setQuery] = useState("");

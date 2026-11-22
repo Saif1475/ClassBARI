@@ -15,7 +15,7 @@ export function notifyBatch(batch: string, title: string, body: string, url: str
  * Hidden when the browser can't do push or the server has no keys. iPhone: only after "Add to Home Screen".
  */
 export function PushToggle({ role, batches }: { role: "student" | "parent"; batches: string[] }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const P = t.push;
   const [key, setKey] = useState<string | null>(null);
   const [state, setState] = useState<"off" | "on" | "busy" | "blocked">("off");
@@ -34,7 +34,7 @@ export function PushToggle({ role, batches }: { role: "student" | "parent"; batc
       const reg = (await navigator.serviceWorker.getRegistration()) ?? (await navigator.serviceWorker.register("/sw.js"));
       await navigator.serviceWorker.ready;
       const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToBytes(key) });
-      const res = await fetch("/api/push", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ subscription: sub.toJSON(), role, batches }) });
+      const res = await fetch("/api/push", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ subscription: sub.toJSON(), role, batches, lang }) });
       setState(res.ok ? "on" : "off");
     } catch {
       setState(Notification.permission === "denied" ? "blocked" : "off");

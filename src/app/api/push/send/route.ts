@@ -6,6 +6,7 @@ import { isStaffRequest, jsonBody, readPlatform, updatePlatform } from "@/lib/pl
 
 /** Teacher -> everyone subscribed to a batch. Body: { batch, title, body, url }. Free (unlike SMS). */
 export async function POST(request: Request) {
+  if (REAL_AUTH) return Response.json({ sent: 0, note: "sent by the server when the change is saved" }); // no double notification
   // Real accounts: a teacher reaches only their own institute's batches. Demo: the role cookie (the daily limit caps abuse).
   const me = REAL_AUTH ? await whoIs(request) : null;
   if (REAL_AUTH ? !me || !STAFF_ROLES.includes(me.who.role) : !(await isStaffRequest(request))) return Response.json({ error: "teachers only" }, { status: 403 });
