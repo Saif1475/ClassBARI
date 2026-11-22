@@ -103,46 +103,21 @@ class Root extends StatelessWidget {
     final problem = store.status == Status.noAccess
         ? (inst != null ? t('auth.notAtInstitute', [inst['name']]) : t('auth.notEnrolled'))
         : (store.role != null && !kApps[kApp]!.roles.contains(store.role) ? t('auth.wrongApp', [kAppName]) : null);
-    if (problem != null) {
-      return Backdrop(
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          body: SafeArea(
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Box(
-                  children: [
-                    Strong(problem),
-                    Doing(label: t('auth.tryOther'), onPressed: store.signOut),
-                  ],
-                ),
-              ),
-            ),
+    // A short message in the middle of the page, with one button under it.
+    Widget notice(String text, Widget button) => Scaffold(
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Box(children: [Strong(text), button]),
           ),
         ),
-      );
-    }
+      ),
+    );
+    if (problem != null) return notice(problem, Doing(label: t('auth.tryOther'), onPressed: store.signOut));
     if (store.state == null || store.role == null) {
       // No data yet: loading, or no internet on the very first opening.
-      return store.status == Status.offline
-          ? Backdrop(
-              child: Scaffold(
-                backgroundColor: Colors.transparent,
-                body: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Box(
-                      children: [
-                        Text(t('aichat.error')),
-                        Doing(label: t('app.tryAgain'), soft: true, onPressed: store.refresh),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            )
-          : const Loading();
+      return store.status == Status.offline ? notice(t('aichat.error'), Doing(label: t('app.tryAgain'), soft: true, onPressed: store.refresh)) : const Loading();
     }
     return switch (kApp) {
       'guardian' => const GuardianApp(),

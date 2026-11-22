@@ -14,7 +14,7 @@ import '../strings.dart';
 import '../ui.dart';
 import '../views.dart';
 import 'lesson.dart' show pickPhoto;
-import 'pdf.dart' show Bubble, clock;
+import 'pdf.dart' show clock;
 
 const _trailer = '\u001e'; // ends the streamed answer; after it comes JSON: allowance left, declined, cut, error
 const _keep = 50; // chats kept on the phone (the most recently used)
@@ -35,6 +35,8 @@ class _AiChatAppState extends State<AiChatApp> {
   var model = '', access = 'loading'; // loading, ok, pack (no AI pack), soon (not set up), offline
   ({Uint8List bytes, String data})? photo;
   var busy = false, note = '', find = '';
+  int? pack; // the student's AI pack, for the side panel
+  final unfolded = <String>{}; // topic folders opened in the side panel
   var copied = -1;
   http.Client? stream;
   int get meId => store.me?['id'] as int? ?? 0;
@@ -70,6 +72,7 @@ class _AiChatAppState extends State<AiChatApp> {
       if (res.statusCode == 200) {
         final d = jsonDecode(res.body) as Json;
         models = rows(d['models']);
+        pack = (d['pack'] as num?)?.toInt();
         model = '${d['pick'] ?? ''}';
         next = 'ok';
       } else if (res.statusCode == 402) {
@@ -272,181 +275,275 @@ class _AiChatAppState extends State<AiChatApp> {
     save(chats.where((x) => x['id'] != c['id']).toList());
   }
 
+  // ---- the page: a quiet chat page, the model's name in the top bar, a rounded box to write in ----------------------
   @override
   Widget build(BuildContext context) => Live((context) {
     final c = context.colors;
-    final name = '${store.me?['name'] ?? ''}'.split(' ').first;
     final list = msgs;
-    return Backdrop(
-      child: Scaffold(
-        key: frame,
-        backgroundColor: Colors.transparent,
-        drawer: Drawer(child: SafeArea(child: _side(context))),
-        body: Column(
-          children: [
-            TopBar(
-              title: t('aichat.title'),
-              leading: IconButton(tooltip: t('aichat.chats'), icon: const Icon(Icons.menu), onPressed: () => frame.currentState?.openDrawer()),
-              actions: [IconButton(tooltip: t('aichat.newChat'), icon: const Icon(Icons.add_comment_outlined), onPressed: busy ? null : () => open(0))],
+    return Scaffold(
+      key: frame,
+      drawer: Drawer(child: SafeArea(child: _side(context))),
+      body: Column(
+        children: [
+          SafeArea(
+            bottom: false,
+            child: SizedBox(
+              height: 60,
+              child: Row(
+                children: [
+                  const SizedBox(width: 6),
+                  IconButton(tooltip: t('aichat.chats'), icon: const Icon(Icons.menu_rounded), onPressed: () => frame.currentState?.openDrawer()),
+                  Expanded(
+                    child: Center(
+                      // The model in use; pressing it shows them all (the ones a bigger pack unlocks are shown locked).
+                      child: models.isEmpty
+                          ? Text(t('aichat.title'), style: context.type.titleLarge)
+                          : Semantics(
+                              container: true,
+                              button: true,
+                              label: '${t('aichat.model')}: ${chosen?['label'] ?? ''}',
+                              excludeSemantics: true,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(14),
+                                onTap: busy ? null : pickModel,
+                                child: Container(
+                                  constraints: const BoxConstraints(minHeight: 48),
+                                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    spacing: 4,
+                                    children: [
+                                      Flexible(
+                                        child: Text('${chosen?['label'] ?? t('aichat.model')}', overflow: TextOverflow.ellipsis, style: context.type.titleMedium),
+                                      ),
+                                      Icon(Icons.expand_more_rounded, color: c.onSurfaceVariant),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                    ),
+                  ),
+                  IconButton(tooltip: t('aichat.newChat'), icon: const Icon(Icons.edit_square), onPressed: busy ? null : () => open(0)),
+                  const SizedBox(width: 6),
+                ],
+              ),
             ),
-            Expanded(child: _page(context, c, name, list)),
-          ],
-        ),
+          ),
+          Expanded(
+            child: access == 'loading'
+                ? const Center(child: CircularProgressIndicator())
+                : access == 'pack' && list.isEmpty
+                ? _locked(context)
+                : ListView(
+                    controller: scroll,
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                    children: [
+                      if (list.isEmpty) ..._welcome(context),
+                      for (final (i, m) in list.indexed)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 14),
+                          child: m['role'] == 'user' ? _mine(context, '${m['content']}', m['photo'] == true) : _answer(context, '${m['content']}', i, last: i == list.length - 1),
+                        ),
+                      if (busy && (list.isEmpty || list.last['role'] == 'user')) Muted(t('aichat.thinking')),
+                      if (note.isNotEmpty) Semantics(liveRegion: true, child: Muted(note)),
+                    ],
+                  ),
+          ),
+          if (access != 'loading' && !(access == 'pack' && list.isEmpty)) _composer(context),
+        ],
       ),
     );
   });
 
-  Widget _page(BuildContext context, ColorScheme c, String name, List<Json> list) => SafeArea(
-    top: false,
-    child: access == 'loading'
-        ? const Center(child: CircularProgressIndicator())
-        : access == 'pack' && list.isEmpty
-        ? _locked(context)
-        : Column(
-            children: [
-              Expanded(
-                child: ListView(
-                  controller: scroll,
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                  children: [
-                    if (list.isEmpty) ...[
-                      const SizedBox(height: 24),
-                      H1(t('aichat.hello', [name])),
-                      const SizedBox(height: 12),
-                      for (final idea in lang.list('aichat.ideas'))
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Box(
-                            onTap: busy || access != 'ok' ? null : () => ask(idea, const []),
-                            children: [
-                              Row(
-                                spacing: 10,
-                                children: [
-                                  Icon(Icons.lightbulb_outline, color: c.tertiary),
-                                  Expanded(child: Text(idea)),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      Muted(t('aichat.saved')),
-                    ],
-                    for (final (i, m) in list.indexed)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: m['role'] == 'user' ? Bubble(text: '${m['photo'] == true ? '${t('aichat.photo')}\n' : ''}${m['content']}', mine: true) : _answer(context, '${m['content']}', i, last: i == list.length - 1),
+  /// A new chat: a greeting in the middle, the student's topic folders, and a few things to ask.
+  List<Widget> _welcome(BuildContext context) {
+    final name = '${store.me?['name'] ?? ''}'.split(' ').first;
+    final mine = [for (final topic in topics.all) (topic, chats.where((x) => (x['topic'] ?? 'other') == topic).length)].where((x) => x.$2 > 0).toList();
+    return [
+      const SizedBox(height: 28),
+      Center(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Image.asset('assets/icons/chatbot.png', width: 56, height: 56, semanticLabel: ''),
+        ),
+      ),
+      const SizedBox(height: 16),
+      Semantics(
+        header: true,
+        child: Text(t('aichat.hello', [name]), textAlign: TextAlign.center, style: context.type.headlineMedium),
+      ),
+      const SizedBox(height: 22),
+      if (mine.isNotEmpty) ...[
+        Section(t('app.topics')),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final (topic, n) in mine)
+              Semantics(
+                container: true,
+                button: true,
+                child: Material(
+                  color: context.colors.surfaceContainerLowest,
+                  shape: StadiumBorder(side: BorderSide(color: context.colors.outlineVariant)),
+                  clipBehavior: Clip.antiAlias,
+                  child: InkWell(
+                    onTap: () => push(context, TopicScreen(topic: topic, chats: chats.where((x) => (x['topic'] ?? 'other') == topic).toList(), onOpen: open)),
+                    child: Container(
+                      constraints: const BoxConstraints(minHeight: 48),
+                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        spacing: 8,
+                        children: [
+                          ExcludeSemantics(child: Text(_topicIcons[topic] ?? '💬', style: const TextStyle(fontSize: 16))),
+                          Text(t('aichat.topics.$topic'), style: context.type.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
+                          Tag(localNumber(n, lang.code), kind: 'plain'),
+                        ],
                       ),
-                    if (busy && (list.isEmpty || list.last['role'] == 'user')) Muted(t('aichat.thinking')),
-                    if (note.isNotEmpty) Semantics(liveRegion: true, child: Muted(note)),
-                  ],
+                    ),
+                  ),
                 ),
               ),
-              _composer(context),
-            ],
-          ),
+          ],
+        ),
+        const SizedBox(height: 18),
+      ],
+      Group(
+        children: [for (final idea in lang.list('aichat.ideas')) Item(icon: Icons.lightbulb_outline_rounded, color: context.colors.tertiary, title: idea, onTap: busy || access != 'ok' ? null : () => ask(idea, const []))],
+      ),
+      const SizedBox(height: 10),
+      Center(child: Muted(t('aichat.saved'))),
+    ];
+  }
+
+  /// The student's own message: a soft rounded bubble on the right.
+  Widget _mine(BuildContext context, String text, bool photo) => Align(
+    alignment: Alignment.centerRight,
+    child: Container(
+      constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.82),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: context.tone.tile,
+        borderRadius: const BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20), bottomLeft: Radius.circular(20), bottomRight: Radius.circular(6)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 4,
+        children: [
+          if (photo) Muted(t('aichat.photo')),
+          SelectableText(text, style: context.type.bodyLarge),
+        ],
+      ),
+    ),
   );
 
-  /// One answer in its own rounded box, with Copy and (under the last one) Try again.
+  /// One answer: written straight on the page, with small Copy and Try again buttons under it.
   Widget _answer(BuildContext context, String text, int i, {required bool last}) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
+    spacing: 6,
     children: [
-      Box(children: rich(context, text)),
+      ...rich(context, text),
       if (!busy || !last)
-        Wrap(
+        Row(
           children: [
-            TextButton.icon(
+            IconButton(
+              tooltip: t(copied == i ? 'aichat.copied' : 'aichat.copy'),
+              icon: Icon(copied == i ? Icons.check_rounded : Icons.copy_rounded, size: 20),
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: text));
                 setState(() => copied = i);
                 Timer(const Duration(milliseconds: 1500), () => mounted ? setState(() => copied = -1) : null);
               },
-              icon: Icon(copied == i ? Icons.check : Icons.copy, size: 18),
-              label: Text(t(copied == i ? 'aichat.copied' : 'aichat.copy')),
             ),
-            if (last && access == 'ok') TextButton.icon(onPressed: retry, icon: const Icon(Icons.refresh, size: 18), label: Text(t('aichat.retry'))),
+            if (last && access == 'ok') IconButton(tooltip: t('aichat.retry'), icon: const Icon(Icons.refresh_rounded, size: 20), onPressed: retry),
           ],
         ),
     ],
   );
 
+  /// The box to write in: the words on top, the add-photo button and the send button underneath.
   Widget _composer(BuildContext context) {
     final c = context.colors;
     final can = access == 'ok';
-    return Material(
-      color: c.surfaceContainerLowest,
-      elevation: 12,
-      shadowColor: Colors.black54,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(22))),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 8, 8, 6),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 4,
-          children: [
-            if (photo != null)
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Stack(
+    return Padding(
+      padding: EdgeInsets.fromLTRB(12, 0, 12, 8 + MediaQuery.paddingOf(context).bottom),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 6,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: c.surfaceContainerLowest,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: c.outlineVariant),
+              boxShadow: context.tone.lift,
+            ),
+            padding: const EdgeInsets.fromLTRB(6, 4, 6, 4),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (photo != null)
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Stack(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.memory(photo!.bytes, width: 72, height: 72, fit: BoxFit.cover, semanticLabel: t('aichat.photo')),
+                          ),
+                        ),
+                        Positioned(
+                          right: -6,
+                          top: -6,
+                          child: IconButton(tooltip: t('aichat.removePhoto'), icon: const Icon(Icons.cancel), onPressed: () => setState(() => photo = null)),
+                        ),
+                      ],
+                    ),
+                  ),
+                Semantics(
+                  container: true,
+                  child: TextField(
+                    controller: q,
+                    enabled: can,
+                    minLines: 1,
+                    maxLines: 6,
+                    maxLength: 1000,
+                    onChanged: (_) => setState(() {}),
+                    decoration: InputDecoration(
+                      hintText: t('aichat.placeholder'),
+                      counterText: '',
+                      filled: false,
+                      border: InputBorder.none,
+                      enabledBorder: InputBorder.none,
+                      focusedBorder: InputBorder.none,
+                      disabledBorder: InputBorder.none,
+                      contentPadding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+                    ),
+                  ),
+                ),
+                Row(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.all(6),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.memory(photo!.bytes, width: 72, height: 72, fit: BoxFit.cover, semanticLabel: t('aichat.photo')),
-                      ),
-                    ),
-                    Positioned(
-                      right: -8,
-                      top: -8,
-                      child: IconButton(tooltip: t('aichat.removePhoto'), icon: const Icon(Icons.cancel), onPressed: () => setState(() => photo = null)),
-                    ),
+                    IconButton(tooltip: t('aichat.attach'), icon: const Icon(Icons.add_rounded), onPressed: can && !busy ? attach : null),
+                    const Spacer(),
+                    busy
+                        ? IconButton.filled(tooltip: t('aichat.stop'), icon: const Icon(Icons.stop_rounded), onPressed: stop)
+                        : IconButton.filled(tooltip: t('aichat.send'), icon: const Icon(Icons.arrow_upward_rounded), onPressed: can && q.text.trim().isNotEmpty ? send : null),
                   ],
                 ),
-              ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                IconButton(tooltip: t('aichat.attach'), icon: const Icon(Icons.add_photo_alternate_outlined), onPressed: can && !busy ? attach : null),
-                Expanded(
-                  child: Semantics(
-                    container: true,
-                    child: TextField(
-                      controller: q,
-                      enabled: can,
-                      minLines: 1,
-                      maxLines: 5,
-                      maxLength: 1000,
-                      onChanged: (_) => setState(() {}),
-                      decoration: InputDecoration(hintText: t('aichat.placeholder'), counterText: '', fillColor: c.surface),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 6),
-                busy
-                    ? IconButton.filled(tooltip: t('aichat.stop'), icon: const Icon(Icons.stop), onPressed: stop)
-                    : IconButton.filled(tooltip: t('aichat.send'), icon: const Icon(Icons.arrow_upward), onPressed: can && q.text.trim().isNotEmpty ? send : null),
               ],
             ),
-            Row(
-              children: [
-                if (models.isNotEmpty)
-                  TextButton.icon(
-                    onPressed: busy ? null : pickModel,
-                    icon: const Icon(Icons.memory, size: 18),
-                    label: Text('${chosen?['label'] ?? t('aichat.model')}'),
-                    style: TextButton.styleFrom(minimumSize: const Size(48, 36)),
-                  ),
-                Expanded(
-                  child: Text(
-                    access == 'soon' || (access == 'ok' && chosen == null) /* no AI key set up on the server yet */ ? t('aichat.soon') : (access == 'offline' ? t('aichat.error') : t('aichat.disclaimer')),
-                    textAlign: TextAlign.end,
-                    style: TextStyle(fontSize: 11, color: c.onSurfaceVariant),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+          ),
+          Text(
+            access == 'soon' || (access == 'ok' && chosen == null) /* no AI key set up on the server yet */ ? t('aichat.soon') : (access == 'offline' ? t('aichat.error') : t('aichat.disclaimer')),
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 11.5, color: c.onSurfaceVariant),
+          ),
+        ],
       ),
     );
   }
@@ -455,44 +552,55 @@ class _AiChatAppState extends State<AiChatApp> {
   Widget _locked(BuildContext context) => ListView(
     padding: const EdgeInsets.all(20),
     children: [
-      Icon(Icons.lock_outline, size: 44, color: context.colors.tertiary),
+      Icon(Icons.lock_outline_rounded, size: 44, color: context.colors.tertiary),
       const SizedBox(height: 12),
-      H1(t('aichat.lockedTitle')),
+      Text(t('aichat.lockedTitle'), textAlign: TextAlign.center, style: context.type.headlineSmall),
       const SizedBox(height: 8),
-      Text(t('aichat.lockedBody')),
+      Text(t('aichat.lockedBody'), textAlign: TextAlign.center),
       const SizedBox(height: 16),
-      Box(
+      Group(
         title: t('aichat.packLabel'),
-        children: [
-          for (final p in packs)
-            Line(
-              child: Row(
-                spacing: 12,
-                children: [
-                  Strong('${taka(p)}${t('aichat.perMonth')}', color: context.colors.primary),
-                  Expanded(child: Text(t('aichat.packNote.$p'))),
-                ],
-              ),
-            ),
-        ],
+        children: [for (final p in packs) Item(icon: Icons.auto_awesome, title: '${taka(p)}${t('aichat.perMonth')}', subtitle: t('aichat.packNote.$p'))],
       ),
     ],
   );
 
-  /// The side panel: chats in topic folders, with a search box; language and log out at the bottom.
+  /// The side panel. Its special part: every chat is filed under its topic by itself, so a student finds "that
+  /// physics question from last week" in the Physics folder. Below the folders, the latest chats; a search box on top.
   Widget _side(BuildContext context) {
     final needle = find.trim().toLowerCase();
-    final shown = chats.where((c) => needle.isEmpty || '${c['title']}'.toLowerCase().contains(needle) || rows(c['msgs']).any((m) => '${m['content']}'.toLowerCase().contains(needle))).toList();
+    final shown = chats.where((x) => needle.isEmpty || '${x['title']}'.toLowerCase().contains(needle) || rows(x['msgs']).any((m) => '${m['content']}'.toLowerCase().contains(needle))).toList();
+    Widget chatRow(Json x, {bool withTopic = false}) => Item(
+      title: '${x['title']}',
+      subtitle: withTopic ? '${_topicIcons[x['topic'] ?? 'other']}  ${t('aichat.topics.${x['topic'] ?? 'other'}')}' : null,
+      trailing: IconButton(tooltip: t('aichat.deleteChat'), icon: const Icon(Icons.delete_outline_rounded, size: 20), onPressed: () => remove(x)),
+      onTap: busy
+          ? null
+          : () {
+              Navigator.pop(context);
+              open(x['id'] as int);
+            },
+    );
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
           child: Column(
-            spacing: 10,
+            spacing: 12,
             children: [
+              Row(
+                spacing: 10,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.asset('assets/icons/chatbot.png', width: 34, height: 34, semanticLabel: ''),
+                  ),
+                  Expanded(child: Text(t('aichat.title'), style: context.type.titleLarge)),
+                ],
+              ),
               Doing(
                 label: t('aichat.newChat'),
-                icon: Icons.add,
+                icon: Icons.add_rounded,
                 onPressed: () async {
                   Navigator.pop(context);
                   open(0);
@@ -502,7 +610,7 @@ class _AiChatAppState extends State<AiChatApp> {
                 container: true,
                 child: TextField(
                   onChanged: (v) => setState(() => find = v),
-                  decoration: InputDecoration(labelText: t('aichat.searchChats'), prefixIcon: const Icon(Icons.search), isDense: true),
+                  decoration: InputDecoration(labelText: t('aichat.searchChats'), prefixIcon: const Icon(Icons.search_rounded), isDense: true, fillColor: context.colors.surface),
                 ),
               ),
             ],
@@ -510,45 +618,139 @@ class _AiChatAppState extends State<AiChatApp> {
         ),
         Expanded(
           child: ListView(
+            padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
             children: [
-              if (chats.isEmpty) Padding(padding: const EdgeInsets.all(16), child: Muted(t('aichat.noChats'))),
-              if (chats.isNotEmpty && shown.isEmpty) Padding(padding: const EdgeInsets.all(16), child: Muted(t('aichat.noMatch'))),
-              for (final topic in topics.all)
-                if (shown.any((c) => (c['topic'] ?? 'other') == topic)) ...[
-                  Padding(padding: const EdgeInsets.fromLTRB(16, 12, 16, 4), child: Strong('${_topicIcons[topic]}  ${t('aichat.topics.$topic')}')),
-                  for (final c in shown.where((c) => (c['topic'] ?? 'other') == topic))
-                    ListTile(
-                      dense: true,
-                      selected: c['id'] == openId,
-                      title: Text('${c['title']}', maxLines: 1, overflow: TextOverflow.ellipsis),
-                      trailing: IconButton(tooltip: t('aichat.deleteChat'), icon: const Icon(Icons.delete_outline), onPressed: () => remove(c)),
-                      onTap: busy
-                          ? null
-                          : () {
-                              Navigator.pop(context);
-                              open(c['id'] as int);
-                            },
+              if (chats.isEmpty) Padding(padding: const EdgeInsets.all(12), child: Muted(t('aichat.noChats'))),
+              if (chats.isNotEmpty && shown.isEmpty) Padding(padding: const EdgeInsets.all(12), child: Muted(t('aichat.noMatch'))),
+              // Searching: the matches as one list. Otherwise: the topic folders, then the latest chats.
+              if (needle.isNotEmpty)
+                for (final x in shown) chatRow(x, withTopic: true)
+              else if (chats.isNotEmpty) ...[
+                Padding(padding: const EdgeInsets.fromLTRB(8, 4, 8, 0), child: Section(t('app.topics'))),
+                Padding(padding: const EdgeInsets.fromLTRB(12, 2, 12, 4), child: Muted(t('app.topicsHelp'))),
+                for (final topic in topics.all)
+                  if (chats.any((x) => (x['topic'] ?? 'other') == topic)) ...[
+                    Semantics(
+                      container: true,
+                      button: true,
+                      expanded: unfolded.contains(topic),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () => setState(() => unfolded.contains(topic) ? unfolded.remove(topic) : unfolded.add(topic)),
+                        child: Container(
+                          constraints: const BoxConstraints(minHeight: 52),
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          child: Row(
+                            spacing: 12,
+                            children: [
+                              ExcludeSemantics(child: Text(_topicIcons[topic] ?? '💬', style: const TextStyle(fontSize: 20))),
+                              Expanded(child: Text(t('aichat.topics.$topic'), style: context.type.titleMedium)),
+                              Tag(localNumber(chats.where((x) => (x['topic'] ?? 'other') == topic).length, lang.code), kind: 'plain'),
+                              Icon(unfolded.contains(topic) ? Icons.expand_less_rounded : Icons.expand_more_rounded, color: context.colors.onSurfaceVariant),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
-                ],
+                    if (unfolded.contains(topic))
+                      for (final x in chats.where((x) => (x['topic'] ?? 'other') == topic)) Padding(padding: const EdgeInsets.only(left: 20), child: chatRow(x)),
+                  ],
+                Padding(padding: const EdgeInsets.fromLTRB(8, 12, 8, 0), child: Section(t('app.recents'))),
+                for (final x in chats.take(6)) chatRow(x, withTopic: true),
+              ],
             ],
           ),
         ),
         const Divider(),
+        // Who is logged in, with their pack; the gear opens language and log out.
         Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 8,
+          padding: const EdgeInsets.fromLTRB(12, 8, 6, 8),
+          child: Row(
+            spacing: 12,
             children: [
-              Muted('${store.me?['name'] ?? ''} · ${store.email ?? ''}'),
-              Chips(value: lang.code, options: const ['en', 'bn'], labels: const {'en': 'English', 'bn': 'বাংলা'}, onChanged: store.setLang),
-              Doing(label: t('app.logOut'), icon: Icons.logout, soft: true, onPressed: store.signOut),
+              Avatar('${store.me?['name'] ?? ''}'),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('${store.me?['name'] ?? ''}', maxLines: 1, overflow: TextOverflow.ellipsis, style: context.type.titleMedium),
+                    Muted(pack == null ? (store.email ?? '') : '${t('aichat.packLabel')} · ${taka(pack!)}${t('aichat.perMonth')}', lines: 1),
+                  ],
+                ),
+              ),
+              IconButton(tooltip: t('app.menu'), icon: const Icon(Icons.settings_outlined), onPressed: () => _settings(context)),
             ],
           ),
         ),
       ],
     );
   }
+
+  void _settings(BuildContext context) => showModalBottomSheet<void>(
+    context: context,
+    showDragHandle: true,
+    builder: (context) => Live(
+      (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: 12,
+            children: [
+              Muted(store.email ?? ''),
+              Section(t('app.language')),
+              Chips(value: lang.code, options: const ['en', 'bn'], labels: const {'en': 'English', 'bn': 'বাংলা'}, onChanged: store.setLang),
+              Doing(label: t('app.logOut'), icon: Icons.logout, soft: true, danger: true, onPressed: store.signOut),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+/// The start of a message as one short line: no line breaks, no formatting marks.
+String _snippet(String text) {
+  final flat = text.replaceAll(RegExp(r'[*`#]+'), '').replaceAll(RegExp(r'\s+'), ' ').trim();
+  return flat.length > 90 ? '${flat.substring(0, 90)}…' : flat;
+}
+
+/// One topic's chats on their own page (opened from the topic chips of a new chat).
+class TopicScreen extends StatelessWidget {
+  const TopicScreen({super.key, required this.topic, required this.chats, required this.onOpen});
+  final String topic;
+  final List<Json> chats;
+  final void Function(int id) onOpen;
+  @override
+  Widget build(BuildContext context) => Screen(
+    title: '${_topicIcons[topic] ?? ''}  ${t('aichat.topics.$topic')}',
+    subtitle: t('app.chatsN', [chats.length]),
+    color: context.course(topics.all.indexOf(topic)),
+    refresh: false,
+    children: [
+      if (chats.isEmpty) Box(children: [Muted(t('app.noTopicChats'))]),
+      if (chats.isNotEmpty)
+        Box(
+          flush: true,
+          children: [
+            Paged(
+              items: chats,
+              row: (x) => Item(
+                icon: Icons.chat_bubble_outline_rounded,
+                color: context.course(topics.all.indexOf(topic)),
+                title: '${x['title']}',
+                subtitle: _snippet('${rows(x['msgs']).lastOrNull?['content'] ?? ''}'),
+                onTap: () {
+                  Navigator.pop(context);
+                  onOpen(x['id'] as int);
+                },
+              ),
+            ),
+          ],
+        ),
+    ],
+  );
 }
 
 /// Pack prices (৳ a month), as the server has them (checked in test/views_test.dart).

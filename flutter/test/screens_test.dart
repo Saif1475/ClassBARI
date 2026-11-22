@@ -200,7 +200,7 @@ void main() {
 
   for (final (code, dark) in [('en', false), ('bn', true)]) {
     testWidgets('every tab of the four institute apps opens without a layout error ($code${dark ? ', dark' : ''})', (tester) async {
-      for (final (app, role, tabs) in [(const StudentApp(), 'student', 4), (const GuardianApp(), 'guardian', 4), (const TeacherApp(), 'teacher', 5), (const InstituteApp(), 'owner', 5)]) {
+      for (final (app, role, tabs) in [(const StudentApp(), 'student', 4), (const GuardianApp(), 'guardian', 4), (const TeacherApp(), 'teacher', 4), (const InstituteApp(), 'owner', 4)]) {
         await open(tester, app, code: code, dark: dark, role: role);
         for (var i = 0; i < tabs; i++) {
           await tester.tap(find.byType(TabItem).at(i));
@@ -225,8 +225,13 @@ void main() {
   testWidgets('student: a quiz is shown in the website\'s order and handed in with the picks as the server expects them', (tester) async {
     await open(tester, const StudentApp());
     expect(find.text('Hi Sadia! 👋'), findsOneWidget);
+    expect(find.textContaining('Chapter 1: Motion'), findsWidgets); // its coloured card on the dashboard
+    await tester.tap(find.byType(TabItem).at(1)); // To Do: what is due, soonest first
+    await tester.pumpAndSettle();
+    expect(find.text('DUE SOON'), findsOneWidget);
     await tester.tap(find.text('Quiz 1'));
     await tester.pumpAndSettle();
+    expect(find.text('Not submitted'), findsOneWidget);
     expect(sent('startQuiz').single['args'], [1, 13, 5]); // opening it starts the clock
     final item = rows(rows(sample()['modules'])[0]['items'])[2];
     final order = quizOrder(item, 5);
@@ -252,7 +257,9 @@ void main() {
     expect(find.text('Batch A'), findsWidgets);
     expect(find.text('Batch B'), findsNothing); // another teacher's
     expect(find.text('1 answers to mark'), findsOneWidget); // Student 7's is already marked
-    await tester.tap(find.byType(TabItem).at(1));
+    await tester.tap(find.text('Batch A').last); // the batch's card (the first is the line under the tab's name)
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Take attendance'));
     await tester.pumpAndSettle();
     expect(find.text('1–20 of 40'), findsOneWidget);
     expect(find.text('Student 21'), findsNothing);
@@ -290,7 +297,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'student 4');
     await tester.pumpAndSettle();
-    expect(find.text('7 students'), findsOneWidget); // Student 4 and 40–45
+    expect(find.text('7 STUDENTS'), findsOneWidget); // Student 4 and 40–45
     await tester.tap(find.text('Add student'));
     await tester.pumpAndSettle();
     await press(tester, find.text('Enrol student'));
@@ -316,11 +323,11 @@ void main() {
 
   testWidgets('guardian: picks a child, books a free meeting slot, writes to the teacher', (tester) async {
     await open(tester, const GuardianApp(), role: 'guardian');
-    expect(find.text('Sadia Akter Chowdhury'), findsOneWidget);
+    expect(find.text('Sadia Akter Chowdhury'), findsWidgets); // the page's heading, and under the tab's name
     await press(tester, find.text('Book'));
     await tester.pump(const Duration(milliseconds: 300));
     expect(sent('bookMeeting').single['args'], [31, 5]);
-    await tester.tap(find.byType(TabItem).at(2));
+    await tester.tap(find.byType(TabItem).at(3));
     await tester.pumpAndSettle();
     expect(find.text('Yes, at 5 pm.'), findsOneWidget);
     await tester.enterText(find.byType(TextField), '  Thank you  ');
@@ -426,8 +433,12 @@ void main() {
     expect(find.text('Hi Sadia, what are we learning today?'), findsOneWidget);
     await tester.tap(find.byTooltip('Chats'));
     await tester.pumpAndSettle();
-    expect(find.textContaining('Physics'), findsOneWidget);
-    expect(find.textContaining('Bangla'), findsOneWidget);
+    expect(find.textContaining('Physics'), findsWidgets); // its folder in the side panel (and its chip on the page behind)
+    expect(find.textContaining('Bangla'), findsWidgets);
+    expect(find.text("Newton's second law"), findsOneWidget); // under "Recent chats"
+    await tester.tap(find.text('Physics').last); // open the folder: the chat is listed inside it too
+    await tester.pumpAndSettle();
+    expect(find.text("Newton's second law"), findsNWidgets(2));
     await tester.enterText(find.widgetWithText(TextField, 'Search chats'), 'সমাস');
     await tester.pumpAndSettle();
     expect(find.text("Newton's second law"), findsNothing);
@@ -436,7 +447,7 @@ void main() {
     await tester.tap(find.text("Newton's second law"));
     await tester.pumpAndSettle();
     expect(find.text('F = m * a'), findsOneWidget); // the code block
-    expect(find.text('Copy'), findsOneWidget);
+    expect(find.byTooltip('Copy'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

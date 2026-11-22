@@ -4,19 +4,22 @@ import '../store.dart';
 import '../strings.dart';
 import '../ui.dart';
 import '../views.dart';
-import 'teacher.dart' show Notices, absentOn;
+import 'student.dart' show Stat;
+import 'teacher.dart' show BatchScreen, Notices, absentOn, batchNo;
 
 class InstituteApp extends StatelessWidget {
   const InstituteApp({super.key});
   @override
   Widget build(BuildContext context) => Live(
-    (context) => Tabs([
-      (icon: Icons.dashboard_outlined, label: t('app.tabs2.dashboard'), page: const Dashboard()),
-      (icon: Icons.payments_outlined, label: t('app.tabs2.fees'), page: const Fees()),
-      (icon: Icons.groups_outlined, label: t('app.tabs2.students'), page: const Students()),
-      (icon: Icons.campaign_outlined, label: t('app.tabs2.notices'), page: const Notices()),
-      (icon: Icons.person_outline, label: t('app.tabs.profile'), page: const InstituteProfile()),
-    ]),
+    (context) => Tabs(
+      [
+        AppTab(Icons.space_dashboard_outlined, t('app.tabs2.dashboard'), const Dashboard()),
+        AppTab(Icons.payments_outlined, t('app.tabs2.fees'), const Fees(), badge: store.students.where((s) => ((s['feeDue'] as num?) ?? 0) > 0).length),
+        AppTab(Icons.groups_outlined, t('app.tabs2.students'), const Students()),
+        AppTab(Icons.campaign_outlined, t('app.tabs2.notices'), const Notices()),
+      ],
+      details: [(t('settings.yourName'), store.staffName), (t('settings.instituteName'), '${store.state?['instituteName'] ?? ''}')],
+    ),
   );
 }
 
@@ -27,90 +30,55 @@ class Dashboard extends StatelessWidget {
     final students = store.students, payments = rows(store.state?['payments']);
     final month = dayKey().substring(0, 7);
     num collected = 0, due = 0;
-    var owing = 0;
     for (final p in payments) {
       if (p['at'] is String && dayKey(toDate(p['at'] as String)).startsWith(month)) collected += (p['amount'] as num?) ?? 0;
     }
     for (final s in students) {
       final d = (s['feeDue'] as num?) ?? 0;
-      if (d > 0) {
-        due += d;
-        owing++;
-      }
+      if (d > 0) due += d;
     }
     final taken = (store.state?['attendance'] as Map?)?.containsKey(dayKey()) ?? false;
     final n = students.length;
-    Widget stat(IconData icon, String label, String value, [VoidCallback? onTap]) => Box(
-      onTap: onTap,
-      children: [
-        Align(alignment: Alignment.centerLeft, child: Glyph(icon)),
-        Muted(label),
-        Big(value),
-      ],
-    );
-    final stats = [
-      stat(Icons.groups_outlined, t('app.tabs2.students'), localNumber(n, lang.code), () => push(context, const Students(pushed: true))),
-      stat(Icons.class_outlined, t('app.myBatches'), localNumber(store.batches.length, lang.code)),
-      stat(Icons.how_to_reg_outlined, t('app.presentToday'), taken ? '${localNumber(n - absentOn(dayKey()).length, lang.code)}/${localNumber(n, lang.code)}' : '—'),
-      stat(Icons.school_outlined, t('app.teachers'), localNumber(rows(store.state?['staff']).length, lang.code)),
-    ];
     return Screen(
       children: [
         H1('${store.state?['instituteName'] ?? store.state?['teacherName'] ?? ''}', kicker: '${t('teacher.greeting')} ${store.staffName}'),
-        // The green card: this month's money at a glance.
+        // The coloured card: this month's money at a glance.
         Box(
           hero: true,
-          title: t('glance.title'),
+          onTap: () => push(context, const Fees(pushed: true)),
           children: [
-            Line(child: Pair(t('app.collected'), taka(collected))),
-            Line(child: Pair(t('app.totalDue'), taka(due))),
-          ],
-        ),
-        Box(
-          title: t('tday.attention'),
-          children: [
-            if (owing == 0)
-              Muted(t('tday.allClear'))
-            else
-              Line(
-                onTap: () => push(context, const Fees(pushed: true)),
-                child: Row(
-                  spacing: 12,
-                  children: [
-                    Icon(Icons.payments_outlined, color: context.colors.primary),
-                    Expanded(child: Strong(t('tday.feesOwed', [owing]))),
-                    const Icon(Icons.chevron_right),
-                  ],
-                ),
-              ),
-          ],
-        ),
-        for (var i = 0; i < stats.length; i += 2)
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 16,
+            H2(t('glance.title')),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 12,
               children: [
-                Expanded(child: stats[i]),
-                Expanded(child: stats[i + 1]),
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Muted(t('app.collected')), Big(taka(collected))]),
+                ),
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Muted(t('app.totalDue')), Big(taka(due))]),
+                ),
               ],
             ),
-          ),
-        Box(
-          title: t('app.myBatches'),
-          children: [
-            for (final b in store.batches)
-              Line(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Strong('${b['name']}'),
-                    Muted('${b['teacher'] ?? ''} · ${b['days'] ?? ''} · ${taka((b['fee'] as num?) ?? 0)} · ${t('app.studentsN', [students.where((s) => s['batch'] == b['name']).length])}'),
-                  ],
-                ),
-              ),
           ],
         ),
+        CardGrid([
+          Stat(icon: Icons.groups_rounded, label: t('app.tabs2.students'), value: localNumber(n, lang.code), onTap: () => push(context, const Students(pushed: true))),
+          Stat(icon: Icons.how_to_reg_rounded, color: context.course(1), label: t('app.presentToday'), value: taken ? '${localNumber(n - absentOn(dayKey()).length, lang.code)}/${localNumber(n, lang.code)}' : '—'),
+          Stat(icon: Icons.class_rounded, color: context.course(4), label: t('app.myBatches'), value: localNumber(store.batches.length, lang.code)),
+          Stat(icon: Icons.school_rounded, color: context.course(3), label: t('app.teachers'), value: localNumber(rows(store.state?['staff']).length, lang.code)),
+        ]),
+        Section(t('app.myBatches')),
+        CardGrid([
+          for (final b in store.batches)
+            CourseCard(
+              color: context.course(batchNo(b['name'])),
+              icon: Icons.groups_rounded,
+              title: '${b['name']}',
+              subtitle: '${b['teacher'] ?? ''}\n${t('app.studentsN', [students.where((s) => s['batch'] == b['name']).length])} · ${taka((b['fee'] as num?) ?? 0)}',
+              onTap: () => push(context, BatchScreen(batch: '${b['name']}')),
+            ),
+        ]),
       ],
     );
   });
@@ -160,36 +128,34 @@ class Fees extends StatelessWidget {
     return Screen(
       title: pushed ? t('app.whoOwes') : null,
       children: [
-        if (!pushed) H1(t('app.whoOwes')),
-        if (owing.isEmpty) Muted(t('app.nobodyOwes')),
+        Section(t('app.whoOwes')),
+        if (owing.isEmpty) Box(children: [Muted(t('app.nobodyOwes'))]),
         if (owing.isNotEmpty)
           Box(
+            flush: true,
             children: [
               Paged(
                 items: owing,
-                row: (s) => Line(
+                row: (s) => Item(
+                  leading: Avatar('${s['name']}', size: 38, color: context.course(batchNo(s['batch']))),
+                  title: '${s['name']}',
+                  subtitle: '${s['batch']} · ${s['phone'] ?? ''}',
+                  trailing: Strong(taka(s['feeDue'] as num), color: context.colors.error),
                   onTap: () => record(context, s),
-                  child: Row(
-                    spacing: 10,
-                    children: [
-                      Expanded(
-                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Strong('${s['name']}'), Muted('${s['batch']} · ${s['phone'] ?? ''}')]),
-                      ),
-                      Strong(taka(s['feeDue'] as num), color: context.colors.error),
-                    ],
-                  ),
                 ),
               ),
             ],
           ),
         if (recent.isNotEmpty)
-          Box(
+          Group(
             title: t('app.paidOk').replaceAll(' ✓', ''),
             children: [
               for (final p in recent)
-                Pair(
-                  '${store.student(p['studentId'])?['name'] ?? '#${p['studentId']}'}',
-                  '${taka((p['amount'] as num?) ?? 0)} · ${t(p['method'] == 'cash' ? 'app.cash' : 'app.bkash')}${p['at'] is String ? ' · ${fmtWhen(p['at'] as String)}' : ''}',
+                Item(
+                  icon: Icons.check_circle_outline_rounded,
+                  title: '${store.student(p['studentId'])?['name'] ?? '#${p['studentId']}'}',
+                  subtitle: '${t(p['method'] == 'cash' ? 'app.cash' : 'app.bkash')}${p['at'] is String ? ' · ${fmtWhen(p['at'] as String)}' : ''}',
+                  trailing: Strong(taka((p['amount'] as num?) ?? 0)),
                 ),
             ],
           ),
@@ -214,8 +180,7 @@ class _StudentsState extends State<Students> {
     return Screen(
       title: widget.pushed ? t('app.tabs2.students') : null,
       children: [
-        if (!widget.pushed) H1(t('app.tabs2.students')),
-        Doing(label: t('app.addStudent'), icon: Icons.person_add_alt, onPressed: () async => push(context, const NewStudent())),
+        Doing(label: t('app.addStudent'), icon: Icons.person_add_alt_1_rounded, onPressed: () async => push(context, const NewStudent())),
         Semantics(
           container: true,
           child: TextField(
@@ -223,17 +188,21 @@ class _StudentsState extends State<Students> {
             decoration: InputDecoration(labelText: t('app.search'), hintText: t('roster.searchPh'), prefixIcon: const Icon(Icons.search)),
           ),
         ),
-        Muted(t('roster.count', [list.length])),
+        Section(t('roster.count', [list.length])),
         Box(
+          flush: true,
           children: [
-            if (list.isEmpty) Muted(t('roster.none')),
+            if (list.isEmpty) Padding(padding: const EdgeInsets.all(16), child: Muted(t('roster.none'))),
             Paged(
               items: list,
               resetKey: needle,
               row: (s) {
                 final due = (s['feeDue'] as num?) ?? 0;
-                return Line(
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Strong('${s['id']}. ${s['name']}'), Muted('${s['batch']} · ${s['guardianName'] ?? ''} · ${s['phone'] ?? ''}${due > 0 ? ' · ${taka(due)}' : ''}')]),
+                return Item(
+                  leading: Avatar('${s['name']}', size: 38, color: context.course(batchNo(s['batch']))),
+                  title: '${s['id']}. ${s['name']}',
+                  subtitle: '${s['batch']} · ${s['guardianName'] ?? ''} · ${s['phone'] ?? ''}',
+                  trailing: due > 0 ? Tag(taka(due), kind: 'bad') : null,
                 );
               },
             ),
@@ -320,10 +289,4 @@ class _NewStudentState extends State<NewStudent> {
       ),
     ],
   );
-}
-
-class InstituteProfile extends StatelessWidget {
-  const InstituteProfile({super.key});
-  @override
-  Widget build(BuildContext context) => Live((context) => Profile(rows: [(t('settings.yourName'), store.staffName), (t('settings.instituteName'), '${store.state?['instituteName'] ?? ''}')]));
 }

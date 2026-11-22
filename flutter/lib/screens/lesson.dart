@@ -11,7 +11,7 @@ import '../strings.dart';
 import '../ui.dart';
 import '../views.dart';
 import 'pdf.dart';
-import 'student.dart' show kindIcons;
+import 'student.dart' show chapterNo, kindIcons;
 
 const _fileMax = 8000000; // the server's limit for a photo sent as text
 
@@ -33,7 +33,8 @@ Future<({String name, Uint8List bytes, String data})?> pickPhoto(BuildContext co
   }
 }
 
-/// One lesson item: watch, read, take the quiz or hand in homework.
+/// One lesson: what it is, what it is worth, when it is due and whether it is done; then the lesson itself
+/// (watch, read, take the quiz or hand in homework). The main button stays at the bottom of the page.
 class LessonScreen extends StatelessWidget {
   const LessonScreen({super.key, required this.moduleId, required this.itemId});
   final int moduleId, itemId;
@@ -43,20 +44,60 @@ class LessonScreen extends StatelessWidget {
     final it = rows(m?['items']).where((x) => x['id'] == itemId).firstOrNull;
     final me = store.me?['id'] as int?;
     if (m == null || it == null || me == null) return Screen(title: '', children: [Muted(t('app.noChapters'))]);
+    final color = context.course(chapterNo(moduleId));
     final kind = it['kind'], url = it['url'] as String?;
     final done = it['done'] == true;
+    final work = kind == 'quiz' || kind == 'task' || kind == 'exam';
+    final sub = (it['submissions'] as Map?)?['$me'] as Map?;
+    final Map? scores = it['scores'];
+    final mark = (kind == 'quiz' ? scores : sub)?[kind == 'quiz' ? '$me' : 'grade']; // a quiz: its marks by student; else this student's hand-in
+    final handedIn = kind == 'quiz' ? mark != null : sub != null;
+    final late = !handedIn && it['dueDate'] is String && '${it['dueDate']}'.compareTo(dayKey()) < 0;
     return Screen(
       title: '${m['title']}',
+      color: color,
       refresh: false,
+      bottom: kind == 'video' || kind == 'pdf'
+          ? Doing(
+              label: done ? t('app.markNotDone') : t('app.markDone'),
+              icon: done ? Icons.check_circle_rounded : Icons.radio_button_unchecked,
+              soft: done,
+              color: color,
+              onPressed: () => store.act('toggleItemDone', [moduleId, itemId, me]),
+            )
+          : null,
       children: [
-        Row(
-          spacing: 12,
+        Box(
           children: [
-            Icon(kindIcons[kind], size: 34, color: context.colors.primary),
-            Expanded(child: H1('${it['title']}')),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 12,
+              children: [
+                Glyph(kindIcons[kind] ?? Icons.article_outlined, color: color),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 2,
+                    children: [
+                      Semantics(header: true, child: Text('${it['title']}', style: context.type.headlineSmall)),
+                      if ('${it['meta'] ?? ''}'.isNotEmpty) Muted('${it['meta']}'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                if (work) Tag(mark != null ? t('app.gradedTag') : (handedIn ? t('app.submitted') : (late ? t('app.overdue') : t('app.notSubmitted'))), kind: handedIn ? 'ok' : (late ? 'bad' : 'plain')),
+                if (!work && done) Tag(t('app.done'), kind: 'ok'),
+                if (it['points'] is num) Tag(t('app.pts', [it['points']]), kind: 'plain'),
+                if (it['dueDate'] is String) Tag(t('app.due', [fmtDate(it['dueDate'] as String)]), kind: 'plain'),
+              ],
+            ),
           ],
         ),
-        if ('${it['meta'] ?? ''}'.isNotEmpty) Muted('${it['meta']}'),
         if (kind == 'video') VideoBox(url),
         if (kind == 'pdf') OpenFile(url),
         if (kind == 'pdf' && url != null && url.startsWith('/api/files/'))
@@ -64,12 +105,11 @@ class LessonScreen extends StatelessWidget {
             label: '${t('pdfhl.open')} · ${t('pdfhl.ask')}',
             icon: Icons.auto_awesome,
             soft: true,
+            color: color,
             onPressed: () async => push(context, PdfScreen(file: url, title: '${it['title']}')),
           ),
         if (kind == 'quiz') QuizBox(key: ValueKey(itemId), moduleId: moduleId, item: it, me: me),
         if (kind == 'task' || kind == 'exam') ...[if (it['paper'] is String) OpenFile(it['paper'] as String), Homework(moduleId: moduleId, item: it, me: me)],
-        if (kind == 'video' || kind == 'pdf')
-          Doing(label: done ? t('app.markNotDone') : t('app.markDone'), icon: done ? Icons.check_circle : Icons.radio_button_unchecked, soft: true, onPressed: () => store.act('toggleItemDone', [moduleId, itemId, me])),
       ],
     );
   });

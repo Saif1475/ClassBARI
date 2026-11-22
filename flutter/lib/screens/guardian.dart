@@ -10,14 +10,19 @@ import 'student.dart';
 class GuardianApp extends StatelessWidget {
   const GuardianApp({super.key});
   @override
-  Widget build(BuildContext context) => Live(
-    (context) => Tabs([
-      (icon: Icons.home_outlined, label: t('app.tabs.home'), page: const GuardianHome()),
-      (icon: Icons.insights_outlined, label: t('app.tabs2.results'), page: const GuardianResults()),
-      (icon: Icons.chat_bubble_outline, label: t('app.tabs2.messages'), page: const GuardianMessages()),
-      (icon: Icons.person_outline, label: t('app.tabs.profile'), page: const GuardianProfile()),
-    ]),
-  );
+  Widget build(BuildContext context) => Live((context) {
+    final kids = store.children, g = kids.firstOrNull;
+    return Tabs(
+      [
+        AppTab(Icons.space_dashboard_outlined, t('app.tabs.home'), const GuardianHome()),
+        AppTab(Icons.insights_rounded, t('app.tabs2.results'), const GuardianResults()),
+        AppTab(Icons.notifications_none_rounded, t('app.notices'), const GuardianNotices()),
+        AppTab(Icons.chat_bubble_outline_rounded, t('app.tabs2.messages'), const GuardianMessages()),
+      ],
+      note: t('settings.askInstitute'),
+      details: [(t('settings.yourName'), '${g?['guardianName'] ?? ''}'), (t('settings.phone'), '${g?['phone'] ?? ''}'), for (final k in kids) (t('app.child'), '${k['name']} · ${k['batch']}')],
+    );
+  });
 }
 
 /// Guardians with several children pick one; every tab then shows that child.
@@ -40,10 +45,8 @@ class GuardianHome extends StatelessWidget {
     final id = child['id'] as int;
     final due = (child['feeDue'] as num?) ?? 0;
     final last = gradedResults(store.modules, id).reversed.take(3).toList();
-    final batch = store.batches.where((b) => b['name'] == child['batch']).firstOrNull;
-    final att = monthAttendance((store.state?['attendance'] as Map?) ?? const {}, id, batch?['classDays'] as List?);
+    final att = attendanceOf(child);
     final live = liveFor(child['batch']);
-    final notices = noticesFor(child['batch']).take(3).toList();
     final slots = rows(store.state?['meetings']).where((m) => m['batch'] == child['batch'] && m['start'] is String && toDate(m['start'] as String).isAfter(DateTime.now())).toList();
     Future<void> tapSlot(Json m) async {
       if (m['bookedBy'] == id) {
@@ -55,54 +58,57 @@ class GuardianHome extends StatelessWidget {
       }
     }
 
-    Widget fact(IconData icon, String text) => Line(
-      child: Row(
-        spacing: 12,
-        children: [
-          Icon(icon),
-          Expanded(child: Strong(text)),
-        ],
-      ),
-    );
     return Screen(
       children: [
         if (store.children.length > 1) const ChildChips(),
-        H1('${child['name']}', kicker: '${child['batch']}'),
-        // The green card: this month at a glance, as on the website's parent page.
+        Row(
+          spacing: 14,
+          children: [
+            Avatar('${child['name']}', size: 52, color: context.course(1)),
+            Expanded(child: H1('${child['name']}', kicker: '${child['batch']}')),
+          ],
+        ),
+        // The coloured card: this month at a glance.
         Box(
           hero: true,
-          title: t('glance.title'),
+          flush: true,
           children: [
-            fact(Icons.event_available_outlined, att.held > 0 ? t('glance.attended', [att.present, att.held]) : t('parent.noClasses')),
-            fact(Icons.payments_outlined, due > 0 ? t('glance.feeDue', [taka(due)]) : t('glance.feePaid')),
-            if (last.isNotEmpty) fact(Icons.insights_outlined, t('glance.lastTest', ['${show(last.first.score)}/${show(last.first.points)}'])),
+            Padding(padding: const EdgeInsets.fromLTRB(16, 16, 16, 4), child: H2(t('glance.title'))),
+            Item(icon: Icons.event_available_rounded, title: att.held > 0 ? t('glance.attended', [att.present, att.held]) : t('parent.noClasses')),
+            const Divider(indent: 14, endIndent: 14),
+            Item(icon: Icons.payments_outlined, title: due > 0 ? t('glance.feeDue', [taka(due)]) : t('glance.feePaid')),
+            if (last.isNotEmpty) ...[
+              const Divider(indent: 14, endIndent: 14),
+              Item(icon: Icons.insights_rounded, title: t('glance.lastTest', ['${show(last.first.score)}/${show(last.first.points)}']), subtitle: last.first.title),
+            ],
+            const SizedBox(height: 6),
           ],
         ),
-        if (due > 0) Box(color: context.colors.tertiaryContainer, children: [Muted(t('auth.payAtInstitute'))]),
+        if (due > 0)
+          Box(
+            color: context.colors.tertiaryContainer,
+            children: [Text(t('auth.payAtInstitute'), style: context.type.bodySmall?.copyWith(color: context.colors.onTertiaryContainer))],
+          ),
         if (live != null) LiveBox(live),
-        Box(
+        Group(
           title: t('app.results'),
           children: [
-            if (last.isEmpty) Muted(t('app.noResults')),
-            for (final r in last) Line(child: Pair(r.title, '${show(r.score)}/${show(r.points)}')),
+            if (last.isEmpty) Padding(padding: const EdgeInsets.all(16), child: Muted(t('app.noResults'))),
+            for (final r in last) Item(icon: kindIcons[r.kind], color: r.pct >= 60 ? context.colors.primary : context.colors.error, title: r.title, trailing: Strong('${show(r.score)}/${show(r.points)}')),
           ],
         ),
-        if (notices.isNotEmpty) NoticeLines(notices),
-        Box(
+        Group(
           title: t('app.meetings'),
           children: [
-            if (slots.isEmpty) Muted(t('app.noMeetings')),
+            if (slots.isEmpty) Padding(padding: const EdgeInsets.all(16), child: Muted(t('app.noMeetings'))),
             for (final m in slots)
-              Line(
+              Item(
+                icon: Icons.handshake_outlined,
+                color: context.course(4),
+                title: fmtDateTime(m['start'] as String),
+                subtitle: ['${m['teacher'] ?? ''} · ${m['minutes'] ?? ''} min', if (m['bookedBy'] == id) t('app.booked')].join('\n'),
+                trailing: m['bookedBy'] == id ? Icon(Icons.check_circle_rounded, color: context.colors.primary) : Tag(m['bookedBy'] == null ? t('app.book') : t('app.taken'), kind: m['bookedBy'] == null ? 'note' : 'plain'),
                 onTap: () => tapSlot(m),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Strong(fmtDateTime(m['start'] as String)),
-                    Muted('${m['teacher'] ?? ''} · ${m['minutes'] ?? ''} min'),
-                    Strong(m['bookedBy'] == id ? t('app.booked') : (m['bookedBy'] == null ? t('app.book') : t('app.taken')), color: m['bookedBy'] == null || m['bookedBy'] == id ? context.colors.primary : context.colors.onSurfaceVariant),
-                  ],
-                ),
               ),
           ],
         ),
@@ -117,13 +123,43 @@ class GuardianResults extends StatelessWidget {
   Widget build(BuildContext context) => Live((context) {
     final child = store.child;
     if (child == null) return const Loading();
-    final note = '${(store.state?['reportComments'] as Map?)?['${child['id']}'] ?? ''}';
+    final id = child['id'] as int;
+    final note = '${(store.state?['reportComments'] as Map?)?['$id'] ?? ''}';
+    final att = attendanceOf(child), avg = averageOf(id);
     return Screen(
       children: [
         if (store.children.length > 1) const ChildChips(),
-        H1(t('app.tabs2.results')),
+        CardGrid([
+          Stat(
+            icon: Icons.event_available_rounded,
+            label: t('app.attendance'),
+            value: att.held > 0 ? '${localNumber(att.pct, lang.code)}%' : '—',
+            pct: att.held > 0 ? att.pct : null,
+            note: att.held > 0 ? t('app.attended', [att.present, att.held]) : t('parent.noClasses'),
+          ),
+          Stat(icon: Icons.grade_rounded, color: context.course(1), label: t('app.average'), value: avg == null ? '—' : '${localNumber(avg, lang.code)}%', pct: avg, note: avg == null ? t('app.noResults') : null),
+        ]),
         if (note.isNotEmpty) Box(children: [Text(note)]),
-        Box(children: [ResultLines(child['id'] as int)]),
+        Section(t('app.results')),
+        Box(flush: true, children: [ResultLines(id)]),
+      ],
+    );
+  });
+}
+
+class GuardianNotices extends StatelessWidget {
+  const GuardianNotices({super.key});
+  @override
+  Widget build(BuildContext context) => Live((context) {
+    final batch = store.child?['batch'];
+    final live = liveFor(batch);
+    final list = noticesFor(batch);
+    return Screen(
+      children: [
+        if (store.children.length > 1) const ChildChips(),
+        if (live != null) LiveBox(live),
+        if (list.isEmpty && live == null) Box(children: [Muted(t('app.noNotices'))]),
+        if (list.isNotEmpty) NoticeCards(list),
       ],
     );
   });
@@ -205,18 +241,8 @@ class GuardianMessages extends StatelessWidget {
     return Screen(
       children: [
         if (store.children.length > 1) const ChildChips(),
-        H1(t('app.tabs2.messages')),
         if (child != null) ChatThread(key: ValueKey(child['id']), threadId: 'parent-${child['id']}', guardian: true),
       ],
     );
-  });
-}
-
-class GuardianProfile extends StatelessWidget {
-  const GuardianProfile({super.key});
-  @override
-  Widget build(BuildContext context) => Live((context) {
-    final kids = store.children, g = kids.firstOrNull;
-    return Profile(note: t('settings.askInstitute'), rows: [(t('settings.yourName'), '${g?['guardianName'] ?? ''}'), (t('settings.phone'), '${g?['phone'] ?? ''}'), for (final k in kids) (t('app.child'), '${k['name']} · ${k['batch']}')]);
   });
 }

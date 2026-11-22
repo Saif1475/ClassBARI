@@ -1,5 +1,6 @@
-// The parts every screen is built from, in the website's phone look: a softly glowing page, a glass bar on top with
-// the page's name, big rounded cards holding tinted rows, raised green buttons and a tab bar with a glass pill.
+// The parts every screen is built from. The look follows the learning apps students already know: a quiet page, a
+// dashboard of coloured course cards, plain lists with a coloured icon per row, a simple tab bar and a side menu
+// for the person's own details.
 // Every TextField sits in Semantics(container: true): its own item for a screen reader. Without it, loose text next
 // to a box is read as part of the box, and the box's pressable area grows over its neighbours.
 import 'package:intl/intl.dart';
@@ -13,7 +14,7 @@ import 'strings.dart';
 import 'theme.dart';
 import 'views.dart';
 
-export 'theme.dart' show Look, Tone, lit;
+export 'theme.dart' show Look, Tone, lit, deep;
 
 final _changes = Listenable.merge([store, lang]);
 
@@ -35,7 +36,7 @@ String fmtDateTime(String s) => '${DateFormat('EEE, d MMM', _loc).format(toDate(
 String fmtWhen(String s) => dayKey(toDate(s)) == dayKey() ? fmtTime(s) : fmtDate(s);
 
 // ---- text ---------------------------------------------------------------------------------------------------------
-/// The big name of a page, with an optional small line above it ("Hello, Rahim").
+/// The big line at the top of a page, with an optional small line above it ("Hello, Rahim").
 class H1 extends StatelessWidget {
   const H1(this.text, {super.key, this.kicker});
   final String text;
@@ -44,7 +45,7 @@ class H1 extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      if (kicker != null && kicker!.isNotEmpty) Text(kicker!, style: context.type.bodyLarge?.copyWith(color: context.colors.onSurfaceVariant)),
+      if (kicker != null && kicker!.isNotEmpty) Text(kicker!, style: context.type.bodyMedium?.copyWith(color: context.colors.onSurfaceVariant)),
       Semantics(header: true, child: Text(text, style: context.type.headlineMedium)),
     ],
   );
@@ -57,11 +58,23 @@ class H2 extends StatelessWidget {
   Widget build(BuildContext context) => Semantics(header: true, child: Text(text, style: context.type.titleLarge));
 }
 
-class Muted extends StatelessWidget {
-  const Muted(this.text, {super.key});
+/// The small grey heading above a group of rows ("OVERDUE", "CHAPTERS").
+class Section extends StatelessWidget {
+  const Section(this.text, {super.key});
   final String text;
   @override
-  Widget build(BuildContext context) => Text(text, style: context.type.bodySmall);
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(left: 4, top: 6),
+    child: Semantics(header: true, child: Text(text.toUpperCase(), style: context.type.labelSmall)),
+  );
+}
+
+class Muted extends StatelessWidget {
+  const Muted(this.text, {super.key, this.lines});
+  final String text;
+  final int? lines;
+  @override
+  Widget build(BuildContext context) => Text(text, maxLines: lines, overflow: lines == null ? null : TextOverflow.ellipsis, style: context.type.bodySmall);
 }
 
 class Strong extends StatelessWidget {
@@ -69,10 +82,7 @@ class Strong extends StatelessWidget {
   final String text;
   final Color? color;
   @override
-  Widget build(BuildContext context) => Text(
-    text,
-    style: context.type.bodyMedium?.copyWith(fontSize: 16, fontWeight: FontWeight.w700, color: color),
-  );
+  Widget build(BuildContext context) => Text(text, style: context.type.titleMedium?.copyWith(color: color));
 }
 
 /// A big number or amount.
@@ -83,89 +93,83 @@ class Big extends StatelessWidget {
   Widget build(BuildContext context) => Text(text, style: context.type.headlineSmall);
 }
 
-/// A small coloured label: "New", a count.
+/// A small label: "New", a count, or a state ("Submitted" in green, "Overdue" in red).
 class Tag extends StatelessWidget {
-  const Tag(this.text, {super.key});
+  const Tag(this.text, {super.key, this.kind = 'note'});
   final String text;
-  @override
-  Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-    decoration: BoxDecoration(color: context.colors.tertiaryContainer, borderRadius: BorderRadius.circular(10)),
-    child: Text(
-      text,
-      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: context.colors.onTertiaryContainer),
-    ),
-  );
-}
 
-/// An icon in its own soft square, at the start of a row.
-class Glyph extends StatelessWidget {
-  const Glyph(this.icon, {super.key});
-  final IconData icon;
-  @override
-  Widget build(BuildContext context) => Container(
-    width: 42,
-    height: 42,
-    decoration: BoxDecoration(color: context.colors.primaryContainer.withValues(alpha: 0.7), borderRadius: BorderRadius.circular(12)),
-    child: Icon(icon, size: 22, color: context.colors.onPrimaryContainer),
-  );
-}
-
-// ---- the page behind everything -----------------------------------------------------------------------------------
-/// The page colour with the website's soft glows: green from the top left, warm from the top right.
-/// shortcut: plain gradients, no blur behind cards (the website also drops the blur on phones: it makes cheap phones stutter).
-class Backdrop extends StatelessWidget {
-  const Backdrop({super.key, required this.child});
-  final Widget child;
+  /// note (warm), ok (green), bad (red), plain (grey).
+  final String kind;
   @override
   Widget build(BuildContext context) {
-    final g = context.tone.glows;
-    Widget glow(Alignment at, Color c) => Positioned.fill(
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: RadialGradient(center: at, radius: 1.25, colors: [c, c.withValues(alpha: 0)]),
-        ),
-      ),
-    );
-    return ColoredBox(
-      color: context.colors.surface,
-      child: Stack(
-        children: [
-          if (g.isNotEmpty) ...[glow(const Alignment(-0.76, -0.8), g[0]), glow(const Alignment(0.76, -0.72), g[1]), glow(const Alignment(0.6, 0.7), g[0]), glow(const Alignment(-0.64, 0.64), g[2])],
-          Positioned.fill(child: child),
-        ],
+    final c = context.colors;
+    final (bg, fg) = switch (kind) {
+      'ok' => (c.primaryContainer, c.onPrimaryContainer),
+      'bad' => (c.errorContainer, c.onErrorContainer),
+      'plain' => (context.tone.tile, c.onSurfaceVariant),
+      _ => (c.tertiaryContainer, c.onTertiaryContainer),
+    };
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(8)),
+      child: Text(
+        text,
+        style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: fg),
       ),
     );
   }
 }
 
-// ---- boxes --------------------------------------------------------------------------------------------------------
-const _cardCorner = BorderRadius.all(Radius.circular(24));
-const _tileCorner = BorderRadius.all(Radius.circular(14));
+/// An icon in its own soft rounded square, in the row's colour.
+class Glyph extends StatelessWidget {
+  const Glyph(this.icon, {super.key, this.color});
+  final IconData icon;
+  final Color? color;
+  @override
+  Widget build(BuildContext context) {
+    final onHero = _OnHero.of(context);
+    final tint = color ?? context.colors.primary;
+    // On dark pages a course colour is lightened so the icon still stands out from its square.
+    final ink = onHero ? Colors.white : (context.dark ? lit(tint, 0.45) : tint);
+    return Container(
+      width: 42,
+      height: 42,
+      decoration: BoxDecoration(
+        color: onHero ? Colors.white.withValues(alpha: 0.18) : tint.withValues(alpha: context.dark ? 0.24 : 0.12),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Icon(icon, size: 22, color: ink),
+    );
+  }
+}
 
-/// A white card lifted off the page; its children sit one under another. `hero`: the deep green "today" card.
+// ---- cards and rows -----------------------------------------------------------------------------------------------
+const _cardCorner = BorderRadius.all(Radius.circular(18));
+
+/// A white card; its children sit one under another. `hero`: the brand-coloured summary card. `flush`: no padding,
+/// for a card made of rows.
 class Box extends StatelessWidget {
-  const Box({super.key, required this.children, this.onTap, this.color, this.title, this.hero = false});
+  const Box({super.key, required this.children, this.onTap, this.color, this.title, this.hero = false, this.flush = false});
   final List<Widget> children;
   final VoidCallback? onTap;
   final Color? color;
   final String? title;
-  final bool hero;
+  final bool hero, flush;
   @override
   Widget build(BuildContext context) {
-    final dark = Theme.of(context).brightness == Brightness.dark;
     Widget inside = Padding(
-      padding: const EdgeInsets.all(18),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: 10, children: [if (title != null) H2(title!), ...children]),
+      padding: flush ? EdgeInsets.zero : const EdgeInsets.all(16),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: flush ? 0 : 10, children: [if (title != null) H2(title!), ...children]),
     );
     if (hero) {
-      // Everything on the green card is written in white.
-      final ink = dark ? context.colors.onSurface : Colors.white;
+      // Everything on the coloured card is written in white.
+      final ink = context.dark ? context.colors.onSurface : Colors.white;
       inside = _OnHero(
         child: Theme(
           data: Theme.of(context).copyWith(
             textTheme: context.type.apply(bodyColor: ink, displayColor: ink),
             iconTheme: IconThemeData(color: ink),
+            dividerTheme: DividerThemeData(color: ink.withValues(alpha: 0.18), space: 1, thickness: 1),
           ),
           child: inside,
         ),
@@ -176,9 +180,9 @@ class Box extends StatelessWidget {
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: hero ? null : (color ?? context.colors.surfaceContainerLowest),
-          gradient: hero ? LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: context.tone.hero) : null,
+          gradient: hero ? LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: context.tone.hero) : null,
           borderRadius: _cardCorner,
-          border: Border.all(color: Colors.white.withValues(alpha: dark ? 0.06 : (hero ? 0.25 : 0.8))),
+          border: hero || color != null ? null : Border.all(color: context.colors.outlineVariant.withValues(alpha: context.dark ? 0.6 : 0.7)),
           boxShadow: context.tone.lift,
         ),
         child: Material(
@@ -192,7 +196,7 @@ class Box extends StatelessWidget {
   }
 }
 
-/// Marks what is inside as sitting on the green card, so rows and buttons there draw themselves for it.
+/// Marks what is inside as sitting on the coloured card, so icons and buttons there draw themselves for it.
 class _OnHero extends InheritedWidget {
   const _OnHero({required super.child});
   static bool of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<_OnHero>() != null;
@@ -200,22 +204,161 @@ class _OnHero extends InheritedWidget {
   bool updateShouldNotify(_OnHero old) => false;
 }
 
-/// One row inside a card: a softly tinted, rounded strip, at least 52 high so it is easy to press.
-class Line extends StatelessWidget {
-  const Line({super.key, required this.child, this.onTap});
-  final Widget child;
+/// One row of a list: a coloured icon, a title with a quieter line under it, and something at the end (an arrow when
+/// the row opens something). At least 56 high, so it is easy to press.
+class Item extends StatelessWidget {
+  const Item({super.key, required this.title, this.subtitle, this.icon, this.color, this.leading, this.trailing, this.below, this.onTap});
+  final String title;
+  final String? subtitle;
+  final IconData? icon;
+  final Color? color;
+  final Widget? leading, trailing, below;
   final VoidCallback? onTap;
   @override
   Widget build(BuildContext context) {
-    final row = Container(constraints: const BoxConstraints(minHeight: 52), padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10), alignment: Alignment.centerLeft, child: child);
-    final tile = Material(
-      color: _OnHero.of(context) ? Colors.white.withValues(alpha: 0.14) : context.tone.tile,
-      borderRadius: _tileCorner,
-      clipBehavior: Clip.antiAlias,
-      child: onTap == null ? row : InkWell(onTap: onTap, child: row),
+    final row = ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 56),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        child: Row(
+          spacing: 12,
+          children: [
+            ?(leading ?? (icon == null ? null : Glyph(icon!, color: color))),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                spacing: 2,
+                children: [
+                  Text(title, style: context.type.titleMedium),
+                  if (subtitle != null && subtitle!.isNotEmpty) Muted(subtitle!),
+                  if (below != null) Padding(padding: const EdgeInsets.only(top: 4), child: below),
+                ],
+              ),
+            ),
+            // What sits at the end never takes more than about a third of the row: a long label wraps instead of pushing the title out.
+            if (trailing != null) ConstrainedBox(constraints: const BoxConstraints(maxWidth: 132), child: trailing) else if (onTap != null) Icon(Icons.chevron_right, color: context.colors.onSurfaceVariant),
+          ],
+        ),
+      ),
     );
     // A row that can be pressed is one button for a screen reader, named by what it shows.
-    return onTap == null ? tile : Semantics(container: true, button: true, child: tile);
+    return onTap == null
+        ? row
+        : Semantics(
+            container: true,
+            button: true,
+            child: InkWell(onTap: onTap, child: row),
+          );
+  }
+}
+
+/// Rows in one white card, with a hairline between them and an optional small heading above.
+class Group extends StatelessWidget {
+  const Group({super.key, required this.children, this.title});
+  final List<Widget> children;
+  final String? title;
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    spacing: 8,
+    children: [
+      if (title != null) Section(title!),
+      Box(
+        flush: true,
+        children: [
+          for (final (i, child) in children.indexed) ...[if (i > 0) const Divider(indent: 14, endIndent: 14), child],
+        ],
+      ),
+    ],
+  );
+}
+
+/// A course on the dashboard: a block of its own colour on top, its name and how far along it is underneath.
+class CourseCard extends StatelessWidget {
+  const CourseCard({super.key, required this.color, required this.title, this.subtitle, this.progress, this.icon = Icons.menu_book_rounded, this.badge, this.onTap});
+  final Color color;
+  final String title;
+  final String? subtitle, badge;
+  final num? progress;
+  final IconData icon;
+  final VoidCallback? onTap;
+  @override
+  Widget build(BuildContext context) => Semantics(
+    container: true,
+    button: onTap != null,
+    child: DecoratedBox(
+      decoration: BoxDecoration(color: context.colors.surfaceContainerLowest, borderRadius: _cardCorner, boxShadow: context.tone.lift),
+      child: Material(
+        type: MaterialType.transparency,
+        borderRadius: _cardCorner,
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Container(
+                height: 76,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [lit(color, 0.12), deep(color, 0.12)]),
+                ),
+                child: Stack(
+                  children: [
+                    Positioned(right: -10, bottom: -14, child: Icon(icon, size: 84, color: Colors.white.withValues(alpha: 0.22))),
+                    if (badge != null) Positioned(left: 10, top: 10, child: Tag(badge!)),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: 4,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: context.type.titleMedium?.copyWith(color: context.dark ? lit(color, 0.5) : color, fontWeight: FontWeight.w800),
+                    ),
+                    if (subtitle != null) Muted(subtitle!, lines: 2),
+                    if (progress != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: MarkBar(progress!, color: color),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+/// Cards two to a row (one to a row when the letters are set very large).
+class CardGrid extends StatelessWidget {
+  const CardGrid(this.cards, {super.key});
+  final List<Widget> cards;
+  @override
+  Widget build(BuildContext context) {
+    final per = MediaQuery.textScalerOf(context).scale(10) <= 13 ? 2 : 1;
+    return Column(
+      spacing: 12,
+      children: [
+        for (var i = 0; i < cards.length; i += per)
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 12,
+              children: [for (var k = i; k < i + per; k++) Expanded(child: k < cards.length ? cards[k] : const SizedBox.shrink())],
+            ),
+          ),
+      ],
+    );
   }
 }
 
@@ -243,19 +386,25 @@ class Pair extends StatelessWidget {
   );
 }
 
-/// A mark or progress as a thick rounded bar: green from 60%, red below (`plain`: always green).
+/// A mark or progress as a rounded bar: green from 60%, red below (`plain` or a `color`: always that colour).
 class MarkBar extends StatelessWidget {
-  const MarkBar(this.pct, {super.key, this.plain = false});
+  const MarkBar(this.pct, {super.key, this.plain = false, this.color});
   final num pct;
   final bool plain;
+  final Color? color;
   @override
   Widget build(BuildContext context) => ClipRRect(
-    borderRadius: BorderRadius.circular(6),
-    child: LinearProgressIndicator(value: (pct / 100).clamp(0, 1).toDouble(), minHeight: 10, backgroundColor: context.tone.tile, color: plain || pct >= 60 ? context.colors.primary : context.colors.error),
+    borderRadius: BorderRadius.circular(5),
+    child: LinearProgressIndicator(
+      value: (pct / 100).clamp(0, 1).toDouble(),
+      minHeight: 8,
+      backgroundColor: _OnHero.of(context) ? Colors.white.withValues(alpha: 0.25) : context.tone.tile,
+      color: _OnHero.of(context) ? Colors.white : (color != null ? (context.dark ? lit(color!, 0.4) : color) : (plain || pct >= 60 ? context.colors.primary : context.colors.error)),
+    ),
   );
 }
 
-/// One of several (batches, children, tabs inside a page): a sunken track with the chosen one raised and green.
+/// One of several (batches, children, languages): rounded chips, the chosen one filled.
 class Chips extends StatelessWidget {
   const Chips({super.key, required this.value, required this.options, required this.onChanged, this.labels});
   final String value;
@@ -265,67 +414,52 @@ class Chips extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Container(
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(color: context.tone.tile, borderRadius: _tileCorner),
-        child: Wrap(
-          spacing: 4,
-          runSpacing: 4,
-          children: [
-            for (final o in options)
-              Semantics(
-                container: true,
-                button: true,
-                selected: o == value,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(11),
-                  onTap: () => onChanged(o),
-                  child: Container(
-                    constraints: const BoxConstraints(minHeight: 48, minWidth: 64),
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: o == value ? _raised(c.primary, context) : null,
-                    child: Center(
-                      widthFactor: 1,
-                      child: Text(
-                        labels?[o] ?? o,
-                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: o == value ? c.onPrimary : c.onSurfaceVariant),
-                      ),
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        for (final o in options)
+          Semantics(
+            container: true,
+            button: true,
+            selected: o == value,
+            child: Material(
+              color: o == value ? c.primary : c.surfaceContainerLowest,
+              shape: StadiumBorder(side: BorderSide(color: o == value ? c.primary : c.outlineVariant)),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: () => onChanged(o),
+                child: Container(
+                  constraints: const BoxConstraints(minHeight: 48, minWidth: 64),
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  child: Center(
+                    widthFactor: 1,
+                    child: Text(
+                      labels?[o] ?? o,
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: o == value ? c.onPrimary : c.onSurface),
                     ),
                   ),
                 ),
               ),
-          ],
-        ),
-      ),
+            ),
+          ),
+      ],
     );
   }
 }
 
-/// The website's raised, lit piece of colour: lighter at the top, with a soft shadow of its own colour underneath.
-BoxDecoration _raised(Color color, BuildContext context, {double corner = 11}) => BoxDecoration(
-  gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [lit(color, 0.16), color]),
-  borderRadius: BorderRadius.circular(corner),
-  border: Border.all(color: Colors.white.withValues(alpha: Theme.of(context).brightness == Brightness.dark ? 0.12 : 0.3)),
-  boxShadow: [
-    BoxShadow(color: color.withValues(alpha: 0.45), blurRadius: 18, spreadRadius: -10, offset: const Offset(0, 8)),
-    const BoxShadow(color: Color(0x2E002824), blurRadius: 2, offset: Offset(0, 1)),
-  ],
-);
-
 // ---- pages --------------------------------------------------------------------------------------------------------
-/// Tells a page which tab it lives in, so its top bar can show the tab's name and its avatar can open the profile.
+/// Tells a page which tab it lives in: its top bar then shows the tab's name and the person's initial, which opens the menu.
 class TabScope extends InheritedWidget {
-  const TabScope({super.key, required this.label, required this.openProfile, required super.child});
+  const TabScope({super.key, required this.label, required this.openMenu, required super.child});
   final String label;
-  final VoidCallback openProfile;
+  final VoidCallback openMenu;
   static TabScope? of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<TabScope>();
   @override
   bool updateShouldNotify(TabScope old) => old.label != label;
 }
 
-String get _myName => switch (kApp) {
+String get myName => switch (kApp) {
   'guardian' => '${store.children.firstOrNull?['guardianName'] ?? ''}',
   'teacher' || 'institute' => store.staffName,
   _ => '${store.me?['name'] ?? ''}',
@@ -336,91 +470,109 @@ String get _myPlace => switch (kApp) {
   _ => '${store.me?['batch'] ?? ''}',
 };
 
-/// The glass bar at the top of every page: back or the app's mark, the page's name, and the person's initial.
+/// A person's initial in a circle.
+class Avatar extends StatelessWidget {
+  const Avatar(this.name, {super.key, this.size = 40, this.color});
+  final String name;
+  final double size;
+  final Color? color;
+  @override
+  Widget build(BuildContext context) {
+    final tint = color ?? context.colors.primary;
+    return Container(
+      width: size,
+      height: size,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [lit(tint, 0.15), deep(tint, 0.1)]),
+        shape: BoxShape.circle,
+      ),
+      child: Text(
+        name.trim().isEmpty ? '?' : name.trim().characters.first.toUpperCase(),
+        style: TextStyle(fontSize: size * 0.42, fontWeight: FontWeight.w800, color: color == null ? context.colors.onPrimary : Colors.white),
+      ),
+    );
+  }
+}
+
+/// The bar at the top of a page. On a tab's own page: the person's initial (opens the menu) and the tab's name, large.
+/// On a page opened from another: a back arrow and the page's name; `color` paints it in a course's colour.
 class TopBar extends StatelessWidget {
-  const TopBar({super.key, required this.title, this.actions, this.leading});
+  const TopBar({super.key, required this.title, this.subtitle, this.actions, this.leading, this.color});
   final String title;
+  final String? subtitle;
   final List<Widget>? actions;
   final Widget? leading;
+  final Color? color;
   @override
   Widget build(BuildContext context) {
     final c = context.colors, scope = TabScope.of(context);
-    final dark = Theme.of(context).brightness == Brightness.dark;
-    final staff = kApp == 'teacher' || kApp == 'institute';
-    final place = scope == null ? '' : _myPlace, initial = _myName.trim().isEmpty ? '' : _myName.trim().characters.first.toUpperCase();
+    // The first page of the app, or one opened on top of it? Asked of the page itself: "can anything be closed" is also
+    // true while the side menu is open, which once left a back arrow on a tab's own page.
+    final first = ModalRoute.of(context)?.isFirst ?? true;
+    final root = scope != null && first;
+    final ink = color == null ? c.onSurface : Colors.white;
+    final place = subtitle ?? (root ? _myPlace : '');
     return Container(
       decoration: BoxDecoration(
-        color: context.tone.glass,
-        border: Border(
-          bottom: BorderSide(color: Colors.white.withValues(alpha: dark ? 0.08 : 0.72)),
-        ),
+        color: color == null ? c.surface : null,
+        gradient: color == null ? null : LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [lit(color!, 0.1), deep(color!, 0.14)]),
       ),
       padding: EdgeInsets.only(top: MediaQuery.paddingOf(context).top),
-      child: SizedBox(
-        height: 60,
-        child: Row(
-          children: [
-            const SizedBox(width: 6),
-            leading ??
-                (Navigator.canPop(context)
-                    ? const BackButton()
-                    : Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.asset('assets/icons/$kApp.png', width: 34, height: 34, semanticLabel: ''),
-                        ),
-                      )),
-            const SizedBox(width: 4),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, letterSpacing: 0.2, color: c.onSurface),
+      child: IconTheme(
+        data: IconThemeData(color: ink),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 64),
+          child: Row(
+            children: [
+              const SizedBox(width: 6),
+              if (leading != null)
+                leading!
+              else if (root)
+                Semantics(
+                  container: true,
+                  button: true,
+                  label: t('app.menu'),
+                  excludeSemantics: true,
+                  child: InkWell(
+                    customBorder: const CircleBorder(),
+                    onTap: scope.openMenu,
+                    child: Padding(padding: const EdgeInsets.all(8), child: Avatar(myName)),
                   ),
-                  if (place.isNotEmpty)
-                    Text(
-                      place,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 13, color: c.onSurfaceVariant),
-                    ),
-                ],
-              ),
-            ),
-            ...?actions,
-            if (scope != null && initial.isNotEmpty)
-              // The person's initial, as on the website: a warm circle for families, a green square for staff. Opens the profile.
-              Semantics(
-                container: true,
-                button: true,
-                label: t('app.tabs.profile'),
-                excludeSemantics: true,
-                child: InkWell(
-                  customBorder: const CircleBorder(),
-                  onTap: scope.openProfile,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      alignment: Alignment.center,
-                      decoration: staff ? _raised(c.primary, context, corner: 12) : BoxDecoration(color: c.tertiaryContainer, shape: BoxShape.circle, boxShadow: context.tone.lift),
-                      child: Text(
-                        initial,
-                        style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: staff ? c.onPrimary : c.onTertiaryContainer),
+                )
+              else if (!first)
+                const BackButton()
+              else
+                const SizedBox(width: 10),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: root ? 22 : 18, height: 1.15, fontWeight: root ? FontWeight.w800 : FontWeight.w700, letterSpacing: root ? -0.2 : 0, color: ink),
                       ),
-                    ),
+                      if (place.isNotEmpty)
+                        Text(
+                          place,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(fontSize: 13, color: color == null ? c.onSurfaceVariant : Colors.white.withValues(alpha: 0.9)),
+                        ),
+                    ],
                   ),
                 ),
               ),
-            const SizedBox(width: 6),
-          ],
+              ...?actions,
+              const SizedBox(width: 6),
+            ],
+          ),
         ),
       ),
     );
@@ -429,43 +581,54 @@ class TopBar extends StatelessWidget {
 
 /// A scrolling page: pull down to refresh; says when the phone is offline or a change could not be saved.
 class Screen extends StatelessWidget {
-  const Screen({super.key, required this.children, this.title, this.refresh = true, this.bottom, this.actions});
+  const Screen({super.key, required this.children, this.title, this.subtitle, this.color, this.refresh = true, this.bottom, this.actions});
   final List<Widget> children;
 
   /// The name in the top bar. Left out on a tab's own page, which shows the tab's name.
   final String? title;
+  final String? subtitle;
+
+  /// A course's colour for the top bar (a chapter's or a batch's own page).
+  final Color? color;
   final bool refresh;
+
+  /// Something that stays at the bottom of the page: the main button of a lesson.
   final Widget? bottom;
   final List<Widget>? actions;
   @override
   Widget build(BuildContext context) {
     final list = ListView.separated(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: EdgeInsets.fromLTRB(16, 16, 16, 32 + MediaQuery.paddingOf(context).bottom),
+      padding: EdgeInsets.fromLTRB(16, 12, 16, 28 + (bottom == null ? MediaQuery.paddingOf(context).bottom : 0)),
       itemCount: children.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 16),
+      separatorBuilder: (_, _) => const SizedBox(height: 14),
       itemBuilder: (_, i) => children[i],
     );
     final waiting = store.waiting.length;
-    return Backdrop(
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Column(
-          children: [
-            TopBar(title: title ?? TabScope.of(context)?.label ?? kAppName, actions: actions),
-            if (store.status == Status.offline) _Banner(waiting > 0 ? '${t('app.offline')} · ${t('app.waiting', [waiting])}' : t('app.offline'), context.colors.surfaceContainerHighest, context.colors.onSurface),
-            if (store.syncFailed) _Banner(t('auth.syncFailed'), context.colors.error, context.colors.onError),
-            if (waiting > 0 && store.status != Status.offline) const LinearProgressIndicator(minHeight: 3),
-            Expanded(
-              child: MediaQuery.removePadding(
-                context: context,
-                removeTop: true,
-                child: refresh ? RefreshIndicator(onRefresh: store.refresh, child: list) : list,
-              ),
+    return Scaffold(
+      body: Column(
+        children: [
+          TopBar(title: title ?? TabScope.of(context)?.label ?? kAppName, subtitle: subtitle, actions: actions, color: color),
+          if (store.status == Status.offline) _Banner(waiting > 0 ? '${t('app.offline')} · ${t('app.waiting', [waiting])}' : t('app.offline'), context.tone.tile, context.colors.onSurface),
+          if (store.syncFailed) _Banner(t('auth.syncFailed'), context.colors.error, context.colors.onError),
+          if (waiting > 0 && store.status != Status.offline) const LinearProgressIndicator(minHeight: 3),
+          Expanded(
+            child: MediaQuery.removePadding(
+              context: context,
+              removeTop: true,
+              child: refresh ? RefreshIndicator(onRefresh: store.refresh, child: list) : list,
             ),
-            ?bottom,
-          ],
-        ),
+          ),
+          if (bottom != null)
+            Container(
+              decoration: BoxDecoration(
+                color: context.colors.surfaceContainerLowest,
+                border: Border(top: BorderSide(color: context.colors.outlineVariant)),
+              ),
+              padding: EdgeInsets.fromLTRB(16, 10, 16, 10 + MediaQuery.paddingOf(context).bottom),
+              child: bottom,
+            ),
+        ],
       ),
     );
   }
@@ -494,101 +657,106 @@ class _Banner extends StatelessWidget {
 class Loading extends StatelessWidget {
   const Loading({super.key});
   @override
-  Widget build(BuildContext context) => Backdrop(
-    child: Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Center(child: CircularProgressIndicator(semanticsLabel: t('common.loading'))),
-    ),
+  Widget build(BuildContext context) => Scaffold(
+    body: Center(child: CircularProgressIndicator(semanticsLabel: t('common.loading'))),
   );
 }
 
-/// The bottom tabs of an app. Each tab keeps its place (scroll, what was typed) while another is open.
+/// One tab of an app: its icon, its name, its page, and a count to show on the icon (things waiting).
+class AppTab {
+  const AppTab(this.icon, this.label, this.page, {this.badge = 0});
+  final IconData icon;
+  final String label;
+  final Widget page;
+  final int badge;
+}
+
+/// The bottom tabs of an app, with the side menu (the person's details, language, log out).
+/// Each tab keeps its place (scroll, what was typed) while another is open.
 class Tabs extends StatefulWidget {
-  const Tabs(this.tabs, {super.key});
-  final List<({IconData icon, String label, Widget page})> tabs;
+  const Tabs(this.tabs, {super.key, this.details = const [], this.note});
+  final List<AppTab> tabs;
+
+  /// The person's details for the side menu: (label, value).
+  final List<(String, String)> details;
+  final String? note;
   @override
   State<Tabs> createState() => _TabsState();
 }
 
 class _TabsState extends State<Tabs> {
+  final frame = GlobalKey<ScaffoldState>();
   var at = 0;
   final opened = {0}; // a tab is built the first time it is opened, then kept
   void open(int i) => setState(() => opened.add(at = i));
 
   @override
-  Widget build(BuildContext context) {
-    final dark = Theme.of(context).brightness == Brightness.dark;
-    return Scaffold(
-      body: IndexedStack(
-        index: at,
-        children: [for (final (i, tab) in widget.tabs.indexed) opened.contains(i) ? TabScope(label: tab.label, openProfile: () => open(widget.tabs.length - 1), child: tab.page) : const SizedBox.shrink()],
+  Widget build(BuildContext context) => Scaffold(
+    key: frame,
+    drawer: SideMenu(details: widget.details, note: widget.note),
+    body: IndexedStack(
+      index: at,
+      children: [for (final (i, tab) in widget.tabs.indexed) opened.contains(i) ? TabScope(label: tab.label, openMenu: () => frame.currentState?.openDrawer(), child: tab.page) : const SizedBox.shrink()],
+    ),
+    bottomNavigationBar: Container(
+      decoration: BoxDecoration(
+        color: context.colors.surfaceContainerLowest,
+        border: Border(top: BorderSide(color: context.colors.outlineVariant)),
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: context.tone.tile,
-          border: Border(
-            top: BorderSide(color: Colors.white.withValues(alpha: dark ? 0.08 : 0.7)),
-          ),
-        ),
-        padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom, left: 4, right: 4),
-        child: SizedBox(
-          height: 70,
-          child: Row(
-            children: [for (final (i, tab) in widget.tabs.indexed) TabItem(index: i, icon: tab.icon, label: tab.label, on: i == at, onTap: () => open(i))],
-          ),
+      padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom, left: 4, right: 4),
+      child: SizedBox(
+        height: 64,
+        child: Row(
+          children: [for (final (i, tab) in widget.tabs.indexed) TabItem(index: i, tab: tab, on: i == at, onTap: () => open(i))],
         ),
       ),
-    );
-  }
+    ),
+  );
 }
 
-/// One tab of the bottom bar: its icon sits in a raised glass pill when it is the open one.
+/// One tab of the bottom bar: its icon and name turn the app's colour when it is the open one.
 class TabItem extends StatelessWidget {
-  const TabItem({super.key, required this.index, required this.icon, required this.label, required this.on, required this.onTap});
+  const TabItem({super.key, required this.index, required this.tab, required this.on, required this.onTap});
   final int index;
-  final IconData icon;
-  final String label;
+  final AppTab tab;
   final bool on;
   final VoidCallback onTap;
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final dark = Theme.of(context).brightness == Brightness.dark;
     return Expanded(
       child: Semantics(
         container: true,
         identifier: 'tab-$index',
         button: true,
         selected: on,
-        label: label,
+        label: tab.badge > 0 ? '${tab.label}, ${tab.badge}' : tab.label,
         excludeSemantics: true,
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: onTap,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            spacing: 4,
+            spacing: 3,
             children: [
               AnimatedContainer(
-                duration: const Duration(milliseconds: 220),
+                duration: const Duration(milliseconds: 200),
                 curve: Curves.easeOutCubic,
-                width: 56,
-                height: 32,
-                decoration: on
-                    ? BoxDecoration(
-                        gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [lit(c.primaryContainer, dark ? 0.12 : 0.55), c.primaryContainer]),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.white.withValues(alpha: dark ? 0.18 : 0.75)),
-                        boxShadow: const [
-                          BoxShadow(color: Color(0x2E002824), blurRadius: 2, offset: Offset(0, 1)),
-                          BoxShadow(color: Color(0x59003C36), blurRadius: 16, spreadRadius: -8, offset: Offset(0, 8)),
-                        ],
-                      )
-                    : null,
-                child: Icon(icon, size: 22, color: on ? c.onPrimaryContainer : c.onSurfaceVariant),
+                width: 54,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: on ? c.primary.withValues(alpha: context.dark ? 0.26 : 0.12) : Colors.transparent,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Badge(
+                  isLabelVisible: tab.badge > 0,
+                  label: Text(localNumber(tab.badge, lang.code)),
+                  offset: const Offset(-8, -2),
+                  child: Icon(tab.icon, size: 23, color: on ? c.primary : c.onSurfaceVariant),
+                ),
               ),
               Text(
-                label,
+                tab.label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(fontSize: 11.5, fontWeight: on ? FontWeight.w800 : FontWeight.w600, color: on ? c.onSurface : c.onSurfaceVariant),
@@ -599,6 +767,52 @@ class TabItem extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The side menu: who is logged in, their details, the language, and log out.
+class SideMenu extends StatelessWidget {
+  const SideMenu({super.key, this.details = const [], this.note});
+  final List<(String, String)> details;
+  final String? note;
+  @override
+  Widget build(BuildContext context) => Drawer(
+    child: Live(
+      (context) => SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
+          children: [
+            Row(
+              spacing: 14,
+              children: [
+                Avatar(myName, size: 56),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(myName.isEmpty ? kAppName : myName, style: context.type.titleLarge),
+                      Muted(store.email ?? ''),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 18),
+            Section(kAppName),
+            const SizedBox(height: 6),
+            for (final (label, value) in details)
+              if (value.isNotEmpty) Pair(label, value),
+            if (note != null) Padding(padding: const EdgeInsets.only(top: 6), child: Muted(note!)),
+            const SizedBox(height: 18),
+            Section(t('app.language')),
+            const SizedBox(height: 8),
+            Chips(value: lang.code, options: const ['en', 'bn'], labels: const {'en': 'English', 'bn': 'বাংলা'}, onChanged: store.setLang),
+            const SizedBox(height: 24),
+            Doing(label: t('app.logOut'), icon: Icons.logout, soft: true, danger: true, onPressed: store.signOut),
+          ],
+        ),
+      ),
+    ),
+  );
 }
 
 // ---- long lists: 10, 20, 50 or 100 rows a page, with numbered pages ------------------------------------------------
@@ -621,10 +835,14 @@ class _PagedState<T> extends State<Paged<T>> {
     if (old.resetKey != widget.resetKey) page = 1;
   }
 
+  List<Widget> _rows(Iterable<T> items) => [
+    for (final (i, item) in items.indexed) ...[if (i > 0) const Divider(indent: 14, endIndent: 14), widget.row(item)],
+  ];
+
   @override
   Widget build(BuildContext context) {
     final all = widget.items.length, size = store.pageSize;
-    if (all <= pageSizes.first) return Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: 10, children: [for (final item in widget.items) widget.row(item)]);
+    if (all <= pageSizes.first) return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: _rows(widget.items));
     final pages = (all / size).ceil();
     final at = page.clamp(1, pages); // the list got shorter: the last page, not an empty one
     final from = (at - 1) * size, to = from + size > all ? all : from + size;
@@ -647,7 +865,7 @@ class _PagedState<T> extends State<Paged<T>> {
                   constraints: const BoxConstraints(minWidth: 38, minHeight: 38),
                   padding: const EdgeInsets.symmetric(horizontal: 6),
                   alignment: Alignment.center,
-                  decoration: n == at ? _raised(c.primary, context) : null,
+                  decoration: BoxDecoration(color: n == at ? c.primary : null, borderRadius: BorderRadius.circular(11)),
                   child: Text(
                     localNumber(n, lang.code),
                     style: TextStyle(fontWeight: FontWeight.w700, color: n == at ? c.onPrimary : c.onSurface),
@@ -658,44 +876,47 @@ class _PagedState<T> extends State<Paged<T>> {
           );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: 10,
       children: [
-        for (var i = from; i < to; i++) widget.row(widget.items[i]),
-        Semantics(
-          container: true,
-          label: t('pager.label'),
-          child: Wrap(
-            alignment: WrapAlignment.spaceBetween,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 8,
-            children: [
-              Wrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 8,
-                children: [
-                  Muted(t('pager.show')),
-                  DropdownButton<int>(
-                    value: size,
-                    underline: const SizedBox(),
-                    borderRadius: _tileCorner,
-                    items: [for (final n in pageSizes) DropdownMenuItem(value: n, child: Text(localNumber(n, lang.code)))],
-                    onChanged: (n) => setState(() {
-                      page = from ~/ n! + 1; // the first row on screen stays on screen
-                      store.pageSize = n;
-                    }),
-                  ),
-                  Muted(t('pager.range', [from + 1, to, all])),
-                ],
-              ),
-              Wrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  IconButton(tooltip: t('pager.prev'), onPressed: at > 1 ? () => setState(() => page = at - 1) : null, icon: const Icon(Icons.chevron_left)),
-                  for (final n in pageNumbers(at, pages)) number(n),
-                  IconButton(tooltip: t('pager.next'), onPressed: at < pages ? () => setState(() => page = at + 1) : null, icon: const Icon(Icons.chevron_right)),
-                ],
-              ),
-            ],
+        ..._rows(widget.items.getRange(from, to)),
+        const Divider(),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          child: Semantics(
+            container: true,
+            label: t('pager.label'),
+            child: Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 8,
+              children: [
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 8,
+                  children: [
+                    Muted(t('pager.show')),
+                    DropdownButton<int>(
+                      value: size,
+                      underline: const SizedBox(),
+                      borderRadius: BorderRadius.circular(14),
+                      items: [for (final n in pageSizes) DropdownMenuItem(value: n, child: Text(localNumber(n, lang.code)))],
+                      onChanged: (n) => setState(() {
+                        page = from ~/ n! + 1; // the first row on screen stays on screen
+                        store.pageSize = n;
+                      }),
+                    ),
+                    Muted(t('pager.range', [from + 1, to, all])),
+                  ],
+                ),
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    IconButton(tooltip: t('pager.prev'), onPressed: at > 1 ? () => setState(() => page = at - 1) : null, icon: const Icon(Icons.chevron_left)),
+                    for (final n in pageNumbers(at, pages)) number(n),
+                    IconButton(tooltip: t('pager.next'), onPressed: at < pages ? () => setState(() => page = at + 1) : null, icon: const Icon(Icons.chevron_right)),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -729,14 +950,17 @@ Future<void> openLink(BuildContext context, String url) async {
 
 void push(BuildContext context, Widget page) => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => page));
 
-/// The app's button: raised and green (`soft`: white with green words; `danger`: red). On the green card it turns
-/// white by itself. It shows it is working until its job is finished, and can't be pressed twice meanwhile.
+/// The app's button, filled with the app's colour (`soft`: a quiet tinted one; `danger`: red). On the coloured card
+/// it turns white by itself. It shows it is working until its job is finished, and can't be pressed twice meanwhile.
 class Doing extends StatefulWidget {
-  const Doing({super.key, required this.label, required this.onPressed, this.icon, this.soft = false, this.danger = false, this.small = false});
+  const Doing({super.key, required this.label, required this.onPressed, this.icon, this.soft = false, this.danger = false, this.small = false, this.color});
   final String label;
   final Future<void> Function()? onPressed;
   final IconData? icon;
   final bool soft, danger, small;
+
+  /// A course's colour instead of the app's.
+  final Color? color;
   @override
   State<Doing> createState() => _DoingState();
 }
@@ -756,48 +980,41 @@ class _DoingState extends State<Doing> {
   Widget build(BuildContext context) {
     final c = context.colors, onHero = _OnHero.of(context);
     final can = !busy && widget.onPressed != null;
-    final flat = widget.soft || onHero;
-    final fill = widget.danger ? c.error : c.primary;
-    final ink = onHero ? context.tone.hero.last : (widget.soft ? c.primary : (widget.danger ? c.onError : c.onPrimary));
+    final main = widget.danger ? c.error : (widget.color ?? c.primary);
+    final (fill, ink) = onHero
+        ? (Colors.white, context.tone.hero.last)
+        : widget.soft
+        ? (main.withValues(alpha: context.dark ? 0.22 : 0.1), context.dark ? lit(main, 0.35) : main)
+        : (main, widget.danger ? c.onError : (widget.color == null ? c.onPrimary : Colors.white));
     return Opacity(
-      opacity: widget.onPressed == null ? 0.5 : 1,
-      child: DecoratedBox(
-        decoration: flat
-            ? BoxDecoration(
-                color: onHero ? Colors.white.withValues(alpha: 0.94) : c.surfaceContainerLowest,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: c.outlineVariant.withValues(alpha: onHero ? 0 : 1)),
-                boxShadow: context.tone.lift,
-              )
-            : _raised(fill, context, corner: 12),
-        child: Material(
-          type: MaterialType.transparency,
-          borderRadius: BorderRadius.circular(12),
-          clipBehavior: Clip.antiAlias,
-          child: Semantics(
-            container: true,
-            button: true,
-            enabled: can,
-            child: InkWell(
-              onTap: can ? run : null,
-              child: Container(
-                constraints: BoxConstraints(minHeight: widget.small ? 48 : 54, minWidth: 48),
-                padding: EdgeInsets.symmetric(horizontal: widget.small ? 14 : 18, vertical: 10),
-                child: Row(
-                  mainAxisSize: widget.small ? MainAxisSize.min : MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  spacing: 8,
-                  children: [
-                    if (busy) SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2.5, color: ink)) else if (widget.icon != null) Icon(widget.icon, size: 20, color: ink),
-                    Flexible(
-                      child: Text(
-                        widget.label,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: widget.small ? 15 : 16.5, fontWeight: FontWeight.w700, letterSpacing: 0.2, color: ink),
-                      ),
+      opacity: widget.onPressed == null ? 0.45 : 1,
+      child: Material(
+        color: fill,
+        borderRadius: BorderRadius.circular(14),
+        clipBehavior: Clip.antiAlias,
+        child: Semantics(
+          container: true,
+          button: true,
+          enabled: can,
+          child: InkWell(
+            onTap: can ? run : null,
+            child: Container(
+              constraints: BoxConstraints(minHeight: widget.small ? 48 : 52, minWidth: 48),
+              padding: EdgeInsets.symmetric(horizontal: widget.small ? 14 : 18, vertical: 10),
+              child: Row(
+                mainAxisSize: widget.small ? MainAxisSize.min : MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.center,
+                spacing: 8,
+                children: [
+                  if (busy) SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2.5, color: ink)) else if (widget.icon != null) Icon(widget.icon, size: 20, color: ink),
+                  Flexible(
+                    child: Text(
+                      widget.label,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: widget.small ? 15 : 16, fontWeight: FontWeight.w700, color: ink),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -805,32 +1022,4 @@ class _DoingState extends State<Doing> {
       ),
     );
   }
-}
-
-/// Profile tab for every app: details, language, log out.
-class Profile extends StatelessWidget {
-  const Profile({super.key, required this.rows, this.note});
-  final List<(String, String)> rows;
-  final String? note;
-  @override
-  Widget build(BuildContext context) => Screen(
-    refresh: false,
-    children: [
-      H1(_myName.isEmpty ? t('app.tabs.profile') : _myName, kicker: kAppName),
-      Box(
-        children: [
-          for (final (label, value) in [...rows, (t('auth.email'), store.email ?? '')])
-            if (value.isNotEmpty) Pair(label, value),
-          if (note != null) Muted(note!),
-        ],
-      ),
-      Box(
-        title: t('app.language'),
-        children: [
-          Chips(value: lang.code, options: const ['en', 'bn'], labels: const {'en': 'English', 'bn': 'বাংলা'}, onChanged: store.setLang),
-        ],
-      ),
-      Doing(label: t('app.logOut'), icon: Icons.logout, danger: true, onPressed: store.signOut),
-    ],
-  );
 }

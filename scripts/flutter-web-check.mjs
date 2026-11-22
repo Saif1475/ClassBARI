@@ -3,6 +3,7 @@
 //   cd flutter && flutter build web --dart-define=APP=teacher --dart-define-from-file=config.local.json -o /tmp/web-teacher
 //   cd ..      && node scripts/flutter-web-check.mjs teacher /tmp/web-teacher data/app-screens
 //                 node scripts/flutter-web-check.mjs sheets data/app-screens        (one picture per app with all its screens)
+//                 node scripts/flutter-web-check.mjs pdf data/app-screens out.pdf   (every screen in one PDF)
 // Needs the test accounts and sample lessons (npm run test:accounts, npm run test:lessons); the password is read from
 // data/test-accounts.txt and never printed. DARK=1 photographs just the first screens in the dark theme.
 // The Teacher run also makes one real change and undoes it (the test student absent, then present again).
@@ -32,13 +33,59 @@ if (app === "sheets") {
   process.exit(0);
 }
 
+if (app === "pdf") {
+  // Every screen in one PDF to read or print: an app per section, three screens to a row.
+  //   node scripts/flutter-web-check.mjs pdf data/app-screens ~/ClassBARI-docs/ClassBARI-apps.pdf
+  const APPS = { student: ["ClassBARI Student", "For students: a dashboard of chapter cards, what is due, results and notices."], guardian: ["ClassBARI Guardian", "For guardians: their child's month at a glance, results, notices and messages to the teacher."], teacher: ["ClassBARI Teacher", "For teachers: a card per batch, the register, hand-ins to mark, guardian messages and notices."], institute: ["ClassBARI Institution", "For owners and managers: money this month, batches, fees, students and notices."], chatbot: ["ClassBARI AI", "For students with an AI pack: the study chat, with chats filed into topic folders by themselves."] };
+  const files = readdirSync(root).filter((f) => /^[a-z-]+-\d\d-.*\.png$/.test(f)).sort();
+  const groups = [...new Set(files.map((f) => f.replace(/-\d\d-.*/, "")))].sort((a, b) => (a.endsWith("-dark") - b.endsWith("-dark")) || Object.keys(APPS).indexOf(a.replace("-dark", "")) - Object.keys(APPS).indexOf(b.replace("-dark", "")));
+  const esc = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  let body = "";
+  for (const g of groups) {
+    const [name, about] = APPS[g.replace("-dark", "")] ?? [g, ""];
+    body += `<section><h2>${esc(name)}${g.endsWith("-dark") ? " — dark theme" : ""}</h2><p class="about">${esc(g.endsWith("-dark") ? "The same screens when the phone is set to dark." : about)}</p><div class="grid">`;
+    for (const f of files.filter((x) => new RegExp(`^${g}-\\d\\d-`).test(x))) {
+      const label = f.replace(`${g}-`, "").replace(".png", "").replace(/^0?(\d+)-/, "$1 · ").replaceAll("-", " ");
+      const jpg = (await sharp(join(root, f)).resize({ width: 660 }).jpeg({ quality: 86 }).toBuffer()).toString("base64");
+      body += `<figure><img src="data:image/jpeg;base64,${jpg}" alt=""><figcaption>${esc(label)}</figcaption></figure>`;
+    }
+    body += "</div></section>";
+  }
+  const day = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+  const html = `<!doctype html><html><head><meta charset="utf-8"><style>
+    @page { size: A4; margin: 12mm; }
+    body { font-family: "DejaVu Sans", Arial, sans-serif; color: #17201b; margin: 0; }
+    .cover { height: 250mm; display: flex; flex-direction: column; justify-content: center; }
+    .cover h1 { font-size: 30pt; margin: 0 0 4mm; color: #157347; }
+    .cover p { font-size: 12pt; line-height: 1.5; margin: 0 0 3mm; max-width: 150mm; }
+    .cover ul { font-size: 11pt; line-height: 1.6; padding-left: 5mm; margin: 4mm 0 0; }
+    section { break-before: page; }
+    h2 { font-size: 18pt; margin: 0 0 1mm; color: #157347; }
+    .about { font-size: 10.5pt; margin: 0 0 5mm; color: #57625c; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7mm 6mm; }
+    figure { margin: 0; break-inside: avoid; }
+    img { width: 100%; display: block; border: 0.3mm solid #cfd8d3; border-radius: 3mm; }
+    figcaption { font-size: 9pt; font-weight: bold; margin-top: 1.5mm; text-transform: capitalize; }
+  </style></head><body>
+  <div class="cover"><h1>ClassBARI phone apps</h1><p>Every screen of the five apps, as they look now.</p>
+  <ul><li>Taken on ${day} from the apps themselves, opened in a phone-sized window and logged in to the test institute.</li><li>Names such as "Test Student" and "Teacher Batch" are test data.</li><li>The AI answers shown are real answers from the AI.</li><li>${files.length} screens: ${groups.map((g) => `${(APPS[g.replace("-dark", "")] ?? [g])[0].replace("ClassBARI ", "")}${g.endsWith("-dark") ? " (dark)" : ""} ${files.filter((x) => new RegExp(`^${g}-\\d\\d-`).test(x)).length}`).join(", ")}.</li></ul></div>
+  ${body}</body></html>`;
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+  await page.setContent(html, { waitUntil: "load" });
+  await page.pdf({ path: outArg, format: "A4", printBackground: true });
+  await browser.close();
+  console.log(`${outArg}: ${files.length} screens`);
+  process.exit(0);
+}
+
 const out = outArg, dark = !!process.env.DARK, prefix = dark ? `${app}-dark` : app;
 mkdirSync(out, { recursive: true });
-for (const f of readdirSync(out)) if (f.startsWith(`${prefix}-`) && /-(\d\d|stopped)[-.]/.test(f)) rmSync(join(out, f));
+for (const f of readdirSync(out)) if (new RegExp(`^${prefix}-(\\d\\d-|stopped\\.)`).test(f)) rmSync(join(out, f), { force: true }); // this app's earlier pictures only (not its dark-theme ones)
 const password = readFileSync("data/test-accounts.txt", "utf8").match(/Password for [^:\n]*: (\S+)/)?.[1];
 if (!password) throw new Error("no test accounts");
 const WHO = { student: "cb.s@gmail.com", chatbot: "cb.s@gmail.com", guardian: "cb.g@gmail.com", teacher: "classbari.test.teacher@example.com", institute: "classbari.test.owner@example.com" };
-const HOME = { student: "To do", guardian: "This month", teacher: "Needs your attention", institute: "Collected this month", chatbot: "ClassBARI AI" };
+const HOME = { student: "Hi Test", guardian: "This month", teacher: "Hello,", institute: "Collected this month", chatbot: "what are we learning" };
 const TYPES = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".json": "application/json", ".wasm": "application/wasm", ".png": "image/png", ".otf": "font/otf", ".ttf": "font/ttf", ".bin": "application/octet-stream", ".symbols": "text/plain" };
 const server = createServer((req, res) => {
   let file = join(root, decodeURIComponent(new URL(req.url, "http://x").pathname));
@@ -82,9 +129,12 @@ const down = async (by = 500) => { await page.mouse.move(195, 420); await page.m
 const step = async (name, go) => { try { await go(); await shot(name); } catch (e) { problems.push(`${name}: ${e.message.split("\n")[0]}`); } };
 const quietly = (go) => go().catch((e) => problems.push(`going back: ${e.message.split("\n")[0]}`));
 
+const menu = () => tap(page.getByRole("button", { name: "Menu", exact: true }));
+const outside = async () => { await page.mouse.click(382, 420); await page.waitForTimeout(700); }; // beside an open side panel or sheet: closes it
+
 const TOURS = {
   student: async () => {
-    await step("lessons", () => tab(1));
+    await step("chapter", () => tap(named("Chapter 1: Motion").last()));
     await step("quiz", () => tap(named("Quiz: Motion basics")));
     await quietly(back);
     await step("homework", () => tap(named("Homework 2")));
@@ -93,35 +143,45 @@ const TOURS = {
     await quietly(back);
     await step("video-lesson", () => tap(named("Speed and velocity")));
     await quietly(back);
-    await step("progress", () => tab(2));
-    await step("profile", () => tab(3));
-    await step("profile-in-bangla", () => tap(named("বাংলা")));
-    await step("home-in-bangla", () => tab(0));
-    await step("lessons-in-bangla", () => tab(1));
+    await quietly(back);
+    await step("to-do", () => tab(1));
+    await step("results", () => tab(2));
+    await step("notices", () => tab(3));
+    await step("menu", menu);
+    await step("menu-in-bangla", () => tap(named("বাংলা")));
+    await quietly(outside);
+    await step("dashboard-in-bangla", () => tab(0));
+    await step("to-do-in-bangla", () => tab(1));
   },
   guardian: async () => {
     await step("home-lower-part", () => down(700));
     await step("results", () => tab(1));
-    await step("messages", () => tab(2));
-    await step("profile", () => tab(3));
+    await step("notices", () => tab(2));
+    await step("messages", () => tab(3));
+    await step("menu", menu);
   },
   teacher: async () => {
-    await step("to-mark", () => tap(named("answers to mark")));
-    await step("mark-one-homework", async () => { await tap(named("Homework 1")); await page.waitForTimeout(2500); });
-    await quietly(back);
-    await quietly(back);
-    await step("guardian-chat", () => tap(named("Wa alaikum assalam")));
-    await quietly(back);
-    await step("attendance", () => tab(1));
+    await step("batch", () => tap(named("Teacher Batch")));
+    await step("attendance", () => tap(named("Take attendance")));
     // A real change, there and back: it goes to the server as an action and the answer redraws the row.
     await step("attendance-marked-absent", async () => { await tap(named("Test Student")); await see("Absent"); });
     await quietly(async () => { await tap(named("Test Student")); await see("Present"); await page.waitForTimeout(1500); });
     if (!calls.some((c) => c.startsWith("POST /api/data 200"))) problems.push("the attendance change never reached the server");
-    await step("marking-tab", () => tab(2));
+    await quietly(back);
+    await quietly(back);
+    await step("to-do", () => tab(1));
+    await step("mark-one-homework", async () => { await tap(named("Homework 1")); await page.waitForTimeout(2500); });
+    await quietly(back);
+    await step("inbox", () => tab(2));
+    await step("guardian-chat", () => tap(named("Wa alaikum assalam")));
+    await quietly(back);
     await step("notices", () => tab(3));
-    await step("profile", () => tab(4));
+    await step("menu", menu);
   },
   institute: async () => {
+    await step("home-lower-part", () => down(700));
+    await step("batch", () => tap(named("Teacher Batch")));
+    await quietly(back);
     await step("fees", () => tab(1));
     await step("record-a-payment", () => tap(named("Test Student")));
     await quietly(() => press("Cancel"));
@@ -130,15 +190,19 @@ const TOURS = {
     await step("add-student-lower-part", () => down(600));
     await quietly(back);
     await step("notices", () => tab(3));
-    await step("profile", () => tab(4));
+    await step("menu", menu);
   },
   chatbot: async () => {
     // A real question (a few paisa on the AI account): one of the suggestions, then the finished answer from its end and its start.
     await step("answer", async () => { await tap(named("Explain Newton")); await see("Try again", 90000); });
     await step("answer-from-the-top", async () => { await page.mouse.move(195, 400); await page.mouse.wheel(0, -8000); await page.waitForTimeout(600); });
-    await step("chat-list", () => tap(page.getByRole("button", { name: "Chats", exact: true })));
-    await quietly(async () => { await page.mouse.click(375, 420); await page.waitForTimeout(700); }); // outside the side panel closes it
-    await step("choose-a-model", () => tap(named("AI model").or(page.getByRole("button", { name: /Gemini|Qwen|Claude|GPT/ }))));
+    await step("side-panel", () => tap(page.getByRole("button", { name: "Chats", exact: true })));
+    await step("topic-folder-open", () => tap(named("Physics")));
+    await quietly(outside);
+    await step("choose-a-model", () => tap(page.getByRole("button", { name: /AI model/ })));
+    await quietly(async () => { await page.mouse.click(195, 90); await page.waitForTimeout(700); });
+    await step("new-chat-with-topics", () => tap(page.getByRole("button", { name: "New chat", exact: true })));
+    await step("topic-page", () => tap(named("Physics")));
   },
 };
 
@@ -167,7 +231,10 @@ try {
   await see(HOME[app], 30000);
   await page.waitForTimeout(1500);
   await shot("home");
-  if (dark) await step("second-tab", () => (app === "chatbot" ? tap(page.getByRole("button", { name: "Chats", exact: true })) : tab(1)));
+  if (dark) {
+    await step("second-tab", () => (app === "chatbot" ? tap(page.getByRole("button", { name: "Chats", exact: true })) : tab(1)));
+    if (app === "student") { await quietly(() => tab(0)); await step("chapter", () => tap(named("Chapter 1: Motion").last())); }
+  }
   else await TOURS[app]();
 } catch (e) {
   problems.push(`stopped: ${e.message.split("\n")[0]}`);

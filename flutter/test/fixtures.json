@@ -1694,6 +1694,306 @@
   },
   {
    "lang": "en",
+   "key": "app.pts",
+   "args": [
+    0
+   ],
+   "out": "0 pts"
+  },
+  {
+   "lang": "en",
+   "key": "app.pts",
+   "args": [
+    0
+   ],
+   "out": "0 pts"
+  },
+  {
+   "lang": "en",
+   "key": "app.pts",
+   "args": [
+    1
+   ],
+   "out": "1 pts"
+  },
+  {
+   "lang": "en",
+   "key": "app.pts",
+   "args": [
+    1
+   ],
+   "out": "1 pts"
+  },
+  {
+   "lang": "en",
+   "key": "app.pts",
+   "args": [
+    2
+   ],
+   "out": "2 pts"
+  },
+  {
+   "lang": "en",
+   "key": "app.pts",
+   "args": [
+    2
+   ],
+   "out": "2 pts"
+  },
+  {
+   "lang": "en",
+   "key": "app.pts",
+   "args": [
+    12
+   ],
+   "out": "12 pts"
+  },
+  {
+   "lang": "en",
+   "key": "app.pts",
+   "args": [
+    12
+   ],
+   "out": "12 pts"
+  },
+  {
+   "lang": "en",
+   "key": "app.pts",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 pts"
+  },
+  {
+   "lang": "en",
+   "key": "app.pts",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 pts"
+  },
+  {
+   "lang": "en",
+   "key": "app.pts",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin pts"
+  },
+  {
+   "lang": "en",
+   "key": "app.pts",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin pts"
+  },
+  {
+   "lang": "en",
+   "key": "app.itemsDone",
+   "args": [
+    0,
+    3
+   ],
+   "out": "0 of 3 done"
+  },
+  {
+   "lang": "en",
+   "key": "app.itemsDone",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "0 of Batch A done"
+  },
+  {
+   "lang": "en",
+   "key": "app.itemsDone",
+   "args": [
+    1,
+    3
+   ],
+   "out": "1 of 3 done"
+  },
+  {
+   "lang": "en",
+   "key": "app.itemsDone",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "1 of Batch A done"
+  },
+  {
+   "lang": "en",
+   "key": "app.itemsDone",
+   "args": [
+    2,
+    3
+   ],
+   "out": "2 of 3 done"
+  },
+  {
+   "lang": "en",
+   "key": "app.itemsDone",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "2 of Batch A done"
+  },
+  {
+   "lang": "en",
+   "key": "app.itemsDone",
+   "args": [
+    12,
+    3
+   ],
+   "out": "12 of 3 done"
+  },
+  {
+   "lang": "en",
+   "key": "app.itemsDone",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "12 of Batch A done"
+  },
+  {
+   "lang": "en",
+   "key": "app.itemsDone",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "1234567 of 3 done"
+  },
+  {
+   "lang": "en",
+   "key": "app.itemsDone",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "1234567 of Batch A done"
+  },
+  {
+   "lang": "en",
+   "key": "app.itemsDone",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "Rahim Uddin of 3 done"
+  },
+  {
+   "lang": "en",
+   "key": "app.itemsDone",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Rahim Uddin of Batch A done"
+  },
+  {
+   "lang": "en",
+   "key": "app.chatsN",
+   "args": [
+    0
+   ],
+   "out": "0 chats"
+  },
+  {
+   "lang": "en",
+   "key": "app.chatsN",
+   "args": [
+    0
+   ],
+   "out": "0 chats"
+  },
+  {
+   "lang": "en",
+   "key": "app.chatsN",
+   "args": [
+    1
+   ],
+   "out": "1 chats"
+  },
+  {
+   "lang": "en",
+   "key": "app.chatsN",
+   "args": [
+    1
+   ],
+   "out": "1 chats"
+  },
+  {
+   "lang": "en",
+   "key": "app.chatsN",
+   "args": [
+    2
+   ],
+   "out": "2 chats"
+  },
+  {
+   "lang": "en",
+   "key": "app.chatsN",
+   "args": [
+    2
+   ],
+   "out": "2 chats"
+  },
+  {
+   "lang": "en",
+   "key": "app.chatsN",
+   "args": [
+    12
+   ],
+   "out": "12 chats"
+  },
+  {
+   "lang": "en",
+   "key": "app.chatsN",
+   "args": [
+    12
+   ],
+   "out": "12 chats"
+  },
+  {
+   "lang": "en",
+   "key": "app.chatsN",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 chats"
+  },
+  {
+   "lang": "en",
+   "key": "app.chatsN",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 chats"
+  },
+  {
+   "lang": "en",
+   "key": "app.chatsN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin chats"
+  },
+  {
+   "lang": "en",
+   "key": "app.chatsN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin chats"
+  },
+  {
+   "lang": "en",
    "key": "auth.codeSent",
    "args": [
     0
@@ -6719,6 +7019,306 @@
     "Rahim Uddin"
    ],
    "out": "Rahim Uddinটি পরিবর্তন ইন্টারনেটের অপেক্ষায়"
+  },
+  {
+   "lang": "bn",
+   "key": "app.pts",
+   "args": [
+    0
+   ],
+   "out": "০ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "app.pts",
+   "args": [
+    0
+   ],
+   "out": "০ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "app.pts",
+   "args": [
+    1
+   ],
+   "out": "১ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "app.pts",
+   "args": [
+    1
+   ],
+   "out": "১ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "app.pts",
+   "args": [
+    2
+   ],
+   "out": "২ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "app.pts",
+   "args": [
+    2
+   ],
+   "out": "২ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "app.pts",
+   "args": [
+    12
+   ],
+   "out": "১২ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "app.pts",
+   "args": [
+    12
+   ],
+   "out": "১২ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "app.pts",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "app.pts",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭ নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "app.pts",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "app.pts",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin নম্বর"
+  },
+  {
+   "lang": "bn",
+   "key": "app.itemsDone",
+   "args": [
+    0,
+    3
+   ],
+   "out": "৩টির মধ্যে ০টি শেষ"
+  },
+  {
+   "lang": "bn",
+   "key": "app.itemsDone",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "Batch Aটির মধ্যে ০টি শেষ"
+  },
+  {
+   "lang": "bn",
+   "key": "app.itemsDone",
+   "args": [
+    1,
+    3
+   ],
+   "out": "৩টির মধ্যে ১টি শেষ"
+  },
+  {
+   "lang": "bn",
+   "key": "app.itemsDone",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "Batch Aটির মধ্যে ১টি শেষ"
+  },
+  {
+   "lang": "bn",
+   "key": "app.itemsDone",
+   "args": [
+    2,
+    3
+   ],
+   "out": "৩টির মধ্যে ২টি শেষ"
+  },
+  {
+   "lang": "bn",
+   "key": "app.itemsDone",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "Batch Aটির মধ্যে ২টি শেষ"
+  },
+  {
+   "lang": "bn",
+   "key": "app.itemsDone",
+   "args": [
+    12,
+    3
+   ],
+   "out": "৩টির মধ্যে ১২টি শেষ"
+  },
+  {
+   "lang": "bn",
+   "key": "app.itemsDone",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "Batch Aটির মধ্যে ১২টি শেষ"
+  },
+  {
+   "lang": "bn",
+   "key": "app.itemsDone",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "৩টির মধ্যে ১২,৩৪,৫৬৭টি শেষ"
+  },
+  {
+   "lang": "bn",
+   "key": "app.itemsDone",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "Batch Aটির মধ্যে ১২,৩৪,৫৬৭টি শেষ"
+  },
+  {
+   "lang": "bn",
+   "key": "app.itemsDone",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "৩টির মধ্যে Rahim Uddinটি শেষ"
+  },
+  {
+   "lang": "bn",
+   "key": "app.itemsDone",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Batch Aটির মধ্যে Rahim Uddinটি শেষ"
+  },
+  {
+   "lang": "bn",
+   "key": "app.chatsN",
+   "args": [
+    0
+   ],
+   "out": "০টি চ্যাট"
+  },
+  {
+   "lang": "bn",
+   "key": "app.chatsN",
+   "args": [
+    0
+   ],
+   "out": "০টি চ্যাট"
+  },
+  {
+   "lang": "bn",
+   "key": "app.chatsN",
+   "args": [
+    1
+   ],
+   "out": "১টি চ্যাট"
+  },
+  {
+   "lang": "bn",
+   "key": "app.chatsN",
+   "args": [
+    1
+   ],
+   "out": "১টি চ্যাট"
+  },
+  {
+   "lang": "bn",
+   "key": "app.chatsN",
+   "args": [
+    2
+   ],
+   "out": "২টি চ্যাট"
+  },
+  {
+   "lang": "bn",
+   "key": "app.chatsN",
+   "args": [
+    2
+   ],
+   "out": "২টি চ্যাট"
+  },
+  {
+   "lang": "bn",
+   "key": "app.chatsN",
+   "args": [
+    12
+   ],
+   "out": "১২টি চ্যাট"
+  },
+  {
+   "lang": "bn",
+   "key": "app.chatsN",
+   "args": [
+    12
+   ],
+   "out": "১২টি চ্যাট"
+  },
+  {
+   "lang": "bn",
+   "key": "app.chatsN",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭টি চ্যাট"
+  },
+  {
+   "lang": "bn",
+   "key": "app.chatsN",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭টি চ্যাট"
+  },
+  {
+   "lang": "bn",
+   "key": "app.chatsN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddinটি চ্যাট"
+  },
+  {
+   "lang": "bn",
+   "key": "app.chatsN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddinটি চ্যাট"
   },
   {
    "lang": "bn",

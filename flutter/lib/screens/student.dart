@@ -6,34 +6,67 @@ import '../ui.dart';
 import '../views.dart';
 import 'lesson.dart';
 
-const kindIcons = {'video': Icons.videocam_outlined, 'pdf': Icons.description_outlined, 'quiz': Icons.quiz_outlined, 'task': Icons.edit_note, 'exam': Icons.assignment_outlined};
+const kindIcons = {'video': Icons.play_circle_outline_rounded, 'pdf': Icons.description_outlined, 'quiz': Icons.quiz_outlined, 'task': Icons.edit_note_rounded, 'exam': Icons.assignment_outlined};
+const _cardIcons = [Icons.menu_book_rounded, Icons.science_rounded, Icons.calculate_rounded, Icons.public_rounded, Icons.lightbulb_rounded, Icons.auto_stories_rounded, Icons.biotech_rounded, Icons.functions_rounded];
+
+/// A chapter's place in the list: that decides its colour everywhere it shows.
+int chapterNo(Object? moduleId) {
+  final i = store.modules.indexWhere((m) => m['id'] == moduleId);
+  return i < 0 ? 0 : i;
+}
+
+/// Work still to do, soonest first (quizzes, homework, written exams).
+List<({Json m, Json it})> todoItems() => [
+  for (final m in store.modules)
+    for (final it in rows(m['items']))
+      if (it['done'] != true && const ['quiz', 'task', 'exam'].contains(it['kind'])) (m: m, it: it),
+]..sort((a, b) => '${a.it['dueDate'] ?? '9999'}'.compareTo('${b.it['dueDate'] ?? '9999'}'));
 
 class StudentApp extends StatelessWidget {
   const StudentApp({super.key});
   @override
-  Widget build(BuildContext context) => Live(
-    (context) => Tabs([
-      (icon: Icons.home_outlined, label: t('app.tabs.home'), page: const StudentHome()),
-      (icon: Icons.menu_book_outlined, label: t('app.tabs.lessons'), page: const Lessons()),
-      (icon: Icons.insights_outlined, label: t('app.tabs.progress'), page: const Progress()),
-      (icon: Icons.person_outline, label: t('app.tabs.profile'), page: const StudentProfile()),
-    ]),
-  );
+  Widget build(BuildContext context) => Live((context) {
+    final me = store.me;
+    return Tabs(
+      [
+        AppTab(Icons.space_dashboard_outlined, t('app.tabs2.dashboard'), const StudentHome()),
+        AppTab(Icons.checklist_rounded, t('app.todo'), const TodoPage(), badge: todoItems().length),
+        AppTab(Icons.insights_rounded, t('app.tabs2.results'), const Progress()),
+        AppTab(Icons.notifications_none_rounded, t('app.notices'), const StudentNotices()),
+      ],
+      note: t('settings.askInstitute'),
+      details: me == null ? const [] : [(t('settings.yourName'), '${me['name']}'), (t('app.batch'), '${me['batch']}'), (t('app.roll'), '${me['id']}'), (t('app.guardian'), '${me['guardianName'] ?? ''}')],
+    );
+  });
 }
 
 /// Notices for one batch (and those for everyone).
 List<Json> noticesFor(Object? batch) => rows(store.state?['announcements']).where((a) => a['batch'] == null || a['batch'] == '' || a['batch'] == batch || a['batch'] == 'all').toList();
 
-class NoticeLines extends StatelessWidget {
-  const NoticeLines(this.list, {super.key});
+/// Notices, newest first, each in its own card.
+class NoticeCards extends StatelessWidget {
+  const NoticeCards(this.list, {super.key});
   final List<Json> list;
   @override
-  Widget build(BuildContext context) => Box(
-    title: t('app.notices'),
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    spacing: 12,
     children: [
       for (final a in list)
-        Line(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Strong('${a['title']}'), Muted('${a['body']}')]),
+        Box(
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 12,
+              children: [
+                Glyph(Icons.campaign_outlined, color: context.colors.tertiary),
+                Expanded(
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, spacing: 2, children: [Strong('${a['title']}'), if (a['at'] is String) Muted(fmtWhen(a['at'] as String))]),
+                ),
+              ],
+            ),
+            Text('${a['body']}'),
+          ],
         ),
     ],
   );
@@ -50,60 +83,35 @@ class LiveBox extends StatelessWidget {
   const LiveBox(this.live, {super.key});
   final Json live;
   @override
-  Widget build(BuildContext context) => Box(
+  Widget build(BuildContext context) => Group(
     title: t('app.nextLive'),
-    children: [
-      Line(
-        child: Row(
-          spacing: 12,
-          children: [
-            const Glyph(Icons.sensors),
-            Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Strong('${live['topic'] ?? ''}'), Muted(fmtDateTime(live['start'] as String))]),
-            ),
-          ],
-        ),
-      ),
-    ],
+    children: [Item(icon: Icons.sensors_rounded, color: context.colors.error, title: '${live['topic'] ?? ''}', subtitle: fmtDateTime(live['start'] as String))],
   );
 }
 
-/// The streak card, as on the website: a big flame, the days in a row, and whether today is done.
-class StreakBox extends StatelessWidget {
-  const StreakBox(this.xp, {super.key});
-  final Map xp;
+/// A small rounded fact with a picture in front: the streak, this week's XP.
+class Fact extends StatelessWidget {
+  const Fact(this.emoji, this.text, {super.key});
+  final String emoji, text;
   @override
-  Widget build(BuildContext context) {
-    final run = streak(xp);
-    return Box(
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    decoration: BoxDecoration(
+      color: context.colors.surfaceContainerLowest,
+      borderRadius: BorderRadius.circular(14),
+      border: Border.all(color: context.colors.outlineVariant),
+    ),
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      spacing: 6,
       children: [
-        Row(
-          spacing: 14,
-          children: [
-            const ExcludeSemantics(child: Text('🔥', style: TextStyle(fontSize: 44, height: 1.1))),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(t('streak.days', [run.days]), style: context.type.headlineSmall),
-                  Strong(t(run.doneToday ? 'streak.today' : 'streak.notToday'), color: run.doneToday ? context.colors.primary : context.colors.onSurfaceVariant),
-                ],
-              ),
-            ),
-          ],
-        ),
-        Line(
-          child: Row(
-            spacing: 10,
-            children: [
-              const ExcludeSemantics(child: Text('⭐', style: TextStyle(fontSize: 20))),
-              Expanded(child: Strong(t('streak.xpWeek', [weekXp(xp)]))),
-            ],
-          ),
+        ExcludeSemantics(child: Text(emoji, style: const TextStyle(fontSize: 16))),
+        Flexible(
+          child: Text(text, style: context.type.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
         ),
       ],
-    );
-  }
+    ),
+  );
 }
 
 class StudentHome extends StatelessWidget {
@@ -114,165 +122,178 @@ class StudentHome extends StatelessWidget {
     if (me == null) return const Loading();
     final c = context.colors;
     final xp = ((store.state?['xp'] as Map?)?['${me['id']}'] as Map?) ?? const {};
-    final all = [
-      for (final m in store.modules)
-        for (final it in rows(m['items'])) (m: m, it: it),
-    ];
-    // Work still to do, soonest first (quizzes, homework, exams).
-    final todo = all.where((x) => x.it['done'] != true && const ['quiz', 'task', 'exam'].contains(x.it['kind'])).toList()..sort((a, b) => '${a.it['dueDate'] ?? '9999'}'.compareTo('${b.it['dueDate'] ?? '9999'}'));
-    final next = all.where((x) => x.it['done'] != true && const ['video', 'pdf'].contains(x.it['kind'])).firstOrNull;
+    final modules = store.modules;
+    final next = [
+      for (final m in modules)
+        for (final it in rows(m['items']))
+          if (it['done'] != true && const ['video', 'pdf'].contains(it['kind'])) (m: m, it: it),
+    ].firstOrNull;
     final live = liveFor(me['batch'], grace: const Duration(minutes: 90));
-    final notices = noticesFor(me['batch']).take(3).toList();
     final due = (me['feeDue'] as num?) ?? 0;
-    final soon = dayKey(DateTime.now().add(const Duration(days: 2)));
-    void open(({Json m, Json it}) x) => push(context, LessonScreen(moduleId: x.m['id'] as int, itemId: x.it['id'] as int));
     return Screen(
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 4,
+          spacing: 2,
           children: [
             H1(t('kid.hi', ['${me['name']}'.split(' ').first])),
             Text(t('kid.sub'), style: context.type.bodyLarge?.copyWith(color: c.onSurfaceVariant)),
           ],
         ),
-        Box(
-          title: t('kid.homework'),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
           children: [
-            if (todo.isEmpty) Muted(t('app.nothingDue')),
-            for (final x in todo.take(5))
-              Line(
-                onTap: () => open(x),
-                child: Row(
-                  spacing: 14,
-                  children: [
-                    // Red when it is due within two days (or late), amber otherwise.
-                    Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(color: '${x.it['dueDate'] ?? '9999'}'.compareTo(soon) <= 0 ? c.error : c.tertiary, shape: BoxShape.circle),
-                    ),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Strong('${x.it['title']}'),
-                          if (x.it['dueDate'] is String) Muted(t('app.due', [fmtDate(x.it['dueDate'] as String)])),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            Fact('🔥', t('streak.days', [streak(xp).days])),
+            Fact('⭐', t('streak.xpWeek', [weekXp(xp)])),
           ],
         ),
-        Box(
-          title: t('kid.keepLearning'),
-          children: [
-            if (next == null)
-              Muted(t('kid.allLessonsDone'))
-            else
-              Line(
-                onTap: () => open(next),
-                child: Row(
-                  spacing: 12,
-                  children: [
-                    Glyph(kindIcons[next.it['kind']]!),
-                    Expanded(
-                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Strong('${next.it['title']}'), Muted('${next.m['title']}')]),
-                    ),
-                    Doing(label: t('student.actions.${next.it['kind']}'), small: true, onPressed: () async => open(next)),
-                  ],
-                ),
-              ),
-          ],
-        ),
-        StreakBox(xp),
         if (due > 0)
           Box(
             color: c.tertiaryContainer,
             children: [
-              Strong(t('app.feeDue', [taka(due)])),
-              Muted(t('auth.payAtInstitute')),
+              Strong(t('app.feeDue', [taka(due)]), color: c.onTertiaryContainer),
+              Text(t('auth.payAtInstitute'), style: context.type.bodySmall?.copyWith(color: c.onTertiaryContainer)),
             ],
           ),
         if (live != null) LiveBox(live),
-        if (notices.isNotEmpty) NoticeLines(notices),
+        if (next != null)
+          Group(
+            title: t('kid.keepLearning'),
+            children: [
+              Item(
+                icon: kindIcons[next.it['kind']],
+                color: context.course(chapterNo(next.m['id'])),
+                title: '${next.it['title']}',
+                subtitle: '${next.m['title']}',
+                trailing: Doing(
+                  label: t('student.actions.${next.it['kind']}'),
+                  small: true,
+                  onPressed: () async => push(context, LessonScreen(moduleId: next.m['id'] as int, itemId: next.it['id'] as int)),
+                ),
+              ),
+            ],
+          ),
+        Section(t('app.chapters')),
+        if (modules.isEmpty) Muted(t('app.noChapters')),
+        if (modules.isNotEmpty)
+          CardGrid([
+            for (final (i, m) in modules.indexed)
+              Builder(
+                builder: (context) {
+                  final items = rows(m['items']);
+                  final done = items.where((it) => it['done'] == true).length;
+                  return CourseCard(
+                    color: context.course(i),
+                    icon: _cardIcons[i % _cardIcons.length],
+                    title: '${m['title']}',
+                    subtitle: t('app.itemsDone', [done, items.length]),
+                    progress: items.isEmpty ? 0 : done / items.length * 100,
+                    badge: m['tag'] == 'new' ? t('student.tags.new') : null,
+                    onTap: () => push(context, ChapterScreen(moduleId: m['id'] as int)),
+                  );
+                },
+              ),
+          ]),
       ],
     );
   });
 }
 
-class Lessons extends StatefulWidget {
-  const Lessons({super.key});
-  @override
-  State<Lessons> createState() => _LessonsState();
-}
-
-class _LessonsState extends State<Lessons> {
-  Object? open = store.modules.firstOrNull?['id'];
+/// One chapter, in its own colour: how far along it is, and its lessons in order.
+class ChapterScreen extends StatelessWidget {
+  const ChapterScreen({super.key, required this.moduleId});
+  final int moduleId;
   @override
   Widget build(BuildContext context) => Live((context) {
-    final modules = store.modules;
-    final every = [for (final m in modules) ...rows(m['items'])];
-    final pct = every.isEmpty ? 0 : jsRound(every.where((it) => it['done'] == true).length / every.length * 100);
+    final m = store.modules.where((x) => x['id'] == moduleId).firstOrNull;
+    if (m == null) return Screen(title: '', children: [Muted(t('app.noChapters'))]);
+    final color = context.course(chapterNo(moduleId));
+    final items = rows(m['items']);
+    final done = items.where((it) => it['done'] == true).length;
+    final pct = items.isEmpty ? 0 : jsRound(done / items.length * 100);
     return Screen(
+      title: '${m['title']}',
+      subtitle: t('app.itemsDone', [done, items.length]),
+      color: color,
       children: [
-        H1(t('app.tabs.lessons'), kicker: '${store.me?['batch'] ?? ''}'),
-        if (modules.isEmpty) Muted(t('app.noChapters')),
-        if (modules.isNotEmpty)
-          Row(
-            spacing: 12,
+        Box(
+          children: [
+            Row(
+              spacing: 12,
+              children: [
+                Muted(t('student.progress')),
+                Expanded(child: MarkBar(pct, color: color)),
+                Strong('${localNumber(pct, lang.code)}%'),
+              ],
+            ),
+          ],
+        ),
+        if (items.isNotEmpty)
+          Group(
             children: [
-              Muted(t('student.progress')),
-              Expanded(child: MarkBar(pct, plain: true)),
-              Strong('${localNumber(pct, lang.code)}%'),
+              for (final it in items)
+                Item(
+                  icon: kindIcons[it['kind']] ?? Icons.article_outlined,
+                  color: color,
+                  title: '${it['title']}',
+                  subtitle: [
+                    if ('${it['meta'] ?? ''}'.isNotEmpty) '${it['meta']}',
+                    if (it['dueDate'] is String) t('app.due', [fmtDate(it['dueDate'] as String)]),
+                  ].join(' · '),
+                  trailing: it['done'] == true ? Icon(Icons.check_circle_rounded, color: context.colors.primary, semanticLabel: t('app.done')) : null,
+                  onTap: () => push(context, LessonScreen(moduleId: moduleId, itemId: it['id'] as int)),
+                ),
             ],
           ),
-        for (final m in modules)
-          Builder(
-            builder: (context) {
-              final items = rows(m['items']);
-              final on = open == m['id'];
-              return Box(
-                children: [
-                  InkWell(
-                    borderRadius: BorderRadius.circular(12),
-                    onTap: () => setState(() => open = on ? null : m['id']),
-                    child: Semantics(
-                      expanded: on,
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(minHeight: 48),
-                        child: Row(
-                          spacing: 10,
-                          children: [
-                            Icon(on ? Icons.expand_more : Icons.chevron_right),
-                            Expanded(child: Text('${m['title']}', style: context.type.titleMedium?.copyWith(fontSize: 18))),
-                            if (m['tag'] is String && '${m['tag']}'.isNotEmpty) Tag(t('student.tags.${m['tag']}')),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (on)
-                    for (final it in items)
-                      Line(
-                        onTap: () => push(context, LessonScreen(moduleId: m['id'] as int, itemId: it['id'] as int)),
-                        child: Row(
-                          spacing: 12,
-                          children: [
-                            Glyph(kindIcons[it['kind']] ?? Icons.article_outlined),
-                            Expanded(
-                              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Strong('${it['title']}'), if ('${it['meta'] ?? ''}'.isNotEmpty) Muted('${it['meta']}')]),
-                            ),
-                            if (it['done'] == true) Icon(Icons.check_circle, color: context.colors.primary, semanticLabel: t('app.done')),
-                          ],
-                        ),
-                      ),
-                ],
-              );
-            },
+      ],
+    );
+  });
+}
+
+/// Everything still to hand in or take, grouped by how soon it is due.
+class TodoPage extends StatelessWidget {
+  const TodoPage({super.key});
+  @override
+  Widget build(BuildContext context) => Live((context) {
+    final all = todoItems();
+    final today = dayKey(), week = dayKey(DateTime.now().add(const Duration(days: 7)));
+    String due(({Json m, Json it}) x) => '${x.it['dueDate'] ?? ''}';
+    final groups = [
+      (t('app.overdue'), all.where((x) => due(x).isNotEmpty && due(x).compareTo(today) < 0).toList(), true),
+      (t('app.dueSoon'), all.where((x) => due(x).isNotEmpty && due(x).compareTo(today) >= 0 && due(x).compareTo(week) <= 0).toList(), false),
+      (t('app.later'), all.where((x) => due(x).isEmpty || due(x).compareTo(week) > 0).toList(), false),
+    ];
+    return Screen(
+      children: [
+        if (all.isEmpty)
+          Box(
+            children: [
+              const ExcludeSemantics(
+                child: Text('🎉', textAlign: TextAlign.center, style: TextStyle(fontSize: 44)),
+              ),
+              Text(t('app.caughtUp'), textAlign: TextAlign.center, style: context.type.titleMedium),
+            ],
           ),
+        for (final (title, list, late) in groups)
+          if (list.isNotEmpty)
+            Group(
+              title: title,
+              children: [
+                for (final x in list)
+                  Item(
+                    icon: kindIcons[x.it['kind']],
+                    color: context.course(chapterNo(x.m['id'])),
+                    title: '${x.it['title']}',
+                    subtitle: [
+                      ('${x.m['title']}'),
+                      if (due(x).isNotEmpty) t('app.due', [fmtDate(due(x))]),
+                    ].join(' · '),
+                    trailing: late ? Tag(t('app.overdue'), kind: 'bad') : null,
+                    onTap: () => push(context, LessonScreen(moduleId: x.m['id'] as int, itemId: x.it['id'] as int)),
+                  ),
+              ],
+            ),
       ],
     );
   });
@@ -285,47 +306,50 @@ class ResultLines extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final results = gradedResults(store.modules, studentId).reversed.toList();
-    if (results.isEmpty) return Muted(t('app.noResults'));
+    if (results.isEmpty) return Padding(padding: const EdgeInsets.all(16), child: Muted(t('app.noResults')));
     return Paged(
       items: results,
       resetKey: '$studentId',
-      row: (r) => Line(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: 6,
-          children: [
-            Row(
-              spacing: 10,
-              children: [
-                Expanded(child: Strong(r.title)),
-                Strong('${show(r.score)}/${show(r.points)}'),
-              ],
-            ),
-            MarkBar(r.pct),
-          ],
-        ),
-      ),
+      row: (r) => Item(icon: kindIcons[r.kind], color: r.pct >= 60 ? context.colors.primary : context.colors.error, title: r.title, below: MarkBar(r.pct), trailing: Strong('${show(r.score)}/${show(r.points)}')),
     );
   }
 }
 
-/// This month's attendance of one student, in words.
-class AttendanceBox extends StatelessWidget {
-  const AttendanceBox(this.student, {super.key});
-  final Json student;
+/// A number with its name, in a small card: attendance, the average mark.
+class Stat extends StatelessWidget {
+  const Stat({super.key, required this.icon, required this.label, required this.value, this.note, this.pct, this.onTap, this.color});
+  final IconData icon;
+  final String label, value;
+  final String? note;
+  final num? pct;
+  final VoidCallback? onTap;
+  final Color? color;
   @override
-  Widget build(BuildContext context) {
-    final batch = store.batches.where((b) => b['name'] == student['batch']).firstOrNull;
-    final att = monthAttendance((store.state?['attendance'] as Map?) ?? const {}, student['id'] as int, batch?['classDays'] as List?);
-    return Box(
-      title: t('app.attendance'),
-      children: [
-        Text(att.held > 0 ? '${localNumber(att.pct, lang.code)}%' : '—', style: context.type.headlineMedium),
-        if (att.held > 0) MarkBar(att.pct),
-        Muted(att.held > 0 ? t('app.attended', [att.present, att.held]) : t('parent.noClasses')),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => Box(
+    onTap: onTap,
+    children: [
+      Align(
+        alignment: Alignment.centerLeft,
+        child: Glyph(icon, color: color),
+      ),
+      Muted(label),
+      Big(value),
+      if (pct != null) MarkBar(pct!, color: color),
+      if (note != null) Muted(note!),
+    ],
+  );
+}
+
+/// This month's attendance of one student.
+({int held, int present, int pct}) attendanceOf(Json student) {
+  final batch = store.batches.where((b) => b['name'] == student['batch']).firstOrNull;
+  return monthAttendance((store.state?['attendance'] as Map?) ?? const {}, student['id'] as int, batch?['classDays'] as List?);
+}
+
+/// The average of everything marked so far (%), or null when nothing is.
+int? averageOf(int studentId) {
+  final r = gradedResults(store.modules, studentId);
+  return r.isEmpty ? null : jsRound(r.fold<num>(0, (n, x) => n + x.pct) / r.length);
 }
 
 class Progress extends StatelessWidget {
@@ -334,31 +358,55 @@ class Progress extends StatelessWidget {
   Widget build(BuildContext context) => Live((context) {
     final me = store.me;
     if (me == null) return const Loading();
-    final xp = ((store.state?['xp'] as Map?)?['${me['id']}'] as Map?) ?? const {};
+    final id = me['id'] as int;
+    final xp = ((store.state?['xp'] as Map?)?['$id'] as Map?) ?? const {};
+    final att = attendanceOf(me), avg = averageOf(id), run = streak(xp);
     return Screen(
       children: [
-        H1(t('app.tabs.progress'), kicker: '${me['name']}'),
-        AttendanceBox(me),
-        Box(
-          title: 'XP',
+        CardGrid([
+          Stat(
+            icon: Icons.event_available_rounded,
+            label: t('app.attendance'),
+            value: att.held > 0 ? '${localNumber(att.pct, lang.code)}%' : '—',
+            pct: att.held > 0 ? att.pct : null,
+            note: att.held > 0 ? t('app.attended', [att.present, att.held]) : t('parent.noClasses'),
+          ),
+          Stat(icon: Icons.grade_rounded, color: context.course(1), label: t('app.average'), value: avg == null ? '—' : '${localNumber(avg, lang.code)}%', pct: avg, note: avg == null ? t('app.noResults') : null),
+        ]),
+        Group(
           children: [
-            Line(child: Strong('${t('streak.xpWeek', [weekXp(xp)])} · ${t('streak.xp', [totalXp(xp)])}')),
+            Item(
+              leading: const ExcludeSemantics(child: Text('🔥', style: TextStyle(fontSize: 30))),
+              title: t('streak.days', [run.days]),
+              subtitle: t(run.doneToday ? 'streak.today' : 'streak.notToday'),
+            ),
+            Item(
+              leading: const ExcludeSemantics(child: Text('⭐', style: TextStyle(fontSize: 30))),
+              title: t('streak.xpWeek', [weekXp(xp)]),
+              subtitle: t('streak.xp', [totalXp(xp)]),
+            ),
           ],
         ),
-        Box(title: t('app.results'), children: [ResultLines(me['id'] as int)]),
+        Section(t('app.results')),
+        Box(flush: true, children: [ResultLines(id)]),
       ],
     );
   });
 }
 
-class StudentProfile extends StatelessWidget {
-  const StudentProfile({super.key});
+class StudentNotices extends StatelessWidget {
+  const StudentNotices({super.key});
   @override
   Widget build(BuildContext context) => Live((context) {
-    final me = store.me;
-    return Profile(
-      note: t('settings.askInstitute'),
-      rows: me == null ? const [] : [(t('settings.yourName'), '${me['name']}'), (t('app.batch'), '${me['batch']}'), (t('app.roll'), '${me['id']}'), (t('app.guardian'), '${me['guardianName'] ?? ''}')],
+    final batch = store.me?['batch'];
+    final live = liveFor(batch, grace: const Duration(minutes: 90));
+    final list = noticesFor(batch);
+    return Screen(
+      children: [
+        if (live != null) LiveBox(live),
+        if (list.isEmpty && live == null) Box(children: [Muted(t('app.noNotices'))]),
+        if (list.isNotEmpty) NoticeCards(list),
+      ],
     );
   });
 }
