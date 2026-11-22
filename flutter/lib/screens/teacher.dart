@@ -12,13 +12,15 @@ import 'pdf.dart';
 class TeacherApp extends StatelessWidget {
   const TeacherApp({super.key});
   @override
-  Widget build(BuildContext context) => Tabs([
-    (icon: Icons.home_outlined, label: t('app.tabs2.today'), page: const TeacherToday()),
-    (icon: Icons.fact_check_outlined, label: t('app.tabs2.attendance'), page: const Attendance()),
-    (icon: Icons.rate_review_outlined, label: t('app.tabs2.marking'), page: const Marking()),
-    (icon: Icons.campaign_outlined, label: t('app.tabs2.notices'), page: const Notices()),
-    (icon: Icons.person_outline, label: t('app.tabs.profile'), page: const TeacherProfile()),
-  ]);
+  Widget build(BuildContext context) => Live(
+    (context) => Tabs([
+      (icon: Icons.home_outlined, label: t('app.tabs2.today'), page: const TeacherToday()),
+      (icon: Icons.fact_check_outlined, label: t('app.tabs2.attendance'), page: const Attendance()),
+      (icon: Icons.rate_review_outlined, label: t('app.tabs2.marking'), page: const Marking()),
+      (icon: Icons.campaign_outlined, label: t('app.tabs2.notices'), page: const Notices()),
+      (icon: Icons.person_outline, label: t('app.tabs.profile'), page: const TeacherProfile()),
+    ]),
+  );
 }
 
 /// Homework and written exams handed in but not marked yet, in the batches this person looks after.
@@ -42,58 +44,82 @@ class TeacherToday extends StatelessWidget {
   Widget build(BuildContext context) => Live((context) {
     final batches = store.myBatches, names = {for (final b in batches) b['name']};
     final waiting = toMark().length, absent = absentOn(dayKey());
-    final all = store.runsAll;
-    final chats = rows(store.state?['chats']).where((c) => '${c['id']}'.startsWith('parent-') && (all || names.contains(c['role']))).toList();
+    final chats = rows(store.state?['chats']).where((c) => '${c['id']}'.startsWith('parent-') && (store.runsAll || names.contains(c['role']))).toList();
+    final unread = chats.where((c) => ((c['unread'] as num?) ?? 0) > 0).toList();
     final pdfs = [
       for (final m in store.modules)
         if (names.contains(m['batch']))
           for (final it in rows(m['items']))
             if (it['kind'] == 'pdf' && '${it['url'] ?? ''}'.startsWith('/api/files/')) (m: m, it: it),
     ];
+    Widget go(IconData icon, String text, VoidCallback onTap) => Line(
+      onTap: onTap,
+      child: Row(
+        spacing: 12,
+        children: [
+          Icon(icon, color: context.colors.primary),
+          Expanded(child: Strong(text)),
+          const Icon(Icons.chevron_right),
+        ],
+      ),
+    );
     return Screen(
       children: [
-        H1(t('app.hello', [store.staffName.split(' ').first])),
+        H1(t('app.tabs2.today'), kicker: '${t('teacher.greeting')} ${store.staffName}'),
+        // The green card of the website's dashboard: today's date, each batch, and the way into its register.
         Box(
-          color: waiting > 0 ? context.colors.tertiaryContainer : null,
-          onTap: () => push(context, const Marking(pushed: true)),
+          hero: true,
+          title: '${t('tday.today')} · ${fmtDate(dayKey())}',
           children: [
-            Row(
-              children: [
-                Expanded(child: H2(waiting > 0 ? t('app.toMark', [waiting]) : t('app.nothingToMark'))),
-                const Icon(Icons.chevron_right),
-              ],
-            ),
+            if (batches.isEmpty) Muted(t('tday.noClass')),
+            for (final b in batches)
+              Builder(
+                builder: (context) {
+                  final kids = store.students.where((s) => s['batch'] == b['name']).toList();
+                  return Line(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      spacing: 2,
+                      children: [
+                        Strong('${b['name']}'),
+                        Muted('${b['days'] ?? ''} · ${t('app.studentsN', [kids.length])} · ${t('app.absentToday', [kids.where((k) => absent.contains(k['id'])).length])}'),
+                        const SizedBox(height: 6),
+                        Doing(
+                          label: t('tday.takeAttendance'),
+                          small: true,
+                          onPressed: () async => push(context, Attendance(batch: '${b['name']}')),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
           ],
         ),
-        H2(t('app.myBatches')),
-        for (final b in batches)
-          Builder(
-            builder: (context) {
-              final kids = store.students.where((s) => s['batch'] == b['name']).toList();
-              return Box(
-                onTap: () => push(context, Attendance(batch: '${b['name']}')),
-                children: [
-                  Row(
-                    children: [
-                      Expanded(child: Strong('${b['name']}')),
-                      const Icon(Icons.chevron_right),
-                    ],
-                  ),
-                  Muted('${b['days'] ?? ''} · ${t('app.studentsN', [kids.length])}'),
-                  Text(t('app.absentToday', [kids.where((k) => absent.contains(k['id'])).length])),
-                ],
-              );
-            },
-          ),
+        Box(
+          title: t('tday.attention'),
+          children: [
+            if (waiting == 0 && unread.isEmpty) Muted(t('tday.allClear')),
+            if (waiting > 0) go(Icons.fact_check_outlined, t('tday.toMark', [waiting]), () => push(context, const Marking(pushed: true))),
+            if (unread.isNotEmpty) go(Icons.chat_bubble_outline, t('tday.unread', [unread.fold<num>(0, (n, c) => n + (c['unread'] as num))]), () => push(context, ChatScreen(threadId: '${unread.first['id']}'))),
+          ],
+        ),
         if (pdfs.isNotEmpty)
           Box(
             title: t('pdfhl.open'),
             children: [
-              for (final (i, x) in pdfs.indexed)
+              for (final x in pdfs)
                 Line(
-                  first: i == 0,
                   onTap: () => push(context, PdfScreen(file: '${x.it['url']}', title: '${x.it['title']}')),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Strong('${x.it['title']}'), Muted('${x.m['batch']}')]),
+                  child: Row(
+                    spacing: 12,
+                    children: [
+                      const Glyph(Icons.auto_awesome),
+                      Expanded(
+                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Strong('${x.it['title']}'), Muted('${x.m['batch']}')]),
+                      ),
+                    ],
+                  ),
                 ),
             ],
           ),
@@ -101,9 +127,8 @@ class TeacherToday extends StatelessWidget {
           Box(
             title: t('app.guardianChats'),
             children: [
-              for (final (i, ch) in chats.indexed)
+              for (final ch in chats)
                 Line(
-                  first: i == 0,
                   onTap: () => push(context, ChatScreen(threadId: '${ch['id']}')),
                   child: Row(
                     spacing: 12,
@@ -111,7 +136,7 @@ class TeacherToday extends StatelessWidget {
                       Expanded(
                         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Strong('${ch['name']}'), Muted('${rows(ch['messages']).lastOrNull?['text'] ?? ''}')]),
                       ),
-                      if (((ch['unread'] as num?) ?? 0) > 0) Badge(label: Text(localNumber(ch['unread'], lang.code))),
+                      if (((ch['unread'] as num?) ?? 0) > 0) Tag(localNumber(ch['unread'], lang.code)),
                     ],
                   ),
                 ),
@@ -170,11 +195,10 @@ class _AttendanceState extends State<Attendance> {
               Paged(
                 items: kids,
                 resetKey: batch,
-                row: (k, first) {
+                row: (k) {
                   // A tap shows at once, also without internet: what the server has, flipped once for each tap still on its way.
                   final out = absent.contains(k['id']) != store.pending('toggleAttendance', [k['id'], today]).isOdd;
                   return Line(
-                    first: first,
                     onTap: () => store.act('toggleAttendance', [k['id'], today]),
                     child: Semantics(
                       toggled: !out,
@@ -220,8 +244,7 @@ class Marking extends StatelessWidget {
             children: [
               Paged(
                 items: list,
-                row: (x, first) => Line(
-                  first: first,
+                row: (x) => Line(
                   onTap: () => push(context, MarkOne(moduleId: x.m['id'] as int, itemId: x.it['id'] as int, sid: x.sid)),
                   child: Row(
                     children: [
@@ -407,8 +430,7 @@ class _NoticesState extends State<Notices> {
             children: [
               Paged(
                 items: list,
-                row: (a, first) => Line(
-                  first: first,
+                row: (a) => Line(
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, spacing: 2, children: [Strong('${a['title']}'), Text('${a['body']}'), Muted('${a['batch']}${a['at'] is String ? ' · ${fmtWhen(a['at'] as String)}' : ''}')]),
                 ),
               ),

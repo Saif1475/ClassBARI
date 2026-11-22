@@ -10,12 +10,14 @@ import 'student.dart';
 class GuardianApp extends StatelessWidget {
   const GuardianApp({super.key});
   @override
-  Widget build(BuildContext context) => Tabs([
-    (icon: Icons.home_outlined, label: t('app.tabs.home'), page: const GuardianHome()),
-    (icon: Icons.insights_outlined, label: t('app.tabs2.results'), page: const GuardianResults()),
-    (icon: Icons.chat_bubble_outline, label: t('app.tabs2.messages'), page: const GuardianMessages()),
-    (icon: Icons.person_outline, label: t('app.tabs.profile'), page: const GuardianProfile()),
-  ]);
+  Widget build(BuildContext context) => Live(
+    (context) => Tabs([
+      (icon: Icons.home_outlined, label: t('app.tabs.home'), page: const GuardianHome()),
+      (icon: Icons.insights_outlined, label: t('app.tabs2.results'), page: const GuardianResults()),
+      (icon: Icons.chat_bubble_outline, label: t('app.tabs2.messages'), page: const GuardianMessages()),
+      (icon: Icons.person_outline, label: t('app.tabs.profile'), page: const GuardianProfile()),
+    ]),
+  );
 }
 
 /// Guardians with several children pick one; every tab then shows that child.
@@ -38,6 +40,8 @@ class GuardianHome extends StatelessWidget {
     final id = child['id'] as int;
     final due = (child['feeDue'] as num?) ?? 0;
     final last = gradedResults(store.modules, id).reversed.take(3).toList();
+    final batch = store.batches.where((b) => b['name'] == child['batch']).firstOrNull;
+    final att = monthAttendance((store.state?['attendance'] as Map?) ?? const {}, id, batch?['classDays'] as List?);
     final live = liveFor(child['batch']);
     final notices = noticesFor(child['batch']).take(3).toList();
     final slots = rows(store.state?['meetings']).where((m) => m['batch'] == child['batch'] && m['start'] is String && toDate(m['start'] as String).isAfter(DateTime.now())).toList();
@@ -51,29 +55,45 @@ class GuardianHome extends StatelessWidget {
       }
     }
 
+    Widget fact(IconData icon, String text) => Line(
+      child: Row(
+        spacing: 12,
+        children: [
+          Icon(icon),
+          Expanded(child: Strong(text)),
+        ],
+      ),
+    );
     return Screen(
       children: [
-        const ChildChips(),
-        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [H1('${child['name']}'), Muted('${child['batch']}')]),
-        AttendanceBox(child),
+        if (store.children.length > 1) const ChildChips(),
+        H1('${child['name']}', kicker: '${child['batch']}'),
+        // The green card: this month at a glance, as on the website's parent page.
         Box(
-          color: due > 0 ? context.colors.tertiaryContainer : null,
-          title: t('app.tabs2.fees'),
+          hero: true,
+          title: t('glance.title'),
           children: [
-            due > 0 ? Text(taka(due), style: context.type.headlineSmall) : Icon(Icons.check_circle, color: context.colors.primary, size: 30, semanticLabel: '✓'),
-            if (due > 0) Muted(t('auth.payAtInstitute')),
+            fact(Icons.event_available_outlined, att.held > 0 ? t('glance.attended', [att.present, att.held]) : t('parent.noClasses')),
+            fact(Icons.payments_outlined, due > 0 ? t('glance.feeDue', [taka(due)]) : t('glance.feePaid')),
+            if (last.isNotEmpty) fact(Icons.insights_outlined, t('glance.lastTest', ['${show(last.first.score)}/${show(last.first.points)}'])),
           ],
         ),
+        if (due > 0) Box(color: context.colors.tertiaryContainer, children: [Muted(t('auth.payAtInstitute'))]),
         if (live != null) LiveBox(live),
-        Box(title: t('app.results'), children: [if (last.isEmpty) Muted(t('app.noResults')), for (final r in last) Pair(r.title, '${show(r.score)}/${show(r.points)}')]),
+        Box(
+          title: t('app.results'),
+          children: [
+            if (last.isEmpty) Muted(t('app.noResults')),
+            for (final r in last) Line(child: Pair(r.title, '${show(r.score)}/${show(r.points)}')),
+          ],
+        ),
         if (notices.isNotEmpty) NoticeLines(notices),
         Box(
           title: t('app.meetings'),
           children: [
             if (slots.isEmpty) Muted(t('app.noMeetings')),
-            for (final (i, m) in slots.indexed)
+            for (final m in slots)
               Line(
-                first: i == 0,
                 onTap: () => tapSlot(m),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -100,7 +120,7 @@ class GuardianResults extends StatelessWidget {
     final note = '${(store.state?['reportComments'] as Map?)?['${child['id']}'] ?? ''}';
     return Screen(
       children: [
-        const ChildChips(),
+        if (store.children.length > 1) const ChildChips(),
         H1(t('app.tabs2.results')),
         if (note.isNotEmpty) Box(children: [Text(note)]),
         Box(children: [ResultLines(child['id'] as int)]),
@@ -184,7 +204,7 @@ class GuardianMessages extends StatelessWidget {
     final child = store.child;
     return Screen(
       children: [
-        const ChildChips(),
+        if (store.children.length > 1) const ChildChips(),
         H1(t('app.tabs2.messages')),
         if (child != null) ChatThread(key: ValueKey(child['id']), threadId: 'parent-${child['id']}', guardian: true),
       ],

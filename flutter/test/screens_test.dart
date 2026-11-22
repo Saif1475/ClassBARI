@@ -203,7 +203,7 @@ void main() {
       for (final (app, role, tabs) in [(const StudentApp(), 'student', 4), (const GuardianApp(), 'guardian', 4), (const TeacherApp(), 'teacher', 5), (const InstituteApp(), 'owner', 5)]) {
         await open(tester, app, code: code, dark: dark, role: role);
         for (var i = 0; i < tabs; i++) {
-          await tester.tap(find.byType(NavigationDestination).at(i));
+          await tester.tap(find.byType(TabItem).at(i));
           await tester.pumpAndSettle();
           expect(drawingError(tester), isNull, reason: '$role tab $i');
         }
@@ -224,7 +224,7 @@ void main() {
 
   testWidgets('student: a quiz is shown in the website\'s order and handed in with the picks as the server expects them', (tester) async {
     await open(tester, const StudentApp());
-    expect(find.text('Hi, Sadia'), findsOneWidget);
+    expect(find.text('Hi Sadia! 👋'), findsOneWidget);
     await tester.tap(find.text('Quiz 1'));
     await tester.pumpAndSettle();
     expect(sent('startQuiz').single['args'], [1, 13, 5]); // opening it starts the clock
@@ -251,8 +251,8 @@ void main() {
     await open(tester, const TeacherApp(), role: 'teacher');
     expect(find.text('Batch A'), findsWidgets);
     expect(find.text('Batch B'), findsNothing); // another teacher's
-    expect(find.text('1 to mark'), findsOneWidget); // Student 7's is already marked
-    await tester.tap(find.byType(NavigationDestination).at(1));
+    expect(find.text('1 answers to mark'), findsOneWidget); // Student 7's is already marked
+    await tester.tap(find.byType(TabItem).at(1));
     await tester.pumpAndSettle();
     expect(find.text('1–20 of 40'), findsOneWidget);
     expect(find.text('Student 21'), findsNothing);
@@ -273,7 +273,7 @@ void main() {
     await open(tester, const InstituteApp(), role: 'owner');
     expect(find.text("Tanvir's Physics Care"), findsOneWidget);
     expect(find.text('৳33,000'), findsOneWidget); // 22 students × ৳1,500 due
-    await tester.tap(find.byType(NavigationDestination).at(1));
+    await tester.tap(find.byType(TabItem).at(1));
     await tester.pumpAndSettle();
     expect(find.text('1–20 of 22'), findsOneWidget);
     await tester.tap(find.text('Student 2'));
@@ -286,7 +286,7 @@ void main() {
     await tester.pump(const Duration(seconds: 5)); // …and goes away again
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byType(NavigationDestination).at(2));
+    await tester.tap(find.byType(TabItem).at(2));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'student 4');
     await tester.pumpAndSettle();
@@ -320,7 +320,7 @@ void main() {
     await press(tester, find.text('Book'));
     await tester.pump(const Duration(milliseconds: 300));
     expect(sent('bookMeeting').single['args'], [31, 5]);
-    await tester.tap(find.byType(NavigationDestination).at(2));
+    await tester.tap(find.byType(TabItem).at(2));
     await tester.pumpAndSettle();
     expect(find.text('Yes, at 5 pm.'), findsOneWidget);
     await tester.enterText(find.byType(TextField), '  Thank you  ');
@@ -337,7 +337,7 @@ void main() {
       tester,
       Scaffold(
         body: SingleChildScrollView(
-          child: Paged(items: List.generate(9, (i) => i), row: (i, _) => Text('row $i')),
+          child: Paged(items: List.generate(9, (i) => i), row: (i) => Text('row $i')),
         ),
       ),
     );
@@ -348,7 +348,7 @@ void main() {
       MaterialApp(
         home: Scaffold(
           body: SingleChildScrollView(
-            child: Paged(items: List.generate(237, (i) => i), row: (i, _) => Text('row $i')),
+            child: Paged(items: List.generate(237, (i) => i), row: (i) => Text('row $i')),
           ),
         ),
       ),
@@ -424,7 +424,7 @@ void main() {
     await open(tester, const AiChatApp());
     await tester.pumpAndSettle();
     expect(find.text('Hi Sadia, what are we learning today?'), findsOneWidget);
-    await tester.tap(find.byTooltip('Open navigation menu'));
+    await tester.tap(find.byTooltip('Chats'));
     await tester.pumpAndSettle();
     expect(find.textContaining('Physics'), findsOneWidget);
     expect(find.textContaining('Bangla'), findsOneWidget);

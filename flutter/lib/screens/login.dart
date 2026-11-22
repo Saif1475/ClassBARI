@@ -22,55 +22,70 @@ class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
   @override
   Widget build(BuildContext context) => Live((context) {
+    final c = context.colors;
     final inst = kPicksInstitute ? store.institute : null;
-    return Scaffold(
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+    Widget circle(double size, Color color) => IgnorePointer(
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      ),
+    );
+    return Backdrop(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Stack(
           children: [
-            Align(
-              alignment: Alignment.centerRight,
-              child: OutlinedButton(
-                onPressed: () => store.setLang(lang.code == 'bn' ? 'en' : 'bn'),
-                style: OutlinedButton.styleFrom(minimumSize: const Size(48, 40)),
-                child: Text(lang.code == 'bn' ? 'English' : 'বাংলা'),
+            // The two soft circles behind the title of the website's login page.
+            Positioned(top: -90, right: -110, child: circle(300, c.primaryContainer.withValues(alpha: 0.55))),
+            Positioned(top: 150, right: 44, child: circle(56, c.tertiaryContainer)),
+            SafeArea(
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+                children: [
+                  Row(
+                    spacing: 12,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.asset('assets/icons/$kApp.png', width: 44, height: 44, semanticLabel: ''),
+                      ),
+                      Expanded(child: Strong(kAppName)),
+                      OutlinedButton(
+                        onPressed: () => store.setLang(lang.code == 'bn' ? 'en' : 'bn'),
+                        style: OutlinedButton.styleFrom(minimumSize: const Size(48, 48)),
+                        child: Text(lang.code == 'bn' ? 'English' : 'বাংলা'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 28),
+                  H1(t('login.title')),
+                  const SizedBox(height: 6),
+                  Text(t('login.sub'), style: context.type.bodyLarge?.copyWith(color: c.onSurfaceVariant)),
+                  const SizedBox(height: 22),
+                  Box(
+                    children: [
+                      if (kPicksInstitute && inst == null)
+                        const InstitutePicker()
+                      else ...[
+                        if (inst != null)
+                          Line(
+                            child: Wrap(
+                              alignment: WrapAlignment.spaceBetween,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                Strong('${inst['name']}'),
+                                TextButton(onPressed: () => store.setInstitute(null), child: Text(t('auth.changeInstitute'))),
+                              ],
+                            ),
+                          ),
+                        kFamilies ? const StepLogin() : const StaffLogin(),
+                      ],
+                    ],
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 12),
-            Row(
-              spacing: 14,
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: Image.asset('assets/icons/$kApp.png', width: 64, height: 64, semanticLabel: ''),
-                ),
-                Expanded(
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [H1(kAppName), Muted(t('app.tagline'))]),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            if (kPicksInstitute && inst == null)
-              const InstitutePicker()
-            else ...[
-              if (inst != null) ...[
-                Box(
-                  color: context.colors.surfaceContainerHighest,
-                  children: [
-                    Wrap(
-                      alignment: WrapAlignment.spaceBetween,
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        Strong('${inst['name']}'),
-                        TextButton(onPressed: () => store.setInstitute(null), child: Text(t('auth.changeInstitute'))),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-              ],
-              kFamilies ? const StepLogin() : const StaffLogin(),
-            ],
           ],
         ),
       ),
@@ -139,18 +154,16 @@ class _InstitutePickerState extends State<InstitutePicker> {
         ),
       if (found != null && found!.isEmpty) Muted(t('auth.noInstitute')),
       for (final i in found ?? const <Json>[])
-        Box(
+        Line(
           onTap: () => store.setInstitute({'id': i['id'], 'name': i['name'], 'code': i['code']}),
-          children: [
-            Row(
-              spacing: 12,
-              children: [
-                const Icon(Icons.school_outlined),
-                Expanded(child: Strong('${i['name']}')),
-                Muted('${i['code']}'),
-              ],
-            ),
-          ],
+          child: Row(
+            spacing: 12,
+            children: [
+              const Glyph(Icons.school_outlined),
+              Expanded(child: Strong('${i['name']}')),
+              Muted('${i['code']}'),
+            ],
+          ),
         ),
       Muted(t('auth.pickerTip')),
     ],

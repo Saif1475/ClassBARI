@@ -28,6 +28,7 @@ class AiChatApp extends StatefulWidget {
 
 class _AiChatAppState extends State<AiChatApp> {
   final q = TextEditingController(), scroll = ScrollController();
+  final frame = GlobalKey<ScaffoldState>(); // to open the chat list from the top bar
   List<Json> chats = [];
   var openId = 0; // 0: a new chat not started yet
   List<Json> models = [];
@@ -276,62 +277,74 @@ class _AiChatAppState extends State<AiChatApp> {
     final c = context.colors;
     final name = '${store.me?['name'] ?? ''}'.split(' ').first;
     final list = msgs;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(t('aichat.title')),
-        actions: [IconButton(tooltip: t('aichat.newChat'), icon: const Icon(Icons.add_comment_outlined), onPressed: busy ? null : () => open(0))],
-      ),
-      drawer: Drawer(child: SafeArea(child: _side(context))),
-      body: SafeArea(
-        child: access == 'loading'
-            ? const Center(child: CircularProgressIndicator())
-            : access == 'pack' && list.isEmpty
-            ? _locked(context)
-            : Column(
-                children: [
-                  Expanded(
-                    child: ListView(
-                      controller: scroll,
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                      children: [
-                        if (list.isEmpty) ...[
-                          const SizedBox(height: 24),
-                          H1(t('aichat.hello', [name])),
-                          const SizedBox(height: 12),
-                          for (final idea in lang.list('aichat.ideas'))
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: Box(
-                                onTap: busy || access != 'ok' ? null : () => ask(idea, const []),
-                                children: [
-                                  Row(
-                                    spacing: 10,
-                                    children: [
-                                      Icon(Icons.lightbulb_outline, color: c.tertiary),
-                                      Expanded(child: Text(idea)),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          Muted(t('aichat.saved')),
-                        ],
-                        for (final (i, m) in list.indexed)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: m['role'] == 'user' ? Bubble(text: '${m['photo'] == true ? '${t('aichat.photo')}\n' : ''}${m['content']}', mine: true) : _answer(context, '${m['content']}', i, last: i == list.length - 1),
-                          ),
-                        if (busy && (list.isEmpty || list.last['role'] == 'user')) Muted(t('aichat.thinking')),
-                        if (note.isNotEmpty) Semantics(liveRegion: true, child: Muted(note)),
-                      ],
-                    ),
-                  ),
-                  _composer(context),
-                ],
-              ),
+    return Backdrop(
+      child: Scaffold(
+        key: frame,
+        backgroundColor: Colors.transparent,
+        drawer: Drawer(child: SafeArea(child: _side(context))),
+        body: Column(
+          children: [
+            TopBar(
+              title: t('aichat.title'),
+              leading: IconButton(tooltip: t('aichat.chats'), icon: const Icon(Icons.menu), onPressed: () => frame.currentState?.openDrawer()),
+              actions: [IconButton(tooltip: t('aichat.newChat'), icon: const Icon(Icons.add_comment_outlined), onPressed: busy ? null : () => open(0))],
+            ),
+            Expanded(child: _page(context, c, name, list)),
+          ],
+        ),
       ),
     );
   });
+
+  Widget _page(BuildContext context, ColorScheme c, String name, List<Json> list) => SafeArea(
+    top: false,
+    child: access == 'loading'
+        ? const Center(child: CircularProgressIndicator())
+        : access == 'pack' && list.isEmpty
+        ? _locked(context)
+        : Column(
+            children: [
+              Expanded(
+                child: ListView(
+                  controller: scroll,
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                  children: [
+                    if (list.isEmpty) ...[
+                      const SizedBox(height: 24),
+                      H1(t('aichat.hello', [name])),
+                      const SizedBox(height: 12),
+                      for (final idea in lang.list('aichat.ideas'))
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Box(
+                            onTap: busy || access != 'ok' ? null : () => ask(idea, const []),
+                            children: [
+                              Row(
+                                spacing: 10,
+                                children: [
+                                  Icon(Icons.lightbulb_outline, color: c.tertiary),
+                                  Expanded(child: Text(idea)),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      Muted(t('aichat.saved')),
+                    ],
+                    for (final (i, m) in list.indexed)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: m['role'] == 'user' ? Bubble(text: '${m['photo'] == true ? '${t('aichat.photo')}\n' : ''}${m['content']}', mine: true) : _answer(context, '${m['content']}', i, last: i == list.length - 1),
+                      ),
+                    if (busy && (list.isEmpty || list.last['role'] == 'user')) Muted(t('aichat.thinking')),
+                    if (note.isNotEmpty) Semantics(liveRegion: true, child: Muted(note)),
+                  ],
+                ),
+              ),
+              _composer(context),
+            ],
+          ),
+  );
 
   /// One answer in its own rounded box, with Copy and (under the last one) Try again.
   Widget _answer(BuildContext context, String text, int i, {required bool last}) => Column(
@@ -361,7 +374,9 @@ class _AiChatAppState extends State<AiChatApp> {
     final can = access == 'ok';
     return Material(
       color: c.surfaceContainerLowest,
-      elevation: 8,
+      elevation: 12,
+      shadowColor: Colors.black54,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(22))),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(8, 8, 8, 6),
         child: Column(
@@ -449,9 +464,8 @@ class _AiChatAppState extends State<AiChatApp> {
       Box(
         title: t('aichat.packLabel'),
         children: [
-          for (final (i, p) in packs.indexed)
+          for (final p in packs)
             Line(
-              first: i == 0,
               child: Row(
                 spacing: 12,
                 children: [

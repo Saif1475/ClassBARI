@@ -69,7 +69,7 @@ class LessonScreen extends StatelessWidget {
         if (kind == 'quiz') QuizBox(key: ValueKey(itemId), moduleId: moduleId, item: it, me: me),
         if (kind == 'task' || kind == 'exam') ...[if (it['paper'] is String) OpenFile(it['paper'] as String), Homework(moduleId: moduleId, item: it, me: me)],
         if (kind == 'video' || kind == 'pdf')
-          Doing(label: done ? t('app.markNotDone') : t('app.markDone'), icon: done ? Icons.check_circle : Icons.radio_button_unchecked, soft: done, onPressed: () => store.act('toggleItemDone', [moduleId, itemId, me])),
+          Doing(label: done ? t('app.markNotDone') : t('app.markDone'), icon: done ? Icons.check_circle : Icons.radio_button_unchecked, soft: true, onPressed: () => store.act('toggleItemDone', [moduleId, itemId, me])),
       ],
     );
   });

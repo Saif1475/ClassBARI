@@ -15,6 +15,7 @@
     "flutter:gen": "node --experimental-strip-types --no-warnings scripts/flutter-gen.mjs",
     "bench": "node --experimental-strip-types --no-warnings scripts/bench.mjs",
     "test:accounts": "node scripts/test-accounts.mjs",
+    "test:lessons": "node scripts/test-sample-lessons.mjs",
     "test:real-ui": "playwright test -c playwright.real.config.ts"
   },
   "dependencies": {

@@ -76,17 +76,21 @@ flutter test            # from this folder
 
 `flutter test` also opens every screen of every app with sample data, in both languages.
 
-## Check an app without a phone
+## Check an app without a phone, and take pictures of every screen
 
-With the website running on this computer (port 3000), the test accounts made (`npm run test:accounts`) and
-`npm run flutter:config -- http://localhost:3000` done, an app can be opened in a phone-sized browser window. The check
-logs in with the app's test account, walks its tabs and saves screenshots; the Teacher run also marks the test student
-absent and present again, to prove changes reach the server.
+With the website running on this computer (port 3000) and `npm run flutter:config -- http://localhost:3000` done:
 
 ```sh
+npm run test:accounts   # once: the four test people (project folder)
+npm run test:lessons    # once: sample lessons, a notice, a homework hand-in and a guardian chat for them
 cd flutter && flutter build web --dart-define=APP=teacher --dart-define-from-file=config.local.json -o /tmp/web-teacher
-cd ..      && node scripts/flutter-web-check.mjs teacher /tmp/web-teacher /tmp/shots
+cd ..      && node scripts/flutter-web-check.mjs teacher /tmp/web-teacher data/app-screens
+              node scripts/flutter-web-check.mjs sheets data/app-screens    # one picture per app with all its screens
 ```
+
+The check opens the app in a phone-sized browser window, logs in with the app's test account, walks its screens and
+saves a picture of each. The Teacher run also marks the test student absent and present again, to prove changes reach
+the server. `DARK=1` in front of the command takes the first screens in the dark theme.
 
 This checks the screens and the talk with the server. It does not check the camera, files, notifications or anything
 else that only a real phone has.
@@ -107,6 +111,7 @@ Email and password login (with the verification code) works without this.
 ## Where things are
 
 - `lib/config.dart` — the five apps and who may open each
+- `lib/theme.dart`, `lib/ui.dart` — the look (the website's phone look) and the parts every screen is built from
 - `lib/store.dart` — loading data, sending changes, working without internet
 - `lib/views.dart` — the read-only helpers copied from the website (tested against it)
 - `lib/screens/` — `login`, `student`, `lesson`, `pdf`, `guardian`, `teacher`, `institute`, `ai_chat`

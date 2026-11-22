@@ -6,17 +6,19 @@ import '../ui.dart';
 import '../views.dart';
 import 'lesson.dart';
 
-const kindIcons = {'video': Icons.play_circle_outline, 'pdf': Icons.picture_as_pdf_outlined, 'quiz': Icons.quiz_outlined, 'task': Icons.edit_note, 'exam': Icons.assignment_outlined};
+const kindIcons = {'video': Icons.videocam_outlined, 'pdf': Icons.description_outlined, 'quiz': Icons.quiz_outlined, 'task': Icons.edit_note, 'exam': Icons.assignment_outlined};
 
 class StudentApp extends StatelessWidget {
   const StudentApp({super.key});
   @override
-  Widget build(BuildContext context) => Tabs([
-    (icon: Icons.home_outlined, label: t('app.tabs.home'), page: const StudentHome()),
-    (icon: Icons.menu_book_outlined, label: t('app.tabs.lessons'), page: const Lessons()),
-    (icon: Icons.insights_outlined, label: t('app.tabs.progress'), page: const Progress()),
-    (icon: Icons.person_outline, label: t('app.tabs.profile'), page: const StudentProfile()),
-  ]);
+  Widget build(BuildContext context) => Live(
+    (context) => Tabs([
+      (icon: Icons.home_outlined, label: t('app.tabs.home'), page: const StudentHome()),
+      (icon: Icons.menu_book_outlined, label: t('app.tabs.lessons'), page: const Lessons()),
+      (icon: Icons.insights_outlined, label: t('app.tabs.progress'), page: const Progress()),
+      (icon: Icons.person_outline, label: t('app.tabs.profile'), page: const StudentProfile()),
+    ]),
+  );
 }
 
 /// Notices for one batch (and those for everyone).
@@ -29,9 +31,8 @@ class NoticeLines extends StatelessWidget {
   Widget build(BuildContext context) => Box(
     title: t('app.notices'),
     children: [
-      for (final (i, a) in list.indexed)
+      for (final a in list)
         Line(
-          first: i == 0,
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Strong('${a['title']}'), Muted('${a['body']}')]),
         ),
     ],
@@ -49,7 +50,60 @@ class LiveBox extends StatelessWidget {
   const LiveBox(this.live, {super.key});
   final Json live;
   @override
-  Widget build(BuildContext context) => Box(title: t('app.nextLive'), children: [Strong('${live['topic'] ?? ''}'), Muted(fmtDateTime(live['start'] as String))]);
+  Widget build(BuildContext context) => Box(
+    title: t('app.nextLive'),
+    children: [
+      Line(
+        child: Row(
+          spacing: 12,
+          children: [
+            const Glyph(Icons.sensors),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Strong('${live['topic'] ?? ''}'), Muted(fmtDateTime(live['start'] as String))]),
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
+}
+
+/// The streak card, as on the website: a big flame, the days in a row, and whether today is done.
+class StreakBox extends StatelessWidget {
+  const StreakBox(this.xp, {super.key});
+  final Map xp;
+  @override
+  Widget build(BuildContext context) {
+    final run = streak(xp);
+    return Box(
+      children: [
+        Row(
+          spacing: 14,
+          children: [
+            const ExcludeSemantics(child: Text('🔥', style: TextStyle(fontSize: 44, height: 1.1))),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(t('streak.days', [run.days]), style: context.type.headlineSmall),
+                  Strong(t(run.doneToday ? 'streak.today' : 'streak.notToday'), color: run.doneToday ? context.colors.primary : context.colors.onSurfaceVariant),
+                ],
+              ),
+            ),
+          ],
+        ),
+        Line(
+          child: Row(
+            spacing: 10,
+            children: [
+              const ExcludeSemantics(child: Text('⭐', style: TextStyle(fontSize: 20))),
+              Expanded(child: Strong(t('streak.xpWeek', [weekXp(xp)]))),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 class StudentHome extends StatelessWidget {
@@ -58,64 +112,46 @@ class StudentHome extends StatelessWidget {
   Widget build(BuildContext context) => Live((context) {
     final me = store.me;
     if (me == null) return const Loading();
+    final c = context.colors;
     final xp = ((store.state?['xp'] as Map?)?['${me['id']}'] as Map?) ?? const {};
-    // Work still to do, soonest first (quizzes, homework, exams).
-    final todo = [
+    final all = [
       for (final m in store.modules)
-        for (final it in rows(m['items']))
-          if (it['done'] != true && const ['quiz', 'task', 'exam'].contains(it['kind'])) (m: m, it: it),
-    ]..sort((a, b) => '${a.it['dueDate'] ?? '9999'}'.compareTo('${b.it['dueDate'] ?? '9999'}'));
+        for (final it in rows(m['items'])) (m: m, it: it),
+    ];
+    // Work still to do, soonest first (quizzes, homework, exams).
+    final todo = all.where((x) => x.it['done'] != true && const ['quiz', 'task', 'exam'].contains(x.it['kind'])).toList()..sort((a, b) => '${a.it['dueDate'] ?? '9999'}'.compareTo('${b.it['dueDate'] ?? '9999'}'));
+    final next = all.where((x) => x.it['done'] != true && const ['video', 'pdf'].contains(x.it['kind'])).firstOrNull;
     final live = liveFor(me['batch'], grace: const Duration(minutes: 90));
     final notices = noticesFor(me['batch']).take(3).toList();
     final due = (me['feeDue'] as num?) ?? 0;
-    Widget stat(IconData icon, String text) => Expanded(
-      child: Box(
-        children: [
-          Icon(icon, color: context.colors.tertiary, size: 28),
-          Strong(text),
-        ],
-      ),
-    );
+    final soon = dayKey(DateTime.now().add(const Duration(days: 2)));
+    void open(({Json m, Json it}) x) => push(context, LessonScreen(moduleId: x.m['id'] as int, itemId: x.it['id'] as int));
     return Screen(
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 4,
           children: [
-            H1(t('app.hello', ['${me['name']}'.split(' ').first])),
-            Muted('${me['batch']}'),
+            H1(t('kid.hi', ['${me['name']}'.split(' ').first])),
+            Text(t('kid.sub'), style: context.type.bodyLarge?.copyWith(color: c.onSurfaceVariant)),
           ],
         ),
-        IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 12,
-            children: [
-              stat(Icons.local_fire_department, t('app.streak', [streak(xp).days])),
-              stat(Icons.star, t('app.weekXp', [weekXp(xp)])),
-            ],
-          ),
-        ),
-        if (due > 0)
-          Box(
-            color: context.colors.tertiaryContainer,
-            children: [
-              Strong(t('app.feeDue', [taka(due)])),
-              Muted(t('auth.payAtInstitute')),
-            ],
-          ),
-        if (live != null) LiveBox(live),
         Box(
-          title: t('app.todo'),
+          title: t('kid.homework'),
           children: [
             if (todo.isEmpty) Muted(t('app.nothingDue')),
-            for (final (i, x) in todo.take(5).indexed)
+            for (final x in todo.take(5))
               Line(
-                first: i == 0,
-                onTap: () => push(context, LessonScreen(moduleId: x.m['id'] as int, itemId: x.it['id'] as int)),
+                onTap: () => open(x),
                 child: Row(
-                  spacing: 12,
+                  spacing: 14,
                   children: [
-                    Icon(kindIcons[x.it['kind']], color: context.colors.primary),
+                    // Red when it is due within two days (or late), amber otherwise.
+                    Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(color: '${x.it['dueDate'] ?? '9999'}'.compareTo(soon) <= 0 ? c.error : c.tertiary, shape: BoxShape.circle),
+                    ),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,12 +161,42 @@ class StudentHome extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const Icon(Icons.chevron_right),
                   ],
                 ),
               ),
           ],
         ),
+        Box(
+          title: t('kid.keepLearning'),
+          children: [
+            if (next == null)
+              Muted(t('kid.allLessonsDone'))
+            else
+              Line(
+                onTap: () => open(next),
+                child: Row(
+                  spacing: 12,
+                  children: [
+                    Glyph(kindIcons[next.it['kind']]!),
+                    Expanded(
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Strong('${next.it['title']}'), Muted('${next.m['title']}')]),
+                    ),
+                    Doing(label: t('student.actions.${next.it['kind']}'), small: true, onPressed: () async => open(next)),
+                  ],
+                ),
+              ),
+          ],
+        ),
+        StreakBox(xp),
+        if (due > 0)
+          Box(
+            color: c.tertiaryContainer,
+            children: [
+              Strong(t('app.feeDue', [taka(due)])),
+              Muted(t('auth.payAtInstitute')),
+            ],
+          ),
+        if (live != null) LiveBox(live),
         if (notices.isNotEmpty) NoticeLines(notices),
       ],
     );
@@ -148,47 +214,56 @@ class _LessonsState extends State<Lessons> {
   @override
   Widget build(BuildContext context) => Live((context) {
     final modules = store.modules;
+    final every = [for (final m in modules) ...rows(m['items'])];
+    final pct = every.isEmpty ? 0 : jsRound(every.where((it) => it['done'] == true).length / every.length * 100);
     return Screen(
       children: [
-        H1(t('app.tabs.lessons')),
+        H1(t('app.tabs.lessons'), kicker: '${store.me?['batch'] ?? ''}'),
         if (modules.isEmpty) Muted(t('app.noChapters')),
+        if (modules.isNotEmpty)
+          Row(
+            spacing: 12,
+            children: [
+              Muted(t('student.progress')),
+              Expanded(child: MarkBar(pct, plain: true)),
+              Strong('${localNumber(pct, lang.code)}%'),
+            ],
+          ),
         for (final m in modules)
           Builder(
             builder: (context) {
               final items = rows(m['items']);
-              final done = items.where((it) => it['done'] == true).length;
+              final on = open == m['id'];
               return Box(
                 children: [
                   InkWell(
-                    onTap: () => setState(() => open = open == m['id'] ? null : m['id']),
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () => setState(() => open = on ? null : m['id']),
                     child: Semantics(
-                      expanded: open == m['id'],
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        spacing: 6,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(child: Strong('${m['title']}')),
-                              Icon(open == m['id'] ? Icons.expand_less : Icons.expand_more),
-                            ],
-                          ),
-                          MarkBar(items.isEmpty ? 0 : done / items.length * 100, plain: true),
-                          Muted('${localNumber(done, lang.code)}/${localNumber(items.length, lang.code)} · ${t('app.items', [items.length])}'),
-                        ],
+                      expanded: on,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(minHeight: 48),
+                        child: Row(
+                          spacing: 10,
+                          children: [
+                            Icon(on ? Icons.expand_more : Icons.chevron_right),
+                            Expanded(child: Text('${m['title']}', style: context.type.titleMedium?.copyWith(fontSize: 18))),
+                            if (m['tag'] is String && '${m['tag']}'.isNotEmpty) Tag(t('student.tags.${m['tag']}')),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                  if (open == m['id'])
+                  if (on)
                     for (final it in items)
                       Line(
                         onTap: () => push(context, LessonScreen(moduleId: m['id'] as int, itemId: it['id'] as int)),
                         child: Row(
                           spacing: 12,
                           children: [
-                            Icon(kindIcons[it['kind']], color: context.colors.primary),
+                            Glyph(kindIcons[it['kind']] ?? Icons.article_outlined),
                             Expanded(
-                              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('${it['title']}'), if ('${it['meta'] ?? ''}'.isNotEmpty) Muted('${it['meta']}')]),
+                              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Strong('${it['title']}'), if ('${it['meta'] ?? ''}'.isNotEmpty) Muted('${it['meta']}')]),
                             ),
                             if (it['done'] == true) Icon(Icons.check_circle, color: context.colors.primary, semanticLabel: t('app.done')),
                           ],
@@ -214,20 +289,19 @@ class ResultLines extends StatelessWidget {
     return Paged(
       items: results,
       resetKey: '$studentId',
-      row: (r, first) => Line(
-        first: first,
+      row: (r) => Line(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: 4,
+          spacing: 6,
           children: [
-            Strong(r.title),
             Row(
               spacing: 10,
               children: [
-                Expanded(child: MarkBar(r.pct)),
-                Text('${show(r.score)}/${show(r.points)}'),
+                Expanded(child: Strong(r.title)),
+                Strong('${show(r.score)}/${show(r.points)}'),
               ],
             ),
+            MarkBar(r.pct),
           ],
         ),
       ),
@@ -246,7 +320,8 @@ class AttendanceBox extends StatelessWidget {
     return Box(
       title: t('app.attendance'),
       children: [
-        Text(att.held > 0 ? '${localNumber(att.pct, lang.code)}%' : '—', style: context.type.headlineSmall),
+        Text(att.held > 0 ? '${localNumber(att.pct, lang.code)}%' : '—', style: context.type.headlineMedium),
+        if (att.held > 0) MarkBar(att.pct),
         Muted(att.held > 0 ? t('app.attended', [att.present, att.held]) : t('parent.noClasses')),
       ],
     );
@@ -262,12 +337,12 @@ class Progress extends StatelessWidget {
     final xp = ((store.state?['xp'] as Map?)?['${me['id']}'] as Map?) ?? const {};
     return Screen(
       children: [
-        H1(t('app.tabs.progress')),
+        H1(t('app.tabs.progress'), kicker: '${me['name']}'),
         AttendanceBox(me),
         Box(
           title: 'XP',
           children: [
-            Text('${t('app.weekXp', [weekXp(xp)])} · ${localNumber(totalXp(xp), lang.code)} XP'),
+            Line(child: Strong('${t('streak.xpWeek', [weekXp(xp)])} · ${t('streak.xp', [totalXp(xp)])}')),
           ],
         ),
         Box(title: t('app.results'), children: [ResultLines(me['id'] as int)]),

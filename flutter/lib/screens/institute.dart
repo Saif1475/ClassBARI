@@ -9,13 +9,15 @@ import 'teacher.dart' show Notices, absentOn;
 class InstituteApp extends StatelessWidget {
   const InstituteApp({super.key});
   @override
-  Widget build(BuildContext context) => Tabs([
-    (icon: Icons.dashboard_outlined, label: t('app.tabs2.dashboard'), page: const Dashboard()),
-    (icon: Icons.payments_outlined, label: t('app.tabs2.fees'), page: const Fees()),
-    (icon: Icons.groups_outlined, label: t('app.tabs2.students'), page: const Students()),
-    (icon: Icons.campaign_outlined, label: t('app.tabs2.notices'), page: const Notices()),
-    (icon: Icons.person_outline, label: t('app.tabs.profile'), page: const InstituteProfile()),
-  ]);
+  Widget build(BuildContext context) => Live(
+    (context) => Tabs([
+      (icon: Icons.dashboard_outlined, label: t('app.tabs2.dashboard'), page: const Dashboard()),
+      (icon: Icons.payments_outlined, label: t('app.tabs2.fees'), page: const Fees()),
+      (icon: Icons.groups_outlined, label: t('app.tabs2.students'), page: const Students()),
+      (icon: Icons.campaign_outlined, label: t('app.tabs2.notices'), page: const Notices()),
+      (icon: Icons.person_outline, label: t('app.tabs.profile'), page: const InstituteProfile()),
+    ]),
+  );
 }
 
 class Dashboard extends StatelessWidget {
@@ -25,53 +27,90 @@ class Dashboard extends StatelessWidget {
     final students = store.students, payments = rows(store.state?['payments']);
     final month = dayKey().substring(0, 7);
     num collected = 0, due = 0;
+    var owing = 0;
     for (final p in payments) {
       if (p['at'] is String && dayKey(toDate(p['at'] as String)).startsWith(month)) collected += (p['amount'] as num?) ?? 0;
     }
     for (final s in students) {
       final d = (s['feeDue'] as num?) ?? 0;
-      if (d > 0) due += d;
+      if (d > 0) {
+        due += d;
+        owing++;
+      }
     }
     final taken = (store.state?['attendance'] as Map?)?.containsKey(dayKey()) ?? false;
     final n = students.length;
-    Widget stat(String label, String value, [VoidCallback? onTap]) => Box(
+    Widget stat(IconData icon, String label, String value, [VoidCallback? onTap]) => Box(
       onTap: onTap,
       children: [
+        Align(alignment: Alignment.centerLeft, child: Glyph(icon)),
         Muted(label),
-        Text(value, style: context.type.titleMedium),
+        Big(value),
       ],
     );
     final stats = [
-      stat(t('app.tabs2.students'), localNumber(n, lang.code), () => push(context, const Students(pushed: true))),
-      stat(t('app.myBatches'), localNumber(store.batches.length, lang.code)),
-      stat(t('app.collected'), taka(collected)),
-      stat(t('app.totalDue'), taka(due), () => push(context, const Fees(pushed: true))),
-      stat(t('app.presentToday'), taken ? '${localNumber(n - absentOn(dayKey()).length, lang.code)}/${localNumber(n, lang.code)}' : '—'),
-      stat(t('app.teachers'), localNumber(rows(store.state?['staff']).length, lang.code)),
+      stat(Icons.groups_outlined, t('app.tabs2.students'), localNumber(n, lang.code), () => push(context, const Students(pushed: true))),
+      stat(Icons.class_outlined, t('app.myBatches'), localNumber(store.batches.length, lang.code)),
+      stat(Icons.how_to_reg_outlined, t('app.presentToday'), taken ? '${localNumber(n - absentOn(dayKey()).length, lang.code)}/${localNumber(n, lang.code)}' : '—'),
+      stat(Icons.school_outlined, t('app.teachers'), localNumber(rows(store.state?['staff']).length, lang.code)),
     ];
     return Screen(
       children: [
-        H1('${store.state?['instituteName'] ?? store.state?['teacherName'] ?? ''}'),
+        H1('${store.state?['instituteName'] ?? store.state?['teacherName'] ?? ''}', kicker: '${t('teacher.greeting')} ${store.staffName}'),
+        // The green card: this month's money at a glance.
+        Box(
+          hero: true,
+          title: t('glance.title'),
+          children: [
+            Line(child: Pair(t('app.collected'), taka(collected))),
+            Line(child: Pair(t('app.totalDue'), taka(due))),
+          ],
+        ),
+        Box(
+          title: t('tday.attention'),
+          children: [
+            if (owing == 0)
+              Muted(t('tday.allClear'))
+            else
+              Line(
+                onTap: () => push(context, const Fees(pushed: true)),
+                child: Row(
+                  spacing: 12,
+                  children: [
+                    Icon(Icons.payments_outlined, color: context.colors.primary),
+                    Expanded(child: Strong(t('tday.feesOwed', [owing]))),
+                    const Icon(Icons.chevron_right),
+                  ],
+                ),
+              ),
+          ],
+        ),
         for (var i = 0; i < stats.length; i += 2)
           IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 12,
+              spacing: 16,
               children: [
                 Expanded(child: stats[i]),
                 Expanded(child: stats[i + 1]),
               ],
             ),
           ),
-        H2(t('app.myBatches')),
-        for (final b in store.batches)
-          Box(
-            children: [
-              Strong('${b['name']}'),
-              Muted('${b['teacher'] ?? ''} · ${b['days'] ?? ''} · ${taka((b['fee'] as num?) ?? 0)}'),
-              Text(t('app.studentsN', [students.where((s) => s['batch'] == b['name']).length])),
-            ],
-          ),
+        Box(
+          title: t('app.myBatches'),
+          children: [
+            for (final b in store.batches)
+              Line(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Strong('${b['name']}'),
+                    Muted('${b['teacher'] ?? ''} · ${b['days'] ?? ''} · ${taka((b['fee'] as num?) ?? 0)} · ${t('app.studentsN', [students.where((s) => s['batch'] == b['name']).length])}'),
+                  ],
+                ),
+              ),
+          ],
+        ),
       ],
     );
   });
@@ -87,12 +126,26 @@ class Fees extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(t('app.recordPayment')),
-        content: Text(t('app.confirmPayment', ['${s['name']}', taka(s['feeDue'] as num)])),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text(t('app.cancel'))),
-          FilledButton(onPressed: () => Navigator.pop(context, 'cash'), child: Text(t('app.cash'))),
-          FilledButton(onPressed: () => Navigator.pop(context, 'bkash'), child: Text(t('app.bkash'))),
-        ],
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: 16,
+          children: [
+            Text(t('app.confirmPayment', ['${s['name']}', taka(s['feeDue'] as num)])),
+            Row(
+              spacing: 10,
+              children: [
+                Expanded(
+                  child: FilledButton(onPressed: () => Navigator.pop(context, 'cash'), child: Text(t('app.cash'))),
+                ),
+                Expanded(
+                  child: FilledButton(onPressed: () => Navigator.pop(context, 'bkash'), child: Text(t('app.bkash'))),
+                ),
+              ],
+            ),
+          ],
+        ),
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(t('app.cancel')))],
       ),
     );
     if (method == null) return;
@@ -114,8 +167,7 @@ class Fees extends StatelessWidget {
             children: [
               Paged(
                 items: owing,
-                row: (s, first) => Line(
-                  first: first,
+                row: (s) => Line(
                   onTap: () => record(context, s),
                   child: Row(
                     spacing: 10,
@@ -178,10 +230,9 @@ class _StudentsState extends State<Students> {
             Paged(
               items: list,
               resetKey: needle,
-              row: (s, first) {
+              row: (s) {
                 final due = (s['feeDue'] as num?) ?? 0;
                 return Line(
-                  first: first,
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Strong('${s['id']}. ${s['name']}'), Muted('${s['batch']} · ${s['guardianName'] ?? ''} · ${s['phone'] ?? ''}${due > 0 ? ' · ${taka(due)}' : ''}')]),
                 );
               },
