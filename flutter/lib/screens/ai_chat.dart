@@ -2,8 +2,10 @@
 // Chats are kept on this phone only; answers arrive piece by piece from /api/ai/assistant, as on the website.
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io' show ZLibDecoder;
 import 'dart:typed_data';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:http/http.dart' as http;
 import 'package:material_ui/material_ui.dart';
@@ -43,6 +45,8 @@ class _AiChatAppState extends State<AiChatApp> {
   /// The model picked last time (kept in Settings); until then the one the server suggests.
   String get model => store.aiModel ?? pick;
   ({Uint8List bytes, String data})? photo;
+  Json? doc; // the file attached to the open chat: {name, text}; its text goes with every question
+  var reading = false;
   var busy = false, note = '', find = '';
   int? pack; // the student's AI pack, for the side panel
   final unfolded = <String>{}; // topic folders opened in the side panel
@@ -107,6 +111,7 @@ class _AiChatAppState extends State<AiChatApp> {
 
   void open(int id) => setState(() {
     openId = id;
+    doc = chats.where((c) => c['id'] == id).firstOrNull?['file'] as Json?;
     photo = null;
     note = '';
   });
@@ -119,9 +124,11 @@ class _AiChatAppState extends State<AiChatApp> {
     ];
     // Its folder: picked from the first question; a chat still in "Other" moves once a later question shows its topic.
     final old = chats.where((c) => c['id'] == id).firstOrNull;
-    final topic = old != null && old['topic'] != null && old['topic'] != 'other' ? old['topic'] : topics.of(question);
+    final topic = old != null && old['topic'] != null && old['topic'] != 'other' ? old['topic'] : topics.of('$question ${doc?['name'] ?? ''}');
+    final file = doc;
     var list = <Json>[
-      {...?old, 'id': id, 'title': old?['title'] ?? (question.length > 60 ? question.substring(0, 60) : question), 'msgs': asked, 'topic': topic, 'at': DateTime.now().millisecondsSinceEpoch},
+      {...?old, 'id': id, 'title': old?['title'] ?? (question.length > 60 ? question.substring(0, 60) : question), 'msgs': asked, 'file': file, 'topic': topic, 'at': DateTime.now().millisecondsSinceEpoch}
+        ..removeWhere((k, v) => k == 'file' && v == null),
       ...chats.where((c) => c['id'] != id),
     ];
     // While an answer streams in, the screen follows every piece, but the chats are written to the phone at most once a second.
@@ -163,6 +170,7 @@ class _AiChatAppState extends State<AiChatApp> {
           for (final m in asked.length > 10 ? asked.sublist(asked.length - 10) : asked) {'role': m['role'], 'content': m['content']},
         ],
         if (image.isNotEmpty) 'image': image,
+        'file': ?file,
         if (chosen != null) 'model': chosen!['id'],
         if (fresh) 'fresh': true,
         if (store.aiPrefs.isNotEmpty) 'prefs': store.aiPrefs, // answer language and length from Settings
@@ -237,23 +245,51 @@ class _AiChatAppState extends State<AiChatApp> {
   }
 
   Future<void> attach() async {
-    final camera = await showModalBottomSheet<bool>(
+    final pick = await showModalBottomSheet<String>(
       context: context,
       showDragHandle: true,
       builder: (context) => SafeArea(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            ListTile(leading: Ico(I.camera), title: Text(t('app.takePhoto')), onTap: () => Navigator.pop(context, true)),
-            ListTile(leading: Ico(I.image), title: Text(t('app.choosePhoto')), subtitle: Text(t('aichat.fileKinds.image.hint')), onTap: () => Navigator.pop(context, false)),
+            ListTile(leading: Ico(I.camera), title: Text(t('app.takePhoto')), onTap: () => Navigator.pop(context, 'camera')),
+            ListTile(leading: Ico(I.image), title: Text(t('app.choosePhoto')), subtitle: Text(t('aichat.fileKinds.image.hint')), onTap: () => Navigator.pop(context, 'image')),
+            for (final k in fileKinds.keys)
+              ListTile(leading: Ico(I.file), title: Text(t('aichat.fileKinds.$k.label')), subtitle: Text(t('aichat.fileKinds.$k.hint')), onTap: () => Navigator.pop(context, k)),
           ],
         ),
       ),
     );
-    if (camera == null || !mounted) return;
-    final p = await pickPhoto(context, camera: camera);
+    if (pick == null || !mounted) return;
+    if (fileKinds.containsKey(pick)) return pickFile(pick);
+    final p = await pickPhoto(context, camera: pick == 'camera');
     if (p != null && mounted) setState(() => photo = (bytes: p.bytes, data: p.data));
   }
+
+  /// A Word, Excel, CSV or text file is read here on the phone and its text goes with the chat, as on the website.
+  /// shortcut: PDFs are not offered (the website reads them with pdf.js in the browser; no server route reads text).
+  Future<void> pickFile(String kind) async {
+    final f = await FilePicker.pickFile(type: FileType.custom, allowedExtensions: fileKinds[kind]!).catchError((_) => null);
+    if (f == null || !mounted) return;
+    setState(() {
+      note = '';
+      reading = true;
+    });
+    try {
+      final text = fileText(f.name, await f.readAsBytes());
+      if (text == null) return setState(() => note = t('aichat.fileType'));
+      if (text.isEmpty) return setState(() => note = t('aichat.fileEmpty'));
+      setState(() {
+        doc = {'name': f.name.length > 120 ? f.name.substring(0, 120) : f.name, 'text': text.length > fileTextMax ? text.substring(0, fileTextMax) : text};
+        if (text.length > fileTextMax) note = t('aichat.fileCut');
+      });
+    } catch (_) {
+      if (mounted) setState(() => note = t('aichat.fileFailed'));
+    } finally {
+      if (mounted) setState(() => reading = false);
+    }
+  }
+
 
   /// The models: the student's own to choose from, the bigger packs' shown locked so they see what they would get.
   void pickModel() => showModalBottomSheet<void>(
@@ -504,6 +540,32 @@ class _AiChatAppState extends State<AiChatApp> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                if (doc != null || reading)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 6, 0, 0),
+                    child: Row(
+                      spacing: 4,
+                      children: [
+                        Flexible(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(color: context.tone.tile, borderRadius: BorderRadius.circular(10)),
+                            child: Text(
+                              '📄 ${reading ? t('aichat.fileReading') : doc!['name']}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                          ),
+                        ),
+                        if (doc != null)
+                          TextButton(
+                            onPressed: () => setState(() => doc = null),
+                            child: Text(t('aichat.removeFile'), style: TextStyle(color: c.error)),
+                          ),
+                      ],
+                    ),
+                  ),
                 if (photo != null)
                   Align(
                     alignment: Alignment.centerLeft,
@@ -588,7 +650,7 @@ class _AiChatAppState extends State<AiChatApp> {
   /// physics question from last week" in the Physics folder. Below the folders, the latest chats; a search box on top.
   Widget _side(BuildContext context) {
     final needle = find.trim().toLowerCase();
-    final shown = chats.where((x) => needle.isEmpty || '${x['title']}'.toLowerCase().contains(needle) || rows(x['msgs']).any((m) => '${m['content']}'.toLowerCase().contains(needle))).toList();
+    final shown = chats.where((x) => needle.isEmpty || '${x['title']}'.toLowerCase().contains(needle) || rows(x['msgs']).any((m) => '${m['content']}'.toLowerCase().contains(needle)) || '${(x['file'] as Map?)?['name'] ?? ''}'.toLowerCase().contains(needle)).toList();
     Widget chatRow(Json x, {bool withTopic = false}) => Item(
       title: '${x['title']}',
       subtitle: withTopic ? '${_topicIcons[x['topic'] ?? 'other']}  ${t('aichat.topics.${x['topic'] ?? 'other'}')}' : null,
@@ -759,6 +821,92 @@ class TopicScreen extends StatelessWidget {
         ),
     ],
   );
+}
+
+/// How much of an attached file's text goes with a chat: FILE_TEXT_MAX in src/lib/ai-chat.ts.
+const fileTextMax = 30000;
+
+/// The files the "Add file" menu offers, as the website's FILE_KINDS (no PDF: see pickFile).
+const fileKinds = {
+  'word': ['docx'],
+  'sheet': ['xlsx', 'csv'],
+  'text': ['txt', 'md', 'csv', 'json', 'html', 'xml', 'py', 'js', 'ts', 'c', 'cpp', 'java'],
+};
+
+/// A file's text, as the website reads it (src/lib/sheet.ts for Word and Excel); null for a kind it can't read.
+String? fileText(String name, Uint8List bytes) {
+  final ext = name.toLowerCase().split('.').last;
+  final String text;
+  if (ext == 'docx') {
+    final xml = unzip(bytes, (n) => n == 'word/document.xml')['word/document.xml'];
+    if (xml == null) throw const FormatException('not a Word file');
+    text = [
+      for (final p in xml.split('</w:p>')) [for (final m in RegExp(r'<w:t(?:\s[^>]*)?>([\s\S]*?)</w:t>|<w:(tab|br)/>').allMatches(p)) m[2] == 'tab' ? '\t' : (m[2] == 'br' ? '\n' : _unescape(m[1]!))].join(),
+    ].join('\n');
+  } else if (ext == 'xlsx') {
+    text = [for (final r in readXlsx(bytes)) r.join('\t')].join('\n');
+  } else if (fileKinds['text']!.contains(ext)) {
+    text = utf8.decode(bytes, allowMalformed: true);
+  } else {
+    return null;
+  }
+  return text.replaceAll('\u0000', '').trim();
+}
+
+/// Files inside a zip, by name (src/lib/sheet.ts unzip): only the ones asked for are unpacked.
+Map<String, String> unzip(Uint8List buf, bool Function(String name) want) {
+  final v = ByteData.sublistView(buf);
+  int u16(int at) => v.getUint16(at, Endian.little);
+  int u32(int at) => v.getUint32(at, Endian.little);
+  var eocd = buf.length - 22;
+  while (eocd >= 0 && u32(eocd) != 0x06054b50) {
+    eocd--;
+  }
+  if (eocd < 0) throw const FormatException('not a zip');
+  final out = <String, String>{};
+  var p = u32(eocd + 16);
+  for (var i = 0, count = u16(eocd + 10); i < count; i++) {
+    final method = u16(p + 10), size = u32(p + 20), nameLen = u16(p + 28), local = u32(p + 42);
+    final name = utf8.decode(buf.sublist(p + 46, p + 46 + nameLen), allowMalformed: true);
+    p += 46 + nameLen + u16(p + 30) + u16(p + 32);
+    if (!want(name)) continue;
+    final start = local + 30 + u16(local + 26) + u16(local + 28);
+    final raw = buf.sublist(start, start + size);
+    out[name] = utf8.decode(method == 8 ? ZLibDecoder(raw: true).convert(raw) : raw, allowMalformed: true);
+  }
+  return out;
+}
+
+String _unescape(String s) => s.replaceAllMapped(RegExp(r'&(lt|gt|quot|apos|amp|#\d+|#x[0-9a-f]+);', caseSensitive: false), (m) {
+  final e = m[1]!;
+  if (e.startsWith('#')) return String.fromCharCode(e[1] == 'x' || e[1] == 'X' ? int.parse(e.substring(2), radix: 16) : int.parse(e.substring(1)));
+  return const {'lt': '<', 'gt': '>', 'quot': '"', 'apos': "'", 'amp': '&'}[e.toLowerCase()]!;
+});
+
+String _texts(String xml) => [for (final m in RegExp(r'<t(?:\s[^>]*)?>([\s\S]*?)</t>').allMatches(xml)) _unescape(m[1]!)].join();
+
+/// The first sheet of an Excel file as rows of text (src/lib/sheet.ts readXlsx).
+List<List<String>> readXlsx(Uint8List bytes) {
+  final files = unzip(bytes, (n) => n == 'xl/sharedStrings.xml' || n == 'xl/worksheets/sheet1.xml');
+  final shared = [for (final m in RegExp(r'<si>([\s\S]*?)</si>').allMatches(files['xl/sharedStrings.xml'] ?? '')) _texts(m[1]!)];
+  final sheet = files['xl/worksheets/sheet1.xml'];
+  if (sheet == null) throw const FormatException('no sheet');
+  return [
+    for (final row in RegExp(r'<row[^>]*>([\s\S]*?)</row>').allMatches(sheet))
+      () {
+        final cells = <int, String>{};
+        for (final c in RegExp(r'<c\s([^>]*?)(?:/>|>([\s\S]*?)</c>)').allMatches(row[1]!)) {
+          final attrs = c[1]!, body = c[2] ?? '';
+          final ref = RegExp(r'r="([A-Z]+)\d+"').firstMatch(attrs)?[1];
+          final type = RegExp(r't="(\w+)"').firstMatch(attrs)?[1];
+          final v = RegExp(r'<v>([\s\S]*?)</v>').firstMatch(body)?[1] ?? '';
+          final value = type == 's' ? shared.elementAtOrNull(int.tryParse(v)?.abs() ?? shared.length) ?? '' : (type == 'inlineStr' ? _texts(body) : _unescape(v));
+          cells[ref == null ? cells.length : ref.codeUnits.fold(0, (n, ch) => n * 26 + ch - 64) - 1] = value.trim();
+        }
+        final width = cells.isEmpty ? 0 : cells.keys.reduce((a, b) => a > b ? a : b) + 1;
+        return [for (var i = 0; i < width; i++) cells[i] ?? ''];
+      }(),
+  ];
 }
 
 /// Pack prices (৳ a month), as the server has them (checked in test/views_test.dart).

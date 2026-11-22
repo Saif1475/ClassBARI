@@ -3,6 +3,7 @@
 // chat settings the website's AI chat has (pack and allowance, model, how the AI answers, clearing the chats).
 import 'dart:convert';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:material_ui/material_ui.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show AuthException, UserAttributes;
@@ -187,6 +188,8 @@ class SettingsScreen extends StatelessWidget {
           ),
         const NotifySwitches(),
         const ChangePassword(),
+        // The owner's plan and backup, as on the website's Settings page.
+        if (kApp == 'institute') ...[const SeatBilling(), if (store.role == 'owner') const PayForm(kind: 'plan'), const Backup()],
         Group(
           title: t('settings.help'),
           children: [
@@ -485,6 +488,97 @@ class _ChangePasswordState extends State<ChangePassword> {
       PasswordField(controller: again, label: t('auth.passwordAgain'), fresh: true),
       if (msg != null) Semantics(liveRegion: true, child: Strong(msg!.$2, color: msg!.$1 ? context.colors.primary : context.colors.error)),
       Doing(label: t('settings.changePassword'), icon: I.lockReset, onPressed: change),
+    ],
+  );
+}
+
+/// The institute plan (the website's SeatBillingCard): up to 250 students; near or over it, contact us.
+const planLimit = 250;
+
+class SeatBilling extends StatelessWidget {
+  const SeatBilling({super.key});
+  @override
+  Widget build(BuildContext context) {
+    final n = store.students.length, near = n >= planLimit * 0.9, over = n > planLimit;
+    final tint = over ? context.colors.error : (near ? context.colors.tertiary : context.colors.primary);
+    return Box(
+      title: t('seats.title'),
+      children: [
+        Muted(t('seats.sub', [planLimit])),
+        Strong(t('seats.count', [n, planLimit])),
+        LinearProgressIndicator(value: (n / planLimit).clamp(0, 1).toDouble(), color: tint, minHeight: 10, borderRadius: BorderRadius.circular(5)),
+        if (near || over)
+          Box(
+            color: over ? context.colors.errorContainer : context.colors.tertiaryContainer,
+            children: [
+              Strong(over ? t('seats.over', [planLimit]) : t('seats.near', [planLimit])),
+              Doing(
+                label: t('seats.callUs'),
+                icon: I.support,
+                small: true,
+                onPressed: () => launchUrl(Uri.parse('$kApiUrl/support'), mode: LaunchMode.externalApplication),
+              ),
+            ],
+          ),
+      ],
+    );
+  }
+}
+
+/// The website's exportBackup: everything the owner sees, wrapped so importBackup knows it is a ClassBARI backup.
+String backupText(Json? state, [DateTime? now]) => jsonEncode({'app': 'ClassBARI', 'version': 1, 'savedAt': (now ?? DateTime.now()).toUtc().toIso8601String(), 'data': state});
+
+/// The same check importBackup makes before it replaces anything.
+bool isBackup(String text) {
+  try {
+    final b = jsonDecode(text);
+    return b is Map && b['app'] == 'ClassBARI' && b['data'] is Map && b['data']['students'] is List && b['data']['batches'] is List;
+  } catch (_) {
+    return false;
+  }
+}
+
+/// Download a backup file, or restore one (asked "are you sure?" first).
+class Backup extends StatefulWidget {
+  const Backup({super.key});
+  @override
+  State<Backup> createState() => _BackupState();
+}
+
+class _BackupState extends State<Backup> {
+  (bool, String)? msg;
+
+  Future<void> download() async {
+    try {
+      await FilePicker.saveFile(fileName: 'classbari-backup-${dayKey()}.json', bytes: utf8.encode(backupText(store.state)), mimeType: 'application/json');
+    } catch (_) {
+      if (mounted) setState(() => msg = (false, t('auth.syncFailed')));
+    }
+  }
+
+  Future<void> restore() async {
+    final f = await FilePicker.pickFile(type: FileType.custom, allowedExtensions: const ['json']).catchError((_) => null);
+    if (f == null || !mounted || !await confirm(context, t('settings.restore'), t('settings.restoreQ'))) return;
+    final text = utf8.decode(await f.readAsBytes(), allowMalformed: true);
+    if (!isBackup(text)) return setState(() => msg = (false, t('settings.badBackup')));
+    final saved = await store.act('importBackup', [text]);
+    if (mounted) setState(() => msg = saved ? (true, t('settings.restored')) : (false, store.status == Status.offline ? t('app.sentLater') : t('auth.syncFailed')));
+  }
+
+  @override
+  Widget build(BuildContext context) => Box(
+    title: t('settings.backup'),
+    children: [
+      Muted(t('app.backupHelp')),
+      Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          Doing(label: '⬇ ${t('settings.download')}', small: true, onPressed: download),
+          Doing(label: '⬆ ${t('settings.restore')}', small: true, soft: true, onPressed: restore),
+        ],
+      ),
+      if (msg != null) Semantics(liveRegion: true, child: Strong(msg!.$2, color: msg!.$1 ? context.colors.primary : context.colors.error)),
     ],
   );
 }

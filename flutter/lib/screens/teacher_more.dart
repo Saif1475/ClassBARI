@@ -9,8 +9,8 @@ import '../strings.dart';
 import '../ui.dart';
 import '../views.dart';
 import 'lesson.dart' show pickPhoto;
-import 'student_more.dart' show DoubtCard;
 import 'teacher.dart' show batchNo;
+import 'teacher_tools.dart';
 
 /// The doubts of this person's batches that still wait for an answer.
 List<Json> openDoubts() {
@@ -18,8 +18,7 @@ List<Json> openDoubts() {
   return rows(store.state?['doubts']).where((d) => d['solved'] != true && (store.runsAll || names.contains(d['batch']))).toList();
 }
 
-/// Students' doubts: waiting or solved; answer with text and a photo, and mark solved.
-/// shortcut: voice-note answers are recorded on the website only (no recording package in the app yet).
+/// Students' doubts: waiting or solved; answer with text, a photo and a voice note, and mark solved.
 class TeacherDoubtsScreen extends StatefulWidget {
   const TeacherDoubtsScreen({super.key});
   @override
@@ -46,7 +45,7 @@ class _TeacherDoubtsScreenState extends State<TeacherDoubtsScreen> {
         ),
         if (list.isEmpty) Muted(t('doubts.none')),
         for (final d in list)
-          DoubtCard(
+          TeacherDoubtCard(
             d,
             below: _Reply(key: ValueKey(d['id']), doubtId: d['id']),
           ),
@@ -64,7 +63,7 @@ class _Reply extends StatefulWidget {
 
 class _ReplyState extends State<_Reply> {
   final text = TextEditingController();
-  String? photo;
+  String? photo, audio;
 
   @override
   void dispose() {
@@ -75,17 +74,17 @@ class _ReplyState extends State<_Reply> {
   Future<void> send(bool solved) async {
     final saved = await store.act('replyDoubt', [
       widget.doubtId,
-      {'by': store.staffName, 'text': text.text.trim(), 'image': ?photo},
+      {'text': text.text.trim(), 'image': ?photo, 'audio': ?audio, 'by': store.staffName},
       solved,
     ]);
     text.clear();
-    setState(() => photo = null);
+    setState(() => photo = audio = null);
     if (mounted) toast(context, saved ? t('doubts.replied') : t('app.sentLater'));
   }
 
   @override
   Widget build(BuildContext context) {
-    final can = text.text.trim().isNotEmpty || photo != null;
+    final can = text.text.trim().isNotEmpty || photo != null || audio != null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 8,
@@ -112,6 +111,7 @@ class _ReplyState extends State<_Reply> {
                 if (p != null && mounted) setState(() => photo = p.data);
               },
             ),
+            if (audio == null) VoiceRecorder(onDone: (a) => setState(() => audio = a)) else VoicePlayer(audio!, key: ValueKey(audio.hashCode)),
             Doing(label: t('doubts.sendSolved'), icon: I.checkCircle, small: true, onPressed: can ? () => send(true) : null),
             Doing(label: t('doubts.send'), icon: I.send, soft: true, small: true, onPressed: can ? () => send(false) : null),
           ],
@@ -447,6 +447,7 @@ CbIcon kindIcon(Object? kind) => switch (kind) {
 String kindLabel(String k) => t('kinds.$k');
 
 /// The batch's chapters: add one, publish or hide it, delete it; add and delete the videos, PDFs, homework and quizzes inside.
+/// Copy a chapter to another batch, and mark a video or PDF as a free preview.
 /// shortcut: files are added by link only (no file picker in the app); written exams, rubrics and quiz settings are on the website.
 class StudioScreen extends StatefulWidget {
   const StudioScreen({super.key, required this.batch});
@@ -530,6 +531,19 @@ class _StudioScreenState extends State<StudioScreen> {
                     color: color,
                     onPressed: () async => push(context, AddItemScreen(moduleId: m['id'] as int)),
                   ),
+                  if (store.batches.length > 1)
+                    PopupMenuButton<String>(
+                      tooltip: t('centre.copyTo'),
+                      onSelected: (b) async {
+                        if (await store.act('copyModule', [m['id'], b]) && context.mounted) toast(context, t('centre.moduleCopied'));
+                      },
+                      itemBuilder: (_) => [
+                        for (final b in store.batches.where((b) => b['name'] != m['batch'])) PopupMenuItem(value: '${b['name']}', child: Text('${b['name']}')),
+                      ],
+                      child: IgnorePointer(
+                        child: Doing(label: t('centre.copyTo'), icon: I.copy, soft: true, small: true, color: color, onPressed: () async {}),
+                      ),
+                    ),
                   Doing(
                     label: t('teacher.deleteModule'),
                     icon: I.trash,
@@ -550,6 +564,9 @@ class _StudioScreenState extends State<StudioScreen> {
                   color: color,
                   title: '${it['title']}',
                   subtitle: about(it),
+                  below: it['kind'] == 'video' || it['kind'] == 'pdf'
+                      ? FilterChip(label: Text(t('courses.previewToggle')), selected: it['preview'] == true, onSelected: (_) => store.act('toggleItemPreview', [m['id'], it['id']]))
+                      : null,
                   trailing: IconButton(
                     tooltip: t('common.delete'),
                     icon: Ico(I.trash),

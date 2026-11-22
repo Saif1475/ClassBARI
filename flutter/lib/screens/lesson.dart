@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:video_player/video_player.dart';
@@ -32,6 +33,24 @@ Future<({String name, Uint8List bytes, String data})?> pickPhoto(BuildContext co
     return (name: x.name.isEmpty ? 'photo.jpg' : x.name, bytes: bytes, data: data);
   } catch (_) {
     return null; // no camera, or permission refused
+  }
+}
+
+/// A PDF from the phone as a data: link, as the website sends it (readAsDataUrl): at most 5 MB, the website's limit
+/// (MAX_UPLOAD_BYTES; its data: link then stays under the server's 8 MB).
+Future<({String name, String data})?> pickPdf(BuildContext context) async {
+  try {
+    final f = await FilePicker.pickFile(type: FileType.custom, allowedExtensions: ['pdf']);
+    if (f == null) return null;
+    final size = await f.length() ?? 0;
+    final data = size > 5 * 1024 * 1024 ? null : 'data:application/pdf;base64,${base64Encode(await f.readAsBytes())}';
+    if (data == null || data.length > _fileMax) {
+      if (context.mounted) toast(context, t('community.pdfTooBig'));
+      return null;
+    }
+    return (name: f.name.length > 120 ? f.name.substring(0, 120) : f.name, data: data);
+  } catch (_) {
+    return null; // no file app, or permission refused
   }
 }
 
@@ -301,7 +320,7 @@ class _QuizBoxState extends State<QuizBox> {
   }
 }
 
-/// Homework or a written exam: a photo from the camera or gallery, handed in once (until the teacher marks it).
+/// Homework or a written exam: a photo from the camera or gallery, or a PDF, handed in once (until the teacher marks it).
 class Homework extends StatefulWidget {
   const Homework({super.key, required this.moduleId, required this.item, required this.me});
   final int moduleId, me;
@@ -311,7 +330,12 @@ class Homework extends StatefulWidget {
 }
 
 class _HomeworkState extends State<Homework> {
-  ({String name, Uint8List bytes, String data})? photo;
+  ({String name, Uint8List? bytes, String data})? photo; // bytes: a photo to show; null for a PDF
+
+  Future<void> pdf() async {
+    final p = await pickPdf(context);
+    if (p != null && mounted) setState(() => photo = (name: p.name, bytes: null, data: p.data));
+  }
 
   Future<void> pick(bool camera) async {
     final p = await pickPhoto(context, camera: camera);
@@ -339,11 +363,13 @@ class _HomeworkState extends State<Homework> {
     }
     return Box(
       children: [
-        if (photo != null)
+        if (photo?.bytes case final bytes?)
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
-            child: Image.memory(photo!.bytes, height: 320, fit: BoxFit.contain, semanticLabel: photo!.name),
-          ),
+            child: Image.memory(bytes, height: 320, fit: BoxFit.contain, semanticLabel: photo!.name),
+          )
+        else if (photo != null)
+          Item(icon: I.file, title: photo!.name),
         Row(
           spacing: 8,
           children: [
@@ -355,6 +381,7 @@ class _HomeworkState extends State<Homework> {
             ),
           ],
         ),
+        OutlinedButton.icon(onPressed: pdf, icon: Ico(I.file), label: Text(t('community.addPdf'))),
         Doing(label: t('app.handIn'), icon: I.upload, onPressed: photo == null ? null : send),
       ],
     );

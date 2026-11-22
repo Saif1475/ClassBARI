@@ -71,6 +71,8 @@
  "app.doubts": "Students' doubts",
  "app.watchTime": "Video watch time",
  "app.admissions": "Admission enquiries",
+ "app.backupHelp": "Download a backup file regularly and keep it safe; you can restore it from the app or the website.",
+ "app.noteTitle": "Title",
  "app.send": "Send",
  "app.noMessages": "No messages yet.",
  "app.myBatches": "Batches",
@@ -1456,6 +1458,70 @@
  "sms.progress": "SMS: {0} of {1} done",
  "sms.all": "Send SMS to all {0}",
  "sms.confirmAll": "Send an SMS to {0} guardians? Each SMS costs money.",
+ "tools.nav": "Tools",
+ "tools.title": "Tools",
+ "tools.sub": "Everything else for running your batches: results, printing, exams on paper, money and more.",
+ "tools.all": "All tools",
+ "tools.names.merit": [
+  "Merit list",
+  "Rank students after a test; each family sees only their own child's position."
+ ],
+ "tools.names.classroom": [
+  "Interactive Whiteboard & Live Polls",
+  "Digital whiteboard (pen, shapes, slides, PDF export) and quick in-class MCQ polls."
+ ],
+ "tools.names.omr": [
+  "OMR scanner",
+  "Print answer sheets for paper MCQ exams, photograph them, marks are calculated for you."
+ ],
+ "tools.names.bank": [
+  "Question bank",
+  "Your questions by subject, topic and difficulty. Make a new test in one minute."
+ ],
+ "tools.names.cards": [
+  "ID cards, admit cards, certificates",
+  "Printable cards with photo and attendance QR code, and certificates."
+ ],
+ "tools.names.doubts": [
+  "Doubts",
+  "Students' questions with photos. Answer with text, a photo or a voice note."
+ ],
+ "tools.names.community": [
+  "Student community",
+  "See and moderate what students post; remove or pin posts, reply as the teacher."
+ ],
+ "tools.names.watch": [
+  "Video watch time",
+  "How much of each video every student watched, and who hasn't started."
+ ],
+ "tools.names.routine": [
+  "Class routine",
+  "Weekly timetable with rooms; warns when a teacher or room is booked twice."
+ ],
+ "tools.names.money": [
+  "Expenses & profit",
+  "Rent, bills and other costs, and what's left each month."
+ ],
+ "tools.names.admissions": [
+  "Admission enquiries",
+  "Families who asked about joining: call, follow up, admit."
+ ],
+ "tools.names.staff": [
+  "Staff attendance & leave",
+  "Mark teachers present or absent; approve leave requests."
+ ],
+ "tools.names.meetings": [
+  "Parent meetings",
+  "Open time slots; guardians book one from their app."
+ ],
+ "tools.names.website": [
+  "My website",
+  "Your own public page with your courses and a join button."
+ ],
+ "tools.names.shop": [
+  "Course shop & coupons",
+  "Sell courses: coupons, and bKash payments you confirm."
+ ],
  "dojo.section": "Points & class story",
  "dojo.points": "Class points",
  "dojo.kinds.helping": "Helping others",
@@ -1616,5 +1682,6 @@
  "report.comment": "Teacher's comment",
  "report.noComment": "No comment yet.",
  "sub.waiting": "Waiting for grade",
- "student.noQuizYet": "No quizzes taken yet."
+ "student.noQuizYet": "No quizzes taken yet.",
+ "report.commentPh": "Strengths, what to work on, advice for the guardian…"
 }

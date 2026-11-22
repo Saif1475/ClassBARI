@@ -11,6 +11,7 @@ import 'pdf.dart';
 import '../icons.g.dart';
 import '../icon.dart';
 import 'teacher_more.dart';
+import 'teacher_tools.dart';
 
 /// Homework and written exams handed in but not marked yet, in the batches this person looks after.
 List<({Json m, Json it, int sid, Json sub})> toMark() {
@@ -77,7 +78,6 @@ class TeacherHome extends StatelessWidget {
           Group(
             title: t('tday.attention'),
             children: [
-              if (doubts > 0) Item(icon: I.quiz, color: context.course(3), title: t('app.doubts'), trailing: Tag(localNumber(doubts, lang.code)), onTap: () => push(context, const TeacherDoubtsScreen())),
               if (waiting > 0) Item(icon: I.factCheck, color: context.colors.tertiary, title: t('tday.toMark', [waiting]), onTap: () => push(context, const Marking(pushed: true))),
               if (unread.isNotEmpty)
                 Item(
@@ -107,6 +107,15 @@ class TeacherHome extends StatelessWidget {
               },
             ),
         ]),
+        // The website's teacher tools for all of this person's batches.
+        Group(
+          children: [
+            Item(icon: I.quiz, color: context.course(3), title: t('app.doubts'), trailing: doubts > 0 ? Tag(localNumber(doubts, lang.code)) : null, onTap: () => push(context, const TeacherDoubtsScreen())),
+            Item(icon: I.handshake, color: context.course(4), title: t('meetings.slots'), onTap: () => push(context, const MeetingsScreen())),
+            Item(icon: I.book, color: context.course(5), title: t('bank.addTitle'), onTap: () => push(context, const BankScreen())),
+            Item(icon: I.users, color: context.course(6), title: t('community.title'), onTap: () => push(context, const ModerateScreen())),
+          ],
+        ),
       ],
     );
   });
@@ -169,6 +178,25 @@ class BatchScreen extends StatelessWidget {
               onTap: () => push(context, LiveClassScreen(batch: batch)),
             ),
             Item(
+              icon: I.classroom,
+              color: color,
+              title: t('liveRoom.startTitle'),
+              subtitle: t('liveRoom.badge'),
+              onTap: () => push(context, LiveRoomScreen(batch: batch)),
+            ),
+            Item(
+              icon: I.video,
+              color: color,
+              title: t('teacher.vpTitle'),
+              onTap: () => push(context, ExploreVideoScreen(batch: batch)),
+            ),
+            Item(
+              icon: I.star,
+              color: color,
+              title: t('teacher.sections.dojo'),
+              onTap: () => push(context, DojoScreen(batch: batch)),
+            ),
+            Item(
               icon: I.calendar,
               color: color,
               title: t('student.calendar'),
@@ -214,6 +242,7 @@ class BatchScreen extends StatelessWidget {
                 leading: Avatar('${k['name']}', size: 38, color: color),
                 title: '${k['name']}',
                 subtitle: '${t('app.roll')} ${k['id']} · ${k['guardianName'] ?? ''} · ${k['phone'] ?? ''}',
+                onTap: () => push(context, TeacherReportScreen(studentId: k['id'] as int)),
               ),
             ),
           ],
@@ -300,6 +329,20 @@ class _AttendanceState extends State<Attendance> {
               [for (final k in kids) k['id']],
               today,
             ]),
+          ),
+        if (kids.isNotEmpty)
+          Doing(
+            label: t('qr.scan'),
+            icon: I.grid,
+            soft: true,
+            onPressed: () async {
+              if (!await confirm(context, t('qr.scan'), t('qr.confirmStart'))) return;
+              store.act('markAllAbsent', [
+                [for (final k in kids) k['id']],
+                today,
+              ]); // queued before the scans' markPresent, so it goes first
+              if (context.mounted) push(context, QrScanScreen(batch: batch, day: today));
+            },
           ),
         if (kids.isNotEmpty)
           Box(

@@ -11,7 +11,7 @@ import '../store.dart';
 import '../strings.dart';
 import '../ui.dart';
 import '../views.dart';
-import 'lesson.dart' show pickPhoto;
+import 'lesson.dart' show pickPdf, pickPhoto;
 import 'student_more.dart' show DataPicture;
 
 const _audIcon = {'all': '🌐', 'batch': '🏫', 'friends': '👥'};
@@ -180,7 +180,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
   });
 }
 
-/// Write a post: who sees it, text, up to 4 photos, an optional poll.
+/// Write a post: who sees it, text, up to 4 photos, a PDF, an optional poll.
 class _Composer extends StatefulWidget {
   const _Composer();
   @override
@@ -190,6 +190,7 @@ class _Composer extends StatefulWidget {
 class _ComposerState extends State<_Composer> {
   final text = TextEditingController();
   final images = <String>[];
+  Json? file; // {name, url}: a PDF as a data: link, as the website sends it
   List<String>? poll;
   late String audience = '${_profile(_me)['audience'] ?? 'all'}';
   var round = 0; // a new post clears the poll boxes
@@ -205,18 +206,24 @@ class _ComposerState extends State<_Composer> {
     if (p != null && mounted) setState(() => images.add(p.data));
   }
 
+  Future<void> addPdf() async {
+    final p = await pickPdf(context);
+    if (p != null && mounted) setState(() => file = {'name': p.name, 'url': p.data});
+  }
+
   Future<void> send() async {
     final options = poll?.map((o) => o.trim()).where((o) => o.isNotEmpty).toList();
     final ok = await _act(context, 'addCommunityPost', [
       _me,
       text.text.trim(),
       null,
-      {'images': images, 'poll': ?options, 'audience': audience},
+      {'images': images, 'file': ?file, 'poll': ?options, 'audience': audience},
     ], refused: t('community.unkind'));
     if (ok || store.status == Status.offline) {
       text.clear();
       setState(() {
         images.clear();
+        file = null;
         poll = null;
         round++;
       });
@@ -226,7 +233,7 @@ class _ComposerState extends State<_Composer> {
   @override
   Widget build(BuildContext context) {
     final pollOk = poll == null || poll!.where((o) => o.trim().isNotEmpty).length >= 2;
-    final ready = pollOk && (text.text.trim().isNotEmpty || images.isNotEmpty || poll != null);
+    final ready = pollOk && (text.text.trim().isNotEmpty || images.isNotEmpty || file != null || poll != null);
     return Box(
       title: t('community.compose'),
       children: [
@@ -254,6 +261,12 @@ class _ComposerState extends State<_Composer> {
                   ],
                 ),
             ],
+          ),
+        if (file != null)
+          Item(
+            icon: I.file,
+            title: '${file!['name']}',
+            trailing: IconButton(tooltip: t('community.remove'), onPressed: () => setState(() => file = null), icon: Ico(I.close, size: 18)),
           ),
         if (poll != null)
           Box(
@@ -289,6 +302,7 @@ class _ComposerState extends State<_Composer> {
               Doing(label: t('app.takePhoto'), icon: I.camera, soft: true, small: true, onPressed: () => addPhoto(true)),
             ] else
               Muted(t('community.photoLimit')),
+            if (file == null) Doing(label: t('community.addPdf'), icon: I.file, soft: true, small: true, onPressed: addPdf),
             if (poll == null) Doing(label: t('community.poll'), icon: I.grid, soft: true, small: true, onPressed: () async => setState(() => poll = ['', ''])),
             Doing(label: t('community.post'), icon: I.send, small: true, onPressed: ready ? send : null),
           ],

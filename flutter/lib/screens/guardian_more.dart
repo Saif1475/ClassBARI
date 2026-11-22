@@ -1,5 +1,5 @@
 // The guardian app's extra pages, the same as on the website: payments and receipts, this month's invoice, the
-// report card, and calling the teacher.
+// report card, calling the teacher, and the child's class points and portfolio.
 import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -9,6 +9,7 @@ import '../strings.dart';
 import '../ui.dart';
 import '../views.dart';
 import 'student.dart' show attendanceOf;
+import 'student_more.dart' show PointsBox, PortfolioBox;
 
 const kFeeDueDay = 10; // FEE_DUE_DAY in src/lib/mock-data.ts
 
@@ -177,3 +178,23 @@ class ReportCardScreen extends StatelessWidget {
 }
 
 Future<void> callTeacher(String phone) => launchUrl(Uri(scheme: 'tel', path: phone));
+
+/// The chosen child's batch's lessons (a guardian of several children gets every child's).
+List<Json> childModules() => store.modules.where((m) => m['batch'] == null || m['batch'] == store.child?['batch']).toList();
+
+/// The child's class points and portfolio (the website's results page) (view only, as on the website).
+class ChildPointsScreen extends StatelessWidget {
+  const ChildPointsScreen({super.key});
+  @override
+  Widget build(BuildContext context) => Live((context) {
+    final s = store.child;
+    if (s == null) return const Loading();
+    return Screen(
+      title: t('dojo.points'),
+      children: [
+        PointsBox(s['id']),
+        PortfolioBox(s['id'], key: ValueKey(s['id']), title: t('dojo.portfolioOf', ['${s['name']}'])),
+      ],
+    );
+  });
+}

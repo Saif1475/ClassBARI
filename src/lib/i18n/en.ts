@@ -1849,6 +1849,8 @@ const en = {
     doubts: "Students' doubts",
     watchTime: "Video watch time",
     admissions: "Admission enquiries",
+    backupHelp: "Download a backup file regularly and keep it safe; you can restore it from the app or the website.",
+    noteTitle: "Title",
     send: "Send",
     noMessages: "No messages yet.",
     myBatches: "Batches",

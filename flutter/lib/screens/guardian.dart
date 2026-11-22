@@ -6,7 +6,7 @@ import '../ui.dart';
 import '../views.dart';
 import 'pdf.dart' show Bubble;
 import 'student.dart';
-import 'student_more.dart' show calendarFor, CalendarScreen;
+import 'student_more.dart' show boxScreen, calendarFor, CalendarScreen, MasteryBox, StoryBox;
 import 'guardian_more.dart';
 import 'teacher.dart' show absentOn;
 import '../icon.dart';
@@ -111,6 +111,9 @@ class GuardianHome extends StatelessWidget {
               for (final e in soon) Item(icon: I.calendar, title: '${e['title']}', subtitle: e['allDay'] == true ? fmtDate(e['start'] as String) : fmtDateTime(e['start'] as String), onTap: () => push(context, CalendarScreen(batch: child['batch']))),
               Item(icon: I.fees, title: t('parent.paymentsTitle'), subtitle: due > 0 ? t('glance.feeDue', [taka(due)]) : t('glance.feePaid'), onTap: () => push(context, const PaymentsScreen())),
               Item(icon: I.exams, title: t('report.title'), onTap: () => push(context, const ReportCardScreen())),
+              Item(icon: I.star, title: t('dojo.points'), onTap: () => push(context, const ChildPointsScreen())),
+              Item(icon: I.megaphone, title: t('dojo.story'), onTap: () => push(context, boxScreen(t('dojo.story'), () => [StoryBox(store.child?['batch'])]))),
+              Item(icon: I.insights, title: t('skills.title'), subtitle: t('skills.sub'), onTap: () => push(context, boxScreen(t('skills.title'), () => [MasteryBox(childModules(), store.child?['id'])]))),
               if (teacher != null) Item(icon: I.support, title: t('glance.call', [teacher.name]), subtitle: teacher.phone, onTap: () => callTeacher(teacher.phone)),
             ],
           );

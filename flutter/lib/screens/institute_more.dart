@@ -1,8 +1,13 @@
 // The institute owner's extra pages, as on the website: batches (new and settings), one student (edit, AI premium,
-// remove), money (expenses, profit and the income report), teachers (attendance, payroll, leave) and admissions.
+// remove), money (expenses, profit and the income report), teachers (attendance, payroll, leave), admissions, the class
+// routine, the course shop (orders and coupons) and the institute's public page.
+import 'dart:convert';
+
+import 'package:image_picker/image_picker.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../config.dart';
 import '../icon.dart';
 import '../icons.g.dart';
 import '../store.dart';
@@ -237,6 +242,7 @@ class StudentScreen extends StatelessWidget {
             if ('${s['studentPhone'] ?? ''}'.isNotEmpty) Pair(_label('roster.studentPhone'), '${s['studentPhone']}'),
             Pair(t('fees.due'), taka((s['feeDue'] as num?) ?? 0)),
             Doing(label: t('roster.edit'), icon: I.edit, soft: true, onPressed: () async => push(context, NewStudent(student: s))),
+            Doing(label: t(s['photo'] == null ? 'cards.addPhoto' : 'cards.changePhoto'), icon: I.camera, soft: true, onPressed: () => setPhoto(context, id)),
           ],
         ),
         Box(
@@ -285,6 +291,20 @@ class StudentScreen extends StatelessWidget {
       ],
     );
   });
+}
+
+/// The ID-card photo (the website's Cards tool): shrunk to 240 px, as its shrinkImage does, and sent as a data URL.
+Future<void> setPhoto(BuildContext context, int id) async {
+  try {
+    final x = await ImagePicker().pickImage(source: ImageSource.gallery, maxWidth: 240, maxHeight: 240, imageQuality: 80);
+    if (x == null) return;
+    final bytes = await x.readAsBytes();
+    final png = bytes.length > 3 && bytes[0] == 0x89 && bytes[1] == 0x50;
+    final saved = await store.act('setStudentPhoto', [id, 'data:image/${png ? 'png' : 'jpeg'};base64,${base64Encode(bytes)}']);
+    if (context.mounted) toast(context, _said(saved, t('settings.saved')));
+  } catch (_) {
+    // no permission: nothing changes
+  }
 }
 
 // ---- money ----------------------------------------------------------------------------------------------------------
@@ -624,6 +644,347 @@ class _AdmissionsScreenState extends State<AdmissionsScreen> {
               ],
             ),
           ),
+      ],
+    );
+  });
+}
+
+// ---- routine --------------------------------------------------------------------------------------------------------
+
+int _mins(Object? hm) => (int.tryParse('$hm'.padRight(5).substring(0, 2)) ?? 0) * 60 + (int.tryParse('$hm'.padRight(5).substring(3, 5)) ?? 0);
+
+/// clashes (src/lib/centre.ts): slots that overlap in time on the same day AND share a teacher, room or batch.
+List<({Json a, Json b, List<String> why})> clashes(List<Json> slots) => [
+  for (final (i, a) in slots.indexed)
+    for (final b in slots.skip(i + 1))
+      if (a['day'] == b['day'] && _mins(a['start']) < _mins(b['end']) && _mins(b['start']) < _mins(a['end']))
+        if ([
+              for (final k in const ['teacher', 'room', 'batch'])
+                if ('${a[k] ?? ''}'.isNotEmpty && '${a[k]}'.trim().toLowerCase() == '${b[k] ?? ''}'.trim().toLowerCase()) k,
+            ]
+            case final why when why.isNotEmpty)
+          (a: a, b: b, why: why),
+];
+
+/// The weekly class routine (the website's Routine tool): day × time × room, warning when someone is booked twice.
+class RoutineScreen extends StatefulWidget {
+  const RoutineScreen({super.key});
+  @override
+  State<RoutineScreen> createState() => _RoutineScreenState();
+}
+
+class _RoutineScreenState extends State<RoutineScreen> {
+  var day = 6, start = '16:00', end = '17:30';
+  late var batch = '${store.batches.firstOrNull?['name'] ?? ''}', teacher = '${_staff.firstOrNull?['name'] ?? ''}';
+  final room = TextEditingController(text: 'Room 1');
+
+  @override
+  void dispose() {
+    room.dispose();
+    super.dispose();
+  }
+
+  Future<void> time(bool isStart) async {
+    final now = isStart ? start : end;
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(hour: _mins(now) ~/ 60, minute: _mins(now) % 60),
+    );
+    if (picked == null) return;
+    final hm = '${'${picked.hour}'.padLeft(2, '0')}:${'${picked.minute}'.padLeft(2, '0')}';
+    setState(() => isStart ? start = hm : end = hm);
+  }
+
+  @override
+  Widget build(BuildContext context) => Live((context) {
+    final weekdays = lang.list('att.weekdays');
+    final names = [for (final b in store.batches) '${b['name']}'];
+    final slots = rows(store.state?['routine']).where((s) => names.contains(s['batch'])).toList();
+    final problems = clashes(slots);
+    String w(Object? d) => d is int && d < weekdays.length ? weekdays[d] : '$d';
+    return Screen(
+      title: lang.list('tools.names.routine').first,
+      children: [
+        for (final p in problems)
+          Box(
+            color: context.colors.errorContainer,
+            children: [
+              Strong('⚠ ${t('routine.clash', [w(p.a['day']), '${p.a['start']}–${p.a['end']}', '${p.b['start']}–${p.b['end']}', p.why.map((k) => t('routine.why.$k')).join(', ')])}'),
+            ],
+          ),
+        for (final d in const [6, 0, 1, 2, 3, 4, 5])
+          if (slots.where((s) => s['day'] == d).toList()..sort((a, b) => '${a['start']}'.compareTo('${b['start']}')) case final list when list.isNotEmpty)
+            Group(
+              title: w(d),
+              children: [
+                for (final s in list)
+                  Item(
+                    icon: problems.any((p) => p.a['id'] == s['id'] || p.b['id'] == s['id']) ? I.error : I.calendar,
+                    color: problems.any((p) => p.a['id'] == s['id'] || p.b['id'] == s['id']) ? context.colors.error : null,
+                    title: '${s['start']}–${s['end']} · ${s['room']}',
+                    subtitle: '${s['batch']}\n${s['teacher']}',
+                    trailing: IconButton(tooltip: '${t('common.remove')} ${s['batch']} ${s['start']}', icon: Ico(I.trash), onPressed: () => store.act('removeSlot', [s['id']])),
+                  ),
+              ],
+            ),
+        Box(
+          title: t('routine.add'),
+          children: [
+            Strong(t('routine.day')),
+            Chips(value: '$day', options: [for (var i = 0; i < weekdays.length; i++) '$i'], labels: {for (final (i, n) in weekdays.indexed) '$i': n}, onChanged: (v) => setState(() => day = int.parse(v))),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                OutlinedButton.icon(onPressed: () => time(true), icon: Ico(I.hourglass), label: Text('${t('routine.start')}: $start')),
+                OutlinedButton.icon(onPressed: () => time(false), icon: Ico(I.hourglass), label: Text('${t('routine.end')}: $end')),
+              ],
+            ),
+            Strong(t('routine.batch')),
+            Chips(value: batch, options: names, onChanged: (v) => setState(() => batch = v)),
+            Strong(t('routine.teacher')),
+            Chips(value: teacher, options: [for (final s in _staff) '${s['name']}'], onChanged: (v) => setState(() => teacher = v)),
+            TextField(
+              controller: room,
+              decoration: InputDecoration(labelText: t('routine.room')),
+            ),
+            Doing(
+              label: t('routine.addBtn'),
+              icon: I.plus,
+              onPressed: end.compareTo(start) <= 0 || batch.isEmpty
+                  ? null
+                  : () async {
+                      if (room.text.trim().isEmpty) return;
+                      await store.act('addSlot', [
+                        {'day': day, 'start': start, 'end': end, 'batch': batch, 'teacher': teacher, 'room': room.text},
+                      ]);
+                    },
+            ),
+          ],
+        ),
+      ],
+    );
+  });
+}
+
+// ---- course shop ----------------------------------------------------------------------------------------------------
+
+/// Selling courses (the website's Shop tool): orders paid by bKash to the institute's own number, and coupons.
+class ShopScreen extends StatefulWidget {
+  const ShopScreen({super.key});
+  @override
+  State<ShopScreen> createState() => _ShopScreenState();
+}
+
+class _ShopScreenState extends State<ShopScreen> {
+  final code = TextEditingController(), percent = TextEditingController(text: '20'), maxUses = TextEditingController(text: '50');
+  var batchId = '', expires = '';
+  var badCode = false;
+
+  @override
+  void dispose() {
+    for (final c in [code, percent, maxUses]) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  Future<void> add() async {
+    final c = code.text.trim(), p = num.tryParse(percent.text.trim()), n = num.tryParse(maxUses.text.trim()) ?? 0;
+    setState(() => badCode = !RegExp(r'^[A-Za-z0-9]{3,20}$').hasMatch(c));
+    if (badCode || p == null) return;
+    final saved = await store.act('addCoupon', [
+      {'code': c, 'percent': p.clamp(1, 100), if (batchId.isNotEmpty) 'batchId': batchId, 'maxUses': n < 1 ? 1 : n, if (expires.isNotEmpty) 'expires': expires},
+    ]);
+    if (!mounted) return;
+    toast(context, _said(saved, t('shop.couponAdded', [c.toUpperCase()])));
+    code.clear();
+  }
+
+  @override
+  Widget build(BuildContext context) => Live((context) {
+    final orders = rows(store.state?['orders']), coupons = rows(store.state?['coupons']);
+    final pending = orders.where((o) => o['status'] == 'pending').length;
+    String course(Object? id) => '${store.batches.where((b) => b['id'] == id).firstOrNull?['name'] ?? '—'}';
+    final public = store.batches.where((b) => b['public'] == true).toList();
+    return Screen(
+      title: lang.list('tools.names.shop').first,
+      children: [
+        if ('${(store.state?['site'] as Map?)?['bkash'] ?? ''}'.isEmpty) Box(color: context.colors.tertiaryContainer, children: [Strong(t('shop.needBkash'))]),
+        Group(
+          title: t('shop.orders', [pending]),
+          children: [
+            Padding(padding: const EdgeInsets.fromLTRB(16, 12, 16, 4), child: Muted(t('shop.ordersHelp'))),
+            if (orders.isEmpty) Padding(padding: const EdgeInsets.all(16), child: Muted(t('shop.noOrders'))),
+            for (final o in orders)
+              Builder(
+                builder: (context) {
+                  final who = (o['student'] as Map?) ?? const {};
+                  return Item(
+                    title: '${who['name'] ?? ''} → ${course(o['batchId'])}',
+                    subtitle: '${taka((o['price'] as num?) ?? 0)}${o['coupon'] != null ? ' (${o['coupon']})' : ''} · TrxID ${o['trxId'] ?? ''} · ${who['phone'] ?? ''}${o['at'] is String ? ' · ${fmtDateTime(o['at'] as String)}' : ''}',
+                    trailing: o['status'] == 'pending' ? null : Tag(t('shop.status.${o['status']}'), kind: o['status'] == 'confirmed' ? 'ok' : 'bad'),
+                    below: o['status'] != 'pending'
+                        ? null
+                        : Wrap(
+                            spacing: 8,
+                            children: [
+                              Doing(
+                                label: t('shop.confirm'),
+                                small: true,
+                                onPressed: () async {
+                                  final saved = await store.act('decideOrder', [o['id'], true]);
+                                  if (context.mounted) toast(context, _said(saved, t('shop.confirmed', ['${who['name'] ?? ''}'])));
+                                },
+                              ),
+                              Doing(
+                                label: t('shop.reject'),
+                                small: true,
+                                soft: true,
+                                danger: true,
+                                onPressed: () async {
+                                  if (await confirm(context, t('shop.reject'), t('shop.rejectQ'))) await store.act('decideOrder', [o['id'], false]);
+                                },
+                              ),
+                            ],
+                          ),
+                  );
+                },
+              ),
+          ],
+        ),
+        Box(
+          title: t('shop.coupons'),
+          children: [
+            TextField(
+              controller: code,
+              textCapitalization: TextCapitalization.characters,
+              onChanged: (_) => setState(() => badCode = false),
+              decoration: InputDecoration(labelText: t('shop.code'), hintText: 'EID20', errorText: badCode ? 'A–Z, 0–9 · 3–20' : null),
+            ),
+            TextField(
+              controller: percent,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(labelText: t('shop.percent')),
+            ),
+            Strong(t('shop.course')),
+            Chips(value: batchId, options: ['', for (final b in public) '${b['id']}'], labels: {'': t('shop.anyCourse'), for (final b in public) '${b['id']}': '${b['name']}'}, onChanged: (v) => setState(() => batchId = v)),
+            TextField(
+              controller: maxUses,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(labelText: t('shop.maxUses')),
+            ),
+            OutlinedButton.icon(
+              onPressed: () async {
+                final d = await _pickDay(context, expires);
+                if (d != null) setState(() => expires = d);
+              },
+              icon: Ico(I.calendar),
+              label: Text(expires.isEmpty ? t('shop.expires') : '${t('shop.expires')}: ${fmtDate(expires)}'),
+            ),
+            Doing(label: t('shop.addCoupon'), icon: I.plus, onPressed: add),
+          ],
+        ),
+        if (coupons.isNotEmpty)
+          Group(
+            children: [
+              for (final c in coupons)
+                Item(
+                  title: '${c['code']}',
+                  subtitle:
+                      '−${show(c['percent'])}% · ${c['batchId'] != null ? course(c['batchId']) : t('shop.anyCourse')} · ${t('shop.used', [c['used'] ?? 0, c['maxUses']])}${c['expires'] != null ? ' · ${t('shop.until', [c['expires']])}' : ''}',
+                  trailing: IconButton(tooltip: '${t('common.remove')} ${c['code']}', icon: Ico(I.trash), onPressed: () => store.act('removeCoupon', [c['code']])),
+                ),
+            ],
+          ),
+      ],
+    );
+  });
+}
+
+// ---- the public page ------------------------------------------------------------------------------------------------
+
+/// The website's slugify: lower case, letters and digits joined by dashes, at most 40 characters.
+String slugify(String s) {
+  final out = s.toLowerCase().replaceAll(RegExp('[^a-z0-9]+'), '-').replaceAll(RegExp(r'^-|-$'), '');
+  return out.length > 40 ? out.substring(0, 40) : out;
+}
+
+/// The institute's own public page (the website's Website tool): address, intro, bKash number, shown or not.
+class WebsiteScreen extends StatefulWidget {
+  const WebsiteScreen({super.key});
+  @override
+  State<WebsiteScreen> createState() => _WebsiteScreenState();
+}
+
+class _WebsiteScreenState extends State<WebsiteScreen> {
+  static Map get site => (store.state?['site'] as Map?) ?? const {};
+  final slug = TextEditingController(text: '${site['slug'] ?? ''}'), bio = TextEditingController(text: '${site['bio'] ?? ''}'), bkash = TextEditingController(text: '${site['bkash'] ?? ''}');
+  late var published = site['published'] == true;
+  var badPhone = false;
+
+  @override
+  void dispose() {
+    for (final c in [slug, bio, bkash]) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  Future<void> save() async {
+    slug.text = slugify(slug.text);
+    setState(() => badPhone = bkash.text.trim().isNotEmpty && !isBdMobile(bkash.text.trim()));
+    if (badPhone) return;
+    final patch = {
+      if (slug.text != '${site['slug'] ?? ''}') 'slug': slug.text,
+      if (bio.text != '${site['bio'] ?? ''}') 'bio': bio.text,
+      if (bkash.text.trim() != '${site['bkash'] ?? ''}') 'bkash': bkash.text.trim(),
+      if (published != (site['published'] == true)) 'published': published,
+    };
+    if (patch.isEmpty) return;
+    final saved = await store.act('updateSite', [patch]);
+    if (mounted) toast(context, _said(saved, t('settings.saved')));
+  }
+
+  @override
+  Widget build(BuildContext context) => Live((context) {
+    final live = '${site['slug'] ?? ''}';
+    return Screen(
+      title: lang.list('tools.names.website').first,
+      refresh: false,
+      children: [
+        Box(
+          children: [
+            TextField(
+              controller: slug,
+              autocorrect: false,
+              decoration: InputDecoration(labelText: t('website.address'), prefixText: '/t/'),
+            ),
+            TextField(
+              controller: bio,
+              minLines: 3,
+              maxLines: 8,
+              maxLength: 1500,
+              decoration: InputDecoration(labelText: t('website.bio'), hintText: t('website.bioPh'), hintMaxLines: 3),
+            ),
+            TextField(
+              controller: bkash,
+              keyboardType: TextInputType.phone,
+              onChanged: (_) => setState(() => badPhone = false),
+              decoration: InputDecoration(labelText: t('website.bkash'), hintText: '01XXXXXXXXX', helperText: t('website.bkashHelp'), helperMaxLines: 3, errorText: badPhone ? t('teacher.phoneInvalid') : null),
+            ),
+            SwitchListTile(contentPadding: EdgeInsets.zero, title: Text(t('website.publish')), value: published, onChanged: (v) => setState(() => published = v)),
+            Muted(t('website.batchesNote', [store.batches.where((b) => b['public'] == true).length])),
+            Doing(label: t('settings.save'), onPressed: save),
+            if (site['published'] == true && live.isNotEmpty)
+              Doing(
+                label: t('website.open'),
+                icon: I.external,
+                soft: true,
+                onPressed: () => launchUrl(Uri.parse('$kApiUrl/t/$live'), mode: LaunchMode.externalApplication),
+              ),
+          ],
+        ),
       ],
     );
   });
