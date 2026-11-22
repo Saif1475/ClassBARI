@@ -164,8 +164,8 @@ test("only a first question on its own, with nothing personal in it, is shared b
 
 test("profit guard: each pack has a monthly AI money cap below its price; overuse comes off the next window", async () => {
   const { windowCostUsd, previousWindow, carried, leftPct, packPlan, MODELS, PACKS, PACK_MONTHLY_USD, packMonthlyUsd, monthStartAfter } = await import("../src/lib/ai-chat.ts");
-  assert.deepEqual(PACK_MONTHLY_USD, { 150: 1, 400: 2.2, 800: 4.2, 1500: 8.8 }); // the owner's caps, US$ per student per month
-  for (const pack of PACKS) assert.ok(packMonthlyUsd(pack) * 122 < pack, `৳${pack}`); // at ৳122 a dollar, always less than the pack's price
+  assert.deepEqual(PACK_MONTHLY_USD, { 150: 0.73, 400: 1.96, 800: 3.93, 1500: 7.37 }); // 60% of each price at ৳122 a dollar, US$ per student per month
+  for (const pack of PACKS) assert.ok(packMonthlyUsd(pack) * 122 <= pack * 0.6, `৳${pack}`); // at least 40% of the price is ours
   assert.equal(packMonthlyUsd(400, { packMonthlyUsd: { 400: 3 } }), 3); // the admin panel can change it
   assert.equal(windowCostUsd(150), Infinity); // packs: no 12-hour money cap, the monthly one instead
   assert.equal(monthStartAfter("2026-11-23"), "2026-11-30T18:00:00.000Z"); // 1 December, midnight in Dhaka

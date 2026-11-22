@@ -41,8 +41,13 @@ const PLANS: Record<number, { daily: number; adds: string[] }> = {
   800: { daily: 150_000, adds: inPlan(800) },
   1500: { daily: 200_000, adds: inPlan(1500) },
 };
-/** The most AI money one student's pack may use in a calendar month (Dhaka time), US$, owner's decision 2026-11-23. */
-export const PACK_MONTHLY_USD: Record<number, number> = { 150: 1, 400: 2.2, 800: 4.2, 1500: 8.8 };
+/** The share of a pack's price that is ours whatever the student does (owner's decision 2026-11-23: a 40% margin). */
+export const PACK_MARGIN = 0.4;
+/** ৳ per US$ (USD_TO_BDT in .env.local when the rate moves). */
+const usdToBdt = () => Number(process.env.USD_TO_BDT) || 122;
+/** The most AI money one student's pack may use in a calendar month (Dhaka time), US$: 60% of its price, to the cent below. */
+export const packCapUsd = (pack: number) => Math.floor((pack * (1 - PACK_MARGIN) * 100) / usdToBdt()) / 100;
+export const PACK_MONTHLY_USD: Record<number, number> = Object.fromEntries(PACKS.map((p) => [p, packCapUsd(p)]));
 /** Students without a pack: the free models (under $0.20 for answers), 10,000 answer tokens every 12 hours. pack 0 means free. */
 export const FREE = { pack: 0, daily: 20_000, models: inPlan(0) };
 /** Free: the most AI money one student may use in a 12-hour window (a backstop to the tokens; ~$0.0015 at full use). */
