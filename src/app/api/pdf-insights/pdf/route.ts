@@ -19,7 +19,7 @@ export async function GET(request: Request) {
   const db = admin();
   const { data } = await db.from("pdf_insights").select("status, highlights, updated_at").eq("file_path", g.path).maybeSingle();
   if (!data?.highlights) return Response.json({ status: data?.status ?? "queued" }, { status: 409 }); // not read yet
-  const copy = `${g.path}-highlighted-v2-${Date.parse(data.updated_at)}.pdf`; // a new name after every change (v: how marks are drawn)
+  const copy = `${g.path}-highlighted-v5-${Date.parse(data.updated_at)}.pdf`; // a new name after every change (v: how marks are drawn)
   // shortcut: older copies stay in storage after a teacher's change; delete them here if storage use matters.
   let url = await signedFileUrl(copy);
   if (!url) {

@@ -1,7 +1,7 @@
 // The teacher's own PDF, unchanged, with the highlights written into it as real PDF highlight marks (the kind any
 // PDF app shows, prints, and lets a teacher delete). Text stays selectable; nothing else on the page changes.
 // Where each highlight sits is found from the page's own text (pdf.js), exactly as the server read it.
-import { PDFDocument, PDFName, PDFString, type PDFContext } from "pdf-lib";
+import { PDFDocument, PDFName, PDFString, StandardFonts, type PDFContext } from "pdf-lib";
 import { findInText, type Highlight, type HighlightType } from "./pdf-insights.ts";
 
 /** The highlighter colours (as on the website): yellow terms, green definitions, blue formulas, orange exam points. */
@@ -16,6 +16,7 @@ export async function highlightRects(pdf: Uint8Array, highlights: Highlight[]) {
   const task = pdfjs.getDocument({ data: pdf.slice(), useSystemFonts: true, disableFontFace: true });
   const doc = await task.promise;
   const out: { page: number; type: HighlightType; rects: Rect[] }[] = [];
+  const at = await letterX();
   for (let n = 1; n <= doc.numPages; n++) {
     const mine = highlights.filter((h) => h.page === n && !h.hidden);
     if (!mine.length) continue;
@@ -29,21 +30,83 @@ export async function highlightRects(pdf: Uint8Array, highlights: Highlight[]) {
       text += it.str + (it.hasEOL ? "\n" : " ");
       spans.push({ a, b: a + it.str.length, x: it.transform[4], y: it.transform[5], w: it.width, h: it.height || Math.hypot(it.transform[2], it.transform[3]) });
     }
+    // How wide this PDF's font is compared with the standard one: measured on lines that are not stretched (shorter
+    // than the page's full lines, like the last line of a paragraph), so stretched lines can be worked out.
+    const full = Math.max(...spans.map((s) => s.w));
+    const ratios = spans.filter((s) => s.w < full * 0.85 && s.b - s.a > 8).map((s) => s.w / (s.h * at.natural(text.slice(s.a, s.b)))).sort((x, y) => x - y);
+    const fontScale = ratios.length ? ratios[Math.floor(ratios.length / 2)] : 0;
+    // Marks of one kind that overlap become one ("law of inertia" and "inertia"): a doubled mark looks darker.
+    const ranges: { type: HighlightType; a: number; b: number }[] = [];
     for (const h of mine) {
-      const at = findInText(text, h.text);
-      if (!at) continue; // not on the page's text (a scanned page, or text the PDF stores scrambled)
+      const found = findInText(text, h.text);
+      if (!found) continue; // not on the page's text (a scanned page, or text the PDF stores scrambled)
+      const [a, b] = wholeWords(text, found);
+      const same = ranges.find((r) => r.type === h.type && r.a < b && a < r.b);
+      if (same) [same.a, same.b] = [Math.min(same.a, a), Math.max(same.b, b)];
+      else ranges.push({ type: h.type, a, b });
+    }
+    for (const r of ranges) {
       const rects: Rect[] = [];
       for (const s of spans) {
-        const from = Math.max(at[0], s.a), to = Math.min(at[1], s.b);
+        const from = Math.max(r.a, s.a), to = Math.min(r.b, s.b);
         if (from >= to || s.b === s.a) continue;
-        const x0 = s.x + (s.w * (from - s.a)) / (s.b - s.a), x1 = s.x + (s.w * (to - s.a)) / (s.b - s.a);
-        rects.push([x0, s.y - s.h * 0.22, x1, s.y + s.h * 0.92]); // a little below the line and up to the tops of the letters
+        const piece = text.slice(s.a, s.b);
+        const x0 = s.x + at.x(piece, s.w, s.h * fontScale, from - s.a), x1 = s.x + at.x(piece, s.w, s.h * fontScale, to - s.a);
+        // A little extra each side keeps a word's first and last letters inside the mark.
+        const pad = s.h * 0.12;
+        rects.push([x0 - (from === r.a ? pad : 0), s.y - s.h * 0.22, x1 + (to === r.b ? pad : 0), s.y + s.h * 0.92]);
       }
-      if (rects.length) out.push({ page: n, type: h.type, rects: joinLines(rects) });
+      if (rects.length) out.push({ page: n, type: r.type, rects: joinLines(rects) });
     }
   }
   await task.destroy();
   return out;
+}
+
+/**
+ * Where the i-th letter of a line starts, from the line's start (a PDF tells where a line starts and how wide it is,
+ * not where each letter is). Letter widths come from a standard font; what is left over is the stretch justified
+ * text puts in its spaces. Unknown letters (Bangla) count as half a letter-height wide.
+ */
+async function letterX() {
+  const font = await (await PDFDocument.create()).embedFont(StandardFonts.Helvetica);
+  const cache = new Map<string, number>();
+  const width = (ch: string) => {
+    let w = cache.get(ch);
+    if (w === undefined) {
+      try {
+        w = font.widthOfTextAtSize(ch, 1);
+      } catch {
+        w = 0.5;
+      }
+      cache.set(ch, w);
+    }
+    return w;
+  };
+  const natural = (line: string) => [...line].reduce((x, c) => x + width(c), 0);
+  /** `size`: the font's width per letter-height (0 when unknown: then the letters share the line's width evenly by their widths). */
+  const x = (line: string, lineWidth: number, size: number, i: number) => {
+    const chars = [...line];
+    const ws = chars.map(width);
+    const sum = ws.reduce((p, q) => p + q, 0);
+    const spaces = chars.filter((c) => c === " ").length;
+    const stretch = size ? lineWidth - sum * size : 0;
+    // Wider than its letters, with spaces: justified, and the extra goes into the spaces. Otherwise all letters share it.
+    const perSpace = spaces && stretch > 0 ? stretch / spaces : 0;
+    const scale = perSpace ? size : sum ? lineWidth / sum : 0;
+    let pos = 0;
+    chars.slice(0, i).forEach((c, k) => (pos += ws[k] * scale + (c === " " ? perSpace : 0)));
+    return pos;
+  };
+  return { natural, x };
+}
+
+/** A found range widened to whole words (a highlight never starts or ends inside a word). */
+export function wholeWords(text: string, [a, b]: [number, number]): [number, number] {
+  const inWord = (ch: string | undefined) => !!ch && /[\p{L}\p{N}\p{M}]/u.test(ch);
+  while (a > 0 && inWord(text[a - 1]) && inWord(text[a])) a--;
+  while (b < text.length && inWord(text[b]) && inWord(text[b - 1])) b++;
+  return [a, b];
 }
 
 /** Pieces on the same line that touch become one band (overlaps would show a darker stripe between words). */

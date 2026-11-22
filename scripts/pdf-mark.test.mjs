@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { PDFDocument, StandardFonts } from "pdf-lib";
-import { highlightPdf, highlightRects, joinLines } from "../src/lib/pdf-mark.ts";
+import { highlightPdf, highlightRects, joinLines, wholeWords } from "../src/lib/pdf-mark.ts";
 
 async function sample() {
   const doc = await PDFDocument.create();
@@ -41,4 +41,11 @@ test("each highlight becomes a highlight mark over its words; pages and text sta
 test("word pieces on one line join into one band; separate lines stay separate", () => {
   const out = joinLines([[50, 100, 80, 112], [82, 100, 120, 112], [50, 80, 90, 92]]);
   assert.deepEqual(out, [[50, 100, 120, 112], [50, 80, 90, 92]]);
+});
+
+test("a mark is widened to whole words, never cut inside one", () => {
+  const t = "Force is a vector quantity, because it has direction; inertia";
+  assert.deepEqual(wholeWords(t, [2, 8]), [0, 8]); // "rce is" -> "Force is"
+  assert.deepEqual(wholeWords(t, [43, 51]), [43, 52]); // "directio" -> "direction"
+  assert.equal(t.slice(...wholeWords(t, [28, 35])), "because");
 });

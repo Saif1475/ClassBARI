@@ -40,12 +40,18 @@ const AiResult = z.object({
 });
 
 const PROMPT = `You prepare study material for Bangladeshi students (SSC/HSC level) at coaching centres.
-You receive a teacher's PDF chapter. For every page, pick what a student should notice:
-- "term": key terms and names (a few words),
-- "definition": sentences that define something,
-- "formula": formulas and equations,
-- "exam": sentences most likely to be asked in exams.
-Copy each highlight EXACTLY as it is written on the page, in the page's own language (Bangla or English), so it can be found on the page. At most 12 highlights per page; skip pages with nothing worth marking. Never invent text.`;
+You receive a teacher's PDF chapter. For every page, mark what a student should notice, like a good student with
+four highlighter pens:
+- "term": every important technical word or name, where it is first explained (one to four words, e.g. "inertia",
+  "momentum", "static friction"). Mark the word itself, not the whole sentence. Usually 3 to 8 per page.
+- "definition": a sentence that says what something is or means ("X is…", "X is defined as…", "X is called…").
+- "formula": formulas, equations and units written as symbols (e.g. "F = m a", "1 N = 1 kg m s⁻²").
+- "exam": what is likely to be asked: statements of laws and principles, the reasons behind them, sentences the
+  text itself calls important for the exam, and the final answer of each worked example.
+Each piece of text gets one kind only. Copy each highlight EXACTLY as it is written on the page, character for
+character, in the page's own language (Bangla or English): never shorten, reword or translate it, so it can be found
+on the page. Mark Bangla text too. At most 20 highlights per page; skip pages with nothing worth marking. Never
+invent text.`;
 
 /** The AI's reading, or null when no AI key is set or the PDF is too big for one request. */
 /** Highlighting counts in the monthly AI budget, under the institute (not any one person). */

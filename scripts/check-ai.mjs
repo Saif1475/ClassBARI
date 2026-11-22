@@ -101,7 +101,7 @@ if (pdfFile) {
       break;
     }
     got = r.status === 200 ? JSON.parse(r.text) : { status: `refused (${r.status})` };
-    if (!["queued", "processing"].includes(got.status)) break;
+    if (!["queued", "processing"].includes(got.status) && !got.improving) break; // basic highlights first: wait for the AI's
     if (Date.now() - started > 8 * 60_000) break;
     await new Promise((wait) => setTimeout(wait, 4000));
   }
