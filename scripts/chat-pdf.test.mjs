@@ -25,3 +25,10 @@ test("a Bangla chat becomes a PDF file", { timeout: 60_000 }, async () => {
   assert.ok(pdf.length > 5000);
   await closePdfBrowser(); // the shared browser would otherwise keep the test run open
 });
+
+test("code blocks are dark text on a light box (readable on screen and in print)", () => {
+  const page = chatHtml({ title: "t", turns: [{ role: "assistant", content: "```js\nconst a = 1;\n```" }], you: "You", ai: "AI", photo: "", note: "", date: "" });
+  const pre = page.match(/pre\{[^}]*\}/)[0];
+  assert.ok(/background:#f/.test(pre) && /color:#1a1c1b/.test(pre), pre);
+  assert.ok(/pre code\{background:none/.test(page)); // inline-code grey doesn't cover the block's text
+});
