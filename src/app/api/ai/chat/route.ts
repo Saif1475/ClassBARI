@@ -26,7 +26,8 @@ export async function POST(request: Request) {
 
   const db = admin();
   const { data: doc } = await db.from("pdf_insights").select("status, pages").eq("file_path", g.path).maybeSingle();
-  if (doc?.status !== "ready") return Response.json({ status: doc?.status ?? "queued" }, { status: 409 }); // still being read
+  // Ask AI needs only the PDF's text, saved about a second after reading starts (the AI's highlights may still be coming).
+  if (!doc?.pages) return Response.json({ status: doc?.status ?? "queued" }, { status: 409 }); // still being read
   const pages = (doc.pages ?? []) as PdfPage[];
 
   // Limits: tokens per person per 12-hour window, and the monthly budget for everyone.
