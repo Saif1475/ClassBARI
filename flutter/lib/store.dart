@@ -90,7 +90,7 @@ class Store extends ChangeNotifier {
     }
 
     now();
-    auth.onAuthStateChange.listen((_) => now());
+    auth.onAuthStateChange.listen((_) => now(), onError: (_) {}); // a failed renewal (no internet) is not a log-out
     // Fresh data every 20 seconds while the app is open (the server answers "nothing new" most times).
     _timer ??= Timer.periodic(const Duration(seconds: 20), (_) {
       if (signedIn && active) refresh();

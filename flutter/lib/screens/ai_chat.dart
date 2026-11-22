@@ -423,7 +423,7 @@ class _AiChatAppState extends State<AiChatApp> {
                   ),
                 Expanded(
                   child: Text(
-                    access == 'soon' ? t('aichat.soon') : (access == 'offline' ? t('aichat.error') : t('aichat.disclaimer')),
+                    access == 'soon' || (access == 'ok' && chosen == null) /* no AI key set up on the server yet */ ? t('aichat.soon') : (access == 'offline' ? t('aichat.error') : t('aichat.disclaimer')),
                     textAlign: TextAlign.end,
                     style: TextStyle(fontSize: 11, color: c.onSurfaceVariant),
                   ),

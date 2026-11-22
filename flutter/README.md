@@ -72,6 +72,21 @@ flutter test            # from this folder
 
 `flutter test` also opens every screen of every app with sample data, in both languages.
 
+## Check an app without a phone
+
+With the website running on this computer (port 3000), the test accounts made (`npm run test:accounts`) and
+`npm run flutter:config -- http://localhost:3000` done, an app can be opened in a phone-sized browser window. The check
+logs in with the app's test account, walks its tabs and saves screenshots; the Teacher run also marks the test student
+absent and present again, to prove changes reach the server.
+
+```sh
+cd flutter && flutter build web --dart-define=APP=teacher --dart-define-from-file=config.local.json -o /tmp/web-teacher
+cd ..      && node scripts/flutter-web-check.mjs teacher /tmp/web-teacher /tmp/shots
+```
+
+This checks the screens and the talk with the server. It does not check the camera, files, notifications or anything
+else that only a real phone has.
+
 ## Google sign-in
 
 Students and guardians can use "Continue with Google". For that to return to the app, add these in Supabase →
