@@ -235,7 +235,9 @@ List<Json> calendarFor(Object? batch) {
 
 /// Calendar: everything coming up for the student's batch, with a chip per day.
 class CalendarScreen extends StatefulWidget {
-  const CalendarScreen({super.key});
+  const CalendarScreen({super.key, this.batch});
+  /// Whose batch (a guardian's chosen child); the signed-in student's when left out.
+  final Object? batch;
   @override
   State<CalendarScreen> createState() => _CalendarScreenState();
 }
@@ -245,7 +247,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   @override
   Widget build(BuildContext context) => Live((context) {
-    final all = calendarFor(store.me?['batch']);
+    final all = calendarFor(widget.batch ?? store.me?['batch']);
     final days = {for (final e in all) dayKey(toDate(e['start'] as String))}.toList();
     final shown = day == null ? all : all.where((e) => dayKey(toDate(e['start'] as String)) == day).toList();
     final c = context.colors;

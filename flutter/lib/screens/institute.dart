@@ -92,35 +92,8 @@ class Fees extends StatelessWidget {
   final bool pushed;
 
   Future<void> record(BuildContext context, Json s) async {
-    final method = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(t('app.recordPayment')),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: 16,
-          children: [
-            Text(t('app.confirmPayment', ['${s['name']}', taka(s['feeDue'] as num)])),
-            Row(
-              spacing: 10,
-              children: [
-                Expanded(
-                  child: FilledButton(onPressed: () => Navigator.pop(context, 'cash'), child: Text(t('app.cash'))),
-                ),
-                Expanded(
-                  child: FilledButton(onPressed: () => Navigator.pop(context, 'bkash'), child: Text(t('app.bkash'))),
-                ),
-              ],
-            ),
-          ],
-        ),
-        actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(t('app.cancel')))],
-      ),
-    );
-    if (method == null) return;
-    final saved = await store.act('payFee', [s['id'], method]);
-    if (context.mounted) toast(context, saved ? '${s['name']}: ${t('app.paidOk')}' : (store.status == Status.offline ? t('app.sentLater') : t('auth.syncFailed')));
+    final done = await showDialog<String>(context: context, builder: (context) => FeeSheet(student: s));
+    if (done != null && context.mounted) toast(context, done);
   }
 
   @override
@@ -183,6 +156,36 @@ class _StudentsState extends State<Students> {
       title: widget.pushed ? t('app.tabs2.students') : null,
       children: [
         Doing(label: t('app.addStudent'), icon: I.personAdd, onPressed: () async => push(context, const NewStudent())),
+        // People who joined from a link: approve them (they can then log in) or refuse (their request is deleted).
+        if (store.pendingStudents.isNotEmpty)
+          Box(
+            color: context.colors.tertiaryContainer,
+            title: t('roster.pendingTitle', [store.pendingStudents.length]),
+            children: [
+              Muted(t('roster.pendingHelp')),
+              for (final p in store.pendingStudents)
+                Item(
+                  leading: Avatar('${p['name']}', size: 38, color: context.course(batchNo(p['batch']))),
+                  title: '${p['name']}',
+                  subtitle: '${p['batch']} · ${p['email'] ?? ''}',
+                  below: Wrap(
+                    spacing: 8,
+                    children: [
+                      Doing(label: t('roster.approve'), icon: I.personCheck, small: true, onPressed: () => store.act('approveStudent', [p['id']])),
+                      Doing(
+                        label: t('roster.reject'),
+                        icon: I.close,
+                        small: true,
+                        soft: true,
+                        onPressed: () async {
+                          if (await confirm(context, t('roster.reject'), t('roster.rejectQ', ['${p['name']}']))) await store.act('removeStudent', [p['id']]);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
         Semantics(
           container: true,
           child: TextField(
@@ -291,4 +294,70 @@ class _NewStudentState extends State<NewStudent> {
       ),
     ],
   );
+}
+
+/// A student's fees, as on the website: record all or part of what is due (cash or bKash), and set a monthly discount.
+class FeeSheet extends StatefulWidget {
+  const FeeSheet({super.key, required this.student});
+  final Json student;
+  @override
+  State<FeeSheet> createState() => _FeeSheetState();
+}
+
+class _FeeSheetState extends State<FeeSheet> {
+  late final amount = TextEditingController(text: show(widget.student['feeDue'] ?? 0));
+  late final discount = TextEditingController(text: show(widget.student['discount'] ?? 0));
+  var method = 'cash';
+
+  @override
+  void dispose() {
+    amount.dispose();
+    discount.dispose();
+    super.dispose();
+  }
+
+  String result(bool saved, String ok) => saved ? ok : (store.status == Status.offline ? t('app.sentLater') : t('auth.syncFailed'));
+
+  @override
+  Widget build(BuildContext context) {
+    final s = widget.student, due = (s['feeDue'] as num?) ?? 0;
+    final pay = num.tryParse(amount.text.trim());
+    final okPay = pay != null && pay >= 1 && pay <= due;
+    return AlertDialog(
+      title: Text(t('fees.title', ['${s['name']}'])),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: 12,
+          children: [
+            Row(children: [Expanded(child: Text(t('fees.due'))), Strong(taka(due))]),
+            if (due > 0) ...[
+              TextField(controller: amount, keyboardType: TextInputType.number, onChanged: (_) => setState(() {}), decoration: InputDecoration(labelText: t('fees.amount'), helperText: t('fees.installmentHint'), helperMaxLines: 3)),
+              Chips(value: method, options: const ['cash', 'bkash'], labels: {'cash': t('app.cash'), 'bkash': t('app.bkash')}, onChanged: (v) => setState(() => method = v)),
+              FilledButton(
+                onPressed: okPay
+                    ? () async {
+                        final saved = await store.act('payFee', [s['id'], method, pay]);
+                        if (context.mounted) Navigator.pop(context, result(saved, '${s['name']}: ${t('fees.recorded')}'));
+                      }
+                    : null,
+                child: Text(t('fees.record')),
+              ),
+            ],
+            const Divider(),
+            TextField(controller: discount, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: t('fees.discount'), helperText: t('fees.discountHint'), helperMaxLines: 2)),
+            OutlinedButton(
+              onPressed: () async {
+                final saved = await store.act('setDiscount', [s['id'], num.tryParse(discount.text.trim()) ?? 0]);
+                if (context.mounted) Navigator.pop(context, result(saved, t('fees.discountSaved')));
+              },
+              child: Text(t('settings.save')),
+            ),
+          ],
+        ),
+      ),
+      actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(t('app.cancel')))],
+    );
+  }
 }

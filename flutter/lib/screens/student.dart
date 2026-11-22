@@ -7,6 +7,7 @@ import '../views.dart';
 import 'lesson.dart';
 import 'guardian.dart' show ChatThread;
 import 'student_more.dart';
+import 'community.dart';
 import '../icon.dart';
 import '../icons.g.dart';
 
@@ -191,6 +192,7 @@ class StudentHome extends StatelessWidget {
             Item(icon: I.calendar, title: t('student.calendar'), subtitle: t('student.calendarSub'), onTap: () => push(context, const CalendarScreen())),
             Item(icon: I.sparkle, title: t('practice.title'), subtitle: t('practice.sub'), onTap: () => push(context, const PracticeScreen())),
             Item(icon: I.quiz, title: t('doubts.ask'), subtitle: t('doubts.askPh'), onTap: () => push(context, const DoubtsScreen())),
+            Item(icon: I.users, title: t('community.title'), subtitle: t('community.sub'), onTap: () => push(context, const CommunityScreen())),
           ],
         ),
         Section(t('app.chapters')),

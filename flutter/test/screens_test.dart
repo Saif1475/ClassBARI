@@ -289,10 +289,15 @@ void main() {
     expect(find.text('1–20 of 22'), findsOneWidget);
     await tester.tap(find.text('Student 2'));
     await tester.pumpAndSettle();
-    expect(find.text('Record ৳1,500 paid by Student 2?'), findsOneWidget);
+    expect(find.text('Fees — Student 2'), findsOneWidget);
+    expect(find.text('৳1,500'), findsWidgets); // what is due
     await tester.tap(find.text('bKash'));
+    await tester.pump();
+    await tester.enterText(find.byType(TextField).first, '500'); // an installment
+    await tester.pump();
+    await tester.tap(find.text('Record payment'));
     await tester.pump(const Duration(milliseconds: 300));
-    expect(sent('payFee').single['args'], [2, 'bkash']);
+    expect(sent('payFee').single['args'], [2, 'bkash', 500]);
     await tester.pump(const Duration(seconds: 1)); // the "will be sent later" note at the bottom slides in…
     await tester.pump(const Duration(seconds: 5)); // …and goes away again
     await tester.pumpAndSettle();

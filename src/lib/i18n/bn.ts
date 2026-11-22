@@ -1845,6 +1845,7 @@ const bn: Dict = {
     voiceOnWeb: "🎤 ভয়েস নোট: ওয়েবসাইটে শোনো",
     questionSent: "প্রশ্ন শিক্ষকের কাছে পাঠানো হয়েছে",
     moreForYou: "আরও",
+    doubts: "শিক্ষার্থীদের প্রশ্ন",
     send: "পাঠান",
     noMessages: "এখনো কোনো বার্তা নেই।",
     myBatches: "ব্যাচ",

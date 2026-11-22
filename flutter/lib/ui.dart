@@ -34,6 +34,8 @@ class Live extends StatelessWidget {
 String get _loc => lang.code == 'bn' ? 'bn' : 'en_GB';
 String fmtDate(String s) => DateFormat('d MMM', _loc).format(toDate(s));
 String fmtTime(String s) => (lang.code == 'bn' ? DateFormat.jm(_loc) : DateFormat.Hm(_loc)).format(toDate(s));
+/// The month and year: "November 2026".
+String fmtMonth(String s) => DateFormat('MMMM y', _loc).format(toDate(s));
 String fmtDateTime(String s) => '${DateFormat('EEE, d MMM', _loc).format(toDate(s))}, ${fmtTime(s)}';
 
 /// Chat and notice time: the time if today, otherwise the date.

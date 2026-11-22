@@ -6,6 +6,9 @@ import '../ui.dart';
 import '../views.dart';
 import 'pdf.dart' show Bubble;
 import 'student.dart';
+import 'student_more.dart' show calendarFor, CalendarScreen;
+import 'guardian_more.dart';
+import 'teacher.dart' show absentOn;
 import '../icon.dart';
 import '../icons.g.dart';
 
@@ -99,6 +102,19 @@ class GuardianHome extends StatelessWidget {
             for (final r in last) Item(icon: kindIcons[r.kind], color: r.pct >= 60 ? context.colors.primary : context.colors.error, title: r.title, trailing: Strong('${show(r.score)}/${show(r.points)}')),
           ],
         ),
+        Builder(builder: (context) {
+          final teacher = teacherToCall(child);
+          final soon = calendarFor(child['batch']).where((e) => toDate(e['start'] as String).isAfter(DateTime.now().subtract(const Duration(minutes: 90)))).take(3).toList();
+          return Group(
+            title: t('app.moreForYou'),
+            children: [
+              for (final e in soon) Item(icon: I.calendar, title: '${e['title']}', subtitle: e['allDay'] == true ? fmtDate(e['start'] as String) : fmtDateTime(e['start'] as String), onTap: () => push(context, CalendarScreen(batch: child['batch']))),
+              Item(icon: I.fees, title: t('parent.paymentsTitle'), subtitle: due > 0 ? t('glance.feeDue', [taka(due)]) : t('glance.feePaid'), onTap: () => push(context, const PaymentsScreen())),
+              Item(icon: I.exams, title: t('report.title'), onTap: () => push(context, const ReportCardScreen())),
+              if (teacher != null) Item(icon: I.support, title: t('glance.call', [teacher.name]), subtitle: teacher.phone, onTap: () => callTeacher(teacher.phone)),
+            ],
+          );
+        }),
         Group(
           title: t('app.meetings'),
           children: [
@@ -141,9 +157,34 @@ class GuardianResults extends StatelessWidget {
           ),
           Stat(icon: I.star, color: context.course(1), label: t('app.average'), value: avg == null ? '—' : '${localNumber(avg, lang.code)}%', pct: avg, note: avg == null ? t('app.noResults') : null),
         ]),
+        Fact('🔥', t('streak.days', [streak(((store.state?['xp'] as Map?)?['$id'] as Map?) ?? const {}).days])),
         if (note.isNotEmpty) Box(children: [Text(note)]),
         Section(t('app.results')),
         Box(flush: true, children: [ResultLines(id)]),
+        // Every class day this month, present or absent (the website's attendance log).
+        Section(t('parent.attendanceLog')),
+        Builder(builder: (context) {
+          final month = dayKey(DateTime.now()).substring(0, 7);
+          final classDays = (store.batches.where((b) => b['name'] == child['batch']).firstOrNull?['classDays'] as List?)?.cast<num>();
+          final days = ((store.state?['attendance'] as Map?) ?? const {}).keys.cast<String>().where((d) => d.startsWith(month) && (classDays == null || classDays.contains(toDate(d).weekday % 7))).toList()..sort();
+          if (days.isEmpty) return Muted(t('parent.noClasses'));
+          final c = context.colors;
+          return Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final d in days)
+                Builder(builder: (context) {
+                  final absent = absentOn(d).contains(id);
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(color: absent ? c.errorContainer : c.secondaryContainer, borderRadius: BorderRadius.circular(12)),
+                    child: Text('${fmtDate(d)} · ${absent ? t('app.absent') : t('app.present')}', style: TextStyle(color: absent ? c.onErrorContainer : c.onSecondaryContainer, fontWeight: FontWeight.w700)),
+                  );
+                }),
+            ],
+          );
+        }),
       ],
     );
   });

@@ -5845,6 +5845,3582 @@
    "out": "Open ৳1,500 and Send Money Rahim Uddin to Batch A."
   },
   {
+   "lang": "en",
+   "key": "doubts.openList",
+   "args": [
+    0
+   ],
+   "out": "Waiting (0)"
+  },
+  {
+   "lang": "en",
+   "key": "doubts.openList",
+   "args": [
+    0
+   ],
+   "out": "Waiting (0)"
+  },
+  {
+   "lang": "en",
+   "key": "doubts.openList",
+   "args": [
+    1
+   ],
+   "out": "Waiting (1)"
+  },
+  {
+   "lang": "en",
+   "key": "doubts.openList",
+   "args": [
+    1
+   ],
+   "out": "Waiting (1)"
+  },
+  {
+   "lang": "en",
+   "key": "doubts.openList",
+   "args": [
+    2
+   ],
+   "out": "Waiting (2)"
+  },
+  {
+   "lang": "en",
+   "key": "doubts.openList",
+   "args": [
+    2
+   ],
+   "out": "Waiting (2)"
+  },
+  {
+   "lang": "en",
+   "key": "doubts.openList",
+   "args": [
+    12
+   ],
+   "out": "Waiting (12)"
+  },
+  {
+   "lang": "en",
+   "key": "doubts.openList",
+   "args": [
+    12
+   ],
+   "out": "Waiting (12)"
+  },
+  {
+   "lang": "en",
+   "key": "doubts.openList",
+   "args": [
+    1234567
+   ],
+   "out": "Waiting (1234567)"
+  },
+  {
+   "lang": "en",
+   "key": "doubts.openList",
+   "args": [
+    1234567
+   ],
+   "out": "Waiting (1234567)"
+  },
+  {
+   "lang": "en",
+   "key": "doubts.openList",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Waiting (Rahim Uddin)"
+  },
+  {
+   "lang": "en",
+   "key": "doubts.openList",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Waiting (Rahim Uddin)"
+  },
+  {
+   "lang": "en",
+   "key": "practice.wrong",
+   "args": [
+    0
+   ],
+   "out": "Not quite — the answer is “0”."
+  },
+  {
+   "lang": "en",
+   "key": "practice.wrong",
+   "args": [
+    0
+   ],
+   "out": "Not quite — the answer is “0”."
+  },
+  {
+   "lang": "en",
+   "key": "practice.wrong",
+   "args": [
+    1
+   ],
+   "out": "Not quite — the answer is “1”."
+  },
+  {
+   "lang": "en",
+   "key": "practice.wrong",
+   "args": [
+    1
+   ],
+   "out": "Not quite — the answer is “1”."
+  },
+  {
+   "lang": "en",
+   "key": "practice.wrong",
+   "args": [
+    2
+   ],
+   "out": "Not quite — the answer is “2”."
+  },
+  {
+   "lang": "en",
+   "key": "practice.wrong",
+   "args": [
+    2
+   ],
+   "out": "Not quite — the answer is “2”."
+  },
+  {
+   "lang": "en",
+   "key": "practice.wrong",
+   "args": [
+    12
+   ],
+   "out": "Not quite — the answer is “12”."
+  },
+  {
+   "lang": "en",
+   "key": "practice.wrong",
+   "args": [
+    12
+   ],
+   "out": "Not quite — the answer is “12”."
+  },
+  {
+   "lang": "en",
+   "key": "practice.wrong",
+   "args": [
+    1234567
+   ],
+   "out": "Not quite — the answer is “1234567”."
+  },
+  {
+   "lang": "en",
+   "key": "practice.wrong",
+   "args": [
+    1234567
+   ],
+   "out": "Not quite — the answer is “1234567”."
+  },
+  {
+   "lang": "en",
+   "key": "practice.wrong",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Not quite — the answer is “Rahim Uddin”."
+  },
+  {
+   "lang": "en",
+   "key": "practice.wrong",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Not quite — the answer is “Rahim Uddin”."
+  },
+  {
+   "lang": "en",
+   "key": "practice.done",
+   "args": [
+    0,
+    3
+   ],
+   "out": "You got 0 of 3 right."
+  },
+  {
+   "lang": "en",
+   "key": "practice.done",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "You got 0 of Batch A right."
+  },
+  {
+   "lang": "en",
+   "key": "practice.done",
+   "args": [
+    1,
+    3
+   ],
+   "out": "You got 1 of 3 right."
+  },
+  {
+   "lang": "en",
+   "key": "practice.done",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "You got 1 of Batch A right."
+  },
+  {
+   "lang": "en",
+   "key": "practice.done",
+   "args": [
+    2,
+    3
+   ],
+   "out": "You got 2 of 3 right."
+  },
+  {
+   "lang": "en",
+   "key": "practice.done",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "You got 2 of Batch A right."
+  },
+  {
+   "lang": "en",
+   "key": "practice.done",
+   "args": [
+    12,
+    3
+   ],
+   "out": "You got 12 of 3 right."
+  },
+  {
+   "lang": "en",
+   "key": "practice.done",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "You got 12 of Batch A right."
+  },
+  {
+   "lang": "en",
+   "key": "practice.done",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "You got 1234567 of 3 right."
+  },
+  {
+   "lang": "en",
+   "key": "practice.done",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "You got 1234567 of Batch A right."
+  },
+  {
+   "lang": "en",
+   "key": "practice.done",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "You got Rahim Uddin of 3 right."
+  },
+  {
+   "lang": "en",
+   "key": "practice.done",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "You got Rahim Uddin of Batch A right."
+  },
+  {
+   "lang": "en",
+   "key": "video.resumed",
+   "args": [
+    0
+   ],
+   "out": "Continued from 0"
+  },
+  {
+   "lang": "en",
+   "key": "video.resumed",
+   "args": [
+    0
+   ],
+   "out": "Continued from 0"
+  },
+  {
+   "lang": "en",
+   "key": "video.resumed",
+   "args": [
+    1
+   ],
+   "out": "Continued from 1"
+  },
+  {
+   "lang": "en",
+   "key": "video.resumed",
+   "args": [
+    1
+   ],
+   "out": "Continued from 1"
+  },
+  {
+   "lang": "en",
+   "key": "video.resumed",
+   "args": [
+    2
+   ],
+   "out": "Continued from 2"
+  },
+  {
+   "lang": "en",
+   "key": "video.resumed",
+   "args": [
+    2
+   ],
+   "out": "Continued from 2"
+  },
+  {
+   "lang": "en",
+   "key": "video.resumed",
+   "args": [
+    12
+   ],
+   "out": "Continued from 12"
+  },
+  {
+   "lang": "en",
+   "key": "video.resumed",
+   "args": [
+    12
+   ],
+   "out": "Continued from 12"
+  },
+  {
+   "lang": "en",
+   "key": "video.resumed",
+   "args": [
+    1234567
+   ],
+   "out": "Continued from 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "video.resumed",
+   "args": [
+    1234567
+   ],
+   "out": "Continued from 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "video.resumed",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Continued from Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "video.resumed",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Continued from Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "video.bookmarkAt",
+   "args": [
+    0
+   ],
+   "out": "Bookmark at 0"
+  },
+  {
+   "lang": "en",
+   "key": "video.bookmarkAt",
+   "args": [
+    0
+   ],
+   "out": "Bookmark at 0"
+  },
+  {
+   "lang": "en",
+   "key": "video.bookmarkAt",
+   "args": [
+    1
+   ],
+   "out": "Bookmark at 1"
+  },
+  {
+   "lang": "en",
+   "key": "video.bookmarkAt",
+   "args": [
+    1
+   ],
+   "out": "Bookmark at 1"
+  },
+  {
+   "lang": "en",
+   "key": "video.bookmarkAt",
+   "args": [
+    2
+   ],
+   "out": "Bookmark at 2"
+  },
+  {
+   "lang": "en",
+   "key": "video.bookmarkAt",
+   "args": [
+    2
+   ],
+   "out": "Bookmark at 2"
+  },
+  {
+   "lang": "en",
+   "key": "video.bookmarkAt",
+   "args": [
+    12
+   ],
+   "out": "Bookmark at 12"
+  },
+  {
+   "lang": "en",
+   "key": "video.bookmarkAt",
+   "args": [
+    12
+   ],
+   "out": "Bookmark at 12"
+  },
+  {
+   "lang": "en",
+   "key": "video.bookmarkAt",
+   "args": [
+    1234567
+   ],
+   "out": "Bookmark at 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "video.bookmarkAt",
+   "args": [
+    1234567
+   ],
+   "out": "Bookmark at 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "video.bookmarkAt",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Bookmark at Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "video.bookmarkAt",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Bookmark at Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "community.heldCount",
+   "args": [
+    0
+   ],
+   "out": "0 posts are waiting for you to check. They are first in the list."
+  },
+  {
+   "lang": "en",
+   "key": "community.heldCount",
+   "args": [
+    0
+   ],
+   "out": "0 posts are waiting for you to check. They are first in the list."
+  },
+  {
+   "lang": "en",
+   "key": "community.heldCount",
+   "args": [
+    1
+   ],
+   "out": "1 post is waiting for you to check. It is first in the list."
+  },
+  {
+   "lang": "en",
+   "key": "community.heldCount",
+   "args": [
+    1
+   ],
+   "out": "1 post is waiting for you to check. It is first in the list."
+  },
+  {
+   "lang": "en",
+   "key": "community.heldCount",
+   "args": [
+    2
+   ],
+   "out": "2 posts are waiting for you to check. They are first in the list."
+  },
+  {
+   "lang": "en",
+   "key": "community.heldCount",
+   "args": [
+    2
+   ],
+   "out": "2 posts are waiting for you to check. They are first in the list."
+  },
+  {
+   "lang": "en",
+   "key": "community.heldCount",
+   "args": [
+    12
+   ],
+   "out": "12 posts are waiting for you to check. They are first in the list."
+  },
+  {
+   "lang": "en",
+   "key": "community.heldCount",
+   "args": [
+    12
+   ],
+   "out": "12 posts are waiting for you to check. They are first in the list."
+  },
+  {
+   "lang": "en",
+   "key": "community.heldCount",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 posts are waiting for you to check. They are first in the list."
+  },
+  {
+   "lang": "en",
+   "key": "community.heldCount",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 posts are waiting for you to check. They are first in the list."
+  },
+  {
+   "lang": "en",
+   "key": "community.heldCount",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin posts are waiting for you to check. They are first in the list."
+  },
+  {
+   "lang": "en",
+   "key": "community.heldCount",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin posts are waiting for you to check. They are first in the list."
+  },
+  {
+   "lang": "en",
+   "key": "community.pollOption",
+   "args": [
+    0
+   ],
+   "out": "Option 0"
+  },
+  {
+   "lang": "en",
+   "key": "community.pollOption",
+   "args": [
+    0
+   ],
+   "out": "Option 0"
+  },
+  {
+   "lang": "en",
+   "key": "community.pollOption",
+   "args": [
+    1
+   ],
+   "out": "Option 1"
+  },
+  {
+   "lang": "en",
+   "key": "community.pollOption",
+   "args": [
+    1
+   ],
+   "out": "Option 1"
+  },
+  {
+   "lang": "en",
+   "key": "community.pollOption",
+   "args": [
+    2
+   ],
+   "out": "Option 2"
+  },
+  {
+   "lang": "en",
+   "key": "community.pollOption",
+   "args": [
+    2
+   ],
+   "out": "Option 2"
+  },
+  {
+   "lang": "en",
+   "key": "community.pollOption",
+   "args": [
+    12
+   ],
+   "out": "Option 12"
+  },
+  {
+   "lang": "en",
+   "key": "community.pollOption",
+   "args": [
+    12
+   ],
+   "out": "Option 12"
+  },
+  {
+   "lang": "en",
+   "key": "community.pollOption",
+   "args": [
+    1234567
+   ],
+   "out": "Option 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "community.pollOption",
+   "args": [
+    1234567
+   ],
+   "out": "Option 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "community.pollOption",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Option Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "community.pollOption",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Option Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "community.votes",
+   "args": [
+    0
+   ],
+   "out": "0 votes"
+  },
+  {
+   "lang": "en",
+   "key": "community.votes",
+   "args": [
+    0
+   ],
+   "out": "0 votes"
+  },
+  {
+   "lang": "en",
+   "key": "community.votes",
+   "args": [
+    1
+   ],
+   "out": "1 vote"
+  },
+  {
+   "lang": "en",
+   "key": "community.votes",
+   "args": [
+    1
+   ],
+   "out": "1 vote"
+  },
+  {
+   "lang": "en",
+   "key": "community.votes",
+   "args": [
+    2
+   ],
+   "out": "2 votes"
+  },
+  {
+   "lang": "en",
+   "key": "community.votes",
+   "args": [
+    2
+   ],
+   "out": "2 votes"
+  },
+  {
+   "lang": "en",
+   "key": "community.votes",
+   "args": [
+    12
+   ],
+   "out": "12 votes"
+  },
+  {
+   "lang": "en",
+   "key": "community.votes",
+   "args": [
+    12
+   ],
+   "out": "12 votes"
+  },
+  {
+   "lang": "en",
+   "key": "community.votes",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 votes"
+  },
+  {
+   "lang": "en",
+   "key": "community.votes",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 votes"
+  },
+  {
+   "lang": "en",
+   "key": "community.votes",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin votes"
+  },
+  {
+   "lang": "en",
+   "key": "community.votes",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin votes"
+  },
+  {
+   "lang": "en",
+   "key": "community.mute",
+   "args": [
+    0
+   ],
+   "out": "Mute 0"
+  },
+  {
+   "lang": "en",
+   "key": "community.mute",
+   "args": [
+    0
+   ],
+   "out": "Mute 0"
+  },
+  {
+   "lang": "en",
+   "key": "community.mute",
+   "args": [
+    1
+   ],
+   "out": "Mute 1"
+  },
+  {
+   "lang": "en",
+   "key": "community.mute",
+   "args": [
+    1
+   ],
+   "out": "Mute 1"
+  },
+  {
+   "lang": "en",
+   "key": "community.mute",
+   "args": [
+    2
+   ],
+   "out": "Mute 2"
+  },
+  {
+   "lang": "en",
+   "key": "community.mute",
+   "args": [
+    2
+   ],
+   "out": "Mute 2"
+  },
+  {
+   "lang": "en",
+   "key": "community.mute",
+   "args": [
+    12
+   ],
+   "out": "Mute 12"
+  },
+  {
+   "lang": "en",
+   "key": "community.mute",
+   "args": [
+    12
+   ],
+   "out": "Mute 12"
+  },
+  {
+   "lang": "en",
+   "key": "community.mute",
+   "args": [
+    1234567
+   ],
+   "out": "Mute 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "community.mute",
+   "args": [
+    1234567
+   ],
+   "out": "Mute 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "community.mute",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Mute Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "community.mute",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Mute Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "community.unmute",
+   "args": [
+    0
+   ],
+   "out": "Unmute 0"
+  },
+  {
+   "lang": "en",
+   "key": "community.unmute",
+   "args": [
+    0
+   ],
+   "out": "Unmute 0"
+  },
+  {
+   "lang": "en",
+   "key": "community.unmute",
+   "args": [
+    1
+   ],
+   "out": "Unmute 1"
+  },
+  {
+   "lang": "en",
+   "key": "community.unmute",
+   "args": [
+    1
+   ],
+   "out": "Unmute 1"
+  },
+  {
+   "lang": "en",
+   "key": "community.unmute",
+   "args": [
+    2
+   ],
+   "out": "Unmute 2"
+  },
+  {
+   "lang": "en",
+   "key": "community.unmute",
+   "args": [
+    2
+   ],
+   "out": "Unmute 2"
+  },
+  {
+   "lang": "en",
+   "key": "community.unmute",
+   "args": [
+    12
+   ],
+   "out": "Unmute 12"
+  },
+  {
+   "lang": "en",
+   "key": "community.unmute",
+   "args": [
+    12
+   ],
+   "out": "Unmute 12"
+  },
+  {
+   "lang": "en",
+   "key": "community.unmute",
+   "args": [
+    1234567
+   ],
+   "out": "Unmute 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "community.unmute",
+   "args": [
+    1234567
+   ],
+   "out": "Unmute 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "community.unmute",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Unmute Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "community.unmute",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Unmute Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "community.block",
+   "args": [
+    0
+   ],
+   "out": "Block 0"
+  },
+  {
+   "lang": "en",
+   "key": "community.block",
+   "args": [
+    0
+   ],
+   "out": "Block 0"
+  },
+  {
+   "lang": "en",
+   "key": "community.block",
+   "args": [
+    1
+   ],
+   "out": "Block 1"
+  },
+  {
+   "lang": "en",
+   "key": "community.block",
+   "args": [
+    1
+   ],
+   "out": "Block 1"
+  },
+  {
+   "lang": "en",
+   "key": "community.block",
+   "args": [
+    2
+   ],
+   "out": "Block 2"
+  },
+  {
+   "lang": "en",
+   "key": "community.block",
+   "args": [
+    2
+   ],
+   "out": "Block 2"
+  },
+  {
+   "lang": "en",
+   "key": "community.block",
+   "args": [
+    12
+   ],
+   "out": "Block 12"
+  },
+  {
+   "lang": "en",
+   "key": "community.block",
+   "args": [
+    12
+   ],
+   "out": "Block 12"
+  },
+  {
+   "lang": "en",
+   "key": "community.block",
+   "args": [
+    1234567
+   ],
+   "out": "Block 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "community.block",
+   "args": [
+    1234567
+   ],
+   "out": "Block 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "community.block",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Block Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "community.block",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Block Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "community.unblock",
+   "args": [
+    0
+   ],
+   "out": "Unblock 0"
+  },
+  {
+   "lang": "en",
+   "key": "community.unblock",
+   "args": [
+    0
+   ],
+   "out": "Unblock 0"
+  },
+  {
+   "lang": "en",
+   "key": "community.unblock",
+   "args": [
+    1
+   ],
+   "out": "Unblock 1"
+  },
+  {
+   "lang": "en",
+   "key": "community.unblock",
+   "args": [
+    1
+   ],
+   "out": "Unblock 1"
+  },
+  {
+   "lang": "en",
+   "key": "community.unblock",
+   "args": [
+    2
+   ],
+   "out": "Unblock 2"
+  },
+  {
+   "lang": "en",
+   "key": "community.unblock",
+   "args": [
+    2
+   ],
+   "out": "Unblock 2"
+  },
+  {
+   "lang": "en",
+   "key": "community.unblock",
+   "args": [
+    12
+   ],
+   "out": "Unblock 12"
+  },
+  {
+   "lang": "en",
+   "key": "community.unblock",
+   "args": [
+    12
+   ],
+   "out": "Unblock 12"
+  },
+  {
+   "lang": "en",
+   "key": "community.unblock",
+   "args": [
+    1234567
+   ],
+   "out": "Unblock 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "community.unblock",
+   "args": [
+    1234567
+   ],
+   "out": "Unblock 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "community.unblock",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Unblock Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "community.unblock",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Unblock Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "community.blockQ",
+   "args": [
+    0
+   ],
+   "out": "Block 0? You won't see each other's posts, they can't reply to you, and any friendship ends."
+  },
+  {
+   "lang": "en",
+   "key": "community.blockQ",
+   "args": [
+    0
+   ],
+   "out": "Block 0? You won't see each other's posts, they can't reply to you, and any friendship ends."
+  },
+  {
+   "lang": "en",
+   "key": "community.blockQ",
+   "args": [
+    1
+   ],
+   "out": "Block 1? You won't see each other's posts, they can't reply to you, and any friendship ends."
+  },
+  {
+   "lang": "en",
+   "key": "community.blockQ",
+   "args": [
+    1
+   ],
+   "out": "Block 1? You won't see each other's posts, they can't reply to you, and any friendship ends."
+  },
+  {
+   "lang": "en",
+   "key": "community.blockQ",
+   "args": [
+    2
+   ],
+   "out": "Block 2? You won't see each other's posts, they can't reply to you, and any friendship ends."
+  },
+  {
+   "lang": "en",
+   "key": "community.blockQ",
+   "args": [
+    2
+   ],
+   "out": "Block 2? You won't see each other's posts, they can't reply to you, and any friendship ends."
+  },
+  {
+   "lang": "en",
+   "key": "community.blockQ",
+   "args": [
+    12
+   ],
+   "out": "Block 12? You won't see each other's posts, they can't reply to you, and any friendship ends."
+  },
+  {
+   "lang": "en",
+   "key": "community.blockQ",
+   "args": [
+    12
+   ],
+   "out": "Block 12? You won't see each other's posts, they can't reply to you, and any friendship ends."
+  },
+  {
+   "lang": "en",
+   "key": "community.blockQ",
+   "args": [
+    1234567
+   ],
+   "out": "Block 1234567? You won't see each other's posts, they can't reply to you, and any friendship ends."
+  },
+  {
+   "lang": "en",
+   "key": "community.blockQ",
+   "args": [
+    1234567
+   ],
+   "out": "Block 1234567? You won't see each other's posts, they can't reply to you, and any friendship ends."
+  },
+  {
+   "lang": "en",
+   "key": "community.blockQ",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Block Rahim Uddin? You won't see each other's posts, they can't reply to you, and any friendship ends."
+  },
+  {
+   "lang": "en",
+   "key": "community.blockQ",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Block Rahim Uddin? You won't see each other's posts, they can't reply to you, and any friendship ends."
+  },
+  {
+   "lang": "en",
+   "key": "community.postsN",
+   "args": [
+    0
+   ],
+   "out": "0 posts"
+  },
+  {
+   "lang": "en",
+   "key": "community.postsN",
+   "args": [
+    0
+   ],
+   "out": "0 posts"
+  },
+  {
+   "lang": "en",
+   "key": "community.postsN",
+   "args": [
+    1
+   ],
+   "out": "1 post"
+  },
+  {
+   "lang": "en",
+   "key": "community.postsN",
+   "args": [
+    1
+   ],
+   "out": "1 post"
+  },
+  {
+   "lang": "en",
+   "key": "community.postsN",
+   "args": [
+    2
+   ],
+   "out": "2 posts"
+  },
+  {
+   "lang": "en",
+   "key": "community.postsN",
+   "args": [
+    2
+   ],
+   "out": "2 posts"
+  },
+  {
+   "lang": "en",
+   "key": "community.postsN",
+   "args": [
+    12
+   ],
+   "out": "12 posts"
+  },
+  {
+   "lang": "en",
+   "key": "community.postsN",
+   "args": [
+    12
+   ],
+   "out": "12 posts"
+  },
+  {
+   "lang": "en",
+   "key": "community.postsN",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 posts"
+  },
+  {
+   "lang": "en",
+   "key": "community.postsN",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 posts"
+  },
+  {
+   "lang": "en",
+   "key": "community.postsN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin posts"
+  },
+  {
+   "lang": "en",
+   "key": "community.postsN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin posts"
+  },
+  {
+   "lang": "en",
+   "key": "community.friendsN",
+   "args": [
+    0
+   ],
+   "out": "0 friends"
+  },
+  {
+   "lang": "en",
+   "key": "community.friendsN",
+   "args": [
+    0
+   ],
+   "out": "0 friends"
+  },
+  {
+   "lang": "en",
+   "key": "community.friendsN",
+   "args": [
+    1
+   ],
+   "out": "1 friend"
+  },
+  {
+   "lang": "en",
+   "key": "community.friendsN",
+   "args": [
+    1
+   ],
+   "out": "1 friend"
+  },
+  {
+   "lang": "en",
+   "key": "community.friendsN",
+   "args": [
+    2
+   ],
+   "out": "2 friends"
+  },
+  {
+   "lang": "en",
+   "key": "community.friendsN",
+   "args": [
+    2
+   ],
+   "out": "2 friends"
+  },
+  {
+   "lang": "en",
+   "key": "community.friendsN",
+   "args": [
+    12
+   ],
+   "out": "12 friends"
+  },
+  {
+   "lang": "en",
+   "key": "community.friendsN",
+   "args": [
+    12
+   ],
+   "out": "12 friends"
+  },
+  {
+   "lang": "en",
+   "key": "community.friendsN",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 friends"
+  },
+  {
+   "lang": "en",
+   "key": "community.friendsN",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 friends"
+  },
+  {
+   "lang": "en",
+   "key": "community.friendsN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin friends"
+  },
+  {
+   "lang": "en",
+   "key": "community.friendsN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin friends"
+  },
+  {
+   "lang": "en",
+   "key": "community.replied",
+   "args": [
+    0
+   ],
+   "out": "0 replied to your post"
+  },
+  {
+   "lang": "en",
+   "key": "community.replied",
+   "args": [
+    0
+   ],
+   "out": "0 replied to your post"
+  },
+  {
+   "lang": "en",
+   "key": "community.replied",
+   "args": [
+    1
+   ],
+   "out": "1 replied to your post"
+  },
+  {
+   "lang": "en",
+   "key": "community.replied",
+   "args": [
+    1
+   ],
+   "out": "1 replied to your post"
+  },
+  {
+   "lang": "en",
+   "key": "community.replied",
+   "args": [
+    2
+   ],
+   "out": "2 replied to your post"
+  },
+  {
+   "lang": "en",
+   "key": "community.replied",
+   "args": [
+    2
+   ],
+   "out": "2 replied to your post"
+  },
+  {
+   "lang": "en",
+   "key": "community.replied",
+   "args": [
+    12
+   ],
+   "out": "12 replied to your post"
+  },
+  {
+   "lang": "en",
+   "key": "community.replied",
+   "args": [
+    12
+   ],
+   "out": "12 replied to your post"
+  },
+  {
+   "lang": "en",
+   "key": "community.replied",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 replied to your post"
+  },
+  {
+   "lang": "en",
+   "key": "community.replied",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 replied to your post"
+  },
+  {
+   "lang": "en",
+   "key": "community.replied",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin replied to your post"
+  },
+  {
+   "lang": "en",
+   "key": "community.replied",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin replied to your post"
+  },
+  {
+   "lang": "en",
+   "key": "community.likedYours",
+   "args": [
+    0
+   ],
+   "out": "0 people liked your post"
+  },
+  {
+   "lang": "en",
+   "key": "community.likedYours",
+   "args": [
+    0
+   ],
+   "out": "0 people liked your post"
+  },
+  {
+   "lang": "en",
+   "key": "community.likedYours",
+   "args": [
+    1
+   ],
+   "out": "1 person liked your post"
+  },
+  {
+   "lang": "en",
+   "key": "community.likedYours",
+   "args": [
+    1
+   ],
+   "out": "1 person liked your post"
+  },
+  {
+   "lang": "en",
+   "key": "community.likedYours",
+   "args": [
+    2
+   ],
+   "out": "2 people liked your post"
+  },
+  {
+   "lang": "en",
+   "key": "community.likedYours",
+   "args": [
+    2
+   ],
+   "out": "2 people liked your post"
+  },
+  {
+   "lang": "en",
+   "key": "community.likedYours",
+   "args": [
+    12
+   ],
+   "out": "12 people liked your post"
+  },
+  {
+   "lang": "en",
+   "key": "community.likedYours",
+   "args": [
+    12
+   ],
+   "out": "12 people liked your post"
+  },
+  {
+   "lang": "en",
+   "key": "community.likedYours",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 people liked your post"
+  },
+  {
+   "lang": "en",
+   "key": "community.likedYours",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 people liked your post"
+  },
+  {
+   "lang": "en",
+   "key": "community.likedYours",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin people liked your post"
+  },
+  {
+   "lang": "en",
+   "key": "community.likedYours",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin people liked your post"
+  },
+  {
+   "lang": "en",
+   "key": "community.votedYours",
+   "args": [
+    0
+   ],
+   "out": "0 votes on your poll"
+  },
+  {
+   "lang": "en",
+   "key": "community.votedYours",
+   "args": [
+    0
+   ],
+   "out": "0 votes on your poll"
+  },
+  {
+   "lang": "en",
+   "key": "community.votedYours",
+   "args": [
+    1
+   ],
+   "out": "1 vote on your poll"
+  },
+  {
+   "lang": "en",
+   "key": "community.votedYours",
+   "args": [
+    1
+   ],
+   "out": "1 vote on your poll"
+  },
+  {
+   "lang": "en",
+   "key": "community.votedYours",
+   "args": [
+    2
+   ],
+   "out": "2 votes on your poll"
+  },
+  {
+   "lang": "en",
+   "key": "community.votedYours",
+   "args": [
+    2
+   ],
+   "out": "2 votes on your poll"
+  },
+  {
+   "lang": "en",
+   "key": "community.votedYours",
+   "args": [
+    12
+   ],
+   "out": "12 votes on your poll"
+  },
+  {
+   "lang": "en",
+   "key": "community.votedYours",
+   "args": [
+    12
+   ],
+   "out": "12 votes on your poll"
+  },
+  {
+   "lang": "en",
+   "key": "community.votedYours",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 votes on your poll"
+  },
+  {
+   "lang": "en",
+   "key": "community.votedYours",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 votes on your poll"
+  },
+  {
+   "lang": "en",
+   "key": "community.votedYours",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin votes on your poll"
+  },
+  {
+   "lang": "en",
+   "key": "community.votedYours",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin votes on your poll"
+  },
+  {
+   "lang": "en",
+   "key": "community.wantsFriend",
+   "args": [
+    0
+   ],
+   "out": "0 wants to be your friend"
+  },
+  {
+   "lang": "en",
+   "key": "community.wantsFriend",
+   "args": [
+    0
+   ],
+   "out": "0 wants to be your friend"
+  },
+  {
+   "lang": "en",
+   "key": "community.wantsFriend",
+   "args": [
+    1
+   ],
+   "out": "1 wants to be your friend"
+  },
+  {
+   "lang": "en",
+   "key": "community.wantsFriend",
+   "args": [
+    1
+   ],
+   "out": "1 wants to be your friend"
+  },
+  {
+   "lang": "en",
+   "key": "community.wantsFriend",
+   "args": [
+    2
+   ],
+   "out": "2 wants to be your friend"
+  },
+  {
+   "lang": "en",
+   "key": "community.wantsFriend",
+   "args": [
+    2
+   ],
+   "out": "2 wants to be your friend"
+  },
+  {
+   "lang": "en",
+   "key": "community.wantsFriend",
+   "args": [
+    12
+   ],
+   "out": "12 wants to be your friend"
+  },
+  {
+   "lang": "en",
+   "key": "community.wantsFriend",
+   "args": [
+    12
+   ],
+   "out": "12 wants to be your friend"
+  },
+  {
+   "lang": "en",
+   "key": "community.wantsFriend",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 wants to be your friend"
+  },
+  {
+   "lang": "en",
+   "key": "community.wantsFriend",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 wants to be your friend"
+  },
+  {
+   "lang": "en",
+   "key": "community.wantsFriend",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin wants to be your friend"
+  },
+  {
+   "lang": "en",
+   "key": "community.wantsFriend",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin wants to be your friend"
+  },
+  {
+   "lang": "en",
+   "key": "community.charsLeft",
+   "args": [
+    0
+   ],
+   "out": "0 characters left"
+  },
+  {
+   "lang": "en",
+   "key": "community.charsLeft",
+   "args": [
+    0
+   ],
+   "out": "0 characters left"
+  },
+  {
+   "lang": "en",
+   "key": "community.charsLeft",
+   "args": [
+    1
+   ],
+   "out": "1 characters left"
+  },
+  {
+   "lang": "en",
+   "key": "community.charsLeft",
+   "args": [
+    1
+   ],
+   "out": "1 characters left"
+  },
+  {
+   "lang": "en",
+   "key": "community.charsLeft",
+   "args": [
+    2
+   ],
+   "out": "2 characters left"
+  },
+  {
+   "lang": "en",
+   "key": "community.charsLeft",
+   "args": [
+    2
+   ],
+   "out": "2 characters left"
+  },
+  {
+   "lang": "en",
+   "key": "community.charsLeft",
+   "args": [
+    12
+   ],
+   "out": "12 characters left"
+  },
+  {
+   "lang": "en",
+   "key": "community.charsLeft",
+   "args": [
+    12
+   ],
+   "out": "12 characters left"
+  },
+  {
+   "lang": "en",
+   "key": "community.charsLeft",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 characters left"
+  },
+  {
+   "lang": "en",
+   "key": "community.charsLeft",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 characters left"
+  },
+  {
+   "lang": "en",
+   "key": "community.charsLeft",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin characters left"
+  },
+  {
+   "lang": "en",
+   "key": "community.charsLeft",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin characters left"
+  },
+  {
+   "lang": "en",
+   "key": "community.photoOf",
+   "args": [
+    0
+   ],
+   "out": "Photo posted by 0"
+  },
+  {
+   "lang": "en",
+   "key": "community.photoOf",
+   "args": [
+    0
+   ],
+   "out": "Photo posted by 0"
+  },
+  {
+   "lang": "en",
+   "key": "community.photoOf",
+   "args": [
+    1
+   ],
+   "out": "Photo posted by 1"
+  },
+  {
+   "lang": "en",
+   "key": "community.photoOf",
+   "args": [
+    1
+   ],
+   "out": "Photo posted by 1"
+  },
+  {
+   "lang": "en",
+   "key": "community.photoOf",
+   "args": [
+    2
+   ],
+   "out": "Photo posted by 2"
+  },
+  {
+   "lang": "en",
+   "key": "community.photoOf",
+   "args": [
+    2
+   ],
+   "out": "Photo posted by 2"
+  },
+  {
+   "lang": "en",
+   "key": "community.photoOf",
+   "args": [
+    12
+   ],
+   "out": "Photo posted by 12"
+  },
+  {
+   "lang": "en",
+   "key": "community.photoOf",
+   "args": [
+    12
+   ],
+   "out": "Photo posted by 12"
+  },
+  {
+   "lang": "en",
+   "key": "community.photoOf",
+   "args": [
+    1234567
+   ],
+   "out": "Photo posted by 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "community.photoOf",
+   "args": [
+    1234567
+   ],
+   "out": "Photo posted by 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "community.photoOf",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Photo posted by Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "community.photoOf",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Photo posted by Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "community.postBy",
+   "args": [
+    0
+   ],
+   "out": "Post by 0"
+  },
+  {
+   "lang": "en",
+   "key": "community.postBy",
+   "args": [
+    0
+   ],
+   "out": "Post by 0"
+  },
+  {
+   "lang": "en",
+   "key": "community.postBy",
+   "args": [
+    1
+   ],
+   "out": "Post by 1"
+  },
+  {
+   "lang": "en",
+   "key": "community.postBy",
+   "args": [
+    1
+   ],
+   "out": "Post by 1"
+  },
+  {
+   "lang": "en",
+   "key": "community.postBy",
+   "args": [
+    2
+   ],
+   "out": "Post by 2"
+  },
+  {
+   "lang": "en",
+   "key": "community.postBy",
+   "args": [
+    2
+   ],
+   "out": "Post by 2"
+  },
+  {
+   "lang": "en",
+   "key": "community.postBy",
+   "args": [
+    12
+   ],
+   "out": "Post by 12"
+  },
+  {
+   "lang": "en",
+   "key": "community.postBy",
+   "args": [
+    12
+   ],
+   "out": "Post by 12"
+  },
+  {
+   "lang": "en",
+   "key": "community.postBy",
+   "args": [
+    1234567
+   ],
+   "out": "Post by 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "community.postBy",
+   "args": [
+    1234567
+   ],
+   "out": "Post by 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "community.postBy",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Post by Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "community.postBy",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Post by Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "community.likes",
+   "args": [
+    0
+   ],
+   "out": "0"
+  },
+  {
+   "lang": "en",
+   "key": "community.likes",
+   "args": [
+    0
+   ],
+   "out": "0"
+  },
+  {
+   "lang": "en",
+   "key": "community.likes",
+   "args": [
+    1
+   ],
+   "out": "1"
+  },
+  {
+   "lang": "en",
+   "key": "community.likes",
+   "args": [
+    1
+   ],
+   "out": "1"
+  },
+  {
+   "lang": "en",
+   "key": "community.likes",
+   "args": [
+    2
+   ],
+   "out": "2"
+  },
+  {
+   "lang": "en",
+   "key": "community.likes",
+   "args": [
+    2
+   ],
+   "out": "2"
+  },
+  {
+   "lang": "en",
+   "key": "community.likes",
+   "args": [
+    12
+   ],
+   "out": "12"
+  },
+  {
+   "lang": "en",
+   "key": "community.likes",
+   "args": [
+    12
+   ],
+   "out": "12"
+  },
+  {
+   "lang": "en",
+   "key": "community.likes",
+   "args": [
+    1234567
+   ],
+   "out": "1234567"
+  },
+  {
+   "lang": "en",
+   "key": "community.likes",
+   "args": [
+    1234567
+   ],
+   "out": "1234567"
+  },
+  {
+   "lang": "en",
+   "key": "community.likes",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "community.likes",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "community.comments",
+   "args": [
+    0
+   ],
+   "out": "0 comments"
+  },
+  {
+   "lang": "en",
+   "key": "community.comments",
+   "args": [
+    0
+   ],
+   "out": "0 comments"
+  },
+  {
+   "lang": "en",
+   "key": "community.comments",
+   "args": [
+    1
+   ],
+   "out": "1 comment"
+  },
+  {
+   "lang": "en",
+   "key": "community.comments",
+   "args": [
+    1
+   ],
+   "out": "1 comment"
+  },
+  {
+   "lang": "en",
+   "key": "community.comments",
+   "args": [
+    2
+   ],
+   "out": "2 comments"
+  },
+  {
+   "lang": "en",
+   "key": "community.comments",
+   "args": [
+    2
+   ],
+   "out": "2 comments"
+  },
+  {
+   "lang": "en",
+   "key": "community.comments",
+   "args": [
+    12
+   ],
+   "out": "12 comments"
+  },
+  {
+   "lang": "en",
+   "key": "community.comments",
+   "args": [
+    12
+   ],
+   "out": "12 comments"
+  },
+  {
+   "lang": "en",
+   "key": "community.comments",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 comments"
+  },
+  {
+   "lang": "en",
+   "key": "community.comments",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 comments"
+  },
+  {
+   "lang": "en",
+   "key": "community.comments",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin comments"
+  },
+  {
+   "lang": "en",
+   "key": "community.comments",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin comments"
+  },
+  {
+   "lang": "en",
+   "key": "community.commentOn",
+   "args": [
+    0
+   ],
+   "out": "Comment on 0's post"
+  },
+  {
+   "lang": "en",
+   "key": "community.commentOn",
+   "args": [
+    0
+   ],
+   "out": "Comment on 0's post"
+  },
+  {
+   "lang": "en",
+   "key": "community.commentOn",
+   "args": [
+    1
+   ],
+   "out": "Comment on 1's post"
+  },
+  {
+   "lang": "en",
+   "key": "community.commentOn",
+   "args": [
+    1
+   ],
+   "out": "Comment on 1's post"
+  },
+  {
+   "lang": "en",
+   "key": "community.commentOn",
+   "args": [
+    2
+   ],
+   "out": "Comment on 2's post"
+  },
+  {
+   "lang": "en",
+   "key": "community.commentOn",
+   "args": [
+    2
+   ],
+   "out": "Comment on 2's post"
+  },
+  {
+   "lang": "en",
+   "key": "community.commentOn",
+   "args": [
+    12
+   ],
+   "out": "Comment on 12's post"
+  },
+  {
+   "lang": "en",
+   "key": "community.commentOn",
+   "args": [
+    12
+   ],
+   "out": "Comment on 12's post"
+  },
+  {
+   "lang": "en",
+   "key": "community.commentOn",
+   "args": [
+    1234567
+   ],
+   "out": "Comment on 1234567's post"
+  },
+  {
+   "lang": "en",
+   "key": "community.commentOn",
+   "args": [
+    1234567
+   ],
+   "out": "Comment on 1234567's post"
+  },
+  {
+   "lang": "en",
+   "key": "community.commentOn",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Comment on Rahim Uddin's post"
+  },
+  {
+   "lang": "en",
+   "key": "community.commentOn",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Comment on Rahim Uddin's post"
+  },
+  {
+   "lang": "en",
+   "key": "community.reportsN",
+   "args": [
+    0
+   ],
+   "out": "0 reports"
+  },
+  {
+   "lang": "en",
+   "key": "community.reportsN",
+   "args": [
+    0
+   ],
+   "out": "0 reports"
+  },
+  {
+   "lang": "en",
+   "key": "community.reportsN",
+   "args": [
+    1
+   ],
+   "out": "1 report"
+  },
+  {
+   "lang": "en",
+   "key": "community.reportsN",
+   "args": [
+    1
+   ],
+   "out": "1 report"
+  },
+  {
+   "lang": "en",
+   "key": "community.reportsN",
+   "args": [
+    2
+   ],
+   "out": "2 reports"
+  },
+  {
+   "lang": "en",
+   "key": "community.reportsN",
+   "args": [
+    2
+   ],
+   "out": "2 reports"
+  },
+  {
+   "lang": "en",
+   "key": "community.reportsN",
+   "args": [
+    12
+   ],
+   "out": "12 reports"
+  },
+  {
+   "lang": "en",
+   "key": "community.reportsN",
+   "args": [
+    12
+   ],
+   "out": "12 reports"
+  },
+  {
+   "lang": "en",
+   "key": "community.reportsN",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 reports"
+  },
+  {
+   "lang": "en",
+   "key": "community.reportsN",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 reports"
+  },
+  {
+   "lang": "en",
+   "key": "community.reportsN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin reports"
+  },
+  {
+   "lang": "en",
+   "key": "community.reportsN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin reports"
+  },
+  {
+   "lang": "en",
+   "key": "community.requests",
+   "args": [
+    0
+   ],
+   "out": "Friend requests (0)"
+  },
+  {
+   "lang": "en",
+   "key": "community.requests",
+   "args": [
+    0
+   ],
+   "out": "Friend requests (0)"
+  },
+  {
+   "lang": "en",
+   "key": "community.requests",
+   "args": [
+    1
+   ],
+   "out": "Friend requests (1)"
+  },
+  {
+   "lang": "en",
+   "key": "community.requests",
+   "args": [
+    1
+   ],
+   "out": "Friend requests (1)"
+  },
+  {
+   "lang": "en",
+   "key": "community.requests",
+   "args": [
+    2
+   ],
+   "out": "Friend requests (2)"
+  },
+  {
+   "lang": "en",
+   "key": "community.requests",
+   "args": [
+    2
+   ],
+   "out": "Friend requests (2)"
+  },
+  {
+   "lang": "en",
+   "key": "community.requests",
+   "args": [
+    12
+   ],
+   "out": "Friend requests (12)"
+  },
+  {
+   "lang": "en",
+   "key": "community.requests",
+   "args": [
+    12
+   ],
+   "out": "Friend requests (12)"
+  },
+  {
+   "lang": "en",
+   "key": "community.requests",
+   "args": [
+    1234567
+   ],
+   "out": "Friend requests (1234567)"
+  },
+  {
+   "lang": "en",
+   "key": "community.requests",
+   "args": [
+    1234567
+   ],
+   "out": "Friend requests (1234567)"
+  },
+  {
+   "lang": "en",
+   "key": "community.requests",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Friend requests (Rahim Uddin)"
+  },
+  {
+   "lang": "en",
+   "key": "community.requests",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Friend requests (Rahim Uddin)"
+  },
+  {
+   "lang": "en",
+   "key": "community.myFriends",
+   "args": [
+    0
+   ],
+   "out": "My friends (0)"
+  },
+  {
+   "lang": "en",
+   "key": "community.myFriends",
+   "args": [
+    0
+   ],
+   "out": "My friends (0)"
+  },
+  {
+   "lang": "en",
+   "key": "community.myFriends",
+   "args": [
+    1
+   ],
+   "out": "My friends (1)"
+  },
+  {
+   "lang": "en",
+   "key": "community.myFriends",
+   "args": [
+    1
+   ],
+   "out": "My friends (1)"
+  },
+  {
+   "lang": "en",
+   "key": "community.myFriends",
+   "args": [
+    2
+   ],
+   "out": "My friends (2)"
+  },
+  {
+   "lang": "en",
+   "key": "community.myFriends",
+   "args": [
+    2
+   ],
+   "out": "My friends (2)"
+  },
+  {
+   "lang": "en",
+   "key": "community.myFriends",
+   "args": [
+    12
+   ],
+   "out": "My friends (12)"
+  },
+  {
+   "lang": "en",
+   "key": "community.myFriends",
+   "args": [
+    12
+   ],
+   "out": "My friends (12)"
+  },
+  {
+   "lang": "en",
+   "key": "community.myFriends",
+   "args": [
+    1234567
+   ],
+   "out": "My friends (1234567)"
+  },
+  {
+   "lang": "en",
+   "key": "community.myFriends",
+   "args": [
+    1234567
+   ],
+   "out": "My friends (1234567)"
+  },
+  {
+   "lang": "en",
+   "key": "community.myFriends",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "My friends (Rahim Uddin)"
+  },
+  {
+   "lang": "en",
+   "key": "community.myFriends",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "My friends (Rahim Uddin)"
+  },
+  {
+   "lang": "en",
+   "key": "community.addFriendTo",
+   "args": [
+    0
+   ],
+   "out": "Add 0 as a friend"
+  },
+  {
+   "lang": "en",
+   "key": "community.addFriendTo",
+   "args": [
+    0
+   ],
+   "out": "Add 0 as a friend"
+  },
+  {
+   "lang": "en",
+   "key": "community.addFriendTo",
+   "args": [
+    1
+   ],
+   "out": "Add 1 as a friend"
+  },
+  {
+   "lang": "en",
+   "key": "community.addFriendTo",
+   "args": [
+    1
+   ],
+   "out": "Add 1 as a friend"
+  },
+  {
+   "lang": "en",
+   "key": "community.addFriendTo",
+   "args": [
+    2
+   ],
+   "out": "Add 2 as a friend"
+  },
+  {
+   "lang": "en",
+   "key": "community.addFriendTo",
+   "args": [
+    2
+   ],
+   "out": "Add 2 as a friend"
+  },
+  {
+   "lang": "en",
+   "key": "community.addFriendTo",
+   "args": [
+    12
+   ],
+   "out": "Add 12 as a friend"
+  },
+  {
+   "lang": "en",
+   "key": "community.addFriendTo",
+   "args": [
+    12
+   ],
+   "out": "Add 12 as a friend"
+  },
+  {
+   "lang": "en",
+   "key": "community.addFriendTo",
+   "args": [
+    1234567
+   ],
+   "out": "Add 1234567 as a friend"
+  },
+  {
+   "lang": "en",
+   "key": "community.addFriendTo",
+   "args": [
+    1234567
+   ],
+   "out": "Add 1234567 as a friend"
+  },
+  {
+   "lang": "en",
+   "key": "community.addFriendTo",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Add Rahim Uddin as a friend"
+  },
+  {
+   "lang": "en",
+   "key": "community.addFriendTo",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Add Rahim Uddin as a friend"
+  },
+  {
+   "lang": "en",
+   "key": "community.unfriendQ",
+   "args": [
+    0
+   ],
+   "out": "Remove 0 from your friends?"
+  },
+  {
+   "lang": "en",
+   "key": "community.unfriendQ",
+   "args": [
+    0
+   ],
+   "out": "Remove 0 from your friends?"
+  },
+  {
+   "lang": "en",
+   "key": "community.unfriendQ",
+   "args": [
+    1
+   ],
+   "out": "Remove 1 from your friends?"
+  },
+  {
+   "lang": "en",
+   "key": "community.unfriendQ",
+   "args": [
+    1
+   ],
+   "out": "Remove 1 from your friends?"
+  },
+  {
+   "lang": "en",
+   "key": "community.unfriendQ",
+   "args": [
+    2
+   ],
+   "out": "Remove 2 from your friends?"
+  },
+  {
+   "lang": "en",
+   "key": "community.unfriendQ",
+   "args": [
+    2
+   ],
+   "out": "Remove 2 from your friends?"
+  },
+  {
+   "lang": "en",
+   "key": "community.unfriendQ",
+   "args": [
+    12
+   ],
+   "out": "Remove 12 from your friends?"
+  },
+  {
+   "lang": "en",
+   "key": "community.unfriendQ",
+   "args": [
+    12
+   ],
+   "out": "Remove 12 from your friends?"
+  },
+  {
+   "lang": "en",
+   "key": "community.unfriendQ",
+   "args": [
+    1234567
+   ],
+   "out": "Remove 1234567 from your friends?"
+  },
+  {
+   "lang": "en",
+   "key": "community.unfriendQ",
+   "args": [
+    1234567
+   ],
+   "out": "Remove 1234567 from your friends?"
+  },
+  {
+   "lang": "en",
+   "key": "community.unfriendQ",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Remove Rahim Uddin from your friends?"
+  },
+  {
+   "lang": "en",
+   "key": "community.unfriendQ",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Remove Rahim Uddin from your friends?"
+  },
+  {
+   "lang": "en",
+   "key": "parent.feeFor",
+   "args": [
+    0
+   ],
+   "out": "Fee for 0"
+  },
+  {
+   "lang": "en",
+   "key": "parent.feeFor",
+   "args": [
+    0
+   ],
+   "out": "Fee for 0"
+  },
+  {
+   "lang": "en",
+   "key": "parent.feeFor",
+   "args": [
+    1
+   ],
+   "out": "Fee for 1"
+  },
+  {
+   "lang": "en",
+   "key": "parent.feeFor",
+   "args": [
+    1
+   ],
+   "out": "Fee for 1"
+  },
+  {
+   "lang": "en",
+   "key": "parent.feeFor",
+   "args": [
+    2
+   ],
+   "out": "Fee for 2"
+  },
+  {
+   "lang": "en",
+   "key": "parent.feeFor",
+   "args": [
+    2
+   ],
+   "out": "Fee for 2"
+  },
+  {
+   "lang": "en",
+   "key": "parent.feeFor",
+   "args": [
+    12
+   ],
+   "out": "Fee for 12"
+  },
+  {
+   "lang": "en",
+   "key": "parent.feeFor",
+   "args": [
+    12
+   ],
+   "out": "Fee for 12"
+  },
+  {
+   "lang": "en",
+   "key": "parent.feeFor",
+   "args": [
+    1234567
+   ],
+   "out": "Fee for 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "parent.feeFor",
+   "args": [
+    1234567
+   ],
+   "out": "Fee for 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "parent.feeFor",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Fee for Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "parent.feeFor",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Fee for Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "parent.confirmPay",
+   "args": [
+    0
+   ],
+   "out": "Demo payment of 0. No real money will move. Continue?"
+  },
+  {
+   "lang": "en",
+   "key": "parent.confirmPay",
+   "args": [
+    0
+   ],
+   "out": "Demo payment of 0. No real money will move. Continue?"
+  },
+  {
+   "lang": "en",
+   "key": "parent.confirmPay",
+   "args": [
+    1
+   ],
+   "out": "Demo payment of 1. No real money will move. Continue?"
+  },
+  {
+   "lang": "en",
+   "key": "parent.confirmPay",
+   "args": [
+    1
+   ],
+   "out": "Demo payment of 1. No real money will move. Continue?"
+  },
+  {
+   "lang": "en",
+   "key": "parent.confirmPay",
+   "args": [
+    2
+   ],
+   "out": "Demo payment of 2. No real money will move. Continue?"
+  },
+  {
+   "lang": "en",
+   "key": "parent.confirmPay",
+   "args": [
+    2
+   ],
+   "out": "Demo payment of 2. No real money will move. Continue?"
+  },
+  {
+   "lang": "en",
+   "key": "parent.confirmPay",
+   "args": [
+    12
+   ],
+   "out": "Demo payment of 12. No real money will move. Continue?"
+  },
+  {
+   "lang": "en",
+   "key": "parent.confirmPay",
+   "args": [
+    12
+   ],
+   "out": "Demo payment of 12. No real money will move. Continue?"
+  },
+  {
+   "lang": "en",
+   "key": "parent.confirmPay",
+   "args": [
+    1234567
+   ],
+   "out": "Demo payment of 1234567. No real money will move. Continue?"
+  },
+  {
+   "lang": "en",
+   "key": "parent.confirmPay",
+   "args": [
+    1234567
+   ],
+   "out": "Demo payment of 1234567. No real money will move. Continue?"
+  },
+  {
+   "lang": "en",
+   "key": "parent.confirmPay",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Demo payment of Rahim Uddin. No real money will move. Continue?"
+  },
+  {
+   "lang": "en",
+   "key": "parent.confirmPay",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Demo payment of Rahim Uddin. No real money will move. Continue?"
+  },
+  {
+   "lang": "en",
+   "key": "parent.classesOf",
+   "args": [
+    0,
+    3
+   ],
+   "out": "0 / 3 classes"
+  },
+  {
+   "lang": "en",
+   "key": "parent.classesOf",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "0 / Batch A classes"
+  },
+  {
+   "lang": "en",
+   "key": "parent.classesOf",
+   "args": [
+    1,
+    3
+   ],
+   "out": "1 / 3 classes"
+  },
+  {
+   "lang": "en",
+   "key": "parent.classesOf",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "1 / Batch A classes"
+  },
+  {
+   "lang": "en",
+   "key": "parent.classesOf",
+   "args": [
+    2,
+    3
+   ],
+   "out": "2 / 3 classes"
+  },
+  {
+   "lang": "en",
+   "key": "parent.classesOf",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "2 / Batch A classes"
+  },
+  {
+   "lang": "en",
+   "key": "parent.classesOf",
+   "args": [
+    12,
+    3
+   ],
+   "out": "12 / 3 classes"
+  },
+  {
+   "lang": "en",
+   "key": "parent.classesOf",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "12 / Batch A classes"
+  },
+  {
+   "lang": "en",
+   "key": "parent.classesOf",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "1234567 / 3 classes"
+  },
+  {
+   "lang": "en",
+   "key": "parent.classesOf",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "1234567 / Batch A classes"
+  },
+  {
+   "lang": "en",
+   "key": "parent.classesOf",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "Rahim Uddin / 3 classes"
+  },
+  {
+   "lang": "en",
+   "key": "parent.classesOf",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Rahim Uddin / Batch A classes"
+  },
+  {
+   "lang": "en",
+   "key": "parent.rank",
+   "args": [
+    0
+   ],
+   "out": "#0 in batch"
+  },
+  {
+   "lang": "en",
+   "key": "parent.rank",
+   "args": [
+    0
+   ],
+   "out": "#0 in batch"
+  },
+  {
+   "lang": "en",
+   "key": "parent.rank",
+   "args": [
+    1
+   ],
+   "out": "#1 in batch"
+  },
+  {
+   "lang": "en",
+   "key": "parent.rank",
+   "args": [
+    1
+   ],
+   "out": "#1 in batch"
+  },
+  {
+   "lang": "en",
+   "key": "parent.rank",
+   "args": [
+    2
+   ],
+   "out": "#2 in batch"
+  },
+  {
+   "lang": "en",
+   "key": "parent.rank",
+   "args": [
+    2
+   ],
+   "out": "#2 in batch"
+  },
+  {
+   "lang": "en",
+   "key": "parent.rank",
+   "args": [
+    12
+   ],
+   "out": "#12 in batch"
+  },
+  {
+   "lang": "en",
+   "key": "parent.rank",
+   "args": [
+    12
+   ],
+   "out": "#12 in batch"
+  },
+  {
+   "lang": "en",
+   "key": "parent.rank",
+   "args": [
+    1234567
+   ],
+   "out": "#1234567 in batch"
+  },
+  {
+   "lang": "en",
+   "key": "parent.rank",
+   "args": [
+    1234567
+   ],
+   "out": "#1234567 in batch"
+  },
+  {
+   "lang": "en",
+   "key": "parent.rank",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "#Rahim Uddin in batch"
+  },
+  {
+   "lang": "en",
+   "key": "parent.rank",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "#Rahim Uddin in batch"
+  },
+  {
+   "lang": "en",
+   "key": "fees.title",
+   "args": [
+    0
+   ],
+   "out": "Fees — 0"
+  },
+  {
+   "lang": "en",
+   "key": "fees.title",
+   "args": [
+    0
+   ],
+   "out": "Fees — 0"
+  },
+  {
+   "lang": "en",
+   "key": "fees.title",
+   "args": [
+    1
+   ],
+   "out": "Fees — 1"
+  },
+  {
+   "lang": "en",
+   "key": "fees.title",
+   "args": [
+    1
+   ],
+   "out": "Fees — 1"
+  },
+  {
+   "lang": "en",
+   "key": "fees.title",
+   "args": [
+    2
+   ],
+   "out": "Fees — 2"
+  },
+  {
+   "lang": "en",
+   "key": "fees.title",
+   "args": [
+    2
+   ],
+   "out": "Fees — 2"
+  },
+  {
+   "lang": "en",
+   "key": "fees.title",
+   "args": [
+    12
+   ],
+   "out": "Fees — 12"
+  },
+  {
+   "lang": "en",
+   "key": "fees.title",
+   "args": [
+    12
+   ],
+   "out": "Fees — 12"
+  },
+  {
+   "lang": "en",
+   "key": "fees.title",
+   "args": [
+    1234567
+   ],
+   "out": "Fees — 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "fees.title",
+   "args": [
+    1234567
+   ],
+   "out": "Fees — 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "fees.title",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Fees — Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "fees.title",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Fees — Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "fees.invoiceNote",
+   "args": [
+    0
+   ],
+   "out": "Fees are due by the 0th of each month; a late fine applies after that."
+  },
+  {
+   "lang": "en",
+   "key": "fees.invoiceNote",
+   "args": [
+    0
+   ],
+   "out": "Fees are due by the 0th of each month; a late fine applies after that."
+  },
+  {
+   "lang": "en",
+   "key": "fees.invoiceNote",
+   "args": [
+    1
+   ],
+   "out": "Fees are due by the 1th of each month; a late fine applies after that."
+  },
+  {
+   "lang": "en",
+   "key": "fees.invoiceNote",
+   "args": [
+    1
+   ],
+   "out": "Fees are due by the 1th of each month; a late fine applies after that."
+  },
+  {
+   "lang": "en",
+   "key": "fees.invoiceNote",
+   "args": [
+    2
+   ],
+   "out": "Fees are due by the 2th of each month; a late fine applies after that."
+  },
+  {
+   "lang": "en",
+   "key": "fees.invoiceNote",
+   "args": [
+    2
+   ],
+   "out": "Fees are due by the 2th of each month; a late fine applies after that."
+  },
+  {
+   "lang": "en",
+   "key": "fees.invoiceNote",
+   "args": [
+    12
+   ],
+   "out": "Fees are due by the 12th of each month; a late fine applies after that."
+  },
+  {
+   "lang": "en",
+   "key": "fees.invoiceNote",
+   "args": [
+    12
+   ],
+   "out": "Fees are due by the 12th of each month; a late fine applies after that."
+  },
+  {
+   "lang": "en",
+   "key": "fees.invoiceNote",
+   "args": [
+    1234567
+   ],
+   "out": "Fees are due by the 1234567th of each month; a late fine applies after that."
+  },
+  {
+   "lang": "en",
+   "key": "fees.invoiceNote",
+   "args": [
+    1234567
+   ],
+   "out": "Fees are due by the 1234567th of each month; a late fine applies after that."
+  },
+  {
+   "lang": "en",
+   "key": "fees.invoiceNote",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Fees are due by the Rahim Uddinth of each month; a late fine applies after that."
+  },
+  {
+   "lang": "en",
+   "key": "fees.invoiceNote",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Fees are due by the Rahim Uddinth of each month; a late fine applies after that."
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    0
+   ],
+   "out": "Delete the announcement “0”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    0
+   ],
+   "out": "Delete the announcement “0”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    1
+   ],
+   "out": "Delete the announcement “1”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    1
+   ],
+   "out": "Delete the announcement “1”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    2
+   ],
+   "out": "Delete the announcement “2”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    2
+   ],
+   "out": "Delete the announcement “2”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    12
+   ],
+   "out": "Delete the announcement “12”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    12
+   ],
+   "out": "Delete the announcement “12”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    1234567
+   ],
+   "out": "Delete the announcement “1234567”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    1234567
+   ],
+   "out": "Delete the announcement “1234567”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Delete the announcement “Rahim Uddin”?"
+  },
+  {
+   "lang": "en",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Delete the announcement “Rahim Uddin”?"
+  },
+  {
    "lang": "bn",
    "key": "app.hello",
    "args": [
@@ -11687,6 +15263,3582 @@
     "৳1,500"
    ],
    "out": "৳1,500 খুলে Batch A নম্বরে Rahim Uddin Send Money করুন।"
+  },
+  {
+   "lang": "bn",
+   "key": "doubts.openList",
+   "args": [
+    0
+   ],
+   "out": "অপেক্ষায় (0)"
+  },
+  {
+   "lang": "bn",
+   "key": "doubts.openList",
+   "args": [
+    0
+   ],
+   "out": "অপেক্ষায় (0)"
+  },
+  {
+   "lang": "bn",
+   "key": "doubts.openList",
+   "args": [
+    1
+   ],
+   "out": "অপেক্ষায় (1)"
+  },
+  {
+   "lang": "bn",
+   "key": "doubts.openList",
+   "args": [
+    1
+   ],
+   "out": "অপেক্ষায় (1)"
+  },
+  {
+   "lang": "bn",
+   "key": "doubts.openList",
+   "args": [
+    2
+   ],
+   "out": "অপেক্ষায় (2)"
+  },
+  {
+   "lang": "bn",
+   "key": "doubts.openList",
+   "args": [
+    2
+   ],
+   "out": "অপেক্ষায় (2)"
+  },
+  {
+   "lang": "bn",
+   "key": "doubts.openList",
+   "args": [
+    12
+   ],
+   "out": "অপেক্ষায় (12)"
+  },
+  {
+   "lang": "bn",
+   "key": "doubts.openList",
+   "args": [
+    12
+   ],
+   "out": "অপেক্ষায় (12)"
+  },
+  {
+   "lang": "bn",
+   "key": "doubts.openList",
+   "args": [
+    1234567
+   ],
+   "out": "অপেক্ষায় (1234567)"
+  },
+  {
+   "lang": "bn",
+   "key": "doubts.openList",
+   "args": [
+    1234567
+   ],
+   "out": "অপেক্ষায় (1234567)"
+  },
+  {
+   "lang": "bn",
+   "key": "doubts.openList",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "অপেক্ষায় (Rahim Uddin)"
+  },
+  {
+   "lang": "bn",
+   "key": "doubts.openList",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "অপেক্ষায় (Rahim Uddin)"
+  },
+  {
+   "lang": "bn",
+   "key": "practice.wrong",
+   "args": [
+    0
+   ],
+   "out": "হয়নি — সঠিক উত্তর “0”।"
+  },
+  {
+   "lang": "bn",
+   "key": "practice.wrong",
+   "args": [
+    0
+   ],
+   "out": "হয়নি — সঠিক উত্তর “0”।"
+  },
+  {
+   "lang": "bn",
+   "key": "practice.wrong",
+   "args": [
+    1
+   ],
+   "out": "হয়নি — সঠিক উত্তর “1”।"
+  },
+  {
+   "lang": "bn",
+   "key": "practice.wrong",
+   "args": [
+    1
+   ],
+   "out": "হয়নি — সঠিক উত্তর “1”।"
+  },
+  {
+   "lang": "bn",
+   "key": "practice.wrong",
+   "args": [
+    2
+   ],
+   "out": "হয়নি — সঠিক উত্তর “2”।"
+  },
+  {
+   "lang": "bn",
+   "key": "practice.wrong",
+   "args": [
+    2
+   ],
+   "out": "হয়নি — সঠিক উত্তর “2”।"
+  },
+  {
+   "lang": "bn",
+   "key": "practice.wrong",
+   "args": [
+    12
+   ],
+   "out": "হয়নি — সঠিক উত্তর “12”।"
+  },
+  {
+   "lang": "bn",
+   "key": "practice.wrong",
+   "args": [
+    12
+   ],
+   "out": "হয়নি — সঠিক উত্তর “12”।"
+  },
+  {
+   "lang": "bn",
+   "key": "practice.wrong",
+   "args": [
+    1234567
+   ],
+   "out": "হয়নি — সঠিক উত্তর “1234567”।"
+  },
+  {
+   "lang": "bn",
+   "key": "practice.wrong",
+   "args": [
+    1234567
+   ],
+   "out": "হয়নি — সঠিক উত্তর “1234567”।"
+  },
+  {
+   "lang": "bn",
+   "key": "practice.wrong",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "হয়নি — সঠিক উত্তর “Rahim Uddin”।"
+  },
+  {
+   "lang": "bn",
+   "key": "practice.wrong",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "হয়নি — সঠিক উত্তর “Rahim Uddin”।"
+  },
+  {
+   "lang": "bn",
+   "key": "practice.done",
+   "args": [
+    0,
+    3
+   ],
+   "out": "৩টির মধ্যে ০টি সঠিক।"
+  },
+  {
+   "lang": "bn",
+   "key": "practice.done",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "Batch Aটির মধ্যে ০টি সঠিক।"
+  },
+  {
+   "lang": "bn",
+   "key": "practice.done",
+   "args": [
+    1,
+    3
+   ],
+   "out": "৩টির মধ্যে ১টি সঠিক।"
+  },
+  {
+   "lang": "bn",
+   "key": "practice.done",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "Batch Aটির মধ্যে ১টি সঠিক।"
+  },
+  {
+   "lang": "bn",
+   "key": "practice.done",
+   "args": [
+    2,
+    3
+   ],
+   "out": "৩টির মধ্যে ২টি সঠিক।"
+  },
+  {
+   "lang": "bn",
+   "key": "practice.done",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "Batch Aটির মধ্যে ২টি সঠিক।"
+  },
+  {
+   "lang": "bn",
+   "key": "practice.done",
+   "args": [
+    12,
+    3
+   ],
+   "out": "৩টির মধ্যে ১২টি সঠিক।"
+  },
+  {
+   "lang": "bn",
+   "key": "practice.done",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "Batch Aটির মধ্যে ১২টি সঠিক।"
+  },
+  {
+   "lang": "bn",
+   "key": "practice.done",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "৩টির মধ্যে ১২,৩৪,৫৬৭টি সঠিক।"
+  },
+  {
+   "lang": "bn",
+   "key": "practice.done",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "Batch Aটির মধ্যে ১২,৩৪,৫৬৭টি সঠিক।"
+  },
+  {
+   "lang": "bn",
+   "key": "practice.done",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "৩টির মধ্যে Rahim Uddinটি সঠিক।"
+  },
+  {
+   "lang": "bn",
+   "key": "practice.done",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Batch Aটির মধ্যে Rahim Uddinটি সঠিক।"
+  },
+  {
+   "lang": "bn",
+   "key": "video.resumed",
+   "args": [
+    0
+   ],
+   "out": "0 থেকে আবার চলছে"
+  },
+  {
+   "lang": "bn",
+   "key": "video.resumed",
+   "args": [
+    0
+   ],
+   "out": "0 থেকে আবার চলছে"
+  },
+  {
+   "lang": "bn",
+   "key": "video.resumed",
+   "args": [
+    1
+   ],
+   "out": "1 থেকে আবার চলছে"
+  },
+  {
+   "lang": "bn",
+   "key": "video.resumed",
+   "args": [
+    1
+   ],
+   "out": "1 থেকে আবার চলছে"
+  },
+  {
+   "lang": "bn",
+   "key": "video.resumed",
+   "args": [
+    2
+   ],
+   "out": "2 থেকে আবার চলছে"
+  },
+  {
+   "lang": "bn",
+   "key": "video.resumed",
+   "args": [
+    2
+   ],
+   "out": "2 থেকে আবার চলছে"
+  },
+  {
+   "lang": "bn",
+   "key": "video.resumed",
+   "args": [
+    12
+   ],
+   "out": "12 থেকে আবার চলছে"
+  },
+  {
+   "lang": "bn",
+   "key": "video.resumed",
+   "args": [
+    12
+   ],
+   "out": "12 থেকে আবার চলছে"
+  },
+  {
+   "lang": "bn",
+   "key": "video.resumed",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 থেকে আবার চলছে"
+  },
+  {
+   "lang": "bn",
+   "key": "video.resumed",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 থেকে আবার চলছে"
+  },
+  {
+   "lang": "bn",
+   "key": "video.resumed",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin থেকে আবার চলছে"
+  },
+  {
+   "lang": "bn",
+   "key": "video.resumed",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin থেকে আবার চলছে"
+  },
+  {
+   "lang": "bn",
+   "key": "video.bookmarkAt",
+   "args": [
+    0
+   ],
+   "out": "0 এ বুকমার্ক"
+  },
+  {
+   "lang": "bn",
+   "key": "video.bookmarkAt",
+   "args": [
+    0
+   ],
+   "out": "0 এ বুকমার্ক"
+  },
+  {
+   "lang": "bn",
+   "key": "video.bookmarkAt",
+   "args": [
+    1
+   ],
+   "out": "1 এ বুকমার্ক"
+  },
+  {
+   "lang": "bn",
+   "key": "video.bookmarkAt",
+   "args": [
+    1
+   ],
+   "out": "1 এ বুকমার্ক"
+  },
+  {
+   "lang": "bn",
+   "key": "video.bookmarkAt",
+   "args": [
+    2
+   ],
+   "out": "2 এ বুকমার্ক"
+  },
+  {
+   "lang": "bn",
+   "key": "video.bookmarkAt",
+   "args": [
+    2
+   ],
+   "out": "2 এ বুকমার্ক"
+  },
+  {
+   "lang": "bn",
+   "key": "video.bookmarkAt",
+   "args": [
+    12
+   ],
+   "out": "12 এ বুকমার্ক"
+  },
+  {
+   "lang": "bn",
+   "key": "video.bookmarkAt",
+   "args": [
+    12
+   ],
+   "out": "12 এ বুকমার্ক"
+  },
+  {
+   "lang": "bn",
+   "key": "video.bookmarkAt",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 এ বুকমার্ক"
+  },
+  {
+   "lang": "bn",
+   "key": "video.bookmarkAt",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 এ বুকমার্ক"
+  },
+  {
+   "lang": "bn",
+   "key": "video.bookmarkAt",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin এ বুকমার্ক"
+  },
+  {
+   "lang": "bn",
+   "key": "video.bookmarkAt",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin এ বুকমার্ক"
+  },
+  {
+   "lang": "bn",
+   "key": "community.heldCount",
+   "args": [
+    0
+   ],
+   "out": "০টি পোস্ট আপনার দেখার অপেক্ষায়। সেগুলো তালিকার শুরুতে আছে।"
+  },
+  {
+   "lang": "bn",
+   "key": "community.heldCount",
+   "args": [
+    0
+   ],
+   "out": "০টি পোস্ট আপনার দেখার অপেক্ষায়। সেগুলো তালিকার শুরুতে আছে।"
+  },
+  {
+   "lang": "bn",
+   "key": "community.heldCount",
+   "args": [
+    1
+   ],
+   "out": "১টি পোস্ট আপনার দেখার অপেক্ষায়। সেগুলো তালিকার শুরুতে আছে।"
+  },
+  {
+   "lang": "bn",
+   "key": "community.heldCount",
+   "args": [
+    1
+   ],
+   "out": "১টি পোস্ট আপনার দেখার অপেক্ষায়। সেগুলো তালিকার শুরুতে আছে।"
+  },
+  {
+   "lang": "bn",
+   "key": "community.heldCount",
+   "args": [
+    2
+   ],
+   "out": "২টি পোস্ট আপনার দেখার অপেক্ষায়। সেগুলো তালিকার শুরুতে আছে।"
+  },
+  {
+   "lang": "bn",
+   "key": "community.heldCount",
+   "args": [
+    2
+   ],
+   "out": "২টি পোস্ট আপনার দেখার অপেক্ষায়। সেগুলো তালিকার শুরুতে আছে।"
+  },
+  {
+   "lang": "bn",
+   "key": "community.heldCount",
+   "args": [
+    12
+   ],
+   "out": "১২টি পোস্ট আপনার দেখার অপেক্ষায়। সেগুলো তালিকার শুরুতে আছে।"
+  },
+  {
+   "lang": "bn",
+   "key": "community.heldCount",
+   "args": [
+    12
+   ],
+   "out": "১২টি পোস্ট আপনার দেখার অপেক্ষায়। সেগুলো তালিকার শুরুতে আছে।"
+  },
+  {
+   "lang": "bn",
+   "key": "community.heldCount",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭টি পোস্ট আপনার দেখার অপেক্ষায়। সেগুলো তালিকার শুরুতে আছে।"
+  },
+  {
+   "lang": "bn",
+   "key": "community.heldCount",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭টি পোস্ট আপনার দেখার অপেক্ষায়। সেগুলো তালিকার শুরুতে আছে।"
+  },
+  {
+   "lang": "bn",
+   "key": "community.heldCount",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddinটি পোস্ট আপনার দেখার অপেক্ষায়। সেগুলো তালিকার শুরুতে আছে।"
+  },
+  {
+   "lang": "bn",
+   "key": "community.heldCount",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddinটি পোস্ট আপনার দেখার অপেক্ষায়। সেগুলো তালিকার শুরুতে আছে।"
+  },
+  {
+   "lang": "bn",
+   "key": "community.pollOption",
+   "args": [
+    0
+   ],
+   "out": "অপশন ০"
+  },
+  {
+   "lang": "bn",
+   "key": "community.pollOption",
+   "args": [
+    0
+   ],
+   "out": "অপশন ০"
+  },
+  {
+   "lang": "bn",
+   "key": "community.pollOption",
+   "args": [
+    1
+   ],
+   "out": "অপশন ১"
+  },
+  {
+   "lang": "bn",
+   "key": "community.pollOption",
+   "args": [
+    1
+   ],
+   "out": "অপশন ১"
+  },
+  {
+   "lang": "bn",
+   "key": "community.pollOption",
+   "args": [
+    2
+   ],
+   "out": "অপশন ২"
+  },
+  {
+   "lang": "bn",
+   "key": "community.pollOption",
+   "args": [
+    2
+   ],
+   "out": "অপশন ২"
+  },
+  {
+   "lang": "bn",
+   "key": "community.pollOption",
+   "args": [
+    12
+   ],
+   "out": "অপশন ১২"
+  },
+  {
+   "lang": "bn",
+   "key": "community.pollOption",
+   "args": [
+    12
+   ],
+   "out": "অপশন ১২"
+  },
+  {
+   "lang": "bn",
+   "key": "community.pollOption",
+   "args": [
+    1234567
+   ],
+   "out": "অপশন ১২,৩৪,৫৬৭"
+  },
+  {
+   "lang": "bn",
+   "key": "community.pollOption",
+   "args": [
+    1234567
+   ],
+   "out": "অপশন ১২,৩৪,৫৬৭"
+  },
+  {
+   "lang": "bn",
+   "key": "community.pollOption",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "অপশন Rahim Uddin"
+  },
+  {
+   "lang": "bn",
+   "key": "community.pollOption",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "অপশন Rahim Uddin"
+  },
+  {
+   "lang": "bn",
+   "key": "community.votes",
+   "args": [
+    0
+   ],
+   "out": "০ ভোট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.votes",
+   "args": [
+    0
+   ],
+   "out": "০ ভোট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.votes",
+   "args": [
+    1
+   ],
+   "out": "১ ভোট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.votes",
+   "args": [
+    1
+   ],
+   "out": "১ ভোট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.votes",
+   "args": [
+    2
+   ],
+   "out": "২ ভোট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.votes",
+   "args": [
+    2
+   ],
+   "out": "২ ভোট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.votes",
+   "args": [
+    12
+   ],
+   "out": "১২ ভোট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.votes",
+   "args": [
+    12
+   ],
+   "out": "১২ ভোট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.votes",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭ ভোট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.votes",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭ ভোট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.votes",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin ভোট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.votes",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin ভোট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.mute",
+   "args": [
+    0
+   ],
+   "out": "0-কে মিউট করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.mute",
+   "args": [
+    0
+   ],
+   "out": "0-কে মিউট করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.mute",
+   "args": [
+    1
+   ],
+   "out": "1-কে মিউট করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.mute",
+   "args": [
+    1
+   ],
+   "out": "1-কে মিউট করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.mute",
+   "args": [
+    2
+   ],
+   "out": "2-কে মিউট করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.mute",
+   "args": [
+    2
+   ],
+   "out": "2-কে মিউট করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.mute",
+   "args": [
+    12
+   ],
+   "out": "12-কে মিউট করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.mute",
+   "args": [
+    12
+   ],
+   "out": "12-কে মিউট করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.mute",
+   "args": [
+    1234567
+   ],
+   "out": "1234567-কে মিউট করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.mute",
+   "args": [
+    1234567
+   ],
+   "out": "1234567-কে মিউট করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.mute",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin-কে মিউট করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.mute",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin-কে মিউট করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unmute",
+   "args": [
+    0
+   ],
+   "out": "0-এর মিউট তুলে দাও"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unmute",
+   "args": [
+    0
+   ],
+   "out": "0-এর মিউট তুলে দাও"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unmute",
+   "args": [
+    1
+   ],
+   "out": "1-এর মিউট তুলে দাও"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unmute",
+   "args": [
+    1
+   ],
+   "out": "1-এর মিউট তুলে দাও"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unmute",
+   "args": [
+    2
+   ],
+   "out": "2-এর মিউট তুলে দাও"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unmute",
+   "args": [
+    2
+   ],
+   "out": "2-এর মিউট তুলে দাও"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unmute",
+   "args": [
+    12
+   ],
+   "out": "12-এর মিউট তুলে দাও"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unmute",
+   "args": [
+    12
+   ],
+   "out": "12-এর মিউট তুলে দাও"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unmute",
+   "args": [
+    1234567
+   ],
+   "out": "1234567-এর মিউট তুলে দাও"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unmute",
+   "args": [
+    1234567
+   ],
+   "out": "1234567-এর মিউট তুলে দাও"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unmute",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin-এর মিউট তুলে দাও"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unmute",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin-এর মিউট তুলে দাও"
+  },
+  {
+   "lang": "bn",
+   "key": "community.block",
+   "args": [
+    0
+   ],
+   "out": "0-কে ব্লক করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.block",
+   "args": [
+    0
+   ],
+   "out": "0-কে ব্লক করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.block",
+   "args": [
+    1
+   ],
+   "out": "1-কে ব্লক করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.block",
+   "args": [
+    1
+   ],
+   "out": "1-কে ব্লক করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.block",
+   "args": [
+    2
+   ],
+   "out": "2-কে ব্লক করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.block",
+   "args": [
+    2
+   ],
+   "out": "2-কে ব্লক করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.block",
+   "args": [
+    12
+   ],
+   "out": "12-কে ব্লক করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.block",
+   "args": [
+    12
+   ],
+   "out": "12-কে ব্লক করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.block",
+   "args": [
+    1234567
+   ],
+   "out": "1234567-কে ব্লক করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.block",
+   "args": [
+    1234567
+   ],
+   "out": "1234567-কে ব্লক করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.block",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin-কে ব্লক করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.block",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin-কে ব্লক করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unblock",
+   "args": [
+    0
+   ],
+   "out": "0-এর ব্লক তুলে দাও"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unblock",
+   "args": [
+    0
+   ],
+   "out": "0-এর ব্লক তুলে দাও"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unblock",
+   "args": [
+    1
+   ],
+   "out": "1-এর ব্লক তুলে দাও"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unblock",
+   "args": [
+    1
+   ],
+   "out": "1-এর ব্লক তুলে দাও"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unblock",
+   "args": [
+    2
+   ],
+   "out": "2-এর ব্লক তুলে দাও"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unblock",
+   "args": [
+    2
+   ],
+   "out": "2-এর ব্লক তুলে দাও"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unblock",
+   "args": [
+    12
+   ],
+   "out": "12-এর ব্লক তুলে দাও"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unblock",
+   "args": [
+    12
+   ],
+   "out": "12-এর ব্লক তুলে দাও"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unblock",
+   "args": [
+    1234567
+   ],
+   "out": "1234567-এর ব্লক তুলে দাও"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unblock",
+   "args": [
+    1234567
+   ],
+   "out": "1234567-এর ব্লক তুলে দাও"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unblock",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin-এর ব্লক তুলে দাও"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unblock",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin-এর ব্লক তুলে দাও"
+  },
+  {
+   "lang": "bn",
+   "key": "community.blockQ",
+   "args": [
+    0
+   ],
+   "out": "0-কে ব্লক করবে? তোমরা একে অপরের পোস্ট দেখতে পাবে না, উত্তর দিতে পারবে না, আর বন্ধুত্ব শেষ হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "community.blockQ",
+   "args": [
+    0
+   ],
+   "out": "0-কে ব্লক করবে? তোমরা একে অপরের পোস্ট দেখতে পাবে না, উত্তর দিতে পারবে না, আর বন্ধুত্ব শেষ হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "community.blockQ",
+   "args": [
+    1
+   ],
+   "out": "1-কে ব্লক করবে? তোমরা একে অপরের পোস্ট দেখতে পাবে না, উত্তর দিতে পারবে না, আর বন্ধুত্ব শেষ হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "community.blockQ",
+   "args": [
+    1
+   ],
+   "out": "1-কে ব্লক করবে? তোমরা একে অপরের পোস্ট দেখতে পাবে না, উত্তর দিতে পারবে না, আর বন্ধুত্ব শেষ হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "community.blockQ",
+   "args": [
+    2
+   ],
+   "out": "2-কে ব্লক করবে? তোমরা একে অপরের পোস্ট দেখতে পাবে না, উত্তর দিতে পারবে না, আর বন্ধুত্ব শেষ হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "community.blockQ",
+   "args": [
+    2
+   ],
+   "out": "2-কে ব্লক করবে? তোমরা একে অপরের পোস্ট দেখতে পাবে না, উত্তর দিতে পারবে না, আর বন্ধুত্ব শেষ হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "community.blockQ",
+   "args": [
+    12
+   ],
+   "out": "12-কে ব্লক করবে? তোমরা একে অপরের পোস্ট দেখতে পাবে না, উত্তর দিতে পারবে না, আর বন্ধুত্ব শেষ হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "community.blockQ",
+   "args": [
+    12
+   ],
+   "out": "12-কে ব্লক করবে? তোমরা একে অপরের পোস্ট দেখতে পাবে না, উত্তর দিতে পারবে না, আর বন্ধুত্ব শেষ হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "community.blockQ",
+   "args": [
+    1234567
+   ],
+   "out": "1234567-কে ব্লক করবে? তোমরা একে অপরের পোস্ট দেখতে পাবে না, উত্তর দিতে পারবে না, আর বন্ধুত্ব শেষ হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "community.blockQ",
+   "args": [
+    1234567
+   ],
+   "out": "1234567-কে ব্লক করবে? তোমরা একে অপরের পোস্ট দেখতে পাবে না, উত্তর দিতে পারবে না, আর বন্ধুত্ব শেষ হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "community.blockQ",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin-কে ব্লক করবে? তোমরা একে অপরের পোস্ট দেখতে পাবে না, উত্তর দিতে পারবে না, আর বন্ধুত্ব শেষ হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "community.blockQ",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin-কে ব্লক করবে? তোমরা একে অপরের পোস্ট দেখতে পাবে না, উত্তর দিতে পারবে না, আর বন্ধুত্ব শেষ হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "community.postsN",
+   "args": [
+    0
+   ],
+   "out": "০টি পোস্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.postsN",
+   "args": [
+    0
+   ],
+   "out": "০টি পোস্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.postsN",
+   "args": [
+    1
+   ],
+   "out": "১টি পোস্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.postsN",
+   "args": [
+    1
+   ],
+   "out": "১টি পোস্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.postsN",
+   "args": [
+    2
+   ],
+   "out": "২টি পোস্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.postsN",
+   "args": [
+    2
+   ],
+   "out": "২টি পোস্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.postsN",
+   "args": [
+    12
+   ],
+   "out": "১২টি পোস্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.postsN",
+   "args": [
+    12
+   ],
+   "out": "১২টি পোস্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.postsN",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭টি পোস্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.postsN",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭টি পোস্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.postsN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddinটি পোস্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.postsN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddinটি পোস্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.friendsN",
+   "args": [
+    0
+   ],
+   "out": "০ জন বন্ধু"
+  },
+  {
+   "lang": "bn",
+   "key": "community.friendsN",
+   "args": [
+    0
+   ],
+   "out": "০ জন বন্ধু"
+  },
+  {
+   "lang": "bn",
+   "key": "community.friendsN",
+   "args": [
+    1
+   ],
+   "out": "১ জন বন্ধু"
+  },
+  {
+   "lang": "bn",
+   "key": "community.friendsN",
+   "args": [
+    1
+   ],
+   "out": "১ জন বন্ধু"
+  },
+  {
+   "lang": "bn",
+   "key": "community.friendsN",
+   "args": [
+    2
+   ],
+   "out": "২ জন বন্ধু"
+  },
+  {
+   "lang": "bn",
+   "key": "community.friendsN",
+   "args": [
+    2
+   ],
+   "out": "২ জন বন্ধু"
+  },
+  {
+   "lang": "bn",
+   "key": "community.friendsN",
+   "args": [
+    12
+   ],
+   "out": "১২ জন বন্ধু"
+  },
+  {
+   "lang": "bn",
+   "key": "community.friendsN",
+   "args": [
+    12
+   ],
+   "out": "১২ জন বন্ধু"
+  },
+  {
+   "lang": "bn",
+   "key": "community.friendsN",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭ জন বন্ধু"
+  },
+  {
+   "lang": "bn",
+   "key": "community.friendsN",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭ জন বন্ধু"
+  },
+  {
+   "lang": "bn",
+   "key": "community.friendsN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin জন বন্ধু"
+  },
+  {
+   "lang": "bn",
+   "key": "community.friendsN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin জন বন্ধু"
+  },
+  {
+   "lang": "bn",
+   "key": "community.replied",
+   "args": [
+    0
+   ],
+   "out": "0 তোমার পোস্টে উত্তর দিয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.replied",
+   "args": [
+    0
+   ],
+   "out": "0 তোমার পোস্টে উত্তর দিয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.replied",
+   "args": [
+    1
+   ],
+   "out": "1 তোমার পোস্টে উত্তর দিয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.replied",
+   "args": [
+    1
+   ],
+   "out": "1 তোমার পোস্টে উত্তর দিয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.replied",
+   "args": [
+    2
+   ],
+   "out": "2 তোমার পোস্টে উত্তর দিয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.replied",
+   "args": [
+    2
+   ],
+   "out": "2 তোমার পোস্টে উত্তর দিয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.replied",
+   "args": [
+    12
+   ],
+   "out": "12 তোমার পোস্টে উত্তর দিয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.replied",
+   "args": [
+    12
+   ],
+   "out": "12 তোমার পোস্টে উত্তর দিয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.replied",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 তোমার পোস্টে উত্তর দিয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.replied",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 তোমার পোস্টে উত্তর দিয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.replied",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin তোমার পোস্টে উত্তর দিয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.replied",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin তোমার পোস্টে উত্তর দিয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.likedYours",
+   "args": [
+    0
+   ],
+   "out": "০ জন তোমার পোস্ট লাইক করেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.likedYours",
+   "args": [
+    0
+   ],
+   "out": "০ জন তোমার পোস্ট লাইক করেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.likedYours",
+   "args": [
+    1
+   ],
+   "out": "১ জন তোমার পোস্ট লাইক করেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.likedYours",
+   "args": [
+    1
+   ],
+   "out": "১ জন তোমার পোস্ট লাইক করেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.likedYours",
+   "args": [
+    2
+   ],
+   "out": "২ জন তোমার পোস্ট লাইক করেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.likedYours",
+   "args": [
+    2
+   ],
+   "out": "২ জন তোমার পোস্ট লাইক করেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.likedYours",
+   "args": [
+    12
+   ],
+   "out": "১২ জন তোমার পোস্ট লাইক করেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.likedYours",
+   "args": [
+    12
+   ],
+   "out": "১২ জন তোমার পোস্ট লাইক করেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.likedYours",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭ জন তোমার পোস্ট লাইক করেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.likedYours",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭ জন তোমার পোস্ট লাইক করেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.likedYours",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin জন তোমার পোস্ট লাইক করেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.likedYours",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin জন তোমার পোস্ট লাইক করেছে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.votedYours",
+   "args": [
+    0
+   ],
+   "out": "তোমার পোলে ০টি ভোট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.votedYours",
+   "args": [
+    0
+   ],
+   "out": "তোমার পোলে ০টি ভোট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.votedYours",
+   "args": [
+    1
+   ],
+   "out": "তোমার পোলে ১টি ভোট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.votedYours",
+   "args": [
+    1
+   ],
+   "out": "তোমার পোলে ১টি ভোট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.votedYours",
+   "args": [
+    2
+   ],
+   "out": "তোমার পোলে ২টি ভোট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.votedYours",
+   "args": [
+    2
+   ],
+   "out": "তোমার পোলে ২টি ভোট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.votedYours",
+   "args": [
+    12
+   ],
+   "out": "তোমার পোলে ১২টি ভোট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.votedYours",
+   "args": [
+    12
+   ],
+   "out": "তোমার পোলে ১২টি ভোট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.votedYours",
+   "args": [
+    1234567
+   ],
+   "out": "তোমার পোলে ১২,৩৪,৫৬৭টি ভোট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.votedYours",
+   "args": [
+    1234567
+   ],
+   "out": "তোমার পোলে ১২,৩৪,৫৬৭টি ভোট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.votedYours",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "তোমার পোলে Rahim Uddinটি ভোট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.votedYours",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "তোমার পোলে Rahim Uddinটি ভোট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.wantsFriend",
+   "args": [
+    0
+   ],
+   "out": "0 তোমার বন্ধু হতে চায়"
+  },
+  {
+   "lang": "bn",
+   "key": "community.wantsFriend",
+   "args": [
+    0
+   ],
+   "out": "0 তোমার বন্ধু হতে চায়"
+  },
+  {
+   "lang": "bn",
+   "key": "community.wantsFriend",
+   "args": [
+    1
+   ],
+   "out": "1 তোমার বন্ধু হতে চায়"
+  },
+  {
+   "lang": "bn",
+   "key": "community.wantsFriend",
+   "args": [
+    1
+   ],
+   "out": "1 তোমার বন্ধু হতে চায়"
+  },
+  {
+   "lang": "bn",
+   "key": "community.wantsFriend",
+   "args": [
+    2
+   ],
+   "out": "2 তোমার বন্ধু হতে চায়"
+  },
+  {
+   "lang": "bn",
+   "key": "community.wantsFriend",
+   "args": [
+    2
+   ],
+   "out": "2 তোমার বন্ধু হতে চায়"
+  },
+  {
+   "lang": "bn",
+   "key": "community.wantsFriend",
+   "args": [
+    12
+   ],
+   "out": "12 তোমার বন্ধু হতে চায়"
+  },
+  {
+   "lang": "bn",
+   "key": "community.wantsFriend",
+   "args": [
+    12
+   ],
+   "out": "12 তোমার বন্ধু হতে চায়"
+  },
+  {
+   "lang": "bn",
+   "key": "community.wantsFriend",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 তোমার বন্ধু হতে চায়"
+  },
+  {
+   "lang": "bn",
+   "key": "community.wantsFriend",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 তোমার বন্ধু হতে চায়"
+  },
+  {
+   "lang": "bn",
+   "key": "community.wantsFriend",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin তোমার বন্ধু হতে চায়"
+  },
+  {
+   "lang": "bn",
+   "key": "community.wantsFriend",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin তোমার বন্ধু হতে চায়"
+  },
+  {
+   "lang": "bn",
+   "key": "community.charsLeft",
+   "args": [
+    0
+   ],
+   "out": "আর ০ অক্ষর লেখা যাবে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.charsLeft",
+   "args": [
+    0
+   ],
+   "out": "আর ০ অক্ষর লেখা যাবে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.charsLeft",
+   "args": [
+    1
+   ],
+   "out": "আর ১ অক্ষর লেখা যাবে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.charsLeft",
+   "args": [
+    1
+   ],
+   "out": "আর ১ অক্ষর লেখা যাবে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.charsLeft",
+   "args": [
+    2
+   ],
+   "out": "আর ২ অক্ষর লেখা যাবে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.charsLeft",
+   "args": [
+    2
+   ],
+   "out": "আর ২ অক্ষর লেখা যাবে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.charsLeft",
+   "args": [
+    12
+   ],
+   "out": "আর ১২ অক্ষর লেখা যাবে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.charsLeft",
+   "args": [
+    12
+   ],
+   "out": "আর ১২ অক্ষর লেখা যাবে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.charsLeft",
+   "args": [
+    1234567
+   ],
+   "out": "আর ১২,৩৪,৫৬৭ অক্ষর লেখা যাবে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.charsLeft",
+   "args": [
+    1234567
+   ],
+   "out": "আর ১২,৩৪,৫৬৭ অক্ষর লেখা যাবে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.charsLeft",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "আর Rahim Uddin অক্ষর লেখা যাবে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.charsLeft",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "আর Rahim Uddin অক্ষর লেখা যাবে"
+  },
+  {
+   "lang": "bn",
+   "key": "community.photoOf",
+   "args": [
+    0
+   ],
+   "out": "0 এর পোস্ট করা ছবি"
+  },
+  {
+   "lang": "bn",
+   "key": "community.photoOf",
+   "args": [
+    0
+   ],
+   "out": "0 এর পোস্ট করা ছবি"
+  },
+  {
+   "lang": "bn",
+   "key": "community.photoOf",
+   "args": [
+    1
+   ],
+   "out": "1 এর পোস্ট করা ছবি"
+  },
+  {
+   "lang": "bn",
+   "key": "community.photoOf",
+   "args": [
+    1
+   ],
+   "out": "1 এর পোস্ট করা ছবি"
+  },
+  {
+   "lang": "bn",
+   "key": "community.photoOf",
+   "args": [
+    2
+   ],
+   "out": "2 এর পোস্ট করা ছবি"
+  },
+  {
+   "lang": "bn",
+   "key": "community.photoOf",
+   "args": [
+    2
+   ],
+   "out": "2 এর পোস্ট করা ছবি"
+  },
+  {
+   "lang": "bn",
+   "key": "community.photoOf",
+   "args": [
+    12
+   ],
+   "out": "12 এর পোস্ট করা ছবি"
+  },
+  {
+   "lang": "bn",
+   "key": "community.photoOf",
+   "args": [
+    12
+   ],
+   "out": "12 এর পোস্ট করা ছবি"
+  },
+  {
+   "lang": "bn",
+   "key": "community.photoOf",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 এর পোস্ট করা ছবি"
+  },
+  {
+   "lang": "bn",
+   "key": "community.photoOf",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 এর পোস্ট করা ছবি"
+  },
+  {
+   "lang": "bn",
+   "key": "community.photoOf",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin এর পোস্ট করা ছবি"
+  },
+  {
+   "lang": "bn",
+   "key": "community.photoOf",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin এর পোস্ট করা ছবি"
+  },
+  {
+   "lang": "bn",
+   "key": "community.postBy",
+   "args": [
+    0
+   ],
+   "out": "0 এর পোস্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.postBy",
+   "args": [
+    0
+   ],
+   "out": "0 এর পোস্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.postBy",
+   "args": [
+    1
+   ],
+   "out": "1 এর পোস্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.postBy",
+   "args": [
+    1
+   ],
+   "out": "1 এর পোস্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.postBy",
+   "args": [
+    2
+   ],
+   "out": "2 এর পোস্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.postBy",
+   "args": [
+    2
+   ],
+   "out": "2 এর পোস্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.postBy",
+   "args": [
+    12
+   ],
+   "out": "12 এর পোস্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.postBy",
+   "args": [
+    12
+   ],
+   "out": "12 এর পোস্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.postBy",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 এর পোস্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.postBy",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 এর পোস্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.postBy",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin এর পোস্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.postBy",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin এর পোস্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.likes",
+   "args": [
+    0
+   ],
+   "out": "0"
+  },
+  {
+   "lang": "bn",
+   "key": "community.likes",
+   "args": [
+    0
+   ],
+   "out": "0"
+  },
+  {
+   "lang": "bn",
+   "key": "community.likes",
+   "args": [
+    1
+   ],
+   "out": "1"
+  },
+  {
+   "lang": "bn",
+   "key": "community.likes",
+   "args": [
+    1
+   ],
+   "out": "1"
+  },
+  {
+   "lang": "bn",
+   "key": "community.likes",
+   "args": [
+    2
+   ],
+   "out": "2"
+  },
+  {
+   "lang": "bn",
+   "key": "community.likes",
+   "args": [
+    2
+   ],
+   "out": "2"
+  },
+  {
+   "lang": "bn",
+   "key": "community.likes",
+   "args": [
+    12
+   ],
+   "out": "12"
+  },
+  {
+   "lang": "bn",
+   "key": "community.likes",
+   "args": [
+    12
+   ],
+   "out": "12"
+  },
+  {
+   "lang": "bn",
+   "key": "community.likes",
+   "args": [
+    1234567
+   ],
+   "out": "1234567"
+  },
+  {
+   "lang": "bn",
+   "key": "community.likes",
+   "args": [
+    1234567
+   ],
+   "out": "1234567"
+  },
+  {
+   "lang": "bn",
+   "key": "community.likes",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin"
+  },
+  {
+   "lang": "bn",
+   "key": "community.likes",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin"
+  },
+  {
+   "lang": "bn",
+   "key": "community.comments",
+   "args": [
+    0
+   ],
+   "out": "0টি মন্তব্য"
+  },
+  {
+   "lang": "bn",
+   "key": "community.comments",
+   "args": [
+    0
+   ],
+   "out": "0টি মন্তব্য"
+  },
+  {
+   "lang": "bn",
+   "key": "community.comments",
+   "args": [
+    1
+   ],
+   "out": "1টি মন্তব্য"
+  },
+  {
+   "lang": "bn",
+   "key": "community.comments",
+   "args": [
+    1
+   ],
+   "out": "1টি মন্তব্য"
+  },
+  {
+   "lang": "bn",
+   "key": "community.comments",
+   "args": [
+    2
+   ],
+   "out": "2টি মন্তব্য"
+  },
+  {
+   "lang": "bn",
+   "key": "community.comments",
+   "args": [
+    2
+   ],
+   "out": "2টি মন্তব্য"
+  },
+  {
+   "lang": "bn",
+   "key": "community.comments",
+   "args": [
+    12
+   ],
+   "out": "12টি মন্তব্য"
+  },
+  {
+   "lang": "bn",
+   "key": "community.comments",
+   "args": [
+    12
+   ],
+   "out": "12টি মন্তব্য"
+  },
+  {
+   "lang": "bn",
+   "key": "community.comments",
+   "args": [
+    1234567
+   ],
+   "out": "1234567টি মন্তব্য"
+  },
+  {
+   "lang": "bn",
+   "key": "community.comments",
+   "args": [
+    1234567
+   ],
+   "out": "1234567টি মন্তব্য"
+  },
+  {
+   "lang": "bn",
+   "key": "community.comments",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddinটি মন্তব্য"
+  },
+  {
+   "lang": "bn",
+   "key": "community.comments",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddinটি মন্তব্য"
+  },
+  {
+   "lang": "bn",
+   "key": "community.commentOn",
+   "args": [
+    0
+   ],
+   "out": "0 এর পোস্টে মন্তব্য"
+  },
+  {
+   "lang": "bn",
+   "key": "community.commentOn",
+   "args": [
+    0
+   ],
+   "out": "0 এর পোস্টে মন্তব্য"
+  },
+  {
+   "lang": "bn",
+   "key": "community.commentOn",
+   "args": [
+    1
+   ],
+   "out": "1 এর পোস্টে মন্তব্য"
+  },
+  {
+   "lang": "bn",
+   "key": "community.commentOn",
+   "args": [
+    1
+   ],
+   "out": "1 এর পোস্টে মন্তব্য"
+  },
+  {
+   "lang": "bn",
+   "key": "community.commentOn",
+   "args": [
+    2
+   ],
+   "out": "2 এর পোস্টে মন্তব্য"
+  },
+  {
+   "lang": "bn",
+   "key": "community.commentOn",
+   "args": [
+    2
+   ],
+   "out": "2 এর পোস্টে মন্তব্য"
+  },
+  {
+   "lang": "bn",
+   "key": "community.commentOn",
+   "args": [
+    12
+   ],
+   "out": "12 এর পোস্টে মন্তব্য"
+  },
+  {
+   "lang": "bn",
+   "key": "community.commentOn",
+   "args": [
+    12
+   ],
+   "out": "12 এর পোস্টে মন্তব্য"
+  },
+  {
+   "lang": "bn",
+   "key": "community.commentOn",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 এর পোস্টে মন্তব্য"
+  },
+  {
+   "lang": "bn",
+   "key": "community.commentOn",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 এর পোস্টে মন্তব্য"
+  },
+  {
+   "lang": "bn",
+   "key": "community.commentOn",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin এর পোস্টে মন্তব্য"
+  },
+  {
+   "lang": "bn",
+   "key": "community.commentOn",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin এর পোস্টে মন্তব্য"
+  },
+  {
+   "lang": "bn",
+   "key": "community.reportsN",
+   "args": [
+    0
+   ],
+   "out": "0টি রিপোর্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.reportsN",
+   "args": [
+    0
+   ],
+   "out": "0টি রিপোর্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.reportsN",
+   "args": [
+    1
+   ],
+   "out": "1টি রিপোর্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.reportsN",
+   "args": [
+    1
+   ],
+   "out": "1টি রিপোর্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.reportsN",
+   "args": [
+    2
+   ],
+   "out": "2টি রিপোর্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.reportsN",
+   "args": [
+    2
+   ],
+   "out": "2টি রিপোর্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.reportsN",
+   "args": [
+    12
+   ],
+   "out": "12টি রিপোর্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.reportsN",
+   "args": [
+    12
+   ],
+   "out": "12টি রিপোর্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.reportsN",
+   "args": [
+    1234567
+   ],
+   "out": "1234567টি রিপোর্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.reportsN",
+   "args": [
+    1234567
+   ],
+   "out": "1234567টি রিপোর্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.reportsN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddinটি রিপোর্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.reportsN",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddinটি রিপোর্ট"
+  },
+  {
+   "lang": "bn",
+   "key": "community.requests",
+   "args": [
+    0
+   ],
+   "out": "বন্ধুত্বের অনুরোধ (0)"
+  },
+  {
+   "lang": "bn",
+   "key": "community.requests",
+   "args": [
+    0
+   ],
+   "out": "বন্ধুত্বের অনুরোধ (0)"
+  },
+  {
+   "lang": "bn",
+   "key": "community.requests",
+   "args": [
+    1
+   ],
+   "out": "বন্ধুত্বের অনুরোধ (1)"
+  },
+  {
+   "lang": "bn",
+   "key": "community.requests",
+   "args": [
+    1
+   ],
+   "out": "বন্ধুত্বের অনুরোধ (1)"
+  },
+  {
+   "lang": "bn",
+   "key": "community.requests",
+   "args": [
+    2
+   ],
+   "out": "বন্ধুত্বের অনুরোধ (2)"
+  },
+  {
+   "lang": "bn",
+   "key": "community.requests",
+   "args": [
+    2
+   ],
+   "out": "বন্ধুত্বের অনুরোধ (2)"
+  },
+  {
+   "lang": "bn",
+   "key": "community.requests",
+   "args": [
+    12
+   ],
+   "out": "বন্ধুত্বের অনুরোধ (12)"
+  },
+  {
+   "lang": "bn",
+   "key": "community.requests",
+   "args": [
+    12
+   ],
+   "out": "বন্ধুত্বের অনুরোধ (12)"
+  },
+  {
+   "lang": "bn",
+   "key": "community.requests",
+   "args": [
+    1234567
+   ],
+   "out": "বন্ধুত্বের অনুরোধ (1234567)"
+  },
+  {
+   "lang": "bn",
+   "key": "community.requests",
+   "args": [
+    1234567
+   ],
+   "out": "বন্ধুত্বের অনুরোধ (1234567)"
+  },
+  {
+   "lang": "bn",
+   "key": "community.requests",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "বন্ধুত্বের অনুরোধ (Rahim Uddin)"
+  },
+  {
+   "lang": "bn",
+   "key": "community.requests",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "বন্ধুত্বের অনুরোধ (Rahim Uddin)"
+  },
+  {
+   "lang": "bn",
+   "key": "community.myFriends",
+   "args": [
+    0
+   ],
+   "out": "আমার বন্ধু (0)"
+  },
+  {
+   "lang": "bn",
+   "key": "community.myFriends",
+   "args": [
+    0
+   ],
+   "out": "আমার বন্ধু (0)"
+  },
+  {
+   "lang": "bn",
+   "key": "community.myFriends",
+   "args": [
+    1
+   ],
+   "out": "আমার বন্ধু (1)"
+  },
+  {
+   "lang": "bn",
+   "key": "community.myFriends",
+   "args": [
+    1
+   ],
+   "out": "আমার বন্ধু (1)"
+  },
+  {
+   "lang": "bn",
+   "key": "community.myFriends",
+   "args": [
+    2
+   ],
+   "out": "আমার বন্ধু (2)"
+  },
+  {
+   "lang": "bn",
+   "key": "community.myFriends",
+   "args": [
+    2
+   ],
+   "out": "আমার বন্ধু (2)"
+  },
+  {
+   "lang": "bn",
+   "key": "community.myFriends",
+   "args": [
+    12
+   ],
+   "out": "আমার বন্ধু (12)"
+  },
+  {
+   "lang": "bn",
+   "key": "community.myFriends",
+   "args": [
+    12
+   ],
+   "out": "আমার বন্ধু (12)"
+  },
+  {
+   "lang": "bn",
+   "key": "community.myFriends",
+   "args": [
+    1234567
+   ],
+   "out": "আমার বন্ধু (1234567)"
+  },
+  {
+   "lang": "bn",
+   "key": "community.myFriends",
+   "args": [
+    1234567
+   ],
+   "out": "আমার বন্ধু (1234567)"
+  },
+  {
+   "lang": "bn",
+   "key": "community.myFriends",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "আমার বন্ধু (Rahim Uddin)"
+  },
+  {
+   "lang": "bn",
+   "key": "community.myFriends",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "আমার বন্ধু (Rahim Uddin)"
+  },
+  {
+   "lang": "bn",
+   "key": "community.addFriendTo",
+   "args": [
+    0
+   ],
+   "out": "0 কে বন্ধু হিসেবে যোগ করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.addFriendTo",
+   "args": [
+    0
+   ],
+   "out": "0 কে বন্ধু হিসেবে যোগ করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.addFriendTo",
+   "args": [
+    1
+   ],
+   "out": "1 কে বন্ধু হিসেবে যোগ করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.addFriendTo",
+   "args": [
+    1
+   ],
+   "out": "1 কে বন্ধু হিসেবে যোগ করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.addFriendTo",
+   "args": [
+    2
+   ],
+   "out": "2 কে বন্ধু হিসেবে যোগ করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.addFriendTo",
+   "args": [
+    2
+   ],
+   "out": "2 কে বন্ধু হিসেবে যোগ করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.addFriendTo",
+   "args": [
+    12
+   ],
+   "out": "12 কে বন্ধু হিসেবে যোগ করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.addFriendTo",
+   "args": [
+    12
+   ],
+   "out": "12 কে বন্ধু হিসেবে যোগ করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.addFriendTo",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 কে বন্ধু হিসেবে যোগ করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.addFriendTo",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 কে বন্ধু হিসেবে যোগ করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.addFriendTo",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin কে বন্ধু হিসেবে যোগ করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.addFriendTo",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin কে বন্ধু হিসেবে যোগ করো"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unfriendQ",
+   "args": [
+    0
+   ],
+   "out": "0 কে বন্ধু তালিকা থেকে সরাবে?"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unfriendQ",
+   "args": [
+    0
+   ],
+   "out": "0 কে বন্ধু তালিকা থেকে সরাবে?"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unfriendQ",
+   "args": [
+    1
+   ],
+   "out": "1 কে বন্ধু তালিকা থেকে সরাবে?"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unfriendQ",
+   "args": [
+    1
+   ],
+   "out": "1 কে বন্ধু তালিকা থেকে সরাবে?"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unfriendQ",
+   "args": [
+    2
+   ],
+   "out": "2 কে বন্ধু তালিকা থেকে সরাবে?"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unfriendQ",
+   "args": [
+    2
+   ],
+   "out": "2 কে বন্ধু তালিকা থেকে সরাবে?"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unfriendQ",
+   "args": [
+    12
+   ],
+   "out": "12 কে বন্ধু তালিকা থেকে সরাবে?"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unfriendQ",
+   "args": [
+    12
+   ],
+   "out": "12 কে বন্ধু তালিকা থেকে সরাবে?"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unfriendQ",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 কে বন্ধু তালিকা থেকে সরাবে?"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unfriendQ",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 কে বন্ধু তালিকা থেকে সরাবে?"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unfriendQ",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin কে বন্ধু তালিকা থেকে সরাবে?"
+  },
+  {
+   "lang": "bn",
+   "key": "community.unfriendQ",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin কে বন্ধু তালিকা থেকে সরাবে?"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.feeFor",
+   "args": [
+    0
+   ],
+   "out": "0-এর ফি"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.feeFor",
+   "args": [
+    0
+   ],
+   "out": "0-এর ফি"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.feeFor",
+   "args": [
+    1
+   ],
+   "out": "1-এর ফি"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.feeFor",
+   "args": [
+    1
+   ],
+   "out": "1-এর ফি"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.feeFor",
+   "args": [
+    2
+   ],
+   "out": "2-এর ফি"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.feeFor",
+   "args": [
+    2
+   ],
+   "out": "2-এর ফি"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.feeFor",
+   "args": [
+    12
+   ],
+   "out": "12-এর ফি"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.feeFor",
+   "args": [
+    12
+   ],
+   "out": "12-এর ফি"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.feeFor",
+   "args": [
+    1234567
+   ],
+   "out": "1234567-এর ফি"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.feeFor",
+   "args": [
+    1234567
+   ],
+   "out": "1234567-এর ফি"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.feeFor",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin-এর ফি"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.feeFor",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin-এর ফি"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.confirmPay",
+   "args": [
+    0
+   ],
+   "out": "0 ডেমো পেমেন্ট। আসল কোনো টাকা কাটা হবে না। চালিয়ে যাবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.confirmPay",
+   "args": [
+    0
+   ],
+   "out": "0 ডেমো পেমেন্ট। আসল কোনো টাকা কাটা হবে না। চালিয়ে যাবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.confirmPay",
+   "args": [
+    1
+   ],
+   "out": "1 ডেমো পেমেন্ট। আসল কোনো টাকা কাটা হবে না। চালিয়ে যাবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.confirmPay",
+   "args": [
+    1
+   ],
+   "out": "1 ডেমো পেমেন্ট। আসল কোনো টাকা কাটা হবে না। চালিয়ে যাবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.confirmPay",
+   "args": [
+    2
+   ],
+   "out": "2 ডেমো পেমেন্ট। আসল কোনো টাকা কাটা হবে না। চালিয়ে যাবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.confirmPay",
+   "args": [
+    2
+   ],
+   "out": "2 ডেমো পেমেন্ট। আসল কোনো টাকা কাটা হবে না। চালিয়ে যাবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.confirmPay",
+   "args": [
+    12
+   ],
+   "out": "12 ডেমো পেমেন্ট। আসল কোনো টাকা কাটা হবে না। চালিয়ে যাবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.confirmPay",
+   "args": [
+    12
+   ],
+   "out": "12 ডেমো পেমেন্ট। আসল কোনো টাকা কাটা হবে না। চালিয়ে যাবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.confirmPay",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 ডেমো পেমেন্ট। আসল কোনো টাকা কাটা হবে না। চালিয়ে যাবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.confirmPay",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 ডেমো পেমেন্ট। আসল কোনো টাকা কাটা হবে না। চালিয়ে যাবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.confirmPay",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin ডেমো পেমেন্ট। আসল কোনো টাকা কাটা হবে না। চালিয়ে যাবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.confirmPay",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin ডেমো পেমেন্ট। আসল কোনো টাকা কাটা হবে না। চালিয়ে যাবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.classesOf",
+   "args": [
+    0,
+    3
+   ],
+   "out": "৩টির মধ্যে ০টি ক্লাস"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.classesOf",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "Batch Aটির মধ্যে ০টি ক্লাস"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.classesOf",
+   "args": [
+    1,
+    3
+   ],
+   "out": "৩টির মধ্যে ১টি ক্লাস"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.classesOf",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "Batch Aটির মধ্যে ১টি ক্লাস"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.classesOf",
+   "args": [
+    2,
+    3
+   ],
+   "out": "৩টির মধ্যে ২টি ক্লাস"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.classesOf",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "Batch Aটির মধ্যে ২টি ক্লাস"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.classesOf",
+   "args": [
+    12,
+    3
+   ],
+   "out": "৩টির মধ্যে ১২টি ক্লাস"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.classesOf",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "Batch Aটির মধ্যে ১২টি ক্লাস"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.classesOf",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "৩টির মধ্যে ১২,৩৪,৫৬৭টি ক্লাস"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.classesOf",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "Batch Aটির মধ্যে ১২,৩৪,৫৬৭টি ক্লাস"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.classesOf",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "৩টির মধ্যে Rahim Uddinটি ক্লাস"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.classesOf",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Batch Aটির মধ্যে Rahim Uddinটি ক্লাস"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.rank",
+   "args": [
+    0
+   ],
+   "out": "ব্যাচে #০"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.rank",
+   "args": [
+    0
+   ],
+   "out": "ব্যাচে #০"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.rank",
+   "args": [
+    1
+   ],
+   "out": "ব্যাচে #১"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.rank",
+   "args": [
+    1
+   ],
+   "out": "ব্যাচে #১"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.rank",
+   "args": [
+    2
+   ],
+   "out": "ব্যাচে #২"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.rank",
+   "args": [
+    2
+   ],
+   "out": "ব্যাচে #২"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.rank",
+   "args": [
+    12
+   ],
+   "out": "ব্যাচে #১২"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.rank",
+   "args": [
+    12
+   ],
+   "out": "ব্যাচে #১২"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.rank",
+   "args": [
+    1234567
+   ],
+   "out": "ব্যাচে #১২,৩৪,৫৬৭"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.rank",
+   "args": [
+    1234567
+   ],
+   "out": "ব্যাচে #১২,৩৪,৫৬৭"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.rank",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "ব্যাচে #Rahim Uddin"
+  },
+  {
+   "lang": "bn",
+   "key": "parent.rank",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "ব্যাচে #Rahim Uddin"
+  },
+  {
+   "lang": "bn",
+   "key": "fees.title",
+   "args": [
+    0
+   ],
+   "out": "ফি — 0"
+  },
+  {
+   "lang": "bn",
+   "key": "fees.title",
+   "args": [
+    0
+   ],
+   "out": "ফি — 0"
+  },
+  {
+   "lang": "bn",
+   "key": "fees.title",
+   "args": [
+    1
+   ],
+   "out": "ফি — 1"
+  },
+  {
+   "lang": "bn",
+   "key": "fees.title",
+   "args": [
+    1
+   ],
+   "out": "ফি — 1"
+  },
+  {
+   "lang": "bn",
+   "key": "fees.title",
+   "args": [
+    2
+   ],
+   "out": "ফি — 2"
+  },
+  {
+   "lang": "bn",
+   "key": "fees.title",
+   "args": [
+    2
+   ],
+   "out": "ফি — 2"
+  },
+  {
+   "lang": "bn",
+   "key": "fees.title",
+   "args": [
+    12
+   ],
+   "out": "ফি — 12"
+  },
+  {
+   "lang": "bn",
+   "key": "fees.title",
+   "args": [
+    12
+   ],
+   "out": "ফি — 12"
+  },
+  {
+   "lang": "bn",
+   "key": "fees.title",
+   "args": [
+    1234567
+   ],
+   "out": "ফি — 1234567"
+  },
+  {
+   "lang": "bn",
+   "key": "fees.title",
+   "args": [
+    1234567
+   ],
+   "out": "ফি — 1234567"
+  },
+  {
+   "lang": "bn",
+   "key": "fees.title",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "ফি — Rahim Uddin"
+  },
+  {
+   "lang": "bn",
+   "key": "fees.title",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "ফি — Rahim Uddin"
+  },
+  {
+   "lang": "bn",
+   "key": "fees.invoiceNote",
+   "args": [
+    0
+   ],
+   "out": "প্রতি মাসের ০ তারিখের মধ্যে ফি দিতে হবে; এরপর দেরির জরিমানা যোগ হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "fees.invoiceNote",
+   "args": [
+    0
+   ],
+   "out": "প্রতি মাসের ০ তারিখের মধ্যে ফি দিতে হবে; এরপর দেরির জরিমানা যোগ হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "fees.invoiceNote",
+   "args": [
+    1
+   ],
+   "out": "প্রতি মাসের ১ তারিখের মধ্যে ফি দিতে হবে; এরপর দেরির জরিমানা যোগ হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "fees.invoiceNote",
+   "args": [
+    1
+   ],
+   "out": "প্রতি মাসের ১ তারিখের মধ্যে ফি দিতে হবে; এরপর দেরির জরিমানা যোগ হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "fees.invoiceNote",
+   "args": [
+    2
+   ],
+   "out": "প্রতি মাসের ২ তারিখের মধ্যে ফি দিতে হবে; এরপর দেরির জরিমানা যোগ হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "fees.invoiceNote",
+   "args": [
+    2
+   ],
+   "out": "প্রতি মাসের ২ তারিখের মধ্যে ফি দিতে হবে; এরপর দেরির জরিমানা যোগ হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "fees.invoiceNote",
+   "args": [
+    12
+   ],
+   "out": "প্রতি মাসের ১২ তারিখের মধ্যে ফি দিতে হবে; এরপর দেরির জরিমানা যোগ হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "fees.invoiceNote",
+   "args": [
+    12
+   ],
+   "out": "প্রতি মাসের ১২ তারিখের মধ্যে ফি দিতে হবে; এরপর দেরির জরিমানা যোগ হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "fees.invoiceNote",
+   "args": [
+    1234567
+   ],
+   "out": "প্রতি মাসের ১২,৩৪,৫৬৭ তারিখের মধ্যে ফি দিতে হবে; এরপর দেরির জরিমানা যোগ হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "fees.invoiceNote",
+   "args": [
+    1234567
+   ],
+   "out": "প্রতি মাসের ১২,৩৪,৫৬৭ তারিখের মধ্যে ফি দিতে হবে; এরপর দেরির জরিমানা যোগ হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "fees.invoiceNote",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "প্রতি মাসের Rahim Uddin তারিখের মধ্যে ফি দিতে হবে; এরপর দেরির জরিমানা যোগ হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "fees.invoiceNote",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "প্রতি মাসের Rahim Uddin তারিখের মধ্যে ফি দিতে হবে; এরপর দেরির জরিমানা যোগ হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    0
+   ],
+   "out": "“0” ঘোষণাটি মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    0
+   ],
+   "out": "“0” ঘোষণাটি মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    1
+   ],
+   "out": "“1” ঘোষণাটি মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    1
+   ],
+   "out": "“1” ঘোষণাটি মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    2
+   ],
+   "out": "“2” ঘোষণাটি মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    2
+   ],
+   "out": "“2” ঘোষণাটি মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    12
+   ],
+   "out": "“12” ঘোষণাটি মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    12
+   ],
+   "out": "“12” ঘোষণাটি মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    1234567
+   ],
+   "out": "“1234567” ঘোষণাটি মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    1234567
+   ],
+   "out": "“1234567” ঘোষণাটি মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "“Rahim Uddin” ঘোষণাটি মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "teacher.confirmDeleteAnn",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "“Rahim Uddin” ঘোষণাটি মুছে ফেলবেন?"
   }
  ],
  "now": "2026-11-22T10:30",

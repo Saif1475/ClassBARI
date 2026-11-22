@@ -274,7 +274,9 @@ class Store extends ChangeNotifier {
   }
 
   // ---- who is looking --------------------------------------------------------------------------------------------
-  List<Json> get students => rows(state?['students']);
+  /// Enrolled students. Those who asked to join from a link and wait for approval are left out, as on the website.
+  List<Json> get students => rows(state?['students']).where((s) => s['pending'] != true).toList();
+  List<Json> get pendingStudents => rows(state?['students']).where((s) => s['pending'] == true).toList();
   List<Json> get modules => rows(state?['modules']);
   List<Json> get batches => rows(state?['batches']);
   Json? student(Object? id) => students.where((s) => s['id'] == id).firstOrNull;

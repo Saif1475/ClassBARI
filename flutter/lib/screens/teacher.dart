@@ -9,6 +9,8 @@ import 'guardian.dart' show ChatThread;
 import 'lesson.dart' show OpenFile;
 import 'pdf.dart';
 import '../icons.g.dart';
+import '../icon.dart';
+import 'teacher_more.dart';
 
 /// Homework and written exams handed in but not marked yet, in the batches this person looks after.
 List<({Json m, Json it, int sid, Json sub})> toMark() {
@@ -66,14 +68,16 @@ class TeacherHome extends StatelessWidget {
     final batches = store.myBatches;
     final waiting = toMark().length, absent = absentOn(dayKey());
     final unread = inboxChats().where((c) => ((c['unread'] as num?) ?? 0) > 0).toList();
+    final doubts = openDoubts().length;
     final taken = (store.state?['attendance'] as Map?)?.containsKey(dayKey()) ?? false;
     return Screen(
       children: [
         H1('${t('tday.today')} · ${fmtDate(dayKey())}', kicker: '${t('teacher.greeting')} ${store.staffName}'),
-        if (waiting > 0 || unread.isNotEmpty)
+        if (waiting > 0 || unread.isNotEmpty || doubts > 0)
           Group(
             title: t('tday.attention'),
             children: [
+              if (doubts > 0) Item(icon: I.quiz, color: context.course(3), title: t('app.doubts'), trailing: Tag(localNumber(doubts, lang.code)), onTap: () => push(context, const TeacherDoubtsScreen())),
               if (waiting > 0) Item(icon: I.factCheck, color: context.colors.tertiary, title: t('tday.toMark', [waiting]), onTap: () => push(context, const Marking(pushed: true))),
               if (unread.isNotEmpty)
                 Item(
@@ -213,7 +217,8 @@ class ChatScreen extends StatelessWidget {
   );
 }
 
-/// Today's register: everyone starts present; tap a student to mark them absent (and back).
+/// The register for a day (today unless another date is picked, as on the website): everyone starts present; tap a
+/// student to mark them absent (and back).
 class Attendance extends StatefulWidget {
   const Attendance({super.key, required this.batch});
   final String batch;
@@ -222,16 +227,25 @@ class Attendance extends StatefulWidget {
 }
 
 class _AttendanceState extends State<Attendance> {
+  var today = dayKey(); // the day being marked
+
+  Future<void> pickDay() async {
+    final now = DateTime.now();
+    final d = await showDatePicker(context: context, initialDate: toDate(today), firstDate: now.subtract(const Duration(days: 365)), lastDate: now);
+    if (d != null) setState(() => today = dayKey(d));
+  }
+
   @override
   Widget build(BuildContext context) => Live((context) {
     final batch = widget.batch;
-    final today = dayKey(), absent = absentOn(today), c = context.colors;
+    final absent = absentOn(today), c = context.colors;
     final kids = store.students.where((s) => s['batch'] == batch).toList()..sort((a, b) => (a['id'] as int) - (b['id'] as int));
     return Screen(
       title: t('app.tabs2.attendance'),
       subtitle: '$batch · ${fmtDate(today)}',
       color: context.course(batchNo(batch)),
       children: [
+        Doing(label: '${t('att.date')} ${fmtDate(today)}', icon: I.calendar, soft: true, small: true, onPressed: pickDay),
         if (kids.isNotEmpty)
           Doing(
             label: t('app.allPresent'),
@@ -483,7 +497,22 @@ class _NoticesState extends State<Notices> {
             children: [
               Paged(
                 items: list,
-                row: (a) => Item(icon: I.megaphone, color: context.course(batchNo(a['batch'])), title: '${a['title']}', subtitle: '${a['body']}\n${a['batch']}${a['at'] is String ? ' · ${fmtWhen(a['at'] as String)}' : ''}'),
+                row: (a) => Item(
+                  icon: I.megaphone,
+                  color: context.course(batchNo(a['batch'])),
+                  title: '${a['title']}',
+                  subtitle: '${a['body']}\n${a['batch']}${a['at'] is String ? ' · ${fmtWhen(a['at'] as String)}' : ''}',
+                  // Their own batches' notices (the owner: all of them), as on the website.
+                  trailing: store.runsAll || names.contains(a['batch'])
+                      ? IconButton(
+                          tooltip: t('community.delete'),
+                          icon: Ico(I.trash),
+                          onPressed: () async {
+                            if (await confirm(context, t('community.delete'), t('teacher.confirmDeleteAnn', ['${a['title']}']))) await store.act('deleteAnnouncement', [a['id']]);
+                          },
+                        )
+                      : null,
+                ),
               ),
             ],
           ),

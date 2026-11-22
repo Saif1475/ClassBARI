@@ -1845,6 +1845,7 @@ const en = {
     voiceOnWeb: "🎤 Voice note: listen on the website",
     questionSent: "Question sent to your teacher",
     moreForYou: "More",
+    doubts: "Students' doubts",
     send: "Send",
     noMessages: "No messages yet.",
     myBatches: "Batches",

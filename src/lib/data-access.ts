@@ -53,6 +53,7 @@ const TEACHER_BATCH: Record<string, (a: A, s: LmsState) => (string | undefined)[
   updateStudent: (a, s) => [...viaStudent(a, s), (a[1] as { batch?: string }).batch], // not moved into someone else's batch either
   markAllPresent: viaStudents, markAllAbsent: viaStudents,
   sendChatMessage: viaThread, markChatRead: viaThread, // a teacher writes only in their own batches' threads
+  replyDoubt: ([id], s) => [s.doubts.find((d) => d.id === id)?.batch], setDoubtSolved: ([id], s) => [s.doubts.find((d) => d.id === id)?.batch],
 };
 function ownBatches(name: string, args: A, who: Who, s: LmsState) {
   const mine = new Set(s.batches.filter((b) => b.teacher === staffName(s, who)).map((b) => b.name));
