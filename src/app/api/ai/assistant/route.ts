@@ -1,4 +1,4 @@
-import { chatFile, chatImage, chatPrefs, cleanHistory, costUsd, modelMenu, packPlan, prefsRule, TRAILER, usedTokens, withFile } from "@/lib/ai-chat";
+import { chatFile, chatImage, chatPrefs, cleanHistory, costUsd, modelMenu, packPlan, prefsRule, takeTurn, TRAILER, usedTokens, withFile } from "@/lib/ai-chat";
 import { allowance } from "@/lib/ai-allowance";
 import { modelReady, streamChat } from "@/lib/ai-providers";
 import { embed, findAnswer, saveAnswer, shareable, VET_RULES, vetAsk, vetModel, vetSaysYes } from "@/lib/answer-cache";
@@ -61,62 +61,72 @@ export async function POST(request: Request) {
   const key = `${me.institute}:student:${student.id}`;
   const fast = limited(request, "ai", 12, 60_000, key);
   if (fast) return fast;
-  const a = await allowance(key, me.institute, plan); // tokens and money for this 12-hour window
-  const leftNow = a.left();
+  const release = await takeTurn(key); // one answer at a time per student, so the count read below is never out of date
+  let streaming = false; // an answer on its way lets go itself, once it is counted
+  try {
+    const a = await allowance(key, me.institute, plan); // tokens and money for this 12-hour window
+    const leftNow = a.left();
 
-  // Asked before by someone? Answer from the saved copy: instant, and it uses none of the student's allowance.
-  const question = history[0].content;
-  // An answer shaped by the student's own settings is theirs alone: it is neither taken from the saved answers nor added to them.
-  const share = shareable(history, { image: !!image, file: !!file, fresh: body?.fresh === true || !!prefs.lang || !!prefs.length });
-  const vec = share ? await embed(question) : null;
-  const saved = vec ? await findAnswer(db, vec, model, question).catch(() => null) : null;
-  if (saved) return new Response(saved.answer + TRAILER + JSON.stringify({ left: leftNow }), { headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" } });
+    // Asked before by someone? Answer from the saved copy: instant, and it uses none of the student's allowance.
+    const question = history[0].content;
+    // An answer shaped by the student's own settings is theirs alone: it is neither taken from the saved answers nor added to them.
+    const share = shareable(history, { image: !!image, file: !!file, fresh: body?.fresh === true || !!prefs.lang || !!prefs.length });
+    const vec = share ? await embed(question) : null;
+    const saved = vec ? await findAnswer(db, vec, model, question).catch(() => null) : null;
+    if (saved) return new Response(saved.answer + TRAILER + JSON.stringify({ left: leftNow }), { headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" } });
 
-  if (a.over) return Response.json({ error: "limit", resetsAt: a.resetsAt }, { status: 429 });
-  if ((await aiSpent(`${a.day.slice(0, 7)}-01`)) >= Number(process.env.AI_MONTHLY_BUDGET_USD || 30)) return Response.json({ error: "paused" }, { status: 503 });
+    if (a.over) return Response.json({ error: "limit", resetsAt: a.resetsAt }, { status: 429 });
+    if ((await aiSpent(`${a.day.slice(0, 7)}-01`)) >= Number(process.env.AI_MONTHLY_BUDGET_USD || 30)) return Response.json({ error: "paused" }, { status: 503 });
 
-  const enc = new TextEncoder();
-  const out = new ReadableStream<Uint8Array>({
-    async start(c) {
-      const send = (text: string) => {
+    const enc = new TextEncoder();
+    const out = new ReadableStream<Uint8Array>({
+      async start(c) {
+        const send = (text: string) => {
+          try {
+            c.enqueue(enc.encode(text));
+          } catch {
+            /* the student closed the page: the answer still finishes below, so its tokens are counted */
+          }
+        };
+        let keep = "";
         try {
-          c.enqueue(enc.encode(text));
-        } catch {
-          /* the student closed the page: the answer still finishes below, so its tokens are counted */
+          let answer = "";
+          const r = await streamChat({ model, system: [{ text: RULES }, { text: prefsRule(prefs, history[history.length - 1].content) }], messages: withFile(history, file), image, maxTokens: 4000 }, (t) => ((answer += t), send(t)));
+          keep = !!vec && !r.declined && !r.cut && answer.trim().length > 20 ? answer.trim() : "";
+          const tokens = usedTokens(r.usage);
+          const cost = costUsd(model, r.usage);
+          await a.record(cost, tokens);
+          // What was counted, to compare with the provider's bill (no names, no text).
+          console.info(`ai answer: ${model} in=${r.usage.input_tokens} out=${r.usage.output_tokens} letters=${answer.length} cost=${cost.toFixed(5)}`);
+          const left = a.left(tokens, cost);
+          send(TRAILER + JSON.stringify({ left, declined: r.declined, cut: r.cut }));
+        } catch (e) {
+          console.error("ai assistant:", e instanceof Error ? e.message : e);
+          send(TRAILER + JSON.stringify({ error: true }));
         }
-      };
-      let keep = "";
-      try {
-        let answer = "";
-        const r = await streamChat({ model, system: [{ text: RULES }, { text: prefsRule(prefs, history[history.length - 1].content) }], messages: withFile(history, file), image, maxTokens: 4000 }, (t) => ((answer += t), send(t)));
-        keep = !!vec && !r.declined && !r.cut && answer.trim().length > 20 ? answer.trim() : "";
-        const tokens = usedTokens(r.usage);
-        const cost = costUsd(model, r.usage);
-        await a.record(cost, tokens);
-        const left = a.left(tokens, cost);
-        send(TRAILER + JSON.stringify({ left, declined: r.declined, cut: r.cut }));
-      } catch (e) {
-        console.error("ai assistant:", e instanceof Error ? e.message : e);
-        send(TRAILER + JSON.stringify({ error: true }));
-      }
-      try {
-        c.close();
-      } catch {
-        /* already closed */
-      }
-      // The student has their answer; now decide (with a second, cheap AI look) whether to keep it for others.
-      if (keep && vec) {
+        release(); // counted (or failed): the student's next question may go ahead
         try {
-          const checker = vetModel(modelReady);
-          let verdict = "";
-          // shortcut: this small check is our cost and isn't counted in the monthly AI budget; add it if it ever matters.
-          if (checker) await streamChat({ model: checker, system: [{ text: VET_RULES }], messages: [{ role: "user", content: vetAsk(question, keep) }], maxTokens: 200 }, (t) => (verdict += t));
-          if (vetSaysYes(verdict)) await saveAnswer(db, vec, model, question, keep);
+          c.close();
         } catch {
-          /* not kept: the next student simply gets a fresh answer */
+          /* already closed */
         }
-      }
-    },
-  });
-  return new Response(out, { headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store", "X-Accel-Buffering": "no" } });
+        // The student has their answer; now decide (with a second, cheap AI look) whether to keep it for others.
+        if (keep && vec) {
+          try {
+            const checker = vetModel(modelReady);
+            let verdict = "";
+            // shortcut: this small check is our cost and isn't counted in the monthly AI budget; add it if it ever matters.
+            if (checker) await streamChat({ model: checker, system: [{ text: VET_RULES }], messages: [{ role: "user", content: vetAsk(question, keep) }], maxTokens: 200 }, (t) => (verdict += t));
+            if (vetSaysYes(verdict)) await saveAnswer(db, vec, model, question, keep);
+          } catch {
+            /* not kept: the next student simply gets a fresh answer */
+          }
+        }
+      },
+    });
+    streaming = true;
+    return new Response(out, { headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store", "X-Accel-Buffering": "no" } });
+  } finally {
+    if (!streaming) release();
+  }
 }

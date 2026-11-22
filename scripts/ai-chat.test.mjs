@@ -70,6 +70,28 @@ test("an OpenAI-style answer stream gives the text and the token count, even spl
   assert.deepEqual(r, { input: 12, output: 3, finish: "stop" });
 });
 
+test("one answer at a time per student: the next question waits until the one before is counted", async () => {
+  const { takeTurn } = await import("../src/lib/ai-chat.ts");
+  const order = [];
+  const first = await takeTurn("s1");
+  const second = takeTurn("s1").then((free) => (order.push("second starts"), free));
+  (await takeTurn("s2"))(); // another student is not held up
+  await new Promise((wait) => setTimeout(wait, 20));
+  order.push("first counted");
+  first();
+  (await second)();
+  assert.deepEqual(order, ["first counted", "second starts"]);
+  (await takeTurn("s1"))(); // free again afterwards
+});
+
+test("thinking that a provider leaves out of completion_tokens is still counted as answer", async () => {
+  const { readSse } = await import("../src/lib/ai-providers.ts");
+  const stream = (usage) => new ReadableStream({ start(c) { c.enqueue(new TextEncoder().encode(`data: {"choices":[{"delta":{"content":"Hi"},"finish_reason":"stop"}]}\n\ndata: {"choices":[],"usage":${JSON.stringify(usage)}}\n\n`)); c.close(); } });
+  assert.equal((await readSse(stream({ prompt_tokens: 100, completion_tokens: 20, total_tokens: 520 }), () => {})).output, 420); // 400 of thinking
+  assert.equal((await readSse(stream({ prompt_tokens: 100, completion_tokens: 420, total_tokens: 520 }), () => {})).output, 420); // already inside
+  assert.equal((await readSse(stream({ prompt_tokens: 100, completion_tokens: 20 }), () => {})).output, 20); // no total sent
+});
+
 test("the model picker lists every model and locks the ones a bigger pack has", async () => {
   const { modelMenu } = await import("../src/lib/ai-chat.ts");
   const m150 = modelMenu(150);

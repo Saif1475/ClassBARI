@@ -60,6 +60,25 @@ export const carried = (prev: { tokens?: number | null; cost_usd?: number | null
 /** % of this window left: the smaller of what's left in tokens and in money. */
 export const leftPct = (tokens: number, limit: number, cost: number, costLimit: number) =>
   Math.max(0, Math.round(100 * Math.min(1 - tokens / limit, costLimit === Infinity ? 1 : 1 - cost / costLimit)));
+// One answer at a time per person on this server: the next question waits until the one before it is counted, so
+// sending many at the same moment cannot get past the limit. (With several servers the count is still right, see
+// `record` in ai-allowance.ts, but that many answers could start before the first is counted.)
+const lines = new Map<string, Promise<void>>();
+/** Wait for this person's turn; call what it gives back when the answer is counted (or was not given). */
+export async function takeTurn(key: string) {
+  const before = lines.get(key) ?? Promise.resolve();
+  let done!: () => void;
+  const line = before.then(() => new Promise<void>((free) => (done = free)));
+  lines.set(key, line);
+  await before;
+  const timer = setTimeout(() => done(), 150_000); // never held for ever: an answer is cut off after 120 s anyway
+  return () => {
+    clearTimeout(timer);
+    done();
+    if (lines.get(key) === line) lines.delete(key);
+  };
+}
+
 /**
  * Every chat model for the picker, cheapest pack first: `pack` is the smallest pack that has it, and `locked` says
  * this student's pack doesn't (so they see what a bigger pack would give them).

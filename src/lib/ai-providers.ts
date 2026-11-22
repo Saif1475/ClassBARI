@@ -36,7 +36,7 @@ export async function readSse(body: ReadableStream<Uint8Array>, onText: (t: stri
     for (const line of lines) {
       const data = line.startsWith("data:") ? line.slice(5).trim() : "";
       if (!data || data === "[DONE]") continue;
-      let ev: { choices?: { delta?: { content?: unknown }; finish_reason?: string | null }[]; usage?: { prompt_tokens?: number; completion_tokens?: number } | null };
+      let ev: { choices?: { delta?: { content?: unknown }; finish_reason?: string | null }[]; usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number } | null };
       try {
         ev = JSON.parse(data);
       } catch {
@@ -45,7 +45,12 @@ export async function readSse(body: ReadableStream<Uint8Array>, onText: (t: stri
       const c = ev.choices?.[0];
       if (typeof c?.delta?.content === "string" && c.delta.content) onText(c.delta.content);
       if (c?.finish_reason) out.finish = c.finish_reason;
-      if (ev.usage) (out.input = ev.usage.prompt_tokens ?? 0), (out.output = ev.usage.completion_tokens ?? 0);
+      if (ev.usage) {
+        out.input = ev.usage.prompt_tokens ?? 0;
+        // Everything that is not the question is billed as answer. Some providers leave the model's own thinking out
+        // of completion_tokens but put it in the total, so the bigger of the two is counted.
+        out.output = Math.max(ev.usage.completion_tokens ?? 0, (ev.usage.total_tokens ?? 0) - out.input);
+      }
     }
     if (done) return out;
   }
@@ -76,6 +81,9 @@ export async function streamChat(ask: Ask, onText: (t: string) => void): Promise
       model: ask.model,
       stream: true,
       stream_options: { include_usage: true }, // the token count arrives as the last event
+      // The longest answer we pay for. Their limit also counts the model's own thinking, so it is twice the answer's
+      // size; without it one answer could run to the model's full length (tens of thousands of tokens).
+      [providerOf(ask.model) === "openai" ? "max_completion_tokens" : "max_tokens"]: ask.maxTokens * 2,
       messages: [
         { role: "system", content: ask.system.map((b) => b.text).join("\n\n") },
         ...ask.messages.map((m, i) =>

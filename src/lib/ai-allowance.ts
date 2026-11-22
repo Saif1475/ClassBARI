@@ -3,6 +3,7 @@
 import { aiWindow, carried, leftPct, previousWindow, windowCostUsd, windowTokens } from "./ai-chat.ts";
 import { admin } from "./data-server.ts";
 
+/** Read it only while holding the person's turn (`takeTurn` in ai-chat.ts), so no other answer is counted in between. */
 export async function allowance(key: string, institute: string, plan: { daily: number; pack: number } | null) {
   const db = admin();
   const w = aiWindow();
@@ -19,8 +20,11 @@ export async function allowance(key: string, institute: string, plan: { daily: n
     // Checked before asking, so the last answer of a window can go over a little; that bit comes off the next window.
     over: tokens >= limit || cost >= costLimit,
     left: (addTokens = 0, addCost = 0) => leftPct(tokens + addTokens, limit, cost + addCost, costLimit),
-    // shortcut: read-then-write count; two answers at the same instant may both count as one. Use a DB function if that matters.
-    record: (addCost: number, addTokens: number) =>
-      db.from("ai_usage").upsert({ user_key: key, day: w.day, slot: w.slot, institute_id: institute, questions: (mine?.questions ?? 0) + 1, cost_usd: Number(mine?.cost_usd ?? 0) + addCost, tokens: Number(mine?.tokens ?? 0) + addTokens }),
+    record: async (addCost: number, addTokens: number) => {
+      // Added inside the database in one step (migration 0013), so answers finishing at the same moment are all counted.
+      const { error } = await db.rpc("ai_usage_add", { p_key: key, p_day: w.day, p_slot: w.slot, p_institute: institute, p_cost: addCost, p_tokens: Math.round(addTokens) });
+      // shortcut: a database without migration 0013 falls back to read-then-write, which can miss answers given at the same instant on another server. Remove once every database has 0013.
+      if (error) await db.from("ai_usage").upsert({ user_key: key, day: w.day, slot: w.slot, institute_id: institute, questions: (mine?.questions ?? 0) + 1, cost_usd: Number(mine?.cost_usd ?? 0) + addCost, tokens: Number(mine?.tokens ?? 0) + addTokens });
+    },
   };
 }
