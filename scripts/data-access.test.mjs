@@ -351,3 +351,22 @@ test("the server measures how long a quiz really took", async () => {
   assert.equal(again.modules.flatMap((m) => m.items).find((i) => i.id === 7100).started[3], started.modules.flatMap((m) => m.items).find((i) => i.id === 7100).started[3]);
   assert.deepEqual(Object.keys(viewFor(done, student).modules.flatMap((m) => m.items).find((i) => i.id === 7100).took), ["3"]);
 });
+
+test("a student's chat with their teacher is private: not the owner, not guardians, not other teachers", () => {
+  const owner = { role: "owner", name: "Owner", studentIds: [] };
+  const mineBatch = s.students.find((x) => x.id === 3).batch;
+  const myTeacher = { role: "teacher", name: s.batches.find((b) => b.name === mineBatch).teacher, studentIds: [] };
+  const other = s.batches.find((b) => b.teacher !== myTeacher.name && b.teacher !== owner.name);
+  const otherTeacher = { role: "teacher", name: other.teacher, studentIds: [] };
+  assert.deepEqual(checkAction("sendStudentMessage", [99, "Sir, a question"], student, s), [3, "Sir, a question"]); // always as themselves
+  const next = runAction(s, "sendStudentMessage", [3, "Sir, a question"], Date.now());
+  assert.ok(viewFor(next, student).chats.some((c) => c.id === "student-3"));
+  assert.ok(viewFor(next, myTeacher).chats.some((c) => c.id === "student-3"));
+  assert.ok(!viewFor(next, otherTeacher).chats.some((c) => c.id === "student-3"));
+  assert.ok(!viewFor(next, owner).chats.some((c) => c.id === "student-3"));
+  assert.ok(!viewFor(next, { ...guardian, studentIds: [3] }).chats.some((c) => c.id === "student-3"));
+  assert.ok(checkAction("sendChatMessage", ["student-3", myTeacher.name, "Yes?", false], myTeacher, next));
+  refused(() => checkAction("sendChatMessage", ["student-3", otherTeacher.name, "hi", false], otherTeacher, next));
+  refused(() => checkAction("sendChatMessage", ["student-3", "Owner", "hi", false], owner, next));
+  refused(() => checkAction("sendChatMessage", ["parent-3", otherTeacher.name, "hi", false], otherTeacher, next)); // nor another batch's guardians
+});

@@ -7,7 +7,7 @@ export const GROUPS = ["classwork", "results", "notices", "ai", "attendance", "f
 export type Group = (typeof GROUPS)[number];
 /** The groups each kind of person can get (and so sees switches for). */
 export const GROUPS_FOR: Record<string, Group[]> = {
-  student: ["classwork", "results", "notices", "ai"],
+  student: ["classwork", "results", "notices", "messages", "ai"],
   guardian: ["attendance", "fees", "results", "notices", "messages"],
   teacher: ["messages", "work"],
   owner: ["messages", "work"],
@@ -99,8 +99,14 @@ export function notesFor(name: string, args: unknown[], before: LmsState, after:
       break;
     }
     case "sendChatMessage": {
-      const child = /^parent-(\d+)$/.exec(String(a[0]))?.[1];
-      if (child && byStaff) now.push({ to: { guardians: [Number(child)] }, group: "messages", text: ["message", String(a[1])], screen: "messages" });
+      const [, kind, id] = /^(parent|student)-(\d+)$/.exec(String(a[0])) ?? [];
+      if (id && byStaff) now.push({ to: kind === "parent" ? { guardians: [Number(id)] } : { students: [Number(id)] }, group: "messages", text: ["message", String(a[1])], screen: "messages" });
+      break;
+    }
+    case "sendStudentMessage": {
+      const st = after.students.find((x) => x.id === a[0]);
+      const t = st && teacherOf(after, st.batch);
+      if (st && t && !byStaff) now.push({ to: { staff: [t] }, group: "messages", text: ["fromStudent", st.name], screen: "messages" });
       break;
     }
     case "sendParentMessage": {

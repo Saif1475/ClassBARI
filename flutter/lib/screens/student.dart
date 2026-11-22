@@ -5,6 +5,7 @@ import '../strings.dart';
 import '../ui.dart';
 import '../views.dart';
 import 'lesson.dart';
+import 'guardian.dart' show ChatThread;
 import '../icon.dart';
 import '../icons.g.dart';
 
@@ -35,6 +36,7 @@ class StudentApp extends StatelessWidget {
         AppTab(I.checklist, t('app.todo'), const TodoPage(), badge: todoItems().length, screen: 'todo'),
         AppTab(I.insights, t('app.tabs2.results'), const Progress(), screen: 'results'),
         AppTab(I.bell, t('app.notices'), const StudentNotices(), screen: 'notices'),
+        AppTab(I.message, t('app.tabs2.messages'), const StudentMessages(), screen: 'messages'),
       ],
       note: t('settings.askInstitute'),
       details: me == null ? const [] : [(t('settings.yourName'), '${me['name']}'), (t('app.batch'), '${me['batch']}'), (t('app.roll'), '${me['id']}'), (t('app.guardian'), '${me['guardianName'] ?? ''}')],
@@ -397,6 +399,16 @@ class Progress extends StatelessWidget {
         Box(flush: true, children: [ResultLines(id)]),
       ],
     );
+  });
+}
+
+/// The student's private chat with their batch teacher (nobody else can read it, not the institute or a guardian).
+class StudentMessages extends StatelessWidget {
+  const StudentMessages({super.key});
+  @override
+  Widget build(BuildContext context) => Live((context) {
+    final me = store.me?['id'];
+    return Screen(children: [Muted(t('app.privateChat')), if (me != null) ChatThread(threadId: 'student-$me', family: true)]);
   });
 }
 

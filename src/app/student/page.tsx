@@ -88,9 +88,7 @@ export default function StudentPage() {
   const [chip, setChip] = useState("all");
   const [query, setQuery] = useState("");
   const [selectedDay, setSelectedDay] = useState("all");
-  // Parent ↔ teacher threads aren't shown to students.
-  const chats = lms.chats.filter((c) => !c.id.startsWith("parent-"));
-  const [activeChatId, setActiveChatId] = useState(chats[0]?.id ?? "");
+  const [activeChatId, setActiveChatId] = useState("");
   const [draft, setDraft] = useState("");
   const [active, setActive] = useState<{ moduleId: number; itemId: number } | null>(null);
   const [staffHome, setStaffHome] = useState<string | null>(null); // teacher / institute previewing the student view
@@ -109,6 +107,13 @@ export default function StudentPage() {
   const course = me?.batch ?? "";
   const teacherName = lms.batches.find((b) => b.name === course)?.teacher ?? lms.teacherName;
   const live = lms.liveClass.batch === course ? lms.liveClass : null; // the live class belongs to one batch
+  // The private chat with their own teacher always comes first (shown even before the first message), then the demo's
+  // sample threads. Guardians' threads aren't shown to students.
+  const ownChat = lms.chats.find((c) => c.id === `student-${meId}`);
+  const chats = [
+    { id: `student-${meId}`, name: teacherName, role: course, unread: 0, online: false, messages: ownChat?.messages ?? [] },
+    ...lms.chats.filter((c) => !/^(parent|student)-/.test(c.id)),
+  ];
   const announcements = noticesFor(lms.announcements, course); // also the notices for every batch
   const todos = lms.todos.filter((td) => td.batch === course);
   const calendar = lms.calendar.filter((e) => !e.batch || e.batch === course);
@@ -908,7 +913,7 @@ export default function StudentPage() {
               <aside className="flex w-full min-w-0 shrink-0 flex-col gap-2 border-b border-white/70 bg-surface-container/40 p-4 backdrop-blur-xl md:w-80 md:overflow-y-auto md:border-b-0 md:border-r">
                 <div className="px-2 pb-1">
                   <h1 className="text-2xl font-bold">{S.inbox}</h1>
-                  <p className="text-xs text-on-surface-variant">{S.inboxSub}</p>
+                  <p className="text-xs text-on-surface-variant">{t.app.privateChat}</p>
                 </div>
                 <div className="flex gap-2 overflow-x-auto md:flex-col">
                   {chats.map((c) => {
@@ -964,7 +969,8 @@ export default function StudentPage() {
                       e.preventDefault();
                       const text = draft.trim();
                       if (!text) return;
-                      lms.sendChatMessage(activeChat.id, myName, text, true);
+                      if (activeChat.id.startsWith("student-")) lms.sendStudentMessage(meId, text);
+                      else lms.sendChatMessage(activeChat.id, myName, text, true);
                       setDraft("");
                     }}
                     className="glass-header sticky bottom-18 flex items-center gap-3 border-t border-white/70 px-4 py-3 md:static md:bg-white/50 md:px-6"

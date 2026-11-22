@@ -167,12 +167,12 @@ class GuardianNotices extends StatelessWidget {
   });
 }
 
-/// A guardian ↔ teacher thread (`parent-<child id>`). In the Guardian app "mine" means the guardian wrote it; the
-/// Teacher app shows the same thread from the other side.
+/// A thread with the teacher: a guardian's (`parent-<child id>`) or a student's private one (`student-<id>`).
+/// `family`: the guardian or student side, where "mine" means they wrote it; the Teacher app shows the other side.
 class ChatThread extends StatefulWidget {
-  const ChatThread({super.key, required this.threadId, required this.guardian});
+  const ChatThread({super.key, required this.threadId, required this.family});
   final String threadId;
-  final bool guardian;
+  final bool family;
   @override
   State<ChatThread> createState() => _ChatThreadState();
 }
@@ -183,7 +183,7 @@ class _ChatThreadState extends State<ChatThread> {
   @override
   void initState() {
     super.initState();
-    if (!widget.guardian && ((thread?['unread'] as num?) ?? 0) > 0) Future.microtask(() => store.act('markChatRead', [widget.threadId])); // after this screen is drawn
+    if (!widget.family && ((thread?['unread'] as num?) ?? 0) > 0) Future.microtask(() => store.act('markChatRead', [widget.threadId])); // after this screen is drawn
   }
 
   @override
@@ -199,8 +199,9 @@ class _ChatThreadState extends State<ChatThread> {
     if (msg.isEmpty) return;
     text.clear();
     setState(() {});
-    final saved = widget.guardian
-        ? await store.act('sendParentMessage', [int.parse(widget.threadId.replaceFirst('parent-', '')), msg])
+    final id = int.parse(widget.threadId.replaceFirst(RegExp(r'^(parent|student)-'), ''));
+    final saved = widget.family
+        ? await store.act(widget.threadId.startsWith('student-') ? 'sendStudentMessage' : 'sendParentMessage', [id, msg])
         : await store.act('sendChatMessage', [widget.threadId, store.state?['teacherLogin'] ?? store.state?['teacherName'] ?? '', msg, false]);
     if (!saved && mounted && store.status == Status.offline) toast(context, t('app.sentLater'));
   }
@@ -213,7 +214,7 @@ class _ChatThreadState extends State<ChatThread> {
       spacing: 10,
       children: [
         if (messages.isEmpty) Muted(t('app.noMessages')),
-        for (final m in messages) Bubble(text: '${m['text']}', mine: widget.guardian ? m['mine'] == true : m['mine'] != true, sender: '${m['sender'] ?? ''}', when: m['at'] is String ? fmtWhen(m['at'] as String) : null),
+        for (final m in messages) Bubble(text: '${m['text']}', mine: widget.family ? m['mine'] == true : m['mine'] != true, sender: '${m['sender'] ?? ''}', when: m['at'] is String ? fmtWhen(m['at'] as String) : null),
         Box(
           children: [
             Semantics(
@@ -224,7 +225,7 @@ class _ChatThreadState extends State<ChatThread> {
                 maxLines: 5,
                 maxLength: 2000,
                 onChanged: (_) => setState(() {}),
-                decoration: InputDecoration(hintText: t(widget.guardian ? 'app.writeTeacher' : 'app.writeGuardian'), labelText: t('app.tabs2.messages'), counterText: '', fillColor: context.colors.surface),
+                decoration: InputDecoration(hintText: t(widget.family ? 'app.writeTeacher' : (widget.threadId.startsWith('student-') ? 'app.writeStudent' : 'app.writeGuardian')), labelText: t('app.tabs2.messages'), counterText: '', fillColor: context.colors.surface),
               ),
             ),
             Doing(label: t('app.send'), icon: I.send, onPressed: text.text.trim().isEmpty ? null : send),
@@ -243,7 +244,7 @@ class GuardianMessages extends StatelessWidget {
     return Screen(
       children: [
         if (store.children.length > 1) const ChildChips(),
-        if (child != null) ChatThread(key: ValueKey(child['id']), threadId: 'parent-${child['id']}', guardian: true),
+        if (child != null) ChatThread(key: ValueKey(child['id']), threadId: 'parent-${child['id']}', family: true),
       ],
     );
   });

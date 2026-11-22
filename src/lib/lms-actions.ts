@@ -481,6 +481,19 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
       set((s) => ({
         chats: s.chats.map((c): ChatThread => (c.id === threadId ? { ...c, messages: [...c.messages, { id: uid(), sender, text, at: new Date().toISOString(), mine }] } : c)),
       })),
+    /** Student ↔ teacher thread (private: only the student and their batch teacher see it), created on first message. */
+    sendStudentMessage: (studentId: number, text: string) =>
+      set((s) => {
+        const st = s.students.find((x) => x.id === studentId);
+        const id = `student-${studentId}`;
+        const msg = { id: uid(), sender: st?.name ?? "", text, at: new Date().toISOString(), mine: true };
+        const exists = s.chats.some((c) => c.id === id);
+        return {
+          chats: exists
+            ? s.chats.map((c) => (c.id === id ? { ...c, unread: c.unread + 1, messages: [...c.messages, msg] } : c))
+            : [...s.chats, { id, name: st?.name ?? "", role: st?.batch ?? "", unread: 1, online: false, messages: [msg] }],
+        };
+      }),
     /** Parent ↔ teacher thread for one child, created on first message. */
     sendParentMessage: (childId: number, text: string) =>
       set((s) => {
@@ -558,7 +571,9 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
       try {
         const b = JSON.parse(text);
         if (b?.app !== "ClassBARI" || !b.data || !Array.isArray(b.data.students) || !Array.isArray(b.data.batches)) return false;
-        replace({ ...fresh(), ...b.data });
+        // Students' private chats with their teachers are never in a backup (the owner can't see them): keep them as they are.
+        const own = get().chats.filter((c) => c.id.startsWith("student-"));
+        replace({ ...fresh(), ...b.data, chats: [...(Array.isArray(b.data.chats) ? b.data.chats : []).filter((c: { id?: unknown }) => !String(c?.id).startsWith("student-")), ...own] });
         return true;
       } catch {
         return false;

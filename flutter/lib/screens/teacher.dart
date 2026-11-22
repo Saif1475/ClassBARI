@@ -25,10 +25,11 @@ List<({Json m, Json it, int sid, Json sub})> toMark() {
 
 List<int> absentOn(String day) => (((store.state?['attendance'] as Map?)?[day] as List?) ?? const []).cast<int>();
 
-/// The guardian threads of the batches this person looks after.
-List<Json> guardianChats() {
+/// The threads of the batches this person looks after: guardians', and students' private chats (the server sends
+/// those only to the student's own batch teacher).
+List<Json> inboxChats() {
   final names = {for (final b in store.myBatches) b['name']};
-  return rows(store.state?['chats']).where((c) => '${c['id']}'.startsWith('parent-') && (store.runsAll || names.contains(c['role']))).toList();
+  return rows(store.state?['chats']).where((c) => RegExp(r'^(parent|student)-').hasMatch('${c['id']}') && (store.runsAll || names.contains(c['role']))).toList();
 }
 
 /// A batch's place in the list: that decides its colour everywhere it shows.
@@ -45,7 +46,7 @@ class TeacherApp extends StatelessWidget {
       [
         AppTab(I.dashboard, t('app.myBatches'), const TeacherHome()),
         AppTab(I.checklist, t('app.todo'), const Marking(), badge: toMark().length, screen: 'todo'),
-        AppTab(I.message, t('app.tabs2.messages'), const Inbox(), badge: guardianChats().fold<int>(0, (n, c) => n + ((c['unread'] as num?) ?? 0).toInt()), screen: 'messages'),
+        AppTab(I.message, t('app.tabs2.messages'), const Inbox(), badge: inboxChats().fold<int>(0, (n, c) => n + ((c['unread'] as num?) ?? 0).toInt()), screen: 'messages'),
         AppTab(I.megaphone, t('app.tabs2.notices'), const Notices(), screen: 'notices'),
       ],
       details: [
@@ -64,7 +65,7 @@ class TeacherHome extends StatelessWidget {
   Widget build(BuildContext context) => Live((context) {
     final batches = store.myBatches;
     final waiting = toMark().length, absent = absentOn(dayKey());
-    final unread = guardianChats().where((c) => ((c['unread'] as num?) ?? 0) > 0).toList();
+    final unread = inboxChats().where((c) => ((c['unread'] as num?) ?? 0) > 0).toList();
     final taken = (store.state?['attendance'] as Map?)?.containsKey(dayKey()) ?? false;
     return Screen(
       children: [
@@ -178,7 +179,7 @@ class Inbox extends StatelessWidget {
   const Inbox({super.key});
   @override
   Widget build(BuildContext context) => Live((context) {
-    final chats = guardianChats();
+    final chats = inboxChats();
     return Screen(
       children: [
         if (chats.isEmpty) Box(children: [Muted(t('app.noMessages'))]),
@@ -207,7 +208,7 @@ class ChatScreen extends StatelessWidget {
   Widget build(BuildContext context) => Live(
     (context) => Screen(
       title: '${rows(store.state?['chats']).where((c) => c['id'] == threadId).firstOrNull?['name'] ?? ''}',
-      children: [ChatThread(threadId: threadId, guardian: false)],
+      children: [ChatThread(threadId: threadId, family: false)],
     ),
   );
 }

@@ -63,6 +63,8 @@
  "app.noMeetings": "এখনো কোনো মিটিং সময় নেই।",
  "app.writeTeacher": "শিক্ষককে লিখুন…",
  "app.writeGuardian": "অভিভাবককে উত্তর দিন…",
+ "app.writeStudent": "শিক্ষার্থীকে উত্তর দিন…",
+ "app.privateChat": "এই চ্যাট শুধু তুমি আর তোমার শিক্ষক পড়তে পারবে।",
  "app.send": "পাঠান",
  "app.noMessages": "এখনো কোনো বার্তা নেই।",
  "app.myBatches": "ব্যাচ",

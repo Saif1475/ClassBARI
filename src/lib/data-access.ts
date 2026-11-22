@@ -31,6 +31,15 @@ const viaStudents = ([ids]: A, s: LmsState) => {
   return (ids as number[]).map((id) => batch.get(id));
 };
 const inInput = ([x]: A) => [(x as { batch?: string }).batch];
+/** The student a chat thread is about: "parent-12" (guardian ↔ teacher) or "student-12" (the student's private chat with their teacher). */
+export const chatStudent = (thread: unknown) => Number(/^(?:parent|student)-(\d+)$/.exec(String(thread))?.[1] ?? NaN);
+const viaThread = ([id]: A, s: LmsState) => [s.students.find((x) => x.id === chatStudent(id))?.batch];
+/** A student's private chat is for them and their batch teacher only, not the owner or a manager. */
+const privateChatOf = (s: LmsState, thread: unknown, me: string) => {
+  if (!String(thread).startsWith("student-")) return true;
+  const batch = s.students.find((x) => x.id === chatStudent(thread))?.batch;
+  return !!batch && s.batches.some((b) => b.name === batch && b.teacher === me);
+};
 /** The batches each teacher action touches: a teacher works only in the batches the institute gave them. */
 const TEACHER_BATCH: Record<string, (a: A, s: LmsState) => (string | undefined)[]> = {
   addAnnouncement: inInput, updateLiveClass: inInput, addCalendarEvent: inInput, addStudent: inInput,
@@ -43,6 +52,7 @@ const TEACHER_BATCH: Record<string, (a: A, s: LmsState) => (string | undefined)[
   removeStudent: viaStudent, toggleStudentMode: viaStudent, setReportComment: viaStudent, approveStudent: viaStudent,
   updateStudent: (a, s) => [...viaStudent(a, s), (a[1] as { batch?: string }).batch], // not moved into someone else's batch either
   markAllPresent: viaStudents, markAllAbsent: viaStudents,
+  sendChatMessage: viaThread, markChatRead: viaThread, // a teacher writes only in their own batches' threads
 };
 function ownBatches(name: string, args: A, who: Who, s: LmsState) {
   const mine = new Set(s.batches.filter((b) => b.teacher === staffName(s, who)).map((b) => b.name));
@@ -165,6 +175,7 @@ const STUDENT: Record<string, Rule> = {
     s.students.some((x) => x.id === other) && canRequest(s.communityProfiles, { me: batchOf(s, me), other: batchOf(s, other as number) }, me, other as number) ? [me, other] : refuse("not allowed"),
   answerFriend: ([, other, accept], me) => [me, int(other), accept === true],
   ensureLiveRoom: ([batch], me, s) => (batch === batchOf(s, me) ? [batch] : refuse("not your class")),
+  sendStudentMessage: ([, text], me) => [me, str(text, 2000)],
 };
 const FAMILY: Record<string, Rule> = {
   addPortfolio: ([id, title, image], _me, s, who) =>
@@ -182,6 +193,7 @@ export function checkAction(name: string, args: unknown[], who: Who, s: LmsState
   if (LOCAL_ONLY.has(name) || NEVER.has(name)) refuse("not allowed");
   if (who.role === "owner" || who.role === "manager" || who.role === "teacher") {
     if (who.role === "teacher" && OWNER.has(name)) refuse("owner only");
+    if ((name === "sendChatMessage" || name === "markChatRead") && !privateChatOf(s, args[0], staffName(s, who))) refuse("private chat");
     if (who.role === "teacher" && name === "updateStaffProfile" && args[0] !== staffName(s, who)) refuse("only your own profile");
     // Batches belong to a teacher by name: taking a colleague's name would take their batches.
     if (name === "updateStaffProfile" && s.staff.some((x) => x.name !== args[0] && x.name === String(args[1]).trim().slice(0, 60))) refuse("name taken");
@@ -231,7 +243,7 @@ function teacherView(s: LmsState, me: string): LmsState {
     admissions: [],
     orders: [],
     coupons: [],
-    chats: s.chats.filter((c) => mine.has(Number(c.id.replace("parent-", "")))),
+    chats: s.chats.filter((c) => mine.has(chatStudent(c.id))), // guardians' threads and the students' own chats, for their own batches
     doubts: s.doubts.filter((d) => names.has(d.batch)),
     meetings: s.meetings.filter((m) => m.teacher === me || names.has(m.batch)),
     story: s.story.filter((p) => names.has(p.batch)),
@@ -255,6 +267,7 @@ export function viewFor(s: LmsState, who: Who): LmsState {
       ...s,
       teacherLogin: s.teacherName,
       viewer: "all",
+      chats: s.chats.filter((c) => privateChatOf(s, c.id, staffName(s, who))), // students' private chats only if they teach that batch
       // Even the owner isn't sent who voted for what, or whom each student muted or blocked.
       community: s.community.map((p) => (p.poll ? { ...p, poll: pollFor(p.poll, undefined) } : p)),
       communityProfiles: Object.fromEntries(Object.entries(s.communityProfiles ?? {}).map(([id, pr]) => [id, { bio: pr.bio }])),
@@ -325,7 +338,8 @@ export function viewFor(s: LmsState, who: Who): LmsState {
     doubts: s.doubts.filter((d) => mine(d.studentId)),
     watch: Object.fromEntries(Object.entries(s.watch).map(([item, by]) => [item, own(by) ?? {}])),
     liveRooms: Object.fromEntries(Object.entries(s.liveRooms).filter(([b]) => batches.has(b))),
-    chats: s.chats.filter((c) => ids.some((id) => c.id === `parent-${id}`) && who.role === "guardian"),
+    // Guardians: their children's threads with the teacher. A student: only their own private chat with their teacher.
+    chats: who.role === "guardian" ? s.chats.filter((c) => ids.some((id) => c.id === `parent-${id}`)) : s.chats.filter((c) => c.id === `student-${me}`),
     // Only posts this student may see (audience, blocks); polls without who voted what.
     community:
       me === undefined

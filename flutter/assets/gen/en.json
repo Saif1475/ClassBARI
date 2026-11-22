@@ -63,6 +63,8 @@
  "app.noMeetings": "No meeting slots yet.",
  "app.writeTeacher": "Write to the teacher…",
  "app.writeGuardian": "Reply to the guardian…",
+ "app.writeStudent": "Reply to the student…",
+ "app.privateChat": "Only you and your teacher can read this chat.",
  "app.send": "Send",
  "app.noMessages": "No messages yet.",
  "app.myBatches": "Batches",

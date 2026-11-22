@@ -78,3 +78,13 @@ test("every notification has wording in both languages", () => {
       assert.ok(title && typeof body === "string", k);
     }
 });
+
+test("private chat: the teacher hears from the student, the student hears the reply", async () => {
+  const { notesFor } = await import("../src/lib/notify.ts");
+  const { seed } = await import("../src/lib/mock-data.ts");
+  const s = seed();
+  const st = s.students[0];
+  const teacher = s.batches.find((b) => b.name === st.batch).teacher;
+  assert.deepEqual(notesFor("sendStudentMessage", [st.id, "Hi"], s, s, false).now[0].to, { staff: [teacher] });
+  assert.deepEqual(notesFor("sendChatMessage", [`student-${st.id}`, teacher, "Hello", false], s, s, true).now[0].to, { students: [st.id] });
+});
