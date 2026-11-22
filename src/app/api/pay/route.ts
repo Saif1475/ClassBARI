@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   if (!REAL_AUTH) return Response.json({ error: "demo mode" }, { status: 404 });
   const me = await whoIs(request);
   if (!me?.who.email) return Response.json({ error: "sign in" }, { status: 401 });
-  const { data } = await admin().from("payments").select("id, created_at, kind, item, months, amount, method, trx_id, status, reason").eq("payer_email", me.who.email).order("created_at", { ascending: false }).limit(10);
+  const { data } = await admin().from("pay_requests").select("id, created_at, kind, item, months, amount, method, trx_id, status, reason").eq("payer_email", me.who.email).order("created_at", { ascending: false }).limit(10);
   return Response.json({ methods: payNumbers(), packs: PACKS, plans: me.who.role === "owner" ? await planPrices() : {}, mine: data ?? [] });
 }
 
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
     if (studentId === null) return Response.json({ error: "not allowed" }, { status: 403 });
   } else if (me.who.role !== "owner") return Response.json({ error: "not allowed" }, { status: 403 });
   const { data, error } = await admin()
-    .from("payments")
+    .from("pay_requests")
     .insert({ institute_id: me.institute, payer_email: me.who.email, payer_role: me.who.role, kind: p.kind, item: p.item, student_id: studentId, months: p.months, amount: p.amount, method: p.method, sender: p.sender, trx_id: p.trxId })
     .select("id, created_at, kind, item, months, amount, method, trx_id, status")
     .single();

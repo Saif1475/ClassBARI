@@ -13,8 +13,8 @@ export async function GET(request: Request) {
   if (!REAL_AUTH) return Response.json({ error: "demo mode" }, { status: 404 });
   const db = admin();
   const [{ data: waiting }, { data: done }, { data: insts }] = await Promise.all([
-    db.from("payments").select("*").eq("status", "pending").order("created_at"),
-    db.from("payments").select("*").neq("status", "pending").order("decided_at", { ascending: false }).limit(50),
+    db.from("pay_requests").select("*").eq("status", "pending").order("created_at"),
+    db.from("pay_requests").select("*").neq("status", "pending").order("decided_at", { ascending: false }).limit(50),
     db.from("institutes").select("id, name, code"),
   ]);
   const name = Object.fromEntries((insts ?? []).map((i) => [i.id, `${i.name} (${i.code})`]));
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
   const db = admin();
   // Claimed in one step: two people pressing at once can't both approve it.
   const { data: p } = await db
-    .from("payments")
+    .from("pay_requests")
     .update({ status: body.approve ? "approved" : "rejected", reason: typeof body.reason === "string" ? body.reason.slice(0, 200) : null, decided_at: new Date().toISOString() })
     .eq("id", body.id)
     .eq("status", "pending")
@@ -53,7 +53,7 @@ export async function POST(request: Request) {
       return [st.id, until, Number(p.item)];
     });
     if (!until) {
-      await db.from("payments").update({ status: "pending", decided_at: null }).eq("id", p.id); // nothing changed: back in the queue
+      await db.from("pay_requests").update({ status: "pending", decided_at: null }).eq("id", p.id); // nothing changed: back in the queue
       return Response.json({ error: "student not found" }, { status: 404 });
     }
   }

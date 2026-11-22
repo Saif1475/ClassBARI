@@ -1,6 +1,7 @@
+-- (Named pay_requests: the first migration already has a "payments" table, from an earlier design for tuition fees.)
 -- Payments to ClassBARI by bKash or Nagad "Send Money": the payer types the transaction ID (TrxID), our staff check it
 -- in the bKash or Nagad app and approve; an approved AI pack switches on by itself. No card numbers or PINs are kept.
-create table payments (
+create table pay_requests (
   id uuid primary key default gen_random_uuid(),
   created_at timestamptz not null default now(),
   institute_id uuid not null references institutes on delete cascade,
@@ -19,9 +20,9 @@ create table payments (
   decided_at timestamptz,
   unique (method, trx_id)                   -- one transaction pays for one thing
 );
-create index payments_status on payments (status, created_at);
-create index payments_payer on payments (payer_email, created_at);
+create index pay_requests_status on pay_requests (status, created_at);
+create index pay_requests_payer on pay_requests (payer_email, created_at);
 
-alter table payments enable row level security;
-revoke all on payments from anon, authenticated;
-grant select, insert, update, delete on payments to service_role;
+alter table pay_requests enable row level security;
+revoke all on pay_requests from anon, authenticated;
+grant select, insert, update, delete on pay_requests to service_role;
