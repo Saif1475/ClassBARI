@@ -49,3 +49,4 @@ app.*.map.json
 
 # The server address and public keys for a build (npm run flutter:config)
 /config.local.json
+/config.prod.json

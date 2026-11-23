@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("com.google.gms.google-services")
@@ -49,11 +51,22 @@ android {
         }
     }
 
+    // The Play Store upload key lives outside the code (~/ClassBARI-keys, never in Git). Without it a release
+    // build is signed with the debug key, so it still runs for testing but the Play Store would refuse it.
+    val keyFile = file(System.getenv("CLASSBARI_KEYS") ?: "${System.getProperty("user.home")}/ClassBARI-keys/key.properties")
+    val keys = Properties().apply { if (keyFile.exists()) keyFile.inputStream().use { load(it) } }
+    signingConfigs {
+        if (keyFile.exists()) create("upload") {
+            storeFile = file(keys.getProperty("storeFile"))
+            storePassword = keys.getProperty("storePassword")
+            keyAlias = keys.getProperty("keyAlias")
+            keyPassword = keys.getProperty("keyPassword")
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.findByName("upload") ?: signingConfigs.getByName("debug")
         }
     }
 }
