@@ -5,7 +5,7 @@
 export const INLINE = /(\*\*[^*]+\*\*|==[^=\s](?:(?:(?!==).)*?[^=\s])?==|`[^`]+`)/;
 
 /** The tools a student switched on for a chat. */
-export type ChatTools = { pdf?: true; highlight?: true };
+export type ChatTools = { pdf?: true; highlight?: true; think?: true }; // think: "Think deeper" (more hidden reasoning)
 
 /** `tools` as sent: missing is none; anything but { pdf?: boolean, highlight?: boolean } is refused (null). */
 export function chatTools(raw: unknown): ChatTools | null {
@@ -13,7 +13,7 @@ export function chatTools(raw: unknown): ChatTools | null {
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
   const out: ChatTools = {};
   for (const [k, v] of Object.entries(raw)) {
-    if ((k !== "pdf" && k !== "highlight") || typeof v !== "boolean") return null;
+    if ((k !== "pdf" && k !== "highlight" && k !== "think") || typeof v !== "boolean") return null;
     if (v) out[k] = true;
   }
   return out;

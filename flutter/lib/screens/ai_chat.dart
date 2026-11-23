@@ -30,7 +30,10 @@ var aiStream = apiStream;
 var aiPdf = apiPdf;
 
 /// The Tools menu: Create PDF and Highlight (both may be on; each chat remembers its own).
-const toolKeys = ['pdf', 'highlight'];
+const toolKeys = ['pdf', 'highlight', 'think'];
+/// The words and picture of each tool: aichat.toolPdf / toolHighlight / toolThink (+ Hint).
+String toolWord(String k) => k == 'pdf' ? 'Pdf' : (k == 'highlight' ? 'Highlight' : 'Think');
+CbIcon toolIcon(String k) => k == 'pdf' ? I.file : (k == 'highlight' ? I.editNote : I.idea);
 
 /// A PDF sent to be highlighted: HIGHLIGHT_MAX_BYTES in src/lib/chat-tools.ts.
 const highlightMaxBytes = 8 * 1024 * 1024;
@@ -472,9 +475,9 @@ class _AiChatAppState extends State<AiChatApp> {
             Padding(padding: const EdgeInsets.fromLTRB(16, 0, 16, 8), child: H2(t('aichat.tools'))),
             for (final k in toolKeys)
               SwitchListTile(
-                secondary: Ico(k == 'pdf' ? I.file : I.editNote),
-                title: Text(t(k == 'pdf' ? 'aichat.toolPdf' : 'aichat.toolHighlight')),
-                subtitle: Text(t(k == 'pdf' ? 'aichat.toolPdfHint' : 'aichat.toolHighlightHint')),
+                secondary: Ico(toolIcon(k)),
+                title: Text(t('aichat.tool${toolWord(k)}')),
+                subtitle: Text(t('aichat.tool${toolWord(k)}Hint')),
                 value: tools[k] == true,
                 onChanged: (_) {
                   toggleTool(k);
@@ -816,9 +819,9 @@ class _AiChatAppState extends State<AiChatApp> {
                         for (final k in toolKeys)
                           if (tools[k] == true)
                             InputChip(
-                              avatar: Ico(k == 'pdf' ? I.file : I.editNote, size: 18),
-                              label: Text(t(k == 'pdf' ? 'aichat.toolPdf' : 'aichat.toolHighlight')),
-                              deleteButtonTooltipMessage: t('aichat.removeTool', [t(k == 'pdf' ? 'aichat.toolPdf' : 'aichat.toolHighlight')]),
+                              avatar: Ico(toolIcon(k), size: 18),
+                              label: Text(t('aichat.tool${toolWord(k)}')),
+                              deleteButtonTooltipMessage: t('aichat.removeTool', [t('aichat.tool${toolWord(k)}')]),
                               onDeleted: busy ? null : () => toggleTool(k),
                             ),
                       ],

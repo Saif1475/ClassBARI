@@ -277,6 +277,8 @@
  "aichat.toolPdfHint": "The answer comes as a document to download: notes, worksheets, summaries",
  "aichat.toolHighlight": "Highlight",
  "aichat.toolHighlightHint": "Marks key terms, definitions, formulas and exam points. Attach a PDF to get it back highlighted",
+ "aichat.toolThink": "Think deeper",
+ "aichat.toolThinkHint": "For hard maths and problems: slower, and uses more of your allowance. Off: quick answers",
  "aichat.removeTool": "Remove {0}",
  "aichat.pdfReady": "Your PDF is ready",
  "aichat.pdfReadyHint": "This question and answer as a PDF",

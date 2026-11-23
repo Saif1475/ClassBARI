@@ -85,7 +85,7 @@ export async function POST(request: Request) {
         let keep = "";
         try {
           let answer = "";
-          const r = await streamChat({ model, system: [{ text: RULES }, { text: [prefsRule(prefs, history[history.length - 1].content), toolsRule(tools)].filter(Boolean).join("\n") }], messages: withFile(history, file), image, maxTokens: 4000 }, (t) => ((answer += t), send(t)));
+          const r = await streamChat({ model, system: [{ text: RULES }, { text: [prefsRule(prefs, history[history.length - 1].content), toolsRule(tools)].filter(Boolean).join("\n") }], messages: withFile(history, file), image, maxTokens: tools.think ? 6000 : 4000, think: !!tools.think }, (t) => ((answer += t), send(t)));
           keep = !!vec && !r.declined && !r.cut && answer.trim().length > 20 ? answer.trim() : "";
           const tokens = usedTokens(r.usage);
           const cost = costUsd(model, r.usage);

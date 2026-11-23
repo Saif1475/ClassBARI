@@ -582,7 +582,7 @@ void main() {
     await tester.tap(find.text('Create PDF'));
     await tester.tap(find.text('Highlight'));
     await tester.pumpAndSettle();
-    await tester.tapAt(const Offset(10, 10)); // close the menu
+    await tester.binding.handlePopRoute(); // close the menu (Back)
     await tester.pumpAndSettle();
     expect(find.byType(InputChip), findsNWidgets(2)); // the chosen tools, above the box
     await tester.tap(find.byTooltip('Remove Create PDF'));
@@ -591,7 +591,7 @@ void main() {
     await tester.tap(find.byTooltip('Tools'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Create PDF'));
-    await tester.tapAt(const Offset(10, 10));
+    await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
 
     await tester.enterText(find.byType(TextField), 'Explain inertia');

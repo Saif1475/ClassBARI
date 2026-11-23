@@ -18,7 +18,15 @@ const THINK: Record<Exclude<Provider, "anthropic">, Record<string, unknown>> = {
   openrouter: { reasoning: { effort: "low" } },
 };
 /** Measured Nov 2026: Gemini 2.5 Flash-Lite doesn't think unless asked, so "low" made its answers dearer; it gets "none". */
-const thinkFor = (model: string) => (model.startsWith("gemini-2.5") ? { reasoning_effort: "none" } : THINK[providerOf(model) as keyof typeof SETUP]);
+const thinkFor = (model: string, deep?: boolean) =>
+  deep ? DEEP[providerOf(model) as keyof typeof SETUP] : model.startsWith("gemini-2.5") ? { reasoning_effort: "none" } : THINK[providerOf(model) as keyof typeof SETUP];
+/** "Think deeper" on: a medium reasoning effort (Qwen: thinking on). */
+const DEEP: Record<Exclude<Provider, "anthropic">, Record<string, unknown>> = {
+  google: { reasoning_effort: "medium" },
+  openai: { reasoning_effort: "medium" },
+  qwen: { enable_thinking: true },
+  openrouter: { reasoning: { effort: "medium" } },
+};
 const providerOf = (model: string): Provider => MODELS[model]?.provider ?? "anthropic";
 /** Is this model's API key set on the server? */
 export const modelReady = (model: string) => !!process.env[providerOf(model) === "anthropic" ? "ANTHROPIC_API_KEY" : SETUP[providerOf(model) as keyof typeof SETUP].key];
@@ -50,6 +58,7 @@ export type Ask = {
   messages: ChatTurn[];
   image?: { media_type: "image/png" | "image/jpeg" | "image/webp"; data: string } | null; // goes with the last question
   maxTokens: number;
+  think?: boolean; // "Think deeper": let the model reason more (slower, uses more of the allowance)
 };
 export type Answered = { usage: { input_tokens: number; output_tokens: number; cache_read_input_tokens?: number | null; cache_creation_input_tokens?: number | null }; declined: boolean; cut: boolean };
 
@@ -95,7 +104,7 @@ export async function streamChat(ask: Ask, onText: (t: string) => void): Promise
       model: MODELS[ask.model]?.route ?? ask.model,
       max_tokens: ask.maxTokens,
       ...(ask.model.includes("haiku") ? {} : { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" as const }), // Haiku has no server-side fallback
-      output_config: { effort: "low" },
+      output_config: { effort: ask.think ? "medium" : "low" },
       system: ask.system.map((b) => ({ type: "text" as const, text: b.text, ...(b.cache ? { cache_control: { type: "ephemeral" as const } } : {}) })),
       messages: ask.messages.map((m, i) => (ask.image && i === last ? { role: "user" as const, content: [{ type: "image" as const, source: { type: "base64" as const, ...ask.image } }, { type: "text" as const, text: m.content }] } : m)),
     });
@@ -110,7 +119,7 @@ export async function streamChat(ask: Ask, onText: (t: string) => void): Promise
     signal: AbortSignal.timeout(120_000),
     body: JSON.stringify({
       // Little hidden thinking: it is billed as answer and counts against the student, while chat questions rarely need much.
-      ...(think ? thinkFor(ask.model) : {}),
+      ...(think ? thinkFor(ask.model, ask.think) : {}),
       model: MODELS[ask.model]?.route ?? ask.model,
       stream: true,
       stream_options: { include_usage: true }, // the token count arrives as the last event

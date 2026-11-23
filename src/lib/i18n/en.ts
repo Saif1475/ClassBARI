@@ -1734,6 +1734,8 @@ const en = {
     toolPdfHint: "The answer comes as a document to download: notes, worksheets, summaries",
     toolHighlight: "Highlight",
     toolHighlightHint: "Marks key terms, definitions, formulas and exam points. Attach a PDF to get it back highlighted",
+    toolThink: "Think deeper",
+    toolThinkHint: "For hard maths and problems: slower, and uses more of your allowance. Off: quick answers",
     removeTool: (name: string) => `Remove ${name}`,
     pdfReady: "Your PDF is ready",
     pdfReadyHint: "This question and answer as a PDF",

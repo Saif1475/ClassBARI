@@ -181,7 +181,9 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
     setTools(next);
     if (chat) save(chats.map((c) => (c.id === chat.id ? { ...c, tools: next } : c)));
   };
-  const toolNames = { pdf: A.toolPdf, highlight: A.toolHighlight };
+  const toolNames = { pdf: A.toolPdf, highlight: A.toolHighlight, think: A.toolThink };
+  const toolHints = { pdf: A.toolPdfHint, highlight: A.toolHighlightHint, think: A.toolThinkHint };
+  const toolIcons = { pdf: "📄", highlight: "🖍️", think: "💭" };
   const ask = async (question: string, before: Msg[], image: string, id: number, fresh = false) => {
     const asked: Msg[] = [...before, { role: "user", content: question, ...(image ? { photo: true } : {}) }];
     // Its folder: picked from the first question (and file name); a chat still in "Other" moves once a later question shows its topic.
@@ -533,9 +535,9 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
             )}
             {(tools.pdf || tools.highlight) && (
               <span className="flex flex-wrap gap-1.5 px-2 pt-1">
-                {(["pdf", "highlight"] as const).filter((k) => tools[k]).map((k) => (
+                {(["pdf", "highlight", "think"] as const).filter((k) => tools[k]).map((k) => (
                   <span key={k} className="inline-flex h-9 items-center gap-1 rounded-full bg-primary-container pl-3 text-sm font-bold">
-                    <span aria-hidden>{k === "pdf" ? "📄" : "🖍️"}</span> {toolNames[k]}
+                    <span aria-hidden>{toolIcons[k]}</span> {toolNames[k]}
                     <button type="button" aria-label={A.removeTool(toolNames[k])} title={A.removeTool(toolNames[k])} onClick={() => toggleTool(k)} className="flex h-9 w-9 items-center justify-center rounded-full text-on-surface-variant">✕</button>
                   </span>
                 ))}
@@ -599,13 +601,13 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
                 </button>
                 {toolsMenu && (
                   <ul role="menu" aria-label={A.tools} className="picker-drop absolute bottom-full left-0 z-30 mb-2 flex w-72 max-w-[calc(100vw-3rem)] flex-col gap-1 rounded-[14px] border border-outline-variant p-2 shadow-[0_18px_50px_rgba(0,32,28,0.22)]">
-                    {(["pdf", "highlight"] as const).map((k) => (
+                    {(["pdf", "highlight", "think"] as const).map((k) => (
                       <li key={k} role="none">
                         <button type="button" role="menuitemcheckbox" aria-checked={!!tools[k]} onClick={() => toggleTool(k)} className="flex min-h-12 w-full items-center gap-3 rounded-[10px] px-3 py-2 text-left text-sm hover:bg-surface-container">
-                          <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-primary-container text-lg">{k === "pdf" ? "📄" : "🖍️"}</span>
+                          <span aria-hidden className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-primary-container text-lg">{toolIcons[k]}</span>
                           <span className="flex min-w-0 flex-1 flex-col">
                             <span className="font-bold">{toolNames[k]}</span>
-                            <span className="text-xs text-on-surface-variant">{k === "pdf" ? A.toolPdfHint : A.toolHighlightHint}</span>
+                            <span className="text-xs text-on-surface-variant">{toolHints[k]}</span>
                           </span>
                           <span aria-hidden className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 ${tools[k] ? "border-primary bg-primary text-on-primary" : "border-outline"}`}>{tools[k] ? "✓" : ""}</span>
                         </button>

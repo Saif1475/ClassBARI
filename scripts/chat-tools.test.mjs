@@ -62,3 +62,11 @@ test("without an AI key, the basic highlights come back as real highlight marks 
   const text = (await (await doc.getPage(1)).getTextContent()).items.map((i) => i.str).join(" ");
   assert.match(text, /Inertia is defined as/); // the student's own words, untouched
 });
+
+test("Think deeper is a tool like the others: accepted, and nothing else new", async () => {
+  const { chatTools } = await import("../src/lib/chat-tools.ts");
+  assert.deepEqual(chatTools({ think: true }), { think: true });
+  assert.deepEqual(chatTools({ think: false, pdf: true }), { pdf: true });
+  assert.equal(chatTools({ think: "yes" }), null);
+  assert.equal(chatTools({ reason: true }), null);
+});
