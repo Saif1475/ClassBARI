@@ -40,7 +40,14 @@ test("the allowance is one Dhaka calendar day and refills at midnight in Dhaka",
 });
 
 test("the daily limit counts every token, cached ones included", () => {
-  assert.equal(usedTokens({ input_tokens: 100, output_tokens: 50, cache_read_input_tokens: 20000, cache_creation_input_tokens: 5 }), 20155);
+  // Only the answer counts against the allowance; the resent history and instructions are paid for by the money caps.
+  assert.equal(usedTokens({ input_tokens: 100, output_tokens: 50, cache_read_input_tokens: 20000, cache_creation_input_tokens: 5 }), 50);
+  // History: the last 8 messages; the latest answer in full, earlier ones cut to 1,500 letters.
+  const long = "x".repeat(5000);
+  const chat = Array.from({ length: 11 }, (_, i) => ({ role: i % 2 ? "assistant" : "user", content: i % 2 ? long : `q${i}` }));
+  const h = cleanHistory(chat);
+  assert.equal(h.length, 7); // 8 kept, then the leading answer dropped so a question comes first
+  assert.deepEqual(h.filter((t) => t.role === "assistant").map((t) => t.content.length), [1500, 1500, 5000]);
 });
 
 test("cost is counted from the tokens used", () => {

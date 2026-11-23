@@ -218,14 +218,16 @@ export const TRAILER = "\u001e";
 /** The conversation sent by the browser or a phone app, checked: at most the last 10 turns, short questions, ending with a question. */
 export function cleanHistory(raw: unknown): ChatTurn[] | null {
   if (!Array.isArray(raw) || !raw.length) return null;
-  const turns = raw.slice(-10);
+  const turns = raw.slice(-8); // the last 8 messages: older ones cost input on every question and rarely matter
   for (const t of turns) {
     const ok = t && (t.role === "user" || t.role === "assistant") && typeof t.content === "string" && t.content.trim() && (t.role === "assistant" || t.content.length <= MAX_QUESTION);
     if (!ok) return null;
   }
   while (turns.length && turns[0].role !== "user") turns.shift(); // the API wants the user first
   // An earlier answer that ran long is passed on shortened, not refused: refusing it ended the chat after every long answer.
-  return turns.length && turns[turns.length - 1].role === "user" ? turns.map((t) => ({ role: t.role, content: t.content.trim().slice(0, t.role === "user" ? MAX_QUESTION : 6000) })) : null;
+  // The latest answer in full (up to 6,000 letters); earlier answers cut to 1,500 letters, enough to follow the chat.
+  const lastAnswer = turns.map((t) => t.role).lastIndexOf("assistant");
+  return turns.length && turns[turns.length - 1].role === "user" ? turns.map((t, i) => ({ role: t.role, content: t.content.trim().slice(0, t.role === "user" ? MAX_QUESTION : i === lastAnswer ? 6000 : 1500) })) : null;
 }
 
 const word = /[\p{L}\p{M}\p{N}]{3,}/gu;
@@ -246,7 +248,11 @@ export function basicAnswer(pages: PdfPage[], question: string): string | null {
 
 type Usage = { input_tokens: number; output_tokens: number; cache_read_input_tokens?: number | null; cache_creation_input_tokens?: number | null };
 /** Every token a request used, cached or not: what the daily limit counts. */
-export const usedTokens = (u: Usage) => u.input_tokens + u.output_tokens + (u.cache_read_input_tokens ?? 0) + (u.cache_creation_input_tokens ?? 0);
+/**
+ * What counts against a student's token allowance: the answer (with the model's hidden thinking), not the chat history
+ * and instructions resent with every question. Those still cost money, and the money caps (monthly cap, credit, budget) count them.
+ */
+export const usedTokens = (u: Usage) => u.output_tokens;
 
 /** OpenRouter's fee on buying credits (5.5%, Nov 2026): part of what its answers really cost us. */
 export const OPENROUTER_FEE = 0.055;

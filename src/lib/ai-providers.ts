@@ -10,6 +10,13 @@ const SETUP: Record<Exclude<Provider, "anthropic">, { key: string; url: string }
   openai: { key: "OPENAI_API_KEY", url: process.env.OPENAI_BASE_URL || "https://api.openai.com/v1" },
   openrouter: { key: "OPENROUTER_API_KEY", url: process.env.OPENROUTER_BASE_URL || "https://openrouter.ai/api/v1" },
 };
+/** How each OpenAI-compatible provider is told to keep its hidden thinking low. */
+const THINK: Record<Exclude<Provider, "anthropic">, Record<string, unknown>> = {
+  google: { reasoning_effort: "low" },
+  openai: { reasoning_effort: "low" },
+  qwen: { enable_thinking: false },
+  openrouter: { reasoning: { effort: "low" } },
+};
 const providerOf = (model: string): Provider => MODELS[model]?.provider ?? "anthropic";
 /** Is this model's API key set on the server? */
 export const modelReady = (model: string) => !!process.env[providerOf(model) === "anthropic" ? "ANTHROPIC_API_KEY" : SETUP[providerOf(model) as keyof typeof SETUP].key];
@@ -95,11 +102,13 @@ export async function streamChat(ask: Ask, onText: (t: string) => void): Promise
     return { usage: final.usage, declined: final.stop_reason === "refusal", cut: final.stop_reason === "max_tokens" };
   }
   const { key, url } = SETUP[providerOf(ask.model) as keyof typeof SETUP];
-  const res = await fetch(`${url}/chat/completions`, {
+  const send = (think: boolean) => fetch(`${url}/chat/completions`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env[key]}` },
     signal: AbortSignal.timeout(120_000),
     body: JSON.stringify({
+      // Little hidden thinking: it is billed as answer and counts against the student, while chat questions rarely need much.
+      ...(think ? THINK[providerOf(ask.model) as keyof typeof SETUP] : {}),
       model: MODELS[ask.model]?.route ?? ask.model,
       stream: true,
       stream_options: { include_usage: true }, // the token count arrives as the last event
@@ -116,6 +125,8 @@ export async function streamChat(ask: Ask, onText: (t: string) => void): Promise
       ],
     }),
   });
+  let res = await send(true);
+  if (res.status === 400) res = await send(false); // a model that doesn't take the thinking setting: ask again without it
   if (!res.ok || !res.body) throw new Error(`${ask.model}: HTTP ${res.status}`);
   let chars = 0;
   const r = await readSse(res.body, (t) => ((chars += t.length), onText(t)));
