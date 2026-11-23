@@ -118,7 +118,7 @@ const tap = async (loc) => {
 };
 const press = (name) => tap(page.getByRole("button", { name }).or(page.getByText(name, { exact: true })));
 const tab = (i) => tap(page.locator(`[flt-semantics-identifier="tab-${i}"]`));
-const back = () => tap(page.getByRole("button", { name: "Back", exact: true })).catch(() => page.goBack().then(() => page.waitForTimeout(700))); // the bar's arrow, or the browser's own
+const back = () => tap(page.getByRole("button", { name: "Back", exact: true })); // the bar's arrow (the browser's own back would leave the app)
 // Types into a text box and reads it back: if a first key was lost while the box was still getting ready, it is typed again.
 const typeInto = async (box, text) => {
   for (let tries = 0; tries < 3; tries++) {
@@ -155,7 +155,8 @@ const outside = async () => { await page.mouse.click(382, 420); await page.waitF
 
 const TOURS = {
   student: async () => {
-    await step("chapter", () => tap(named("Chapter 1: Motion").last()));
+    // The chapter cards sit below "Keep learning", whose lesson line also says "Chapter 1: Motion": scroll past it first.
+    await step("chapter", async () => { await down(900); await tap(named("Chapter 1: Motion").last()); });
     await step("quiz", () => tap(named("Quiz: Motion basics")));
     await quietly(back);
     await step("homework", () => tap(named("Homework 2")));
@@ -205,9 +206,11 @@ const TOURS = {
     await step("batch", () => tap(named("Teacher Batch")));
     await step("attendance", () => tap(named("Take attendance")));
     // A real change, there and back: it goes to the server as an action and the answer redraws the row.
-    await step("attendance-marked-absent", async () => { await tap(named("Test Student")); await see("Absent"); });
-    await quietly(async () => { await tap(named("Test Student")); await see("Present"); await page.waitForTimeout(1500); });
-    if (!calls.some((c) => c.startsWith("POST /api/data 200"))) problems.push("the attendance change never reached the server");
+    if (!process.env.NO_WRITES) { // NO_WRITES=1: pictures only, nothing changed on the server
+      await step("attendance-marked-absent", async () => { await tap(named("Test Student")); await see("Absent"); });
+      await quietly(async () => { await tap(named("Test Student")); await see("Present"); await page.waitForTimeout(1500); });
+      if (!calls.some((c) => c.startsWith("POST /api/data 200"))) problems.push("the attendance change never reached the server");
+    }
     await quietly(back);
     await quietly(back);
     await step("to-do", () => tab(1));
