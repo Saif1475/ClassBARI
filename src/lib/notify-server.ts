@@ -17,17 +17,24 @@ const HOME: Record<string, string> = { student: "/student", guardian: "/parent",
 const PARENT: Partial<Record<Screen, string>> = { notices: "/parent/notices", results: "/parent/results", messages: "/parent/messages" };
 const page = (role: string, screen: Screen) => (role === "guardian" && PARENT[screen]) || (HOME[role] ?? "/") + (screen === "home" ? "" : `?go=${screen}`);
 
-/** The devices of everyone in `note.to`, less those who switched its group off and the person who did the action. */
-async function devicesFor(institute: string, note: Note, s: LmsState, actor?: string) {
+type Lists = { devices: Device[]; prefs: { email: string; off: string[] }[] };
+/** An institute's devices and notification switches (read once for a whole round of timed notes). */
+async function listsOf(institute: string): Promise<Lists> {
   const db = admin();
   const [{ data: devices }, { data: prefs }] = await Promise.all([
     db.from("push_devices").select("token, kind, sub, email, role, student_ids, lang").eq("institute_id", institute),
     db.from("notify_prefs").select("email, off").eq("institute_id", institute),
   ]);
-  const off = new Set((prefs ?? []).filter((p) => (p.off as string[]).includes(note.group)).map((p) => p.email as string));
+  return { devices: (devices ?? []) as Device[], prefs: (prefs ?? []) as Lists["prefs"] };
+}
+
+/** The devices of everyone in `note.to`, less those who switched its group off and the person who did the action. */
+async function devicesFor(institute: string, note: Note, s: LmsState, actor?: string, lists?: Lists) {
+  const { devices, prefs } = lists ?? (await listsOf(institute));
+  const off = new Set(prefs.filter((p) => (p.off as string[]).includes(note.group)).map((p) => p.email as string));
   const staffEmails = new Set(s.staff.filter((x) => note.to.staff?.includes(x.name) && x.email).map((x) => x.email!.toLowerCase()));
   const hits = (ids: number[] | undefined, mine: number[]) => !!ids?.some((id) => mine.includes(id));
-  return ((devices ?? []) as Device[]).filter((d) => {
+  return devices.filter((d) => {
     if (d.email === actor || off.has(d.email)) return false;
     if (d.role === "student") return hits(note.to.students, d.student_ids);
     if (d.role === "guardian") return hits(note.to.guardians, d.student_ids);
@@ -37,12 +44,12 @@ async function devicesFor(institute: string, note: Note, s: LmsState, actor?: st
 }
 
 /** Send one notification now. A `once` note already sent is skipped (the key is claimed first, so two servers can't both send it). */
-export async function send(institute: string, note: Note, s: LmsState, actor?: string) {
-  if (note.once) {
+export async function send(institute: string, note: Note, s: LmsState, actor?: string, round?: { lists: Lists; claimed: true }) {
+  if (note.once && !round) {
     const { error } = await admin().from("notify_sent").insert({ key: `${institute}:${note.once}` });
     if (error) return 0; // already sent (or the table is missing: then nothing is sent twice either)
   }
-  const devices = await devicesFor(institute, note, s, actor);
+  const devices = await devicesFor(institute, note, s, actor, round?.lists);
   console.info(`notify: ${note.text[0]} → ${devices.length} device(s)`); // counts only, no names
   const gone: string[] = [];
   await Promise.allSettled(
@@ -84,8 +91,8 @@ export async function runTimed(now = new Date()) {
   const docs = new Map<string, LmsState>();
   const state = async (inst: string) => docs.get(inst) ?? docs.set(inst, (await loadDoc(inst)).state).get(inst)!;
   const { data: due } = await db.from("notify_later").select("key, institute_id, what").lte("due_at", now.toISOString()).limit(500);
+  if (due?.length) await db.from("notify_later").delete().in("key", due.map((r) => r.key)); // taken off the list at once, not one by one
   for (const row of due ?? []) {
-    await db.from("notify_later").delete().eq("key", row.key);
     const l = row.what as Later;
     const s = await state(row.institute_id);
     const [day, id] = l.still.absent;
@@ -93,8 +100,23 @@ export async function runTimed(now = new Date()) {
   }
   // shortcut: reads every institute with a device each run; fine for hundreds, move to a per-institute queue for thousands.
   const { data: insts } = await db.from("push_devices").select("institute_id");
-  for (const inst of new Set((insts ?? []).map((r) => r.institute_id as string)))
-    for (const n of timedNotes(await state(inst), now)) sent += await send(inst, n, await state(inst));
+  for (const inst of new Set((insts ?? []).map((r) => r.institute_id as string))) {
+    const s = await state(inst);
+    const notes = timedNotes(s, now);
+    if (!notes.length) continue;
+    // Each "once" note is claimed in one call for the whole institute; only the ones not sent before come back.
+    const keys = notes.flatMap((n) => (n.once ? [`${inst}:${n.once}`] : []));
+    const fresh = new Set<string>();
+    for (let i = 0; i < keys.length; i += 500) {
+      const { data, error } = await db.from("notify_sent").upsert(keys.slice(i, i + 500).map((key) => ({ key })), { onConflict: "key", ignoreDuplicates: true }).select("key");
+      if (error) throw new Error(`notify: claiming failed: ${error.message}`);
+      for (const r of data ?? []) fresh.add(r.key as string);
+    }
+    const todo = notes.filter((n) => !n.once || fresh.has(`${inst}:${n.once}`));
+    if (!todo.length) continue;
+    const lists = await listsOf(inst);
+    for (const n of todo) sent += await send(inst, n, s, undefined, { lists, claimed: true });
+  }
   await db.from("notify_sent").delete().lt("at", new Date(now.getTime() - 60 * 86400_000).toISOString()); // old marks
   return sent;
 }

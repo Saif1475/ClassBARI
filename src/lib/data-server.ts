@@ -25,8 +25,26 @@ export function chosenInstitute(request: Request) {
   return UUID.test(id) ? id : null;
 }
 
+/**
+ * Who is asking, remembered for 30 s per login: every open screen asks every 15 s, and each answer took three calls
+ * to Supabase. shortcut: someone removed keeps access for up to 30 s; check the members table on writes if that matters.
+ */
+const whoCache = new Map<string, { me: Promise<Me | null>; until: number }>();
+export function whoIs(request: Request): Promise<Me | null> {
+  const login = sessionKey(request);
+  if (!login) return findWho(request);
+  const key = `${login}|${request.headers.get("x-classbari-institute") ?? ""}`;
+  const hit = whoCache.get(key);
+  if (hit && hit.until > Date.now()) return hit.me;
+  const me = findWho(request);
+  if (whoCache.size > 20_000) whoCache.clear();
+  whoCache.set(key, { me, until: Date.now() + 30_000 });
+  me.then((m) => m || whoCache.delete(key), () => whoCache.delete(key)); // not found or failed: ask afresh next time (a new student can sign in at once)
+  return me;
+}
+
 /** Who is asking (checked with Supabase, not just the cookie) and which institute they belong to. */
-export async function whoIs(request: Request): Promise<Me | null> {
+async function findWho(request: Request): Promise<Me | null> {
   // Phone apps send "Authorization: Bearer <token>"; the website sends its login cookie.
   const bearer = request.headers.get("authorization")?.match(/^Bearer (\S+)$/)?.[1];
   const { data, error: authError } = bearer ? await admin().auth.getUser(bearer) : await supabaseFromRequest(request).auth.getUser();
@@ -97,10 +115,45 @@ type Row = { state?: Partial<LmsState>; version: number; updated_at?: string } |
 // New fields of the app start empty; the month's fees and fines are worked out on every load.
 const asDoc = (data: Row): Doc => ({ state: rollFees({ ...blankState(), ...(data?.state ?? {}) }), version: data ? Number(data.version) : 0, stamp: data ? stampOf(Number(data.version), data.updated_at) : "" });
 
-export async function loadDoc(institute: string): Promise<Doc> {
+/**
+ * The last copy of each institute this server read or saved, by version. Screens ask again after every change, so
+ * without it each of hundreds of open screens downloaded the whole institute for the same new version.
+ * Safe: a version names one exact saved copy, and saves only go through when the version is still the newest.
+ */
+const latest = new Map<string, { version: number; doc: Promise<Doc> }>();
+const remember = (institute: string, version: number, doc: Promise<Doc>) => {
+  latest.delete(institute); // the newest last, so the oldest goes first when the memory is full
+  latest.set(institute, { version, doc });
+  if (latest.size > 300) latest.delete(latest.keys().next().value!);
+  doc.catch(() => latest.get(institute)?.doc === doc && latest.delete(institute));
+};
+async function fetchDoc(institute: string): Promise<Doc> {
   const { data, error } = await admin().from("institute_data").select("state, version, updated_at").eq("institute_id", institute).maybeSingle();
   if (error) throw new Error(`load failed: ${error.message}`);
   return asDoc(data as Row);
+}
+/** Version `v` of an institute: from memory when this server already has it, else fetched once for everyone asking. */
+async function docAt(institute: string, v: number): Promise<Doc> {
+  const hit = latest.get(institute);
+  if (hit?.version === v) {
+    const d = await hit.doc;
+    return { ...d, state: rollFees(d.state) }; // a new month may have started since it was kept
+  }
+  const doc = fetchDoc(institute);
+  remember(institute, v, doc);
+  const d = await doc;
+  if (d.version !== v) remember(institute, d.version, doc); // saved again in between: it is the newer copy
+  return d;
+}
+const versionOf = async (institute: string) => {
+  const { data, error } = await admin().from("institute_data").select("version").eq("institute_id", institute).maybeSingle();
+  if (error) throw new Error(`load failed: ${error.message}`);
+  return data ? Number(data.version) : 0;
+};
+
+export async function loadDoc(institute: string): Promise<Doc> {
+  const v = await versionOf(institute);
+  return v ? docAt(institute, v) : asDoc(null);
 }
 
 /**
@@ -108,9 +161,8 @@ export async function loadDoc(institute: string): Promise<Doc> {
  * seconds, and almost always nothing changed, so the whole institute is no longer fetched just to compare a number.
  */
 export async function loadChanged(institute: string, seen: number): Promise<Doc | null> {
-  const { data, error } = await admin().from("institute_data").select("state, version, updated_at").eq("institute_id", institute).neq("version", seen).maybeSingle();
-  if (error) throw new Error(`load failed: ${error.message}`);
-  return data ? asDoc(data as Row) : null;
+  const v = await versionOf(institute);
+  return v && v !== seen ? docAt(institute, v) : null;
 }
 
 /**
@@ -157,12 +209,25 @@ async function saveDoc(institute: string, state: LmsState, version: number) {
 const tops = new Map<string, { stamp: string; top: number }>();
 const maxStudentId = (s: LmsState) => s.students.reduce((top, x) => (typeof x.id === "number" && x.id > top ? x.id : top), 0);
 
+/** Saves of one institute on this server, one after another: at the same moment they only made each other retry. */
+const queues = new Map<string, Promise<unknown>>();
+
 /** Load, check, apply, save — retried when two people save at the same moment. */
-export async function act(me: Me, name: string, args: unknown[], base: number, check: (s: LmsState) => unknown[] | null) {
+export function act(me: Me, name: string, args: unknown[], base: number, check: (s: LmsState) => unknown[] | null) {
+  const run = (queues.get(me.institute) ?? Promise.resolve()).then(() => actNow(me, name, args, base, check));
+  const tail = run.catch(() => {});
+  queues.set(me.institute, tail);
+  tail.then(() => queues.get(me.institute) === tail && queues.delete(me.institute));
+  return run;
+}
+
+async function actNow(me: Me, name: string, args: unknown[], base: number, check: (s: LmsState) => unknown[] | null) {
   let stored: unknown[] | null = null;
   let storedFor = "";
   for (let attempt = 0; attempt < 5; attempt++) {
-    const doc = await loadDoc(me.institute);
+    // The copy this server saved last, if it still has it (no download); a save from elsewhere makes it fail and reload.
+    const kept = attempt === 0 ? latest.get(me.institute) : undefined;
+    const doc = kept ? await kept.doc.then((d) => ({ ...d, state: rollFees(d.state) }), () => loadDoc(me.institute)) : await loadDoc(me.institute);
     const ok = check(doc.state);
     if (ok === null) return doc;
     // Photos and files go to file storage once (not again on a retry); the data keeps a short link.
@@ -173,8 +238,12 @@ export async function act(me: Me, name: string, args: unknown[], base: number, c
     const next = runAction(doc.state, name, stored!, base, top);
     const used = idBase(); // read straight away: the last id this action handed out
     const saved = await saveDoc(me.institute, next, doc.version);
-    if (saved === null) continue;
+    if (saved === null) {
+      latest.delete(me.institute); // someone else saved: read their copy
+      continue;
+    }
     const version = saved.version;
+    remember(me.institute, version, Promise.resolve({ state: next, version, stamp: saved.stamp }));
     // Ids in the new copy: the old ones, the ones just made, any that came in with the action, and new roll numbers.
     // A restored backup brings its own ids (inside a text), so that copy is searched afresh next time.
     if (name === "importBackup") tops.delete(me.institute);

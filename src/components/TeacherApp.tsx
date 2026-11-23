@@ -206,13 +206,18 @@ export default function TeacherApp({
   const batchFeeDue = batchStudents.reduce((sum, s) => sum + s.feeDue, 0);
 
   // Dashboard totals across all batches.
-  const now = new Date();
-  const collectedMonth = lms.payments
-    .filter((p) => {
-      const d = new Date(p.at);
-      return visibleNames.includes(p.batch) && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-    })
-    .reduce((sum, p) => sum + p.amount, 0);
+  // A year of payments: added up again only when the payments or the batches shown change, not on every letter typed.
+  const visibleKey = visibleNames.join("\n");
+  const collectedMonth = useMemo(() => {
+    const now = new Date();
+    const names = new Set(visibleKey.split("\n"));
+    return lms.payments
+      .filter((p) => {
+        const d = new Date(p.at);
+        return names.has(p.batch) && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+      })
+      .reduce((sum, p) => sum + p.amount, 0);
+  }, [lms.payments, visibleKey]);
   const totalDue = visibleStudents.reduce((sum, s) => sum + s.feeDue, 0);
   const allDueCount = visibleStudents.filter((s) => s.feeDue > 0).length;
   const paidPct = visibleStudents.length ? Math.round(((visibleStudents.length - allDueCount) / visibleStudents.length) * 100) : 0;

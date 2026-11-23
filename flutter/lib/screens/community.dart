@@ -173,7 +173,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
               children: [Strong('${t('community.trendingTitle')}:'), for (final tag in tags) ActionChip(label: Text(tag), onPressed: () => find(tag))],
             ),
           if (posts.isEmpty) Muted(search.text.isNotEmpty ? t('community.noResults') : tab == 'friends' ? t('community.noFriendPosts') : tab == 'saved' ? t('community.nobodyYet') : t('community.empty')),
-          for (final p in posts) _Post(p, key: ValueKey(p['id']), onTag: find),
+          Paged(items: posts, row: (p) => _Post(p, key: ValueKey(p['id']), onTag: find), resetKey: '$tab|${search.text}'), // numbered pages, not every post ever written
         ],
       ],
     );
@@ -614,7 +614,7 @@ class _ProfileBodyState extends State<_ProfileBody> {
           ],
         ),
         if (posts.isEmpty) Muted(t('community.noPosts')),
-        for (final p in posts) _Post(p, key: ValueKey(p['id']), onTag: widget.onTag ?? (_) {}),
+        Paged(items: posts, row: (p) => _Post(p, key: ValueKey(p['id']), onTag: widget.onTag ?? (_) {})),
       ],
     );
   }
@@ -670,7 +670,10 @@ class _PeopleState extends State<_People> {
     final me = _me;
     final blocked = _ids(_profile(me)['blocked']).toSet();
     final others = store.students.where((s) => s['id'] != me && !blocked.contains(s['id'])).toList();
-    final received = others.where((s) => _status(s['id'] as int) == 'received').toList();
+    // Requests waiting for me, found in one pass over the friendships (not a search of them per student).
+    final asked = {for (final f in _friendships) if (f['to'] == me && f['status'] != 'friends') f['from']};
+    final sentOrFriends = {for (final f in _friendships) if (f['from'] == me || (f['to'] == me && f['status'] == 'friends')) f['from'] == me ? f['to'] : f['from']};
+    final received = others.where((s) => asked.contains(s['id']) && !sentOrFriends.contains(s['id'])).toList();
     final friends = _friendsOf(me);
     final needle = q.trim().toLowerCase();
     // People who chose not to be findable only show up for their friends.

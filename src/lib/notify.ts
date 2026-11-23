@@ -94,7 +94,8 @@ export function notesFor(name: string, args: unknown[], before: LmsState, after:
       break;
     }
     case "payFee": {
-      for (const p of after.payments.filter((x) => !before.payments.some((y) => y.id === x.id)))
+      const old = new Set(before.payments.map((y) => y.id)); // a year of payments: one look-up each, not a search of the list
+      for (const p of after.payments.filter((x) => !old.has(x.id)))
         now.push({ to: { guardians: [p.studentId] }, group: "fees", text: ["paid", p.amount, nameOf(after, p.studentId)], screen: "home" });
       break;
     }

@@ -32,12 +32,12 @@ const stampOf = async () => {
     return "none";
   }
 };
-export const readPlatform = () =>
-  queue.then(async () => {
-    const stamp = await stampOf();
-    if (kept?.stamp !== stamp) kept = { stamp, value: await load() };
-    return kept.value;
-  });
+// Not in the queue: writes land whole (temp file, then rename), so reading never waits behind a slow change (an SMS send).
+export const readPlatform = async () => {
+  const stamp = await stampOf();
+  if (kept?.stamp !== stamp) kept = { stamp, value: await load() };
+  return kept.value;
+};
 
 /** Change the data one request at a time; write to a temp file then rename so a crash never leaves half a file. */
 export function updatePlatform<T>(change: (p: Platform) => T | Promise<T>): Promise<T> {

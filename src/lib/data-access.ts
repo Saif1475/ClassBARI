@@ -40,6 +40,17 @@ const privateChatOf = (s: LmsState, thread: unknown, me: string) => {
   const batch = s.students.find((x) => x.id === chatStudent(thread))?.batch;
   return !!batch && s.batches.some((b) => b.name === batch && b.teacher === me);
 };
+/** The same test for a whole list of chats: the student list and batches are looked up once, not once per chat. */
+const privateChatsOf = (s: LmsState, me: string) => {
+  const mine = new Set(s.batches.filter((b) => b.teacher === me).map((b) => b.name));
+  const batchOf = new Map<number, string>();
+  for (const x of s.students) if (!batchOf.has(x.id)) batchOf.set(x.id, x.batch); // the first, as a search would find
+  return (thread: unknown) => {
+    if (!String(thread).startsWith("student-")) return true;
+    const batch = batchOf.get(chatStudent(thread));
+    return !!batch && mine.has(batch);
+  };
+};
 /** The batches each teacher action touches: a teacher works only in the batches the institute gave them. */
 const TEACHER_BATCH: Record<string, (a: A, s: LmsState) => (string | undefined)[]> = {
   addAnnouncement: inInput, addCalendarEvent: inInput, addStudent: inInput,
@@ -301,17 +312,19 @@ function teacherView(s: LmsState, me: string): LmsState {
 
 /** What this person gets to see. Students and guardians: built up from empty, so new kinds of data stay private until added here. */
 export function viewFor(s: LmsState, who: Who): LmsState {
-  if (who.role === "owner" || who.role === "manager")
+  if (who.role === "owner" || who.role === "manager") {
+    const chatOk = privateChatsOf(s, staffName(s, who));
     return {
       ...s,
       teacherLogin: s.teacherName,
       viewer: "all",
       notes: s.notes.filter((n) => n.by === undefined), // students' own notes are private to them, as for teachers
-      chats: s.chats.filter((c) => privateChatOf(s, c.id, staffName(s, who))), // students' private chats only if they teach that batch
+      chats: s.chats.filter((c) => chatOk(c.id)), // students' private chats only if they teach that batch
       // Even the owner isn't sent who voted for what, or whom each student muted or blocked.
       community: s.community.map((p) => (p.poll ? { ...p, poll: pollFor(p.poll, undefined) } : p)),
       communityProfiles: Object.fromEntries(Object.entries(s.communityProfiles ?? {}).map(([id, pr]) => [id, { bio: pr.bio }])),
     };
+  }
   if (who.role === "teacher") return teacherView(s, staffName(s, who));
 
   const ids = who.studentIds;

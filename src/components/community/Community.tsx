@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { FileLink } from "@/components/FileLink";
 import { Icon } from "@/components/Icon";
 import {
@@ -57,7 +57,10 @@ export function Community({ viewer }: { viewer: Viewer }) {
   const filter = tab === "friends" ? "friends" : tab === "saved" ? "saved" : "all";
   const posts = timeline(lms.community, lms.friendships, lms.communityProfiles, view, { filter, query, nameOf: (a) => nameOf(a).name });
   const requests = me === undefined ? 0 : lms.friendships.filter((f) => f.to === me && f.status === "pending").length;
-  const tags = trending(timeline(lms.community, lms.friendships, lms.communityProfiles, view));
+  // Trending tags read every post: worked out again only when the posts change, not on every letter typed in search.
+  const tags = useMemo(() => trending(timeline(lms.community, lms.friendships, lms.communityProfiles, { student: me, staff, batch: myBatch })), [lms.community, lms.friendships, lms.communityProfiles, me, staff, myBatch]);
+  // Numbered pages: the feed shows 20 posts at a time instead of every post ever written.
+  const { shown: feedPosts, pager: feedPager } = usePaged(staff ? [...posts].sort((x, y) => Number(!!y.held) - Number(!!x.held)) : posts, `${tab}|${query}`);
   const open = (a: Author) => typeof a === "number" && (setProfile(a), window.scrollTo({ top: 0 }));
   const tabs: [Tab, string, number?][] = [["all", C.forYou], ["friends", C.onlyFriends], ["saved", C.savedTab], ["activity", C.activityTab, requests], ["people", C.peopleTab], ["me", C.meTab]];
 
@@ -114,7 +117,8 @@ export function Community({ viewer }: { viewer: Viewer }) {
           </div>
           {staff && <p className="border-b border-outline-variant px-4 py-3 text-sm text-on-surface-variant">{C.modHelp}</p>}
           {staff && posts.some((p) => p.held) && <p role="status" className="border-b border-outline-variant bg-tertiary-container px-4 py-3 text-sm font-bold text-on-tertiary-container">⏳ {C.heldCount(posts.filter((p) => p.held).length)}</p>}
-          {feed(staff ? [...posts].sort((x, y) => Number(!!y.held) - Number(!!x.held)) : posts, query ? C.noResults : tab === "friends" ? C.noFriendPosts : tab === "saved" ? C.nobodyYet : C.empty)}
+          {feed(feedPosts, query ? C.noResults : tab === "friends" ? C.noFriendPosts : tab === "saved" ? C.nobodyYet : C.empty)}
+          {feedPager}
         </>
       )}
     </div>

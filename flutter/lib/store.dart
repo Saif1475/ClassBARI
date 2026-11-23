@@ -181,10 +181,14 @@ class Store extends ChangeNotifier {
   }
 
   Future<void> _pull() async {
+    final was = status;
+    var changed = false;
     try {
       final res = await api('/api/data?v=$_version');
       if (res.statusCode == 200) {
-        _adopt(jsonDecode(res.body) as Json);
+        // A big institute's data is read on a background thread, so the screen doesn't stutter while it arrives.
+        _adopt((res.body.length > 200000 ? await compute(jsonDecode, res.body) : jsonDecode(res.body)) as Json);
+        changed = true;
         status = Status.ready;
       } else if (res.statusCode == 204) {
         status = Status.ready;
@@ -198,7 +202,7 @@ class Store extends ChangeNotifier {
     } catch (_) {
       status = Status.offline;
     }
-    notifyListeners();
+    if (changed || status != was) notifyListeners(); // "nothing new" every 20 s no longer rebuilds every screen
   }
 
   void _keepQueue() {
@@ -291,11 +295,21 @@ class Store extends ChangeNotifier {
 
   // ---- who is looking --------------------------------------------------------------------------------------------
   /// Enrolled students. Those who asked to join from a link and wait for approval are left out, as on the website.
-  List<Json> get students => rows(state?['students']).where((s) => s['pending'] != true).toList();
+  /// Worked out once per new copy of the data, not on every read: list rows ask for a student by id many times a frame.
+  List<Json> get students => _studentsFresh().list;
+  Object? _studentsOf;
+  ({List<Json> list, Map<Object?, Json> byId}) _students = (list: const [], byId: const {});
+  ({List<Json> list, Map<Object?, Json> byId}) _studentsFresh() {
+    final raw = state?['students'];
+    if (identical(raw, _studentsOf)) return _students; // the data is replaced as a whole, never changed in place
+    _studentsOf = raw;
+    final list = List<Json>.unmodifiable(rows(raw).where((s) => s['pending'] != true));
+    return _students = (list: list, byId: {for (final s in list.reversed) s['id']: s}); // reversed: the first with an id wins, as a search would
+  }
   List<Json> get pendingStudents => rows(state?['students']).where((s) => s['pending'] == true).toList();
   List<Json> get modules => rows(state?['modules']);
   List<Json> get batches => rows(state?['batches']);
-  Json? student(Object? id) => students.where((s) => s['id'] == id).firstOrNull;
+  Json? student(Object? id) => _studentsFresh().byId[id];
 
   /// The signed-in student (the server sends only their own record in full).
   Json? get me => student(state?['meId']);
