@@ -6,7 +6,7 @@ import { chromium } from "@playwright/test";
 import { tour } from "./tour.mjs";
 
 const BASE = "http://localhost:3300";
-const OUT = process.argv[2] || path.join(process.env.HOME, "ClassBARI-screenshots");
+const OUT = process.argv[2] || path.join(process.env.HOME, "Instanton-screenshots");
 mkdirSync(OUT, { recursive: true });
 const shots = [];
 let n = 0;
@@ -71,7 +71,7 @@ const html = `<!doctype html><html><head><meta charset="utf-8"><style>
   .shot img { max-width: 100%; max-height: 100%; border: 1px solid #cfe0dc; border-radius: 8px; box-shadow: 0 4px 18px rgba(0,0,0,.08); }
   ol { columns: 2; font-size: 12pt; line-height: 1.7; }
 </style></head><body>
-  <div class="page cover"><h1>ClassBARI</h1><h2 style="font-weight:normal">Classes, fees, exams and parent updates — in one app, built for Bangladesh.</h2>
+  <div class="page cover"><h1>Instanton Campus</h1><h2 style="font-weight:normal">Classes, fees, exams and parent updates — in one app, built for Bangladesh.</h2>
   <p style="margin-top:6mm">Feature tour: ${shots.length} screens from the website (demo data). Also available as four phone apps: Student, Guardian, Teacher and Institution.</p>
   <ol>${groups.map((g) => `<li>${g.replace(/^\d+ · /, "")} (${shots.filter((s) => s.group === g).length})</li>`).join("")}</ol></div>
   ${shots.map((s) => `<div class="page"><div class="g">${s.group}</div><h2>${s.title}</h2><p>${s.caption}</p><div class="shot"><img src="${img(s.file)}"></div></div>`).join("\n")}
@@ -79,6 +79,6 @@ const html = `<!doctype html><html><head><meta charset="utf-8"><style>
 writeFileSync(path.join(OUT, "tour.html"), html);
 const pdfPage = await browser.newPage();
 await pdfPage.goto("file://" + path.join(OUT, "tour.html"));
-await pdfPage.pdf({ path: path.join(OUT, "ClassBARI-feature-tour.pdf"), format: "A4", landscape: true, printBackground: true });
+await pdfPage.pdf({ path: path.join(OUT, "Instanton-feature-tour.pdf"), format: "A4", landscape: true, printBackground: true });
 await browser.close();
-console.log(`\n${shots.length} screenshots + ClassBARI-feature-tour.pdf in ${OUT}`);
+console.log(`\n${shots.length} screenshots + Instanton-feature-tour.pdf in ${OUT}`);

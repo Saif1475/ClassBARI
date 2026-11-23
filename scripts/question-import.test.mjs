@@ -51,7 +51,7 @@ test("missing answers are reported, not guessed; the result round-trips through 
   assert.equal(parseQuiz(text.replace("x\ny", "*x\ny")).questions.length, 2);
 });
 
-test("ClassBARI's own format still works", () => {
+test("Instanton Campus's own format still works", () => {
   const r = parseLooseMcq("## Physics\nUnit of frequency?\n*Hertz\nNewton");
   assert.deepEqual(r.questions, [{ q: "Unit of frequency?", options: ["Hertz", "Newton"], answer: 0, section: "Physics" }]);
 });

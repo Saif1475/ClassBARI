@@ -1,8 +1,8 @@
 {
   "packageId": "app.classbari.student",
   "host": "student.classbari.app",
-  "name": "ClassBARI Student",
-  "launcherName": "CB Student",
+  "name": "Instanton Student",
+  "launcherName": "IC Student",
   "display": "standalone",
   "orientation": "portrait",
   "themeColor": "#006a60",

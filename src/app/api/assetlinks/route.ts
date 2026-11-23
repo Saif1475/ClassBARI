@@ -1,10 +1,10 @@
 import { APPS } from "@/lib/apps";
 
 /**
- * /.well-known/assetlinks.json: tells Android that the four ClassBARI apps may open this site full-screen
+ * /.well-known/assetlinks.json: tells Android that the three Instanton Campus apps may open this site full-screen
  * (without it they show a browser address bar). Each app's signing fingerprint comes from Play Console →
  * Test and release → App integrity → App signing, put in .env.local as e.g.
- *   ANDROID_SHA256_STUDENT=AB:CD:…   ANDROID_SHA256_TEACHER=…   ANDROID_SHA256_INSTITUTE=…   ANDROID_SHA256_GUARDIAN=…
+ *   ANDROID_SHA256_STUDENT=AB:CD:…   ANDROID_SHA256_TEACHER=…   ANDROID_SHA256_GUARDIAN=…
  * (several fingerprints for one app: separate with commas — e.g. your upload key and Google's key).
  */
 export function GET() {

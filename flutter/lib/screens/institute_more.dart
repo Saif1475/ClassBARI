@@ -1,12 +1,15 @@
 // The institute owner's extra pages, as on the website: batches (new and settings), one student (edit, AI premium,
 // remove), money (expenses, profit and the income report), teachers (attendance, payroll, leave), admissions, the class
-// routine, the course shop (orders and coupons) and the institute's public page.
+// routine, the course shop (orders and coupons), the institute's public page, and adding many students from a file.
 import 'dart:convert';
 
+import 'package:file_picker/file_picker.dart';
+import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../api.dart';
 import '../config.dart';
 import '../icon.dart';
 import '../icons.g.dart';
@@ -1034,4 +1037,218 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
       ],
     );
   });
+}
+
+typedef StudentFile = ({List<int> bytes, String type});
+
+/// A student list from the phone: Excel, CSV, or a PDF with text in it.
+Future<StudentFile?> pickStudentList() async {
+  final f = await FilePicker.pickFile(type: FileType.custom, allowedExtensions: const ['xlsx', 'csv', 'pdf']).catchError((_) => null);
+  if (f == null) return null;
+  final name = f.name.toLowerCase();
+  final type = name.endsWith('.pdf') ? 'application/pdf' : (name.endsWith('.csv') ? 'text/csv' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  return (bytes: await f.readAsBytes(), type: type);
+}
+
+/// The server reads the list as a table and checks every row, as the website does: `fields` is what each column holds
+/// (the server fills it in when not given), `heads` whether the first row is headings. Nothing is added.
+Future<Json> sendStudentList(StudentFile file, String batch, {List<String>? fields, bool? heads}) async {
+  if (file.bytes.length > 10 * 1024 * 1024) return const {'error': 'size'}; // the server's limit
+  final query = {'batch': batch, 'fields': ?fields?.join(','), if (heads != null) 'heads': heads ? '1' : '0'};
+  try {
+    final res = await apiFile('/api/import-students?${Uri(queryParameters: query).query}', file.bytes, file.type);
+    return jsonDecode(res.body) as Json;
+  } catch (_) {
+    return const {'error': 'offline'};
+  }
+}
+
+/// Column `i` now holds `f`; a column that held it before holds nothing (one column per kind, as on the website).
+List<String> assignColumn(List<String> fields, int i, String f) => [for (final (j, x) in fields.indexed) j == i ? f : (f.isNotEmpty && x == f ? '' : x)];
+
+/// "Add students from a file", as on the website's Students page: the template, the batch for rows without one, then a
+/// list the server reads as a table. The owner says which column is which (filled in from the headings and contents),
+/// and only the rows without problems are added, one by one, when the owner says so.
+class ImportStudentsScreen extends StatefulWidget {
+  const ImportStudentsScreen({super.key, this.pick = pickStudentList, this.send = sendStudentList});
+  final Future<StudentFile?> Function() pick;
+  final Future<Json> Function(StudentFile file, String batch, {List<String>? fields, bool? heads}) send; // tests hand in the server's answers
+  @override
+  State<ImportStudentsScreen> createState() => _ImportStudentsScreenState();
+}
+
+class _ImportStudentsScreenState extends State<ImportStudentsScreen> {
+  static const kinds = ['name', 'email', 'guardianName', 'guardianEmail', 'phone', 'studentPhone', 'batch', 'school', 'address']; // IMPORT_COLUMNS on the website
+  late var batch = '${store.myBatches.firstOrNull?['name'] ?? ''}';
+  StudentFile? file;
+  Json? answer; // the server's: columns, heads, fields, missing, rows
+  String? problem;
+  int? adding; // while adding: how many of `total` are done
+  var total = 0;
+  final added = <Object?>{}; // rows sent (or waiting to be sent), so pressing Import again goes on from there
+
+  List<String> get fields => [for (final f in (answer?['fields'] as List? ?? const [])) '$f'];
+  bool get heads => answer?['heads'] == true;
+  bool ok(Json r) => (r['problems'] as List? ?? const []).isEmpty;
+  String why(Object? p) => p is Map ? t('importer.unknownBatch', ['${p['unknownBatch']}']) : t('roster.errors.$p');
+
+  static const formats = {'xlsx': ('Excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'), 'csv': ('CSV', 'text/csv'), 'pdf': ('PDF', 'application/pdf')};
+
+  /// The template as an Excel sheet, a CSV file or a PDF to fill in, as on the website.
+  Future<void> template(String format) async {
+    try {
+      final res = await http.get(Uri.parse('$kApiUrl/api/import-students?format=$format&batch=${Uri.encodeQueryComponent(batch)}')).timeout(const Duration(seconds: 20));
+      if (res.statusCode == 200) await FilePicker.saveFile(fileName: 'instanton-students-template.$format', bytes: res.bodyBytes, mimeType: formats[format]!.$2);
+    } catch (_) {
+      if (mounted) toast(context, t('aichat.error'));
+    }
+  }
+
+  Future<void> choose() async {
+    final f = await widget.pick();
+    if (f == null || !mounted) return;
+    setState(() {
+      file = f;
+      added.clear(); // a new list: its rows are numbered afresh
+    });
+    await read();
+  }
+
+  /// Ask the server again: a new file, another meaning for a column, the headings switch, or another batch.
+  Future<void> read({List<String>? fields, bool? heads}) async {
+    final f = file;
+    if (f == null) return;
+    final a = await widget.send(f, batch, fields: fields, heads: heads);
+    if (!mounted) return;
+    setState(() {
+      final read = a['columns'] is List;
+      answer = read ? a : null;
+      problem = !read
+          ? t(switch (a['error']) {
+              'scan' => 'importer.scan',
+              'offline' => 'aichat.error',
+              _ => 'importer.unreadable',
+            })
+          : ((a['columns'] as List).isEmpty || (rows(a['rows']).isEmpty && (a['missing'] as List? ?? const []).isEmpty) ? t('importer.none') : null);
+    });
+  }
+
+  Future<void> add(List<Json> todo) async {
+    var n = 0, refused = 0;
+    total = todo.length;
+    for (final r in todo) {
+      setState(() => adding = n + refused);
+      final saved = await store.act('addStudent', [
+        {...r['input'] as Json, 'mode': 'offline', 'feePaid': false},
+      ]);
+      final offline = !saved && store.status == Status.offline;
+      if (saved || offline) added.add(r['line']); // made without internet, it waits in the queue and is sent later
+      if (saved) {
+        n++;
+      } else if (offline) {
+        break; // press Import again when the internet is back
+      } else {
+        refused++; // the server said no to this one (its Gmail was taken meanwhile, say); the others still go in
+      }
+    }
+    if (!mounted) return;
+    setState(() => adding = null);
+    final left = todo.length - n - refused;
+    toast(
+      context,
+      [
+        t('importer.done', [n]),
+        if (refused > 0) t('auth.syncFailed'),
+        if (left > 0) t('aichat.error'),
+      ].join(' · '),
+    );
+    if (left == 0) Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final a = answer, cols = rows(a?['columns']), missing = [for (final f in (a?['missing'] as List? ?? const [])) '$f'];
+    final list = a == null || missing.isNotEmpty ? const <Json>[] : rows(a['rows']);
+    final good = list.where(ok).toList(), todo = good.where((r) => !added.contains(r['line'])).toList();
+    return Screen(
+      title: t('importer.title'),
+      children: [
+        Box(
+          children: [
+            Muted(t('importer.subApp')), // the app reads no photos: they're read on the website
+            Muted(t('importer.template')),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final MapEntry(key: f, value: (label, _)) in formats.entries)
+                  Semantics(
+                    label: '${t('importer.template')} ($label)',
+                    child: Doing(label: label, icon: I.file, soft: true, small: true, onPressed: () => template(f)),
+                  ),
+              ],
+            ),
+            Muted(t('importer.defaultBatch')),
+            Chips(
+              value: batch,
+              options: [for (final b in store.myBatches) '${b['name']}'],
+              onChanged: (b) {
+                setState(() => batch = b);
+                if (a != null) read(fields: fields, heads: heads); // rows without a batch go into this one
+              },
+            ),
+            Doing(label: t('importer.choose'), icon: I.upload, onPressed: adding == null ? choose : null),
+            if (problem != null) Semantics(liveRegion: true, child: Strong(problem!, color: context.colors.error)),
+          ],
+        ),
+        if (a != null && cols.isNotEmpty)
+          Box(
+            title: t('importer.mapTitle'),
+            children: [
+              Muted(t('importer.mapHelp')),
+              CheckboxListTile(value: heads, onChanged: (v) => read(heads: v ?? false), title: Text(t('importer.heads')), contentPadding: EdgeInsets.zero, controlAffinity: ListTileControlAffinity.leading),
+              for (final (i, c) in cols.indexed)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 10), // a column's examples stay with it, apart from the next column
+                  child: DropdownButtonFormField<String>(
+                    key: ValueKey('$i:${fields.elementAtOrNull(i)}'), // drawn afresh when the server's answer changes it
+                    initialValue: kinds.contains(fields.elementAtOrNull(i)) ? fields[i] : '',
+                    isExpanded: true,
+                    decoration: InputDecoration(
+                      labelText: '${c['heading'] ?? ''}'.isEmpty ? t('importer.column', [i + 1]) : '${c['heading']}',
+                      helperText: [for (final s in (c['samples'] as List? ?? const [])) '$s'].join(' · '),
+                    ),
+                    items: [
+                      DropdownMenuItem(value: '', child: Text(t('importer.unused'))),
+                      for (final k in kinds) DropdownMenuItem(value: k, child: Text(t('importer.cols.$k'))),
+                    ],
+                    onChanged: (v) => read(fields: assignColumn(fields, i, v ?? ''), heads: heads),
+                  ),
+                ),
+              if (missing.isNotEmpty) Semantics(liveRegion: true, child: Strong(t('importer.unmapped', [missing.map((f) => t('importer.cols.$f')).join(', ')]), color: context.colors.error)),
+            ],
+          ),
+        if (list.isNotEmpty)
+          Box(
+            title: t('importer.summary', [good.length, list.length - good.length]),
+            children: [
+              Paged(
+                items: list,
+                row: (Json r) {
+                  final s = r['input'] as Json? ?? const {};
+                  return Item(
+                    icon: ok(r) ? I.personCheck : I.close,
+                    color: ok(r) ? context.colors.primary : context.colors.error,
+                    title: '${t('importer.row', [r['line']])} ${'${s['name'] ?? ''}'.isEmpty ? '—' : s['name']}',
+                    subtitle: [s['email'], s['guardianName'], s['phone'], s['batch']].map((v) => '${v ?? ''}'.isEmpty ? '—' : '$v').join(' · '),
+                    below: ok(r) ? null : Strong([for (final p in r['problems'] as List) why(p)].join(' · '), color: context.colors.error),
+                  );
+                },
+              ),
+              Doing(label: adding == null ? t('importer.import', [todo.length]) : t('importer.adding', [adding! + 1, total]), icon: I.personAdd, onPressed: todo.isEmpty || adding != null ? null : () => add(todo)),
+            ],
+          ),
+      ],
+    );
+  }
 }

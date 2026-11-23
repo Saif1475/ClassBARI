@@ -3,7 +3,7 @@ import { expect, test, type Page } from "@playwright/test";
 
 // Real accounts, real database: logs in as each of the four test people and checks what they can see and do.
 // The password comes from data/test-accounts.txt (made by `npm run test:accounts`) and is never printed.
-const INSTITUTE = "ClassBARI Test Institute";
+const INSTITUTE = "Instanton Test Institute";
 const OWNER = "classbari.test.owner@example.com";
 const TEACHER = "classbari.test.teacher@example.com";
 const STUDENT = "cb.s@gmail.com";

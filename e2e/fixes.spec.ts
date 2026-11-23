@@ -27,7 +27,7 @@ test("work in progress: AI helper is switched off; the plan shows a 250-student 
   expect((await request.post("/api/ai/study", { data: { action: "ask", question: "hi", model: "gemini-flash" } })).status()).toBe(503);
   await loginAs(page, "student");
   await page.goto("/student");
-  await expect(page.getByRole("button", { name: /Ask ClassBARI AI/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Ask Instanton AI/ })).toBeVisible();
   await loginAs(page, "institute");
   await page.goto("/institute");
   await expect(page.getByText("Your plan includes up to 250 students.")).toBeVisible(); // no per-student price shown

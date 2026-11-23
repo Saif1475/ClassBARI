@@ -3,6 +3,7 @@
 // Where each highlight sits is found from the page's own text (pdf.js), exactly as the server read it.
 import { PDFDocument, PDFName, PDFString, StandardFonts, type PDFContext } from "pdf-lib";
 import { isScanned, locate, type Highlight, type HighlightType, type PdfPage } from "./pdf-insights.ts";
+import type { Piece } from "./student-import.ts";
 
 /** Each page's text as pdf.js reads it (the same text the highlights are found in below). */
 export async function readPages(pdf: Uint8Array): Promise<PdfPage[]> {
@@ -18,6 +19,21 @@ export async function readPages(pdf: Uint8Array): Promise<PdfPage[]> {
   }
   await task.destroy();
   return pages;
+}
+
+/** Every piece of text with where it sits (x right, y down), as the website reads it: a student list's columns are found from them. */
+export async function readPieces(pdf: Uint8Array): Promise<Piece[]> {
+  const pdfjs = (await import(/* webpackIgnore: true */ "pdfjs-dist/legacy/build/pdf.mjs")) as typeof import("pdfjs-dist/legacy/build/pdf.mjs");
+  const task = pdfjs.getDocument({ data: pdf.slice(), useSystemFonts: true, disableFontFace: true });
+  const doc = await task.promise;
+  const pieces: Piece[] = [];
+  for (let n = 1; n <= Math.min(doc.numPages, 30); n++) {
+    for (const it of (await (await doc.getPage(n)).getTextContent()).items) {
+      if ("str" in it && it.str.trim()) pieces.push({ str: it.str, x: it.transform[4], y: -it.transform[5], w: it.width, h: it.height || Math.hypot(it.transform[2], it.transform[3]), page: n });
+    }
+  }
+  await task.destroy();
+  return pieces;
 }
 
 /** The highlighter colours (as on the website): yellow terms, green definitions, blue formulas, orange exam points. */
@@ -168,7 +184,7 @@ function annotation(ctx: PDFContext, type: HighlightType, rects: Rect[], multipl
     QuadPoints: rects.flatMap(([x0, y0, x1, y1]) => [x0, y1, x1, y1, x0, y0, x1, y0]),
     C: [r, g, b],
     F: 4, // printed with the page
-    T: PDFString.of("ClassBARI"),
+    T: PDFString.of("Instanton Campus"),
     Contents: PDFString.of(LABEL[type]),
     AP: { N: look },
     BM: PDFName.of("Multiply"),

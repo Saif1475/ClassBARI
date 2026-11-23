@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 const KEY = /^([0-9a-f-]{36}):student:(\d+)$/;
 
 /**
- * ClassBARI admin, extra AI credit: ?key=<user key> gives that student's whole history from the log; otherwise this
+ * Instanton Campus admin, extra AI credit: ?key=<user key> gives that student's whole history from the log; otherwise this
  * month's totals and every balance (matching ?q=: name, email, institute name or code), largest first.
  */
 export async function GET(request: Request) {

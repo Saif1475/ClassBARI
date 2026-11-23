@@ -111,7 +111,7 @@ function Card({ title, sub, children }: { title: string; sub: string; children: 
         <span className="text-xs font-bold uppercase">{sub}</span>
       </div>
       {children}
-      <p className="mt-1 text-right text-[9px] text-gray-500">ClassBARI</p>
+      <p className="mt-1 text-right text-[9px] text-gray-500">Instanton Campus</p>
     </div>
   );
 }
@@ -149,7 +149,7 @@ function Certificates({ type, item, students, institute, batch }: { type: "compl
             <span className="border-t border-black px-6 pt-1">{fmtDate(new Date().toISOString(), lang)}</span>
             <span className="border-t border-black px-6 pt-1">{C.signature}</span>
           </div>
-          <p className="text-[10px] text-gray-500">ClassBARI</p>
+          <p className="text-[10px] text-gray-500">Instanton Campus</p>
         </div>
       ))}
     </>

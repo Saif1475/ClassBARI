@@ -44,7 +44,7 @@ function useLmsState() {
   const latest = useRef(state);
   latest.current = state;
   const lastRoll = useRef(0); // several students added before a re-render must still get different roll numbers
-  const [saveError, setSaveError] = useState<boolean | "suspended">(false); // "suspended": ClassBARI suspended the institute
+  const [saveError, setSaveError] = useState<boolean | "suspended">(false); // "suspended": Instanton Campus suspended the institute
 
   // ---- Real accounts: the institute's data lives on the server; each action is sent there and checked.
   const version = useRef(0);

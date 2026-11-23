@@ -46,7 +46,7 @@ export function OmrSheet({ questions, title, institute }: { questions: number; t
           {OPTIONS.map((o, k) => <circle key={o} cx={questionBubble(q, k).x} cy={questionBubble(q, k).y} {...ring} />)}
         </g>
       ))}
-      <text x={105} y={286} fontSize={2.5} textAnchor="middle" fill="#666">ClassBARI OMR · {questions}</text>
+      <text x={105} y={286} fontSize={2.5} textAnchor="middle" fill="#666">Instanton Campus OMR · {questions}</text>
     </svg>
   );
 }

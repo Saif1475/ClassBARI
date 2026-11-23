@@ -68,7 +68,7 @@ header b{color:#0b5d3b;font-size:11pt}h1{font-size:17pt;margin:4px 0 0}
 p{margin:2px 0}.h{font-weight:700;margin-top:8px}.li{padding-left:1.2em;text-indent:-1.2em}.gap{height:6px}
 mark{background:#ffe066;color:inherit;border-radius:3px;padding:0 2px}code{background:#eef1ef;border-radius:4px;padding:0 3px;font-size:.92em}pre{background:#f4f7f5;color:#1a1c1b;border:1px solid #d6dcd8;border-left:4px solid #0b5d3b;border-radius:8px;padding:10px 12px;white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,Consolas,monospace;font-size:10pt;line-height:1.45}pre code{background:none;padding:0;font-size:inherit} /* light, so code stays readable on screen and in print */
 footer{margin-top:16px;color:#5f6662;font-size:9.5pt}</style></head><body>
-<header><b>ClassBARI AI</b><h1>${esc(o.title)}</h1><div class="muted">${esc(o.date)}</div></header>${turns}<footer>${esc(o.note)}</footer></body></html>`;
+<header><b>Instanton AI</b><h1>${esc(o.title)}</h1><div class="muted">${esc(o.date)}</div></header>${turns}<footer>${esc(o.note)}</footer></body></html>`;
 }
 
 // One browser for the whole server, started on first use; a page per PDF.

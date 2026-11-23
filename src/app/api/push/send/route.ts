@@ -17,7 +17,7 @@ export async function POST(request: Request) {
   const payload = JSON.stringify({
     title: b.title.slice(0, 80),
     body: b.body.slice(0, 200),
-    url: typeof b.url === "string" && b.url.startsWith("/") && !b.url.startsWith("//") ? b.url : "/", // only links inside ClassBARI
+    url: typeof b.url === "string" && b.url.startsWith("/") && !b.url.startsWith("//") ? b.url : "/", // only links inside Instanton Campus
   });
 
   const batch = me && typeof b.batch === "string" ? `${me.institute}:${b.batch}` : b.batch;

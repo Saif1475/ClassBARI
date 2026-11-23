@@ -107,8 +107,9 @@ void main() {
   test('a backup has the website\'s wrapper, and only such a file is restored', () {
     final text = backupText(sample(), DateTime.utc(2026, 1, 2));
     final b = jsonDecode(text) as Json;
-    expect([b['app'], b['version'], b['savedAt'], (b['data'] as Map)['teacherName']], ['ClassBARI', 1, '2026-01-02T00:00:00.000Z', 'Owner Sir']);
-    expect([isBackup(text), isBackup('{"app":"ClassBARI","data":{}}'), isBackup('nope')], [true, false, false]);
+    expect([b['app'], b['version'], b['savedAt'], (b['data'] as Map)['teacherName']], ['Instanton Campus', 1, '2026-01-02T00:00:00.000Z', 'Owner Sir']);
+    const old = '{"app":"ClassBARI","data":{"students":[],"batches":[]}}'; // saved before the rename: still restores
+    expect([isBackup(text), isBackup(old), isBackup('{"app":"Instanton Campus","data":{}}'), isBackup('nope')], [true, true, false, false]);
   });
 
   test('Word, Excel and text files are read into text as the website reads them', () {

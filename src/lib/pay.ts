@@ -1,4 +1,4 @@
-// Paying ClassBARI by bKash or Nagad "Send Money" with the transaction ID. Plain logic only (tested in
+// Paying Instanton Campus by bKash or Nagad "Send Money" with the transaction ID. Plain logic only (tested in
 // scripts/pay.test.mjs); the API routes save, the admin page approves.
 import { CREDIT_MAX, CREDIT_MIN, PACKS } from "./ai-chat.ts";
 import { isBdMobile } from "./site.ts";

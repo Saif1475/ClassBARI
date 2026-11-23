@@ -19,13 +19,14 @@ import '../icons.g.dart';
 // An email link (instead of typing the code) opens the website, which finishes there.
 String _back(String next) => '$kApiUrl/auth/callback?next=${Uri.encodeComponent(next)}';
 
-/// Students, guardians and teachers first find their institute; then they log in. Owners log straight in.
+/// Students, guardians and teachers first find their institute; then they log in. Owners log straight in. The Campus app
+/// first asks: teacher or institute.
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
   @override
   Widget build(BuildContext context) => Live((context) {
     final c = context.colors;
-    final inst = kPicksInstitute ? store.institute : null;
+    final inst = store.picksInstitute ? store.institute : null;
     Widget circle(double size, Color color) => IgnorePointer(
       child: Container(
         width: size,
@@ -65,7 +66,8 @@ class LoginScreen extends StatelessWidget {
                 const SizedBox(height: 22),
                 Box(
                   children: [
-                    if (kPicksInstitute && inst == null)
+                    if (kApp == 'teacher') const PanelChoice(),
+                    if (store.picksInstitute && inst == null)
                       const InstitutePicker()
                     else ...[
                       if (inst != null)
@@ -81,7 +83,7 @@ class LoginScreen extends StatelessWidget {
                             ],
                           ),
                         ),
-                      kFamilies ? const StepLogin() : const StaffLogin(),
+                      kFamilies ? const StepLogin() : StaffLogin(owner: !store.picksInstitute),
                     ],
                   ],
                 ),
@@ -356,9 +358,26 @@ mixin _Form<T extends StatefulWidget> on State<T> {
   }
 }
 
-/// Teachers and owners: email and password.
+/// The Campus app: signing in as a teacher, or to run the institute (the website's "I am a" on its login page).
+class PanelChoice extends StatelessWidget {
+  const PanelChoice({super.key});
+  @override
+  Widget build(BuildContext context) => Live(
+    (context) => Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 8,
+      children: [
+        Muted(t('login.iam')),
+        Chips(value: store.panel, options: const ['teacher', 'institute'], labels: {for (final p in const ['teacher', 'institute']) p: t('login.roles.$p')}, onChanged: (p) => store.panel = p),
+      ],
+    ),
+  );
+}
+
+/// Teachers and owners: email and password. `owner`: signing in to run the institute, so no institute was picked.
 class StaffLogin extends StatefulWidget {
-  const StaffLogin({super.key});
+  const StaffLogin({super.key, this.owner = false});
+  final bool owner;
   @override
   State<StaffLogin> createState() => _StaffLoginState();
 }
@@ -410,8 +429,8 @@ class _StaffLoginState extends State<StaffLogin> with _Form {
           spacing: 8,
           children: [
             TextButton(onPressed: busy ? null : () => run(() => forgot(mail)), child: Text(t('auth.forgot'))),
-            if (kApp != 'institute') TextButton(onPressed: busy ? null : () => run(firstTime), child: Text(t('auth.firstTime'))),
-            if (kApp == 'institute')
+            if (!widget.owner) TextButton(onPressed: busy ? null : () => run(firstTime), child: Text(t('auth.firstTime'))),
+            if (widget.owner)
               TextButton(
                 onPressed: () => launchUrl(Uri.parse('$kApiUrl/signup'), mode: LaunchMode.externalApplication),
                 child: Text('${t('login.newHere')} ${t('login.create')}'),

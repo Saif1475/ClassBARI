@@ -1,8 +1,8 @@
 {
   "packageId": "app.classbari.guardian",
   "host": "guardian.classbari.app",
-  "name": "ClassBARI Guardian",
-  "launcherName": "CB Guardian",
+  "name": "Instanton Guardian",
+  "launcherName": "IC Guardian",
   "display": "standalone",
   "orientation": "portrait",
   "themeColor": "#b4470c",

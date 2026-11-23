@@ -1,28 +1,30 @@
-# ClassBARI Android apps
+# Instanton Campus Android apps
 
-Four Play Store apps, one website. Each app opens its own subdomain, so logins stay separate
-(a student and a guardian sharing a phone each stay signed in to their own app).
+Three Play Store apps, one website. Each app opens its own subdomain, so logins stay separate
+(a student and a guardian sharing a phone each stay signed in to their own app). Teachers and institutes share
+Instanton Campus and choose which on its login page.
 
 | App | Package | Opens |
 |---|---|---|
-| ClassBARI Student | `app.classbari.student` | https://student.classbari.app |
-| ClassBARI Teacher | `app.classbari.teacher` | https://teacher.classbari.app |
-| ClassBARI Institution | `app.classbari.institute` | https://institute.classbari.app |
-| ClassBARI Guardian | `app.classbari.guardian` | https://guardian.classbari.app |
+| Instanton Student | `app.classbari.student` | https://student.classbari.app |
+| Instanton Campus (teachers and institutes) | `app.classbari.teacher` | https://teacher.classbari.app |
+| Instanton Guardian | `app.classbari.guardian` | https://guardian.classbari.app |
+
+`android/institute/` is left from the old separate Institution app. It is no longer built, but its upload key is still in it.
 
 Built with Bubblewrap (Google's tool for Trusted Web Activities). The app is a full-screen Chrome
 window on the site, so Google sign-in and push notifications work as on the web.
 
 ## Before building
-1. The site is online on all four subdomains with HTTPS (the apps can't open localhost).
+1. The site is online on all three subdomains with HTTPS (the apps can't open localhost).
 2. In Supabase → Authentication → URL Configuration, add each `https://<sub>.classbari.app/**` to Redirect URLs.
-3. In Google Cloud → Clients → "ClassBARI web", add each `https://<sub>.classbari.app` to Authorised JavaScript origins.
+3. In Google Cloud → Clients → "Instanton Campus web", add each `https://<sub>.classbari.app` to Authorised JavaScript origins.
 
 ## Build
 Tools live in `~/.bubblewrap` (Java 17, Android SDK, Bubblewrap) and the signing keys in `android/<app>/upload.keystore`,
 with their passwords in `android/keys.local.txt`. Then:
 ```
-bash scripts/android-build.sh              # all four (icons fetched from http://localhost:3000 — the site must be running)
+bash scripts/android-build.sh              # all three (icons fetched from http://localhost:3000 — the site must be running)
 ICON_BASE=live bash scripts/android-build.sh   # once the site is online
 ```
 Each folder then has `app-release-signed.apk` (install on a phone to test) and `app-release-bundle.aab` (upload to Play).
@@ -37,7 +39,6 @@ Play Console → (the app) → Test and release → App integrity → App signin
 ```
 ANDROID_SHA256_STUDENT=AA:BB:…,CC:DD:…
 ANDROID_SHA256_TEACHER=…
-ANDROID_SHA256_INSTITUTE=…
 ANDROID_SHA256_GUARDIAN=…
 ```
 Restart the site. https://classbari.app/.well-known/assetlinks.json then lists them, and the apps open

@@ -1,4 +1,4 @@
-"""Handwriting-to-text service for ClassBARI.
+"""Handwriting-to-text service for Instanton Campus.
 
 POST /handwriting  (multipart field "file": a photo of handwritten notes)
   -> {"lines": [...], "text": "..."}
@@ -81,7 +81,7 @@ def load_image(data: bytes) -> Image.Image:
     return img
 
 
-app = FastAPI(title="ClassBARI handwriting OCR")
+app = FastAPI(title="Instanton Campus handwriting OCR")
 _model = None
 
 

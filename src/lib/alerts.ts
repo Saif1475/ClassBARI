@@ -46,7 +46,7 @@ export async function report(where: string, err: unknown) {
     const hook = process.env.ALERT_WEBHOOK_URL;
     const go = hook ? shouldAlert(`${entry.where}|${entry.message.split("\n")[0]}`) : null;
     if (!hook || !go) return;
-    const text = `🚨 ClassBARI error\n${entry.where}\n${entry.message}${go.skipped ? `\n(+${go.skipped} more of the same since the last alert)` : ""}`;
+    const text = `🚨 Instanton Campus error\n${entry.where}\n${entry.message}${go.skipped ? `\n(+${go.skipped} more of the same since the last alert)` : ""}`;
     // One body that Discord ("content"), Slack and Telegram ("text") all accept.
     await fetch(hook, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: text.slice(0, 1900), text: text.slice(0, 1900) }), signal: AbortSignal.timeout(5000) });
   } catch {

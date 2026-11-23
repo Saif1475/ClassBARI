@@ -1,5 +1,5 @@
 // Institute size and plan: the standard plan covers up to PLAN_STUDENT_LIMIT students.
-// Bigger institutes contact ClassBARI for a price (no per-student price is shown in the app).
+// Bigger institutes contact Instanton Campus for a price (no per-student price is shown in the app).
 
 export const PLAN_STUDENT_LIMIT = 250;
 export const NEAR_LIMIT = 0.9; // from 90% of the limit we suggest calling early

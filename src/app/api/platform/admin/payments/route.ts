@@ -9,7 +9,7 @@ import type { Plan } from "@/lib/platform";
 
 export const dynamic = "force-dynamic";
 
-/** ClassBARI team: payments waiting to be checked first, then the latest ones. */
+/** Instanton Campus team: payments waiting to be checked first, then the latest ones. */
 export async function GET(request: Request) {
   if (!isAdmin(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!REAL_AUTH) return Response.json({ error: "demo mode" }, { status: 404 });
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     .maybeSingle();
   if (!p) return Response.json({ error: "already decided" }, { status: 409 });
 
-  const system = { institute: p.institute_id as string, who: { role: "owner" as const, name: "ClassBARI", studentIds: [] } };
+  const system = { institute: p.institute_id as string, who: { role: "owner" as const, name: "Instanton Campus", studentIds: [] } };
   let until = "";
   if (body.approve && p.kind === "ai_pack") {
     const today = new Date(Date.now() + 6 * 3600_000).toISOString().slice(0, 10);

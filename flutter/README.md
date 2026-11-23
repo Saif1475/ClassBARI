@@ -1,16 +1,15 @@
-# ClassBARI phone apps (Flutter)
+# Instanton Campus phone apps (Flutter)
 
-One codebase, five apps, for Android now and iPhone later:
+One codebase, four apps, for Android now and iPhone later:
 
 | App | Build name | Android id | Who logs in |
 |---|---|---|---|
-| ClassBARI Student | `student` | `app.classbari.student` | students |
-| ClassBARI Guardian | `guardian` | `app.classbari.guardian` | guardians |
-| ClassBARI Teacher | `teacher` | `app.classbari.teacher` | teachers, owners, managers |
-| ClassBARI Institution | `institute` | `app.classbari.institute` | owners, managers |
-| ClassBARI AI | `chatbot` | `app.classbari.chatbot` | students with an AI pack |
+| Instanton Student | `student` | `app.classbari.student` | students |
+| Instanton Guardian | `guardian` | `app.classbari.guardian` | guardians |
+| Instanton Campus | `teacher` | `app.classbari.teacher` | teachers, owners, managers: the login page asks "Instructor" or "Institute" |
+| Instanton AI | `chatbot` | `app.classbari.chatbot` | students with an AI pack |
 
-The apps hold no rules of their own. Every change (attendance, a payment, a quiz hand-in…) is sent to the ClassBARI
+The apps hold no rules of their own. Every change (attendance, a payment, a quiz hand-in…) is sent to the Instanton Campus
 server as the same action the website sends, and the server checks it and answers with the new data. So the website's
 server must be running and reachable from the phone.
 
@@ -47,12 +46,12 @@ Turn on USB debugging on the phone, plug it in, then from this folder:
 flutter run --flavor student --dart-define-from-file=config.local.json
 ```
 
-Use `guardian`, `teacher`, `institute` or `chatbot` for the other apps.
+Use `guardian`, `teacher` (Instanton Campus) or `chatbot` for the other apps.
 
 ## Build the install files
 
 ```sh
-for app in student guardian teacher institute chatbot; do
+for app in student guardian teacher chatbot; do
   flutter build apk --flavor $app --dart-define-from-file=config.local.json
 done
 ```
@@ -60,9 +59,10 @@ done
 The files appear in `build/app/outputs/flutter-apk/` as `app-<name>-release.apk`.
 
 
-Before uploading to Google Play, the release build must be signed with ClassBARI's upload key. It is signed with
-Flutter's test key for now (`android/app/build.gradle.kts`, `buildTypes.release`). The Student, Guardian, Teacher and
-Institution apps keep the ids of the earlier web-wrapper apps, so to replace those as updates they need the same key.
+Before uploading to Google Play, the release build must be signed with Instanton Campus's upload key. It is signed with
+Flutter's test key for now (`android/app/build.gradle.kts`, `buildTypes.release`). The Student, Guardian and Campus
+apps keep the ids of the earlier web-wrapper apps (Campus has the old Teacher app's), so to replace those as updates they
+need the same key.
 
 ## After changing wording or shared rules on the website
 
@@ -85,6 +85,7 @@ npm run test:accounts   # once: the four test people (project folder)
 npm run test:lessons    # once: sample lessons, a notice, a homework hand-in and a guardian chat for them
 cd flutter && flutter build web --dart-define=APP=teacher --dart-define-from-file=config.local.json -o /tmp/web-teacher
 cd ..      && node scripts/flutter-web-check.mjs teacher /tmp/web-teacher data/app-screens
+              node scripts/flutter-web-check.mjs institute /tmp/web-teacher data/app-screens  # the same app, as the institute
               node scripts/flutter-web-check.mjs sheets data/app-screens    # one picture per app with all its screens
 ```
 
@@ -110,14 +111,14 @@ Email and password login (with the verification code) works without this.
 
 ## Where things are
 
-- `lib/config.dart` — the five apps and who may open each
+- `lib/config.dart` — the four apps and who may open each
 - `lib/theme.dart`, `lib/ui.dart` — the look (the website's phone look) and the parts every screen is built from
 - `assets/fonts/` — Plus Jakarta Sans (English letters) and Hind Siliguri (Bangla, ৳), the website's fonts; from
   github.com/google/fonts, SIL Open Font Licence
 - `lib/store.dart` — loading data, sending changes, working without internet
 - `lib/views.dart` — the read-only helpers copied from the website (tested against it)
 - `lib/screens/` — `login`, `student`, `lesson`, `pdf`, `guardian`, `teacher`, `institute`, `ai_chat`, `settings`
-- `android/app/build.gradle.kts` — the five Android apps (names, ids)
+- `android/app/build.gradle.kts` — the four Android apps (names, ids)
 - `../scripts/app-icons.mjs` — makes the icons
 
 ## Settings

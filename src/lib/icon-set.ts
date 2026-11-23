@@ -1,4 +1,4 @@
-// ClassBARI's own icon set, drawn for ClassBARI (not taken from any icon library). One source for the website
+// Instanton Campus's own icon set, drawn for Instanton Campus (not taken from any icon library). One source for the website
 // (components/Icon.tsx) and the phone apps (flutter/lib/icons.g.dart, made by `npm run flutter:gen`).
 //
 // The look: a 24×24 grid, one even rounded stroke, evenly rounded corners, outline only. Solid parts only where they

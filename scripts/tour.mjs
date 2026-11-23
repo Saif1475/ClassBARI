@@ -22,7 +22,7 @@ export async function tour({ page, ctx, BASE, snap, adminToken = "shots-token", 
 
   // ---------- Public website ----------
   const PUB = "1 · Public website";
-  await step("landing", async () => (await go("/"), await snap(page, PUB, "Landing page", "What ClassBARI is: one app for classes, fees, exams and parent updates, built for Bangladeshi coaching centres.")));
+  await step("landing", async () => (await go("/"), await snap(page, PUB, "Landing page", "What Instanton Campus is: one app for classes, fees, exams and parent updates, built for Bangladeshi coaching centres.")));
   await step("landing-pricing", async () => {
     await page.mouse.wheel(0, 2200);
     await page.waitForTimeout(700);
@@ -144,13 +144,13 @@ export async function tour({ page, ctx, BASE, snap, adminToken = "shots-token", 
   // ---------- Teacher's public website ----------
   await step("website", async () => (await go("/t/tanvir-sir"), await snap(page, PUB, "Teacher's own website", "Each teacher gets a public page with their courses, results and a join button.")));
 
-  // ---------- ClassBARI admin ----------
-  const ADM = "7 · ClassBARI admin";
+  // ---------- Instanton Campus admin ----------
+  const ADM = "7 · Instanton Campus admin";
   await step("admin", async () => {
     await go("/admin");
     await page.getByLabel("Admin token").fill(adminToken);
     await page.getByRole("button", { name: "Open" }).click();
     await settle(page, 900);
-    await snap(page, ADM, "Admin panel", "For the ClassBARI team: institutes, sign-ups, feature switches and announcements.");
+    await snap(page, ADM, "Admin panel", "For the Instanton Campus team: institutes, sign-ups, feature switches and announcements.");
   });
 }

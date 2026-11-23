@@ -1,4 +1,4 @@
-// ClassBARI platform data run by our own staff (admin panel): institutes, support tickets,
+// Instanton Campus platform data run by our own staff (admin panel): institutes, support tickets,
 // announcements, feature switches, plan prices and an activity log. Pure functions only
 // (also loaded by scripts/platform.test.mjs); saving happens in src/lib/platform-server.ts.
 import { MODELS, PACKS, PROVIDERS, type AiSettings } from "./ai-chat.ts";

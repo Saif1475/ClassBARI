@@ -23,10 +23,10 @@ test("institute settings: rename teacher, institute name on ID cards, backup and
   await page.goto("/settings");
   const [dl] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: /Download backup/ }).click()]);
   const backupPath = await dl.path();
-  expect(JSON.parse(await readFile(backupPath, "utf8")).app).toBe("ClassBARI");
+  expect(JSON.parse(await readFile(backupPath, "utf8")).app).toBe("Instanton Campus");
   await page.getByRole("button", { name: "Reset demo data" }).click();
   await page.getByLabel("Restore from backup").setInputFiles({ name: "bad.json", mimeType: "application/json", buffer: Buffer.from("{}") });
-  await expect(page.getByText("That file isn't a ClassBARI backup.")).toBeVisible();
+  await expect(page.getByText("That file isn't an Instanton Campus backup.")).toBeVisible();
   await page.getByLabel("Restore from backup").setInputFiles(backupPath);
   await expect(page.getByText("Backup restored ✓")).toBeVisible();
   await page.goto("/institute");

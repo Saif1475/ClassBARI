@@ -40,7 +40,7 @@ const KEYS: { group: string; name: string; secret: boolean; check?: (typeof PROV
   ...["STUDENT", "TEACHER", "INSTITUTE", "GUARDIAN"].map((a) => ({ group: "Android apps", name: `ANDROID_SHA256_${a}`, secret: false })),
 ];
 
-/** ClassBARI admin: each setting's name and whether it is set. Never a value. */
+/** Instanton Campus admin: each setting's name and whether it is set. Never a value. */
 export async function GET(request: Request) {
   if (!isAdmin(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
   return Response.json({ keys: KEYS.map((k) => ({ ...k, set: !!process.env[k.name]?.trim() })) });

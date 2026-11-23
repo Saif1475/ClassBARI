@@ -1,4 +1,4 @@
-// Paying ClassBARI by bKash or Nagad "Send Money" with the transaction ID: the same form as on the website
+// Paying Instanton Campus by bKash or Nagad "Send Money" with the transaction ID: the same form as on the website
 // (src/components/PayForm.tsx). Our staff check the TrxID and switch the pack on; the payer gets a notification.
 import 'dart:convert';
 

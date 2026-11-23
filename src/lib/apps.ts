@@ -1,22 +1,27 @@
-// The four Android apps (Trusted Web Activities). Each opens its own subdomain, so a student and a guardian
-// sharing one phone keep separate logins (logins are per web address). Pure: scripts/apps.test.mjs.
+// The three Android apps (Trusted Web Activities). Each opens its own subdomain, so a student and a guardian
+// sharing one phone keep separate logins (logins are per web address). Teachers and institutes share Instanton Campus
+// and pick which on its login page. Pure: scripts/apps.test.mjs.
 import type { Role } from "./role.ts";
 
-export const APPS = {
-  student: { sub: "student", name: "ClassBARI Student", short: "CB Student", pkg: "app.classbari.student", color: "#006a60", letter: "S" },
-  teacher: { sub: "teacher", name: "ClassBARI Teacher", short: "CB Teacher", pkg: "app.classbari.teacher", color: "#2f4fbf", letter: "T" },
-  institute: { sub: "institute", name: "ClassBARI Institution", short: "CB Institution", pkg: "app.classbari.institute", color: "#6b2fb3", letter: "I" },
-  parent: { sub: "guardian", name: "ClassBARI Guardian", short: "CB Guardian", pkg: "app.classbari.guardian", color: "#b4470c", letter: "G" },
-} satisfies Record<Role, { sub: string; name: string; short: string; pkg: string; color: string; letter: string }>;
+export type AppId = "student" | "teacher" | "parent";
+export const APPS: Record<AppId, { sub: string; name: string; short: string; pkg: string; color: string; letter: string; roles: Role[] }> = {
+  student: { sub: "student", name: "Instanton Student", short: "IC Student", pkg: "app.classbari.student", color: "#006a60", letter: "S", roles: ["student"] },
+  teacher: { sub: "teacher", name: "Instanton Campus", short: "IC Campus", pkg: "app.classbari.teacher", color: "#4d3fb9", letter: "", roles: ["teacher", "institute"] },
+  parent: { sub: "guardian", name: "Instanton Guardian", short: "IC Guardian", pkg: "app.classbari.guardian", color: "#b4470c", letter: "G", roles: ["parent"] },
+};
 
-const roles = Object.keys(APPS) as Role[];
+const ids = Object.keys(APPS) as AppId[];
 /** Which app this page runs in: from the subdomain (guardian.classbari.app), or ?app=guardian when testing on localhost. */
-export function appFrom(hostname: string, search = ""): Role | null {
+export function appFrom(hostname: string, search = ""): AppId | null {
   const sub = hostname.split(".")[0];
   if (hostname.includes(".")) {
-    const hit = roles.find((r) => APPS[r].sub === sub);
+    const hit = ids.find((a) => APPS[a].sub === sub);
     if (hit) return hit;
   }
   const q = new URLSearchParams(search).get("app");
-  return roles.find((r) => APPS[r].sub === q || r === q) ?? null;
+  return ids.find((a) => APPS[a].sub === q || a === q) ?? null;
 }
+
+/** The role to open in an app: the one picked on its login page if the app has it, else the app's first. */
+export const roleIn = (app: AppId, picked: string | null | undefined): Role =>
+  APPS[app].roles.find((r) => r === picked) ?? APPS[app].roles[0];

@@ -8,7 +8,7 @@ import { isAdmin, readPlatform } from "@/lib/platform-server";
 export const dynamic = "force-dynamic";
 
 /**
- * ClassBARI admin: the AI settings (what the panel changed, and the code / .env.local values used otherwise), every
+ * Instanton Campus admin: the AI settings (what the panel changed, and the code / .env.local values used otherwise), every
  * provider and model with its on/off switch and whether its key is set, and this month's AI spending.
  * Changes go through POST /api/platform/admin { type: "ai", key, value }.
  */

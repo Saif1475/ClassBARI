@@ -1,11 +1,11 @@
-# ClassBARI
+# Instanton Campus
 
-A coaching-centre system for Bangladesh, in English and Bangla: one website and five Android apps (Student,
-Guardian, Teacher, Institution, ClassBARI AI) on one shared server and database.
+A coaching-centre system for Bangladesh, in English and Bangla: one website and four Android apps (Student,
+Guardian, Campus for teachers and institutes, Instanton AI) on one shared server and database.
 
 - **Website and server:** Next.js 16 (webpack build), React 19, TypeScript, Tailwind CSS v4.
 - **Database and sign-in:** Supabase (Postgres with row-level security, Auth, Storage). Migrations in `supabase/migrations/`.
-- **Phone apps:** Flutter, in `flutter/` (one codebase, five Android flavours).
+- **Phone apps:** Flutter, in `flutter/` (one codebase, four Android flavours).
 - **Python service:** `ocr-service/` (FastAPI): matches reworded AI questions to saved answers, handwriting to text.
 - **AI:** student chat with packs and monthly money caps (Gemini, Qwen, Claude, GPT), highlighted PDFs, PDF downloads.
 
@@ -89,7 +89,7 @@ Until real logins exist (Supabase), the daily limit is what protects your SMS cr
 | Staff attendance & leave | Owner marks staff present/absent and approves leave. |
 | Parent meetings | Teacher opens slots; guardians book from their home page. |
 | My website | Public page `/t/<name>` with bio, public courses and an average-mark badge; the bKash number for course sales. |
-| Course shop & coupons | Coupons; buyers pay by bKash "Send Money" to the teacher and type the TrxID; the teacher confirms and the student is enrolled. ClassBARI never holds money or asks for PINs. |
+| Course shop & coupons | Coupons; buyers pay by bKash "Send Money" to the teacher and type the TrxID; the teacher confirms and the student is enrolled. Instanton Campus never holds money or asks for PINs. |
 
 Also new: negative marking, sections (`## Physics`) and per-student shuffling in MCQ tests; **Import from Excel** (.xlsx/.csv) on the Students page; push notifications for new news/homework/tests/results.
 Limits: all of this lives in the demo's browser storage (5 MB), so photos, voice notes and big imports fill it fast; the public teacher page and shop only work in the same browser until Supabase. Push needs the site on HTTPS (or localhost) and, on iPhone, the app added to the home screen. "Class starts in 10 minutes" reminders need a scheduled job and are not built yet.
@@ -124,7 +124,7 @@ Bangla handwriting needs a Bangla-trained model (not available yet).
 
 ## Android app (Google Play)
 
-ClassBARI is an installable web app (manifest + offline service worker), so it can be wrapped as a
+Instanton Campus is an installable web app (manifest + offline service worker), so it can be wrapped as a
 Play Store app (a "Trusted Web Activity") without writing Android code:
 
 1. Deploy the site on HTTPS with your real domain (Play needs a public URL).
@@ -138,7 +138,7 @@ A separate branded app per teacher needs one domain/subdomain and manifest per t
 
 ## Staff admin panel (`/admin`)
 
-For the ClassBARI team only. Set `ADMIN_TOKEN` in `.env.local` (a long random string; never commit it), restart the site, open `/admin` and enter the token.
+For the Instanton Campus team only. Set `ADMIN_TOKEN` in `.env.local` (a long random string; never commit it), restart the site, open `/admin` and enter the token.
 
 - **Overview:** institutes, monthly income (active institutes × plan price), trials ending within 7 days, open support requests.
 - **Institutes:** everyone who signs up at `/signup`. Set plan, status (trial / active / suspended), trial end date, internal notes.
@@ -168,7 +168,7 @@ Chat → PDF needs Chromium on the server: `npx playwright install chromium`.
 ```bash
 cd flutter
 flutter test && flutter analyze
-flutter build apk --flavor student --dart-define-from-file=<config.json>   # student, guardian, teacher, institute, chatbot
+flutter build apk --flavor student --dart-define-from-file=<config.json>   # student, guardian, teacher (Campus), chatbot
 ```
 The config file holds `API_URL`, `SUPABASE_URL` and `SUPABASE_KEY` (the publishable key). Words come from the
 website's `src/lib/i18n` through `npm run flutter:gen`; run it after changing any text. New features go into the
@@ -184,11 +184,11 @@ website and the apps in the same change.
 ## Where things live
 
 ```
-src/app/               pages and API routes (Next.js App Router); /admin is the ClassBARI staff panel
+src/app/               pages and API routes (Next.js App Router); /admin is the Instanton Campus staff panel
 src/components/        website components
 src/lib/               shared rules: data-access (permissions), lms-actions (every change), ai-chat (packs, caps),
                        i18n/en.ts + bn.ts (all words), notify, pay, chat-pdf, pdf-*
-flutter/lib/           the five apps (screens/*), store, ui, theme; generated: icons.g.dart, assets/gen/*.json
+flutter/lib/           the four apps (screens/*), store, ui, theme; generated: icons.g.dart, assets/gen/*.json
 ocr-service/           Python service (embeddings, handwriting)
 supabase/migrations/   database schema and rules
 scripts/               tests, code generators, real-account checks, deploy helpers

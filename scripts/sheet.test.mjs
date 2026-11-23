@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { deflateRawSync } from "node:zlib";
-import { readCsv, readXlsx, rowsToRecords } from "../src/lib/sheet.ts";
+import { readCsv, readXlsx, writeXlsx } from "../src/lib/sheet.ts";
 
 /** A tiny real .xlsx (zip) built by hand: shared strings, a number cell, a skipped column and an entity. */
 function xlsx() {
@@ -29,15 +29,15 @@ test("reads an .xlsx: shared and rich text, numbers, empty columns, entities", a
   assert.deepEqual(await readXlsx(xlsx()), [["Student name", "", "Guardian phone"], ["Nusrat & Co", "", "1711234511"]]);
 });
 
+test("writes an .xlsx that reads back as the same rows: text kept as typed, a phone's 0 too", async () => {
+  const rows = [["Student name", "Guardian phone", "Note"], ["Nusrat & Co <1>", "01711234511", ""], ["Sadia", "+880 1811-234512", 'say "hi"']];
+  const file = writeXlsx(rows, [1]);
+  assert.deepEqual(await readXlsx(file.buffer.slice(file.byteOffset, file.byteOffset + file.byteLength)), rows);
+});
+
 test("reads Excel-style CSV: BOM, quotes, commas inside quotes, semicolons", () => {
   assert.deepEqual(readCsv('﻿Name,Phone\r\n"Rahim, Jr","017 ""x"""\r\n'), [["Name", "Phone"], ["Rahim, Jr", '017 "x"']]);
   assert.deepEqual(readCsv("a;b\n1;2"), [["a", "b"], ["1", "2"]]);
-});
-
-test("maps headings (any case, English or Bangla) and reports missing required columns", () => {
-  const { records, missing } = rowsToRecords([["Student Name", "Gmail", "অভিভাবকের নাম", "Unknown"], ["A", "a@gmail.com", "G", "x"]]);
-  assert.deepEqual(records, [{ name: "A", email: "a@gmail.com", guardianName: "G" }]);
-  assert.deepEqual(missing, ["guardianEmail", "phone"]);
 });
 
 test("reads the text of a Word (.docx) file, one paragraph per line", async () => {

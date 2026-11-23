@@ -1,4 +1,4 @@
-// Run: node --experimental-strip-types scripts/icons-sheet.mjs <out.png> — every ClassBARI icon on one sheet, to review.
+// Run: node --experimental-strip-types scripts/icons-sheet.mjs <out.png> — every Instanton Campus icon on one sheet, to review.
 import { chromium } from "playwright";
 import { ICONS } from "../src/lib/icon-set.ts";
 const out = process.argv[2] ?? "data/app-screens/icons.png";

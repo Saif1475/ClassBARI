@@ -1,4 +1,4 @@
-// Writes android/<app>/twa-manifest.json for the four ClassBARI Android apps (Bubblewrap / Trusted Web Activity).
+// Writes android/<app>/twa-manifest.json for the three Instanton Campus Android apps (Bubblewrap / Trusted Web Activity).
 //   node --experimental-strip-types scripts/android-config.mjs classbari.app
 // Then build each app as described in android/README.md.
 import { mkdirSync, writeFileSync } from "node:fs";

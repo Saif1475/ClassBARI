@@ -2,7 +2,7 @@
 // ignore_for_file: constant_identifier_names
 import 'icon.dart';
 
-/// ClassBARI's icons, one constant per icon.
+/// Instanton Campus's icons, one constant per icon.
 abstract final class I {
   static const home = CbIcon('home');
   static const dashboard = CbIcon('dashboard');

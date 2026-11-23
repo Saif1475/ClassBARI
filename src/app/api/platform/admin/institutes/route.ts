@@ -7,7 +7,7 @@ import { PLAN_STUDENT_LIMIT } from "@/lib/seat-billing";
 export const dynamic = "force-dynamic";
 
 /**
- * ClassBARI admin: every institute with its subscription (plan, paid until), seats used of the plan's limit, premium,
+ * Instanton Campus admin: every institute with its subscription (plan, paid until), seats used of the plan's limit, premium,
  * suspended, and this month's AI money. Changes go through POST /api/platform/admin ("sub", "suspend") and the premium route.
  */
 export async function GET(request: Request) {

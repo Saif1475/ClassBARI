@@ -26,6 +26,8 @@ import { answerFriend, BIO_MAX, cleanText, COMMENT_MAX, POST_MAX, requestFriend,
 
 /** Everything a teacher fills in when enrolling a student. */
 export type StudentInput = StudentContact & { mode: "offline" | "online"; batch: string; dob?: string; school?: string; address?: string; gender?: "male" | "female"; pending?: boolean };
+/** What a backup file says it is: written as the first, files saved before the rename still say "ClassBARI". */
+const BACKUP_TAGS = ["Instanton Campus", "ClassBARI"];
 const clean = (i: StudentInput) => ({
   name: i.name.trim(),
   email: normEmail(i.email),
@@ -449,7 +451,7 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
 
     /** Make sure a batch has its secret live-room name. */
     ensureLiveRoom: (batch: string) =>
-      set((s) => (s.liveRooms[batch] ? {} : { liveRooms: { ...s.liveRooms, [batch]: `ClassBARI-${crypto.randomUUID().replace(/-/g, "")}` } })),
+      set((s) => (s.liveRooms[batch] ? {} : { liveRooms: { ...s.liveRooms, [batch]: `Instanton-${crypto.randomUUID().replace(/-/g, "")}` } })),
     updateSite: (patch: Partial<TeacherSite>) => set((s) => ({ site: { ...s.site, ...patch } })),
     addCoupon: (c: Omit<Coupon, "used">) => set((s) => ({ coupons: [...s.coupons.filter((x) => x.code.toUpperCase() !== c.code.toUpperCase()), { ...c, code: c.code.toUpperCase(), used: 0 }] })),
     removeCoupon: (code: string) => set((s) => ({ coupons: s.coupons.filter((x) => x.code !== code) })),
@@ -585,12 +587,12 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
         };
       }),
     /** Everything in this browser, as a backup file the teacher can keep (until data lives on the server). */
-    exportBackup: () => JSON.stringify({ app: "ClassBARI", version: 1, savedAt: new Date().toISOString(), data: get() }),
-    /** Restore a backup file. Returns false (and changes nothing) if the file isn't a ClassBARI backup. */
+    exportBackup: () => JSON.stringify({ app: BACKUP_TAGS[0], version: 1, savedAt: new Date().toISOString(), data: get() }),
+    /** Restore a backup file. Returns false (and changes nothing) if the file isn't an Instanton Campus backup. */
     importBackup: (text: string) => {
       try {
         const b = JSON.parse(text);
-        if (b?.app !== "ClassBARI" || !b.data || !Array.isArray(b.data.students) || !Array.isArray(b.data.batches)) return false;
+        if (!BACKUP_TAGS.includes(b?.app) || !b.data || !Array.isArray(b.data.students) || !Array.isArray(b.data.batches)) return false;
         // Students' private chats with their teachers are never in a backup (the owner can't see them): keep them as they are.
         const own = get().chats.filter((c) => c.id.startsWith("student-"));
         replace({ ...fresh(), ...b.data, chats: [...(Array.isArray(b.data.chats) ? b.data.chats : []).filter((c: { id?: unknown }) => !String(c?.id).startsWith("student-")), ...own] });

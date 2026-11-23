@@ -1,4 +1,4 @@
-// This person's slice of their institute's data: loaded from the ClassBARI server, kept on the phone so the app opens
+// This person's slice of their institute's data: loaded from the Instanton Campus server, kept on the phone so the app opens
 // at once (and without internet), and changed only by the server: a change is sent as { name, args, base }, the same
 // actions the website sends, and the server checks it and answers with the new data. No rule is repeated in Dart.
 import 'dart:async';
@@ -16,7 +16,7 @@ import 'views.dart';
 enum Status { loading, ready, offline, noAccess, signedOut }
 
 const _data = 'classbari-data', _role = 'classbari-role', _lang = 'classbari-lang', _inst = 'classbari-institute';
-const _queue = 'classbari-outbox', _child = 'classbari-child', _size = 'classbari-page-size';
+const _queue = 'classbari-outbox', _child = 'classbari-child', _size = 'classbari-page-size', _panel = 'instanton-panel';
 const _keepMax = 2000000; // a bigger institute's data is not kept on the phone; it loads when the app opens
 const _queueMax = 1000000; // changes waiting for internet survive closing the app, up to this size (a photo does not)
 
@@ -27,7 +27,7 @@ class Store extends ChangeNotifier {
   Status status = Status.loading;
   bool signedIn = false, syncFailed = false;
 
-  /// ClassBARI suspended this institute: saves are refused; the banner says why (the website shows the same).
+  /// Instanton Campus suspended this institute: saves are refused; the banner says why (the website shows the same).
   var suspended = false;
   final List<Json> _outbox = [];
   int _version = 0, _lastBase = 0;
@@ -38,6 +38,17 @@ class Store extends ChangeNotifier {
   Json? get institute => _json(_inst);
   int get pageSize => prefs.getInt(_size) ?? 20;
   set pageSize(int n) => setting(_size, n);
+  /// The Campus app opens as a teacher ('teacher') or to run the institute ('institute'): picked on its login screen and
+  /// kept on the phone, like the institute picked.
+  String get panel => prefs.getString(_panel) == 'institute' ? 'institute' : 'teacher';
+  set panel(String p) => setting(_panel, p);
+
+  /// Everyone first picks their institute, except an owner signing in to run theirs.
+  bool get picksInstitute => kApp != 'teacher' || panel != 'institute';
+
+  /// The institute's own screens: an owner or manager who picked "Institute". (A teacher who picked it gets their batches,
+  /// as on the website.)
+  bool get runsInstitute => kApp == 'teacher' && panel == 'institute' && runsAll;
   int get pickedChild => prefs.getInt(_child) ?? 0;
   set pickedChild(int id) {
     prefs.setInt(_child, id);

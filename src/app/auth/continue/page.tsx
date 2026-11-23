@@ -12,7 +12,7 @@ import { forgetView } from "@/lib/lms-store";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { currentApp } from "@/lib/app-lock";
 import { getInstitute, setInstitute } from "@/lib/institute-choice";
-import { APPS } from "@/lib/apps";
+import { APPS, roleIn } from "@/lib/apps";
 
 const WANTED = "classbari-wanted-role"; // the button picked on the login page
 
@@ -33,10 +33,11 @@ export default function Continue() {
       const sb = supabaseBrowser();
       const { data: auth } = await sb.auth.getUser();
       if (!auth.user) return router.replace("/login");
-      const inApp0 = currentApp();
-      const wanted0 = inApp0 ?? sessionStorage.getItem(WANTED) ?? undefined;
+      const inApp = currentApp();
+      const picked = sessionStorage.getItem(WANTED);
+      const wanted = inApp ? roleIn(inApp, picked) : (picked ?? undefined); // in an app: one of its roles (Campus: teacher or institute)
       // Students, guardians and teachers picked an institute: only their place there counts (owners: any of theirs).
-      const inst = wanted0 && wanted0 !== "institute" ? getInstitute() : null;
+      const inst = wanted && wanted !== "institute" ? getInstitute() : null;
       const roles = async () =>
         (((await sb.rpc("my_access")).data ?? []) as { role: string; institute_id: string }[]).filter((r) => !inst || r.institute_id === inst.id).map((r) => r.role);
       let mine = await roles();
@@ -57,11 +58,10 @@ export default function Continue() {
         if (!res.ok) return setProblem("failed");
         mine = await roles();
       }
-      const inApp = currentApp();
       setApp(inApp);
-      const home = homeFor(mine, inApp ?? sessionStorage.getItem(WANTED) ?? undefined);
+      const home = homeFor(mine, wanted);
       if (!home) return setProblem(inst ? "notAtInstitute" : "notEnrolled");
-      if (inApp && home.uiRole !== inApp) return setProblem("wrongApp"); // e.g. a student's account in the Guardian app
+      if (inApp && !APPS[inApp].roles.includes(home.uiRole)) return setProblem("wrongApp"); // e.g. a student's account in the Guardian app
       if (home.uiRole === "institute") setInstitute(null); // an owner is not tied to an institute picked earlier on this browser (as a student, say)
       setRole(home.uiRole); // UI hint only; access is checked by the database on every page
       location.replace(home.path); // a full load, so the app fetches this person's data

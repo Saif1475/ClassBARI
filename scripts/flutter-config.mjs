@@ -1,6 +1,6 @@
 // Run: npm run flutter:config -- <server address> [file]  e.g.  npm run flutter:config -- http://192.168.0.105:3000
 //      Play Store builds:  npm run flutter:config -- https://classbari.app config.prod.json
-// Writes flutter/config.local.json (never saved in Git) for the Flutter apps: the ClassBARI server's address and the
+// Writes flutter/config.local.json (never saved in Git) for the Flutter apps: the Instanton Campus server's address and the
 // two PUBLIC Supabase values from .env.local (the same two the website already sends to every browser).
 // Nothing secret is copied, and no value is printed.
 import { readFileSync, writeFileSync } from "node:fs";

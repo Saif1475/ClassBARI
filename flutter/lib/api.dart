@@ -36,11 +36,11 @@ Future<bool> _ended() async {
 
 Future<Map<String, String>> _headers() async {
   final token = await _token();
-  final inst = kPicksInstitute ? store.institute : null; // owners: whichever institute they own
+  final inst = store.picksInstitute ? store.institute : null; // owners: whichever institute they own
   return {'Content-Type': 'application/json', if (token != null) 'Authorization': 'Bearer $token', if (inst != null) 'X-ClassBARI-Institute': '${inst['id']}'};
 }
 
-/// A request to the ClassBARI server as the signed-in person.
+/// A request to the Instanton Campus server as the signed-in person.
 Future<http.Response> api(String path, {Object? body, bool delete = false}) async {
   final uri = Uri.parse('$kApiUrl$path'), headers = await _headers();
   final sent = delete ? http.delete(uri, headers: headers, body: jsonEncode(body)) : (body == null ? http.get(uri, headers: headers) : http.post(uri, headers: headers, body: jsonEncode(body)));
@@ -55,11 +55,14 @@ Future<http.StreamedResponse> apiStream(http.Client client, String path, Object 
   return client.send(req);
 }
 
-/// A PDF file's bytes sent as they are (AI chat → Highlight); the answer is a PDF too. The AI may read for up to 2 minutes.
-Future<http.Response> apiPdf(String path, List<int> bytes) async {
-  final headers = {...await _headers(), 'Content-Type': 'application/pdf'};
-  return http.post(Uri.parse('$kApiUrl$path'), headers: headers, body: bytes).timeout(const Duration(seconds: 150));
+/// A file's bytes sent as they are, with its type (a student list to import: Excel, CSV or PDF).
+Future<http.Response> apiFile(String path, List<int> bytes, String type, {int seconds = 60}) async {
+  final headers = {...await _headers(), 'Content-Type': type};
+  return http.post(Uri.parse('$kApiUrl$path'), headers: headers, body: bytes).timeout(Duration(seconds: seconds));
 }
+
+/// A PDF file's bytes sent as they are (AI chat → Highlight); the answer is a PDF too. The AI may read for up to 2 minutes.
+Future<http.Response> apiPdf(String path, List<int> bytes) => apiFile(path, bytes, 'application/pdf', seconds: 150);
 
 /// Stored files (/api/files/…) need a short-lived link; other links are used as they are.
 Future<String?> fileLink(String url) async {

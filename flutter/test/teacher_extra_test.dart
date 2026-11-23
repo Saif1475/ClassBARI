@@ -29,7 +29,7 @@ void main() {
 
   test('student QR codes and the video room link are read and built as on the website', () {
     expect(qrStudent('edunest:student:12'), 12);
-    expect(qrStudent('edunest:student:x'), -1); // a ClassBARI code, but no student: "not in this batch"
+    expect(qrStudent('edunest:student:x'), -1); // a Instanton Campus code, but no student: "not in this batch"
     expect(qrStudent('https://example.com'), isNull);
     expect(
       jitsiUrl('ClassBARI-abc', 'Batch A', 'Waves', 'Mina Miss'),

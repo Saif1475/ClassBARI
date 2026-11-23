@@ -4,7 +4,7 @@ import { isAdmin } from "@/lib/platform-server";
 
 export const dynamic = "force-dynamic";
 
-/** ClassBARI admin: the AI answers kept for reuse, the most reused first (to spot-check and delete bad ones). */
+/** Instanton Campus admin: the AI answers kept for reuse, the most reused first (to spot-check and delete bad ones). */
 export async function GET(request: Request) {
   if (!isAdmin(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!REAL_AUTH) return Response.json({ answers: [], total: 0 });

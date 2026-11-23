@@ -302,7 +302,7 @@ function Backup() {
     const url = URL.createObjectURL(new Blob([lms.exportBackup()], { type: "application/json" }));
     const a = document.createElement("a");
     a.href = url;
-    a.download = `classbari-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `instanton-backup-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };

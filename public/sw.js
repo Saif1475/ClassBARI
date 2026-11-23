@@ -37,7 +37,7 @@ self.addEventListener("push", (e) => {
   } catch {
     /* ignore malformed */
   }
-  e.waitUntil(self.registration.showNotification(data.title || "ClassBARI", { body: data.body || "", icon: "/icon-192.png", badge: "/icon-192.png", data: { url: data.url || "/" } }));
+  e.waitUntil(self.registration.showNotification(data.title || "Instanton Campus", { body: data.body || "", icon: "/icon-192.png", badge: "/icon-192.png", data: { url: data.url || "/" } }));
 });
 
 self.addEventListener("notificationclick", (e) => {

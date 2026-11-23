@@ -3,7 +3,7 @@ import { admin } from "@/lib/data-server";
 import { queueInstitute } from "@/lib/pdf-pipeline";
 import { isAdmin, updatePlatform } from "@/lib/platform-server";
 
-/** ClassBARI team: make an institute premium (or not) by its institute code: { code, premium }. */
+/** Instanton Campus team: make an institute premium (or not) by its institute code: { code, premium }. */
 export async function POST(request: Request) {
   if (!isAdmin(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!REAL_AUTH) return Response.json({ error: "demo mode" }, { status: 404 });

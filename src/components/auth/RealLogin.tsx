@@ -34,13 +34,13 @@ export function RealLogin() {
     if (error) setMsg({ ok: false, text: error === "no-access" ? A.noAccess : A.linkExpired });
   }, []);
   const [busy, setBusy] = useState(false);
-  const app = useAppLock(); // inside one of the Android apps: only that app's role
+  const app = useAppLock(); // inside one of the Android apps: only that app's roles
   // Students, guardians and teachers first pick their institute (owners log straight in).
   const [inst, setInst] = useState<InstituteCard | null>(null);
   useEffect(() => setInst(getInstitute()), []);
   const needsInstitute = role !== "institute";
   useEffect(() => {
-    if (app) setRole(app);
+    if (app) setRole(APPS[app].roles[0]);
   }, [app]);
   const staff = role === "teacher" || role === "institute";
   const back = (next: string) => `${location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
@@ -85,9 +85,9 @@ export function RealLogin() {
 
   return (
     <div className="relative z-10 mt-8 flex flex-col gap-5 rounded-[24px] bg-white/80 p-6 shadow-[0_10px_40px_rgba(0,32,28,0.08)] backdrop-blur">
-      {app ? (
-        <p className="text-center text-lg font-bold" style={{ color: APPS[app].color }}>{APPS[app].name}</p>
-      ) : (
+      {app && <p className="text-center text-lg font-bold" style={{ color: APPS[app].color }}>{APPS[app].name}</p>}
+      {/* Instanton Campus is for teachers and institutes both: it asks which, like the main website asks everyone */}
+      {(!app || APPS[app].roles.length > 1) && (
       <div className="flex flex-col gap-2">
         <span className="text-sm font-semibold text-on-surface-variant">{L.iam}</span>
         <SlidingSegmented
@@ -97,7 +97,7 @@ export function RealLogin() {
             setRole(r);
             setMsg(null);
           }}
-          options={(Object.keys(L.roles) as Role[]).map((r) => ({ value: r, label: L.roles[r] }))}
+          options={(app ? APPS[app].roles : (Object.keys(L.roles) as Role[])).map((r) => ({ value: r, label: L.roles[r] }))}
           className="flex-wrap rounded-xl p-1"
           buttonClassName="h-11 basis-[40%] px-2 text-xs font-bold sm:basis-0 sm:text-sm"
         />

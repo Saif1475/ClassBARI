@@ -33,7 +33,7 @@ const voterOk = (v: unknown): v is string => typeof v === "string" && /^[\w-]{8,
 export function startSession(input: Record<string, unknown>, now: number): Session | { error: string } {
   const batch = str(input.batch, 120), topic = str(input.topic, 160) ?? "Live class", teacher = str(input.teacher, 80) ?? "Teacher";
   if (!batch) return { error: "bad batch" };
-  if (typeof input.room !== "string" || !/^ClassBARI-[0-9a-f]{32}$/.test(input.room)) return { error: "bad room" };
+  if (typeof input.room !== "string" || !/^(Instanton|ClassBARI)-[0-9a-f]{32}$/.test(input.room)) return { error: "bad room" }; // ClassBARI-: rooms made before the rename
   return { batch, topic, teacher, room: input.room, startedAt: now, joined: {}, hands: [], chat: [], questions: [], reactions: [], lastChat: {}, nextId: 1 };
 }
 

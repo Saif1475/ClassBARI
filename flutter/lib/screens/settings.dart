@@ -1,4 +1,4 @@
-// Settings, one page for all five apps; each app sees the parts that apply to it. It offers what the website's
+// Settings, one page for all four apps; each app sees the parts that apply to it. It offers what the website's
 // Settings page offers (details, look, text size, language, institute code, password, help), and for the AI app the
 // chat settings the website's AI chat has (pack and allowance, model, how the AI answers, clearing the chats).
 import 'dart:convert';
@@ -41,8 +41,8 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Live((context) {
-    final staff = kApp == 'teacher' || kApp == 'institute';
-    final shown = kApp == 'institute' ? const <(String, String)>[] : details.where((d) => d.$2.isNotEmpty && !(staff && d.$1 == t('settings.yourName'))).toList();
+    final staff = kApp == 'teacher';
+    final shown = store.runsInstitute ? const <(String, String)>[] : details.where((d) => d.$2.isNotEmpty && !(staff && d.$1 == t('settings.yourName'))).toList();
     const glassLevels = ['settings.glassOff', 'settings.glassSoft', 'settings.glassMedium', 'settings.glassHigh'];
     Widget choice(String label, Widget chips) => Column(crossAxisAlignment: CrossAxisAlignment.start, spacing: 8, children: [Muted(label), chips]);
     return Screen(
@@ -66,7 +66,7 @@ class SettingsScreen extends StatelessWidget {
           ],
         ),
         if (staff) const StaffProfile(),
-        if (kApp == 'institute') const InstituteCode(),
+        if (store.runsInstitute) const InstituteCode(),
         // Read-only details. Staff change their name in the form above, and the owner the institute's name too.
         if (shown.isNotEmpty) Box(title: t(staff ? 'settings.account' : 'settings.profile'), children: [for (final (label, value) in shown) Pair(label, value), if (note != null) Muted(note!)]),
 
@@ -222,7 +222,7 @@ class SettingsScreen extends StatelessWidget {
         const NotifySwitches(),
         const ChangePassword(),
         // The owner's plan and backup, as on the website's Settings page.
-        if (kApp == 'institute') ...[const SeatBilling(), if (store.role == 'owner') const PayForm(kind: 'plan'), const Backup()],
+        if (store.runsInstitute) ...[const SeatBilling(), if (store.role == 'owner') const PayForm(kind: 'plan'), const Backup()],
         Group(
           title: t('settings.help'),
           children: [
@@ -359,7 +359,7 @@ class _StaffProfileState extends State<StaffProfile> {
   }
 
   Future<void> save() async {
-    final owner = kApp == 'institute';
+    final owner = store.runsInstitute;
     // The website's rule: a mobile number, if given, must be a real one. (An empty name keeps the old name.)
     final bad = (phone.text.trim().isNotEmpty && !isBdMobile(phone.text.trim())) || (owner && bkash.text.trim().isNotEmpty && !isBdMobile(bkash.text.trim()));
     setState(() {
@@ -400,7 +400,7 @@ class _StaffProfileState extends State<StaffProfile> {
         field(name, t('settings.yourName'), keyboard: TextInputType.name),
         field(phone, t('settings.phone'), keyboard: TextInputType.phone, hint: '01XXXXXXXXX'),
         Muted(t('settings.phoneHelpReal')),
-        if (kApp == 'institute') ...[field(inst, t('settings.instituteName')), Muted(t('settings.instituteHelp')), field(bkash, t('settings.bkash'), keyboard: TextInputType.phone, hint: '01XXXXXXXXX')],
+        if (store.runsInstitute) ...[field(inst, t('settings.instituteName')), Muted(t('settings.instituteHelp')), field(bkash, t('settings.bkash'), keyboard: TextInputType.phone, hint: '01XXXXXXXXX')],
         if (problem != null) Semantics(liveRegion: true, child: Strong(problem!, color: context.colors.error)),
         Doing(label: saved ? '${t('settings.saved')} ✓' : t('settings.save'), onPressed: save),
       ],
@@ -558,14 +558,14 @@ class SeatBilling extends StatelessWidget {
   }
 }
 
-/// The website's exportBackup: everything the owner sees, wrapped so importBackup knows it is a ClassBARI backup.
-String backupText(Json? state, [DateTime? now]) => jsonEncode({'app': 'ClassBARI', 'version': 1, 'savedAt': (now ?? DateTime.now()).toUtc().toIso8601String(), 'data': state});
+/// The website's exportBackup: everything the owner sees, wrapped so importBackup knows it is an Instanton Campus backup.
+String backupText(Json? state, [DateTime? now]) => jsonEncode({'app': 'Instanton Campus', 'version': 1, 'savedAt': (now ?? DateTime.now()).toUtc().toIso8601String(), 'data': state});
 
 /// The same check importBackup makes before it replaces anything.
 bool isBackup(String text) {
   try {
     final b = jsonDecode(text);
-    return b is Map && b['app'] == 'ClassBARI' && b['data'] is Map && b['data']['students'] is List && b['data']['batches'] is List;
+    return b is Map && (b['app'] == 'Instanton Campus' || b['app'] == 'ClassBARI') && b['data'] is Map && b['data']['students'] is List && b['data']['batches'] is List;
   } catch (_) {
     return false;
   }
@@ -583,7 +583,7 @@ class _BackupState extends State<Backup> {
 
   Future<void> download() async {
     try {
-      await FilePicker.saveFile(fileName: 'classbari-backup-${dayKey()}.json', bytes: utf8.encode(backupText(store.state)), mimeType: 'application/json');
+      await FilePicker.saveFile(fileName: 'instanton-backup-${dayKey()}.json', bytes: utf8.encode(backupText(store.state)), mimeType: 'application/json');
     } catch (_) {
       if (mounted) setState(() => msg = (false, t('auth.syncFailed')));
     }

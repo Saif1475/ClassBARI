@@ -14,12 +14,12 @@ import { fontVariables } from "./fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ClassBARI — Run your education institute in one app",
+  title: "Instanton Campus — Run your education institute in one app",
   description: "Classes, fees, exams and parent updates for teachers and coaching centres in Bangladesh.",
   // Absolute URLs for the social preview image; set NEXT_PUBLIC_SITE_URL in production.
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"), // || not ??: an empty line in .env.local means "not set"
   // iPhone "Add to Home Screen": full screen, with the icon of the app's subdomain (src/app/apple-touch-icon).
-  appleWebApp: { capable: true, title: "ClassBARI", statusBarStyle: "default" },
+  appleWebApp: { capable: true, title: "Instanton", statusBarStyle: "default" },
   icons: { apple: "/apple-touch-icon" },
 };
 

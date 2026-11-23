@@ -216,7 +216,7 @@ try {
 
   console.log("Premium highlighted PDFs…");
   const adminSet = (premium) => fetch(`${BASE}/api/platform/admin/premium`, { method: "POST", headers: { Authorization: `Bearer ${env.ADMIN_TOKEN}`, "Content-Type": "application/json" }, body: JSON.stringify({ code: card.code, premium }) });
-  check("ClassBARI admin makes the institute premium", (await adminSet(true)).status === 200);
+  check("Instanton Campus admin makes the institute premium", (await adminSet(true)).status === 200);
   const slot = await call(owner, "POST", "/api/files");
   const up = await owner.sb.storage.from("files").uploadToSignedUrl(slot.json.path, slot.json.token, new Blob([makePdf(["Simple harmonic motion is called SHM.", "The restoring force is F = -kx.", "Simple harmonic motion appears in springs."])], { type: "application/pdf" }), { contentType: "application/pdf" });
   check("teacher uploads a PDF to file storage", !up.error);
@@ -275,7 +275,7 @@ try {
   check("a guardian can't pay for someone else's child", r.status === 403);
   const adminPay = (body) => fetch(`${BASE}/api/platform/admin/payments`, { method: body ? "POST" : "GET", headers: { Authorization: `Bearer ${env.ADMIN_TOKEN}`, "Content-Type": "application/json" }, ...(body ? { body: JSON.stringify(body) } : {}) });
   r = { status: (await adminPay()).status };
-  check("only ClassBARI admin sees the payments list", r.status === 200 && (await fetch(`${BASE}/api/platform/admin/payments`)).status === 401);
+  check("only Instanton Campus admin sees the payments list", r.status === 200 && (await fetch(`${BASE}/api/platform/admin/payments`)).status === 401);
   const approved = await adminPay({ id: payId, approve: true }).then((x) => x.json());
   r = await call(student, "GET", "/api/data");
   const after = r.json.state.students.find((s) => s.id === me.id);

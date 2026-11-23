@@ -19,7 +19,7 @@ const csp = [
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
-  "frame-ancestors 'none'", // nobody may show ClassBARI inside their own page (clickjacking)
+  "frame-ancestors 'none'", // nobody may show Instanton Campus inside their own page (clickjacking)
 ].join("; ");
 
 const securityHeaders = [

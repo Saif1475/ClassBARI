@@ -1,4 +1,4 @@
-// Uploads the ClassBARI email templates (supabase/email-templates/*.html) to a Supabase project's Auth settings.
+// Uploads the Instanton Campus email templates (supabase/email-templates/*.html) to a Supabase project's Auth settings.
 //   node scripts/email-templates.mjs main     (or: test)
 // Needs SUPABASE_ACCESS_TOKEN (Supabase → Account → Access Tokens) in .env.local. Changes ONLY the three
 // templates and their subjects. Never prints the token.
@@ -21,9 +21,9 @@ if (!token?.startsWith("sbp_")) {
 const ref = new URL(url).hostname.split(".")[0];
 const t = (f) => readFileSync(`supabase/email-templates/${f}`, "utf8");
 const body = {
-  mailer_subjects_confirmation: "Confirm your ClassBARI email · ইমেইল নিশ্চিত করুন",
+  mailer_subjects_confirmation: "Confirm your Instanton Campus email · ইমেইল নিশ্চিত করুন",
   mailer_templates_confirmation_content: t("confirm-signup.html"),
-  mailer_subjects_recovery: "Set a new ClassBARI password · নতুন পাসওয়ার্ড দিন",
+  mailer_subjects_recovery: "Set a new Instanton Campus password · নতুন পাসওয়ার্ড দিন",
   mailer_templates_recovery_content: t("reset-password.html"),
   mailer_subjects_email_change: "Confirm your new email · নতুন ইমেইল নিশ্চিত করুন",
   mailer_templates_email_change_content: t("change-email.html"),

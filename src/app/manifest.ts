@@ -3,8 +3,8 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/",
-    name: "ClassBARI",
-    short_name: "ClassBARI",
+    name: "Instanton Campus",
+    short_name: "Instanton",
     description: "Classes, fees, exams and parent updates in one app.",
     start_url: "/login",
     scope: "/",

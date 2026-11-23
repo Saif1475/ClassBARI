@@ -12,7 +12,7 @@ export async function POST(request: Request) {
   const body = await jsonBody(request);
   if (!body) return Response.json({ error: "Invalid JSON" }, { status: 400 });
   if (me) {
-    // Real accounts: only to this institute's own families. ClassBARI's SMS account must never text strangers.
+    // Real accounts: only to this institute's own families. Instanton Campus's SMS account must never text strangers.
     const state = await loadPart(me.institute, "students");
     const known = new Set(state.students.flatMap((s) => [s.phone, s.studentPhone ?? ""]).map(bdMobile));
     if (!Array.isArray(body.to) || body.to.some((n) => typeof n !== "string" || !bdMobile(n) || !known.has(bdMobile(n)))) return Response.json({ error: "bad recipients" }, { status: 400 });

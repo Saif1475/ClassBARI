@@ -1,4 +1,4 @@
-// The ClassBARI AI app: the student's AI chat (their AI pack decides the models and the allowance).
+// The Instanton AI app: the student's AI chat (their AI pack decides the models and the allowance).
 // Chats are kept on this phone only; answers arrive piece by piece from /api/ai/assistant, as on the website.
 import 'dart:async';
 import 'dart:convert';

@@ -31,16 +31,16 @@ android {
         versionName = flutter.versionName
     }
 
-    // One codebase, five apps: flutter build apk --flavor student (or guardian, teacher, institute, chatbot).
-    // The first four keep the ids of the earlier apps, so these can replace them as updates.
+    // One codebase, four apps: flutter build apk --flavor student (or guardian, teacher, chatbot).
+    // "teacher" is Instanton Campus, for teachers and institutes both. The first three keep the ids of the earlier
+    // apps, so these can replace them as updates.
     flavorDimensions += "app"
     productFlavors {
         mapOf(
-            "student" to "ClassBARI Student",
-            "guardian" to "ClassBARI Guardian",
-            "teacher" to "ClassBARI Teacher",
-            "institute" to "ClassBARI Institution",
-            "chatbot" to "ClassBARI AI",
+            "student" to "Instanton Student",
+            "guardian" to "Instanton Guardian",
+            "teacher" to "Instanton Campus",
+            "chatbot" to "Instanton AI",
         ).forEach { (app, label) ->
             create(app) {
                 dimension = "app"

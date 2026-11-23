@@ -33,7 +33,7 @@ extension Look on BuildContext {
 Color lit(Color c, [double by = 0.10]) => Color.lerp(c, Colors.white, by)!;
 Color deep(Color c, [double by = 0.18]) => Color.lerp(c, Colors.black, by)!;
 
-/// ClassBARI's colours: green, or sky blue with pink (the theme girls get on the website), each with a dark version.
+/// Instanton Campus's colours: green, or sky blue with pink (the theme girls get on the website), each with a dark version.
 /// Flat and airy: a quiet page, white cards with generous corners, colour kept for what matters.
 ThemeData classbariTheme(Brightness brightness, {bool sky = false, double glass = 0}) {
   final dark = brightness == Brightness.dark;

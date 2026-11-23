@@ -1,11 +1,11 @@
 {
-    "name": "classbari",
-    "short_name": "classbari",
+    "name": "Instanton Campus",
+    "short_name": "Instanton",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "ClassBARI phone apps: Student, Guardian, Teacher, Institution and AI Chat",
+    "description": "Instanton Campus phone apps: Student, Guardian, Teacher, Institution and AI Chat",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

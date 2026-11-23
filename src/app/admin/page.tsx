@@ -7,7 +7,7 @@ import { isBdMobile, waLink } from "@/lib/site";
 import { PACKS } from "@/lib/ai-chat";
 import { packUntil } from "@/lib/pay";
 
-// ClassBARI staff panel. Staff-only, so English only. Data: /api/platform/admin + /api/leads (ADMIN_TOKEN).
+// Instanton Campus staff panel. Staff-only, so English only. Data: /api/platform/admin + /api/leads (ADMIN_TOKEN).
 type Lead = { name: string; phone: string; size: string; at: string };
 type Data = Platform & { overview: ReturnType<typeof overview>; smsLive: boolean; errors?: { at: string; where: string; message: string }[]; alertsOn?: boolean };
 const TABS = ["Overview", "Payments", "Institutes", "Subscriptions", "Students", "Credits", "AI control", "API keys", "Enquiries", "Support", "Announcements", "Features", "SMS", "Plans", "AI answers", "Activity"] as const;

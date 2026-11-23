@@ -4,7 +4,7 @@
 import { readFileSync } from "node:fs";
 import { chromium } from "playwright";
 
-export const SITE = "http://localhost:3000", INSTITUTE = "ClassBARI Test Institute";
+export const SITE = "http://localhost:3000", INSTITUTE = "Instanton Test Institute";
 const PEOPLE = { owner: ["Institute", "classbari.test.owner@example.com"], teacher: ["Instructor", "classbari.test.teacher@example.com"], student: ["Student", "cb.s@gmail.com"], guardian: ["Parent", "cb.g@gmail.com"] };
 let password = "";
 try {

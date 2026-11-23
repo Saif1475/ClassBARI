@@ -126,7 +126,7 @@ export async function POST(req: Request) {
                 {
                   parts: [
                     {
-                      text: `You are a ClassBARI syllabus tutor for Bangladesh students. Answer concisely and clearly using the teacher's PDF "${title}".\n\nContext:\n${text || title}\n\nStudent question: ${question}`,
+                      text: `You are an Instanton Campus syllabus tutor for Bangladesh students. Answer concisely and clearly using the teacher's PDF "${title}".\n\nContext:\n${text || title}\n\nStudent question: ${question}`,
                     },
                   ],
                 },

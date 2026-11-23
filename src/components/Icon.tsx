@@ -1,4 +1,4 @@
-// ClassBARI's own icons (src/lib/icon-set.ts): a 24×24 stroke set with the "bari corner" and one quiet accent.
+// Instanton Campus's own icons (src/lib/icon-set.ts): a 24×24 stroke set with the "bari corner" and one quiet accent.
 import { glyph } from "@/lib/icon-set";
 
 export function Icon({ name, size = 22, className = "", strokeWidth = 1.8 }: { name: string; size?: number; className?: string; strokeWidth?: number }) {

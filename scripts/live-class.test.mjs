@@ -73,4 +73,6 @@ test("everyone gets the same secret room from the session; made-up room names ar
   assert.deepEqual(startSession({ batch: "A", room: "my-room" }, 0), { error: "bad room" });
   const s = startSession({ batch: "A", room: ROOM }, 0);
   assert.equal(viewOf(s, stu(A), 0, 1).room, ROOM);
+  const fresh = "Instanton-" + "c".repeat(32); // rooms made after the rename (ROOM is one made before it)
+  assert.equal(viewOf(startSession({ batch: "A", room: fresh }, 0), stu(A), 0, 1).room, fresh);
 });

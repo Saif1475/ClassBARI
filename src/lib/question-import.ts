@@ -1,5 +1,5 @@
 // Turn questions written the way teachers usually write them (Word, text, Excel, or OCR of a printed paper)
-// into ClassBARI MCQs. Pure functions (scripts/question-import.test.mjs).
+// into Instanton Campus MCQs. Pure functions (scripts/question-import.test.mjs).
 //
 // Understands:   1. Question?            Q2) Question?        ২। প্রশ্ন?
 //                a) x  b. y  (c) z  D: w   ক) x  খ) y  — also all options on one line
@@ -34,7 +34,7 @@ function splitInlineOptions(line: string): string[] {
 
 export function parseLooseMcq(text: string): Imported {
   const lines = text.split(/\r?\n/).flatMap((l) => splitInlineOptions(l.trim())).filter(Boolean);
-  // Already in ClassBARI's own format (options without letters, right one starred): use the strict reader.
+  // Already in Instanton Campus's own format (options without letters, right one starred): use the strict reader.
   if (!lines.some((l) => OPTION.test(l)) && !lines.some((l) => ANSWER.test(l))) {
     const strict = parseQuiz(text);
     if (!strict.badQuestion && strict.questions.length) return { questions: strict.questions, problems: [] };

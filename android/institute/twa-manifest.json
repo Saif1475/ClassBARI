@@ -1,8 +1,8 @@
 {
   "packageId": "app.classbari.institute",
   "host": "institute.classbari.app",
-  "name": "ClassBARI Institution",
-  "launcherName": "CB Institution",
+  "name": "Instanton Institution",
+  "launcherName": "IC Institution",
   "display": "standalone",
   "orientation": "portrait",
   "themeColor": "#6b2fb3",

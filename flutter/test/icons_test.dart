@@ -1,4 +1,4 @@
-// Every ClassBARI icon is read correctly and stays inside its 24×24 square (the same shapes the website draws).
+// Every Instanton Campus icon is read correctly and stays inside its 24×24 square (the same shapes the website draws).
 import 'package:classbari/icon.dart';
 import 'package:classbari/icons.g.dart';
 import 'package:flutter_test/flutter_test.dart';

@@ -511,7 +511,7 @@ class _MarkOneState extends State<MarkOne> {
   });
 }
 
-/// Notices for the batches this person looks after, and posting a new one (Teacher and Institution apps).
+/// Notices for the batches this person looks after, and posting a new one (the Campus app, as a teacher and as the institute).
 class Notices extends StatefulWidget {
   const Notices({super.key});
   @override

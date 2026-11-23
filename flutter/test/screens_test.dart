@@ -3,6 +3,7 @@
 // (No server here: a change stays in the queue, where the test reads it.)
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui' show Tristate;
 
 import 'package:classbari/api.dart';
 import 'package:classbari/screens/ai_chat.dart';
@@ -206,7 +207,7 @@ void main() {
   });
 
   for (final (code, dark) in [('en', false), ('bn', true)]) {
-    testWidgets('every tab of the four institute apps opens without a layout error ($code${dark ? ', dark' : ''})', (tester) async {
+    testWidgets('every tab of the Student, Guardian and Campus (teacher and institute) apps opens without a layout error ($code${dark ? ', dark' : ''})', (tester) async {
       for (final (app, role, tabs) in [(const StudentApp(), 'student', 4), (const GuardianApp(), 'guardian', 4), (const TeacherApp(), 'teacher', 4), (const InstituteApp(), 'owner', 4)]) {
         await open(tester, app, code: code, dark: dark, role: role, letters: dark ? 1.3 : 1); // the dark run also with the biggest letters (130%)
         for (var i = 0; i < tabs; i++) {
@@ -454,6 +455,38 @@ void main() {
     await press(tester, find.text('Send verification code'));
     await tester.pumpAndSettle();
     expect(find.text('Use at least 8 characters, with a capital letter, a small letter, a number and a symbol (like ! or @).'), findsNWidgets(2)); // the hint and the error
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Campus app login: Instructor or Institute, kept on the phone; an owner gets "create an account", a teacher "first time here"', (tester) async {
+    lang.set('en');
+    store.fake(null, null);
+    Future<void> show(bool owner) async {
+      await tester.pumpWidget(MaterialApp(theme: classbariTheme(Brightness.light), home: Scaffold(body: ListView(children: [const PanelChoice(), StaffLogin(owner: owner)]))));
+      await tester.pumpAndSettle();
+    }
+
+    // The highlighted choice, as a screen reader hears it (the chip marked "selected").
+    String picked() => ['Instructor', 'Institute'].singleWhere((l) => tester.getSemantics(find.text(l)).flagsCollection.isSelected == Tristate.isTrue);
+
+    await show(false);
+    expect(store.panel, 'teacher'); // nothing picked yet
+    expect(picked(), 'Instructor');
+    expect(find.text('I am a'), findsOneWidget);
+    expect(find.text('First time here? Create your password'), findsOneWidget);
+    expect(find.text('New here? Create an account'), findsNothing);
+    await tester.tap(find.text('Institute'));
+    await tester.pumpAndSettle();
+    expect(store.panel, 'institute');
+    expect(picked(), 'Institute'); // the highlight moves at once, not only the saved choice
+    expect(store.prefs.getString('instanton-panel'), 'institute'); // still picked when the app opens next time
+    expect(store.picksInstitute, isTrue); // only the Campus app skips the institute list; this test runs as the Student app
+    await show(true);
+    expect(find.text('New here? Create an account'), findsOneWidget);
+    expect(find.text('First time here? Create your password'), findsNothing);
+    await tester.tap(find.text('Instructor'));
+    await tester.pumpAndSettle();
+    expect(store.panel, 'teacher');
     expect(tester.takeException(), isNull);
   });
 

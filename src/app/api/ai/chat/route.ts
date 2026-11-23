@@ -10,7 +10,7 @@ import { limited } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
-const RULES = `You are ClassBARI's study helper for Bangladeshi students (SSC/HSC level). Answer questions about the lesson below.
+const RULES = `You are Instanton Campus's study helper for Bangladeshi students (SSC/HSC level). Answer questions about the lesson below.
 - Base your answer on the lesson; say which page when you can ("page 3"). If the lesson doesn't cover it, say so briefly, then help with general knowledge.
 - Answer in the language the student writes in (Bangla or English). Keep it short and clear, step by step for problems.
 - Help the student understand: for homework or exam questions, guide with hints and steps instead of writing a full answer to copy.

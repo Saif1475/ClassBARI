@@ -1,6 +1,7 @@
 // Small-file helpers. Demo: files live in localStorage as data URLs, so they must stay tiny.
 import { REAL_AUTH } from "./auth-mode.ts";
 import { shrinkImage } from "./image.ts";
+import { csvText } from "./sheet.ts";
 
 export const MAX_UPLOAD_BYTES = REAL_AUTH ? 5 * 1024 * 1024 : 800 * 1024;
 
@@ -33,11 +34,9 @@ export async function openDataUrl(dataUrl: string) {
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
-/** Download rows as a UTF-8 CSV (Excel-friendly). Leading = + - @ are neutralised so cells can't run formulas. */
+/** Download rows as a UTF-8 CSV (Excel-friendly). */
 export function downloadCsv(name: string, rows: (string | number)[][]) {
-  const cell = (v: string | number) => `"${String(v).replace(/^([=+\-@])/, "'$1").replace(/"/g, '""')}"`;
-  const csv = rows.map((r) => r.map(cell).join(",")).join("\r\n");
-  const url = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" }));
+  const url = URL.createObjectURL(new Blob(["﻿" + csvText(rows)], { type: "text/csv;charset=utf-8" }));
   const a = document.createElement("a");
   a.href = url;
   a.download = name;

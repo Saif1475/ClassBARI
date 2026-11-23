@@ -1,4 +1,4 @@
-// Server only: what the ClassBARI admin panel reads across every institute (real accounts).
+// Server only: what the Instanton Campus admin panel reads across every institute (real accounts).
 import { admin } from "./data-server";
 import type { LmsState } from "./lms-actions";
 

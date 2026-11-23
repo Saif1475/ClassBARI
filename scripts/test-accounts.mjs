@@ -26,7 +26,7 @@ function fail(msg) {
 }
 
 const BASE = process.env.SITE || "http://localhost:3000";
-const NAME = "ClassBARI Test Institute";
+const NAME = "Instanton Test Institute";
 const OWNER = "classbari.test.owner@example.com";
 const TEACHER = "classbari.test.teacher@example.com";
 // Test student and guardian without Google: addresses too short to be real Gmails, given a password like the staff.
@@ -103,7 +103,7 @@ const { data: card } = await admin.from("institutes").select("code").eq("id", ma
 
 mkdirSync("data", { recursive: true });
 writeFileSync(FILE, [
-  `ClassBARI test accounts (made ${new Date().toISOString().slice(0, 10)}) — log in at ${BASE}/login`,
+  `Instanton Campus test accounts (made ${new Date().toISOString().slice(0, 10)}) — log in at ${BASE}/login`,
   ``,
   `Institute: ${NAME}   code: ${card?.code ?? "?"}`,
   ``,

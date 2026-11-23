@@ -4,6 +4,6 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
-    <!-- Test builds only: lets the app reach a ClassBARI server on this computer over plain http. Store builds need https. -->
+    <!-- Test builds only: lets the app reach a Instanton Campus server on this computer over plain http. Store builds need https. -->
     <application android:usesCleartextTraffic="true"/>
 </manifest>

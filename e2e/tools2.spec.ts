@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import type { Page } from "@playwright/test";
 import { expect, loginAs, test } from "./helpers";
 
@@ -23,7 +24,7 @@ test("import students from Excel/CSV: checks every row, unique roll numbers", as
     "Bad Mail,bad@yahoo.com,Parent,par.bad@gmail.com,01711000003",
     "Copy One,imp.one@gmail.com,Parent,par.x@gmail.com,01711000004", // same Gmail as row 2
   ].join("\n");
-  await page.getByLabel("Choose Excel file").setInputFiles({ name: "students.csv", mimeType: "text/csv", buffer: Buffer.from(csv) });
+  await page.getByLabel("Choose file").setInputFiles({ name: "students.csv", mimeType: "text/csv", buffer: Buffer.from(csv) });
   await expect(page.getByText("2 ready to import · 2 need fixing")).toBeVisible();
   await page.getByRole("button", { name: "Import 2 students" }).click();
   const one = page.locator("li", { hasText: "imp.one@gmail.com" });
@@ -31,6 +32,61 @@ test("import students from Excel/CSV: checks every row, unique roll numbers", as
   await expect(one).toContainText("01711000001");
   const roll = async (li: typeof one) => (await li.innerText()).match(/Roll (\d+)/)![1];
   expect(await roll(one)).not.toBe(await roll(two));
+});
+
+test("import students from a PDF table: its columns are found on this device and each row checked", async ({ page, browser }) => {
+  // A PDF of a printed list, made here, laid out as Excel or Word would.
+  const maker = await browser.newPage();
+  await maker.setContent(`<table style="font: 12px Arial; border-spacing: 18px 6px"><tr><th>SL</th><th>Student name</th><th>Student Gmail</th><th>Guardian name</th><th>Guardian Gmail</th><th>Guardian phone</th></tr>
+    <tr><td>1</td><td>Pdf One</td><td>pdf.one@gmail.com</td><td>Parent Pdf</td><td>parent.pdf@gmail.com</td><td>01711000021</td></tr>
+    <tr><td>2</td><td>Pdf Two</td><td>pdf.two@yahoo.com</td><td>Parent Two</td><td>parent.two@gmail.com</td><td>+880 1711-000022</td></tr></table>`);
+  const pdf = await maker.pdf();
+  await maker.close();
+  await loginAs(page, "institute");
+  await page.goto("/institute");
+  await page.getByRole("button", { name: "Students" }).first().click();
+  await page.getByLabel("Choose file").setInputFiles({ name: "list.pdf", mimeType: "application/pdf", buffer: pdf });
+  await expect(page.getByText("1 ready to import · 1 need fixing")).toBeVisible();
+  await expect(page.locator("li", { hasText: "Row 2:" })).toContainText("Pdf Two · pdf.two@yahoo.com · Parent Two · 01711000022"); // +880 1711-000022 as 01711000022
+  await expect(page.locator("li", { hasText: "Row 2:" })).toContainText("Enter a Gmail address");
+  // The row to fix goes out as a sheet in the template's columns, to fix in Excel and import again.
+  const [sheet] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: "Download the rows to fix (for Excel)" }).click()]);
+  expect(sheet.suggestedFilename()).toBe("instanton-students-to-fix.csv");
+  await page.getByRole("button", { name: "Import 1 student", exact: true }).click();
+  await expect(page.locator("li", { hasText: "pdf.one@gmail.com" })).toContainText("01711000021");
+});
+
+test("import students: the template comes as Excel, CSV or PDF, and the Excel one reads back", async ({ page }) => {
+  await loginAs(page, "institute");
+  await page.goto("/institute");
+  await page.getByRole("button", { name: "Students" }).first().click();
+  let excel = Buffer.alloc(0);
+  for (const [label, ext] of [["Excel", "xlsx"], ["CSV", "csv"], ["PDF", "pdf"]]) {
+    const [file] = await Promise.all([page.waitForEvent("download"), page.getByRole("link", { name: `Download template (${label})` }).click()]);
+    expect(file.suggestedFilename()).toBe(`instanton-students-template.${ext}`);
+    if (ext === "xlsx") excel = await readFile(await file.path());
+  }
+  // Read back: its headings say what every column holds, and its example student is ready to import.
+  await page.getByLabel("Choose file").setInputFiles({ name: "template.xlsx", mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", buffer: excel });
+  await expect(page.getByText("1 ready to import · 0 need fixing")).toBeVisible();
+  await expect(page.locator("li", { hasText: "Row 2:" })).toContainText("Nusrat Jahan · nusrat@gmail.com · Kamal Jahan · 01711234511");
+});
+
+test("import students: a list with its own headings, in its own order: say which column is which, then import", async ({ page }) => {
+  await loginAs(page, "institute");
+  await page.goto("/institute");
+  await page.getByRole("button", { name: "Students" }).first().click();
+  const csv = ["Abba,Naam,Mail,Abba mail,Phone no", "Parent Map,Map One,map.one@gmail.com,map.p1@gmail.com,01711000051"].join("\n");
+  await page.getByLabel("Choose file").setInputFiles({ name: "list.csv", mimeType: "text/csv", buffer: Buffer.from(csv) });
+  // Filled in from what the columns hold: the Gmails and the number are right, the two names the wrong way round.
+  await expect(page.getByRole("combobox", { name: "Mail", exact: true })).toHaveValue("email");
+  await expect(page.locator("li", { hasText: "Row 2:" })).toContainText("Parent Map · map.one@gmail.com · Map One");
+  await page.getByRole("combobox", { name: "Naam" }).selectOption("name"); // "Abba" loses "Student name"
+  await expect(page.getByText("Choose which column is: Guardian name.")).toBeVisible();
+  await page.getByRole("combobox", { name: "Abba", exact: true }).selectOption("guardianName");
+  await expect(page.locator("li", { hasText: "Row 2:" })).toContainText("Map One · map.one@gmail.com · Parent Map · 01711000051");
+  await page.getByRole("button", { name: "Import 1 student", exact: true }).click();
+  await expect(page.locator("li", { hasText: "map.one@gmail.com" })).toContainText("Map One");
 });
 
 test("routine: a clash is flagged; students see their routine", async ({ page }) => {

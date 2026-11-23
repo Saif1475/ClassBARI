@@ -20,7 +20,7 @@ test("chat text is shown, never run: no HTML gets through", () => {
 });
 
 test("a Bangla chat becomes a PDF file", { timeout: 60_000 }, async () => {
-  const pdf = await htmlToPdf(chatHtml({ title: "নিউটনের সূত্র", turns: [{ role: "user", content: "ক্ষ, ত্র, জ্ঞ বোঝাও" }, { role: "assistant", content: "## উত্তর\n- **বল** = ভর × ত্বরণ" }], you: "তুমি", ai: "ClassBARI AI", photo: "ছবি", note: "AI ভুল করতে পারে।", date: "২৩ নভেম্বর ২০২৬" }));
+  const pdf = await htmlToPdf(chatHtml({ title: "নিউটনের সূত্র", turns: [{ role: "user", content: "ক্ষ, ত্র, জ্ঞ বোঝাও" }, { role: "assistant", content: "## উত্তর\n- **বল** = ভর × ত্বরণ" }], you: "তুমি", ai: "Instanton AI", photo: "ছবি", note: "AI ভুল করতে পারে।", date: "২৩ নভেম্বর ২০২৬" }));
   assert.equal(Buffer.from(pdf.subarray(0, 5)).toString(), "%PDF-");
   assert.ok(pdf.length > 5000);
   await closePdfBrowser(); // the shared browser would otherwise keep the test run open

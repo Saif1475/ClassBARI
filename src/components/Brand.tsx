@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { Icon } from "./Icon";
 import { SlidingSegmented } from "./SlidingSegmented";
 import { useEffect, useState } from "react";
 import { useLang, type Lang } from "@/lib/i18n/LanguageProvider";
@@ -89,14 +88,28 @@ export function TextSize() {
   );
 }
 
+/** The Instanton mark: a power-on ring with a particle jumping out of its gap (scripts/app-icons.mjs draws the app icons from it). */
+export function Mark({ size = 24 }: { size?: number }) {
+  return (
+    <svg aria-hidden width={size} height={size} viewBox="7 5 50 52" fill="none" stroke="currentColor" strokeWidth={5.5} strokeLinecap="round">
+      <path d="M41 28.3A14 14 0 1 1 23 28.3" />
+      <path d="M32 21v16" />
+      <circle cx="32" cy="11.5" r="3.4" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 /** `name`: "lg" shows the word only on wide screens, "hide" never (narrow side rail); screen readers always get it. */
 export function Logo({ href = "/", name = "show" }: { href?: string; name?: "show" | "lg" | "hide" }) {
   return (
     <Link href={href} className="flex shrink-0 items-center gap-2.5 text-on-surface no-underline">
-      <span className="flex h-10 w-10 items-center justify-center rounded-[14px_14px_14px_4px] bg-primary text-on-primary">
-        <Icon name="home" size={22} strokeWidth={2} />
+      <span className="flex h-10 w-10 items-center justify-center rounded-[14px] bg-primary text-on-primary">
+        <Mark />
       </span>
-      <span className={`font-sans text-[22px] font-extrabold tracking-tight ${name === "hide" ? "sr-only" : name === "lg" ? "sr-only lg:not-sr-only" : ""}`}>ClassBARI</span>
+      {/* "Campus" only from tablet width up: on a phone the header has no room for both words */}
+      <span className={`font-sans text-[22px] font-extrabold tracking-tight ${name === "hide" ? "sr-only" : name === "lg" ? "sr-only lg:not-sr-only" : ""}`}>
+        Instanton<span className="font-semibold text-primary max-sm:sr-only"> Campus</span>
+      </span>
     </Link>
   );
 }

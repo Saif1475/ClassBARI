@@ -170,6 +170,7 @@ class _StudentsState extends State<Students> {
       title: widget.pushed ? t('app.tabs2.students') : null,
       children: [
         Doing(label: t('app.addStudent'), icon: I.personAdd, onPressed: () async => push(context, const NewStudent())),
+        Doing(label: t('importer.open'), icon: I.upload, soft: true, onPressed: () async => push(context, const ImportStudentsScreen())),
         // People who joined from a link: approve them (they can then log in) or refuse (their request is deleted).
         if (store.pendingStudents.isNotEmpty)
           Box(

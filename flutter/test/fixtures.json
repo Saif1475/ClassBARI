@@ -2094,7 +2094,7 @@
    "args": [
     0
    ],
-   "out": "This account can't open 0. Log out and sign in with the right account, or use the ClassBARI app for this account."
+   "out": "This account can't open 0. Log out and sign in with the right account, or use the Instanton app made for this account."
   },
   {
    "lang": "en",
@@ -2102,7 +2102,7 @@
    "args": [
     0
    ],
-   "out": "This account can't open 0. Log out and sign in with the right account, or use the ClassBARI app for this account."
+   "out": "This account can't open 0. Log out and sign in with the right account, or use the Instanton app made for this account."
   },
   {
    "lang": "en",
@@ -2110,7 +2110,7 @@
    "args": [
     1
    ],
-   "out": "This account can't open 1. Log out and sign in with the right account, or use the ClassBARI app for this account."
+   "out": "This account can't open 1. Log out and sign in with the right account, or use the Instanton app made for this account."
   },
   {
    "lang": "en",
@@ -2118,7 +2118,7 @@
    "args": [
     1
    ],
-   "out": "This account can't open 1. Log out and sign in with the right account, or use the ClassBARI app for this account."
+   "out": "This account can't open 1. Log out and sign in with the right account, or use the Instanton app made for this account."
   },
   {
    "lang": "en",
@@ -2126,7 +2126,7 @@
    "args": [
     2
    ],
-   "out": "This account can't open 2. Log out and sign in with the right account, or use the ClassBARI app for this account."
+   "out": "This account can't open 2. Log out and sign in with the right account, or use the Instanton app made for this account."
   },
   {
    "lang": "en",
@@ -2134,7 +2134,7 @@
    "args": [
     2
    ],
-   "out": "This account can't open 2. Log out and sign in with the right account, or use the ClassBARI app for this account."
+   "out": "This account can't open 2. Log out and sign in with the right account, or use the Instanton app made for this account."
   },
   {
    "lang": "en",
@@ -2142,7 +2142,7 @@
    "args": [
     12
    ],
-   "out": "This account can't open 12. Log out and sign in with the right account, or use the ClassBARI app for this account."
+   "out": "This account can't open 12. Log out and sign in with the right account, or use the Instanton app made for this account."
   },
   {
    "lang": "en",
@@ -2150,7 +2150,7 @@
    "args": [
     12
    ],
-   "out": "This account can't open 12. Log out and sign in with the right account, or use the ClassBARI app for this account."
+   "out": "This account can't open 12. Log out and sign in with the right account, or use the Instanton app made for this account."
   },
   {
    "lang": "en",
@@ -2158,7 +2158,7 @@
    "args": [
     1234567
    ],
-   "out": "This account can't open 1234567. Log out and sign in with the right account, or use the ClassBARI app for this account."
+   "out": "This account can't open 1234567. Log out and sign in with the right account, or use the Instanton app made for this account."
   },
   {
    "lang": "en",
@@ -2166,7 +2166,7 @@
    "args": [
     1234567
    ],
-   "out": "This account can't open 1234567. Log out and sign in with the right account, or use the ClassBARI app for this account."
+   "out": "This account can't open 1234567. Log out and sign in with the right account, or use the Instanton app made for this account."
   },
   {
    "lang": "en",
@@ -2174,7 +2174,7 @@
    "args": [
     "Rahim Uddin"
    ],
-   "out": "This account can't open Rahim Uddin. Log out and sign in with the right account, or use the ClassBARI app for this account."
+   "out": "This account can't open Rahim Uddin. Log out and sign in with the right account, or use the Instanton app made for this account."
   },
   {
    "lang": "en",
@@ -2182,7 +2182,7 @@
    "args": [
     "Rahim Uddin"
    ],
-   "out": "This account can't open Rahim Uddin. Log out and sign in with the right account, or use the ClassBARI app for this account."
+   "out": "This account can't open Rahim Uddin. Log out and sign in with the right account, or use the Instanton app made for this account."
   },
   {
    "lang": "en",
@@ -2287,7 +2287,7 @@
     0,
     3
    ],
-   "out": "How they log in: open ClassBARI, choose Student or Guardian, find \"0\" (or type code 3), then continue with the Gmail you entered here."
+   "out": "How they log in: open Instanton Campus, choose Student or Guardian, find \"0\" (or type code 3), then continue with the Gmail you entered here."
   },
   {
    "lang": "en",
@@ -2296,7 +2296,7 @@
     0,
     "Batch A"
    ],
-   "out": "How they log in: open ClassBARI, choose Student or Guardian, find \"0\" (or type code Batch A), then continue with the Gmail you entered here."
+   "out": "How they log in: open Instanton Campus, choose Student or Guardian, find \"0\" (or type code Batch A), then continue with the Gmail you entered here."
   },
   {
    "lang": "en",
@@ -2305,7 +2305,7 @@
     1,
     3
    ],
-   "out": "How they log in: open ClassBARI, choose Student or Guardian, find \"1\" (or type code 3), then continue with the Gmail you entered here."
+   "out": "How they log in: open Instanton Campus, choose Student or Guardian, find \"1\" (or type code 3), then continue with the Gmail you entered here."
   },
   {
    "lang": "en",
@@ -2314,7 +2314,7 @@
     1,
     "Batch A"
    ],
-   "out": "How they log in: open ClassBARI, choose Student or Guardian, find \"1\" (or type code Batch A), then continue with the Gmail you entered here."
+   "out": "How they log in: open Instanton Campus, choose Student or Guardian, find \"1\" (or type code Batch A), then continue with the Gmail you entered here."
   },
   {
    "lang": "en",
@@ -2323,7 +2323,7 @@
     2,
     3
    ],
-   "out": "How they log in: open ClassBARI, choose Student or Guardian, find \"2\" (or type code 3), then continue with the Gmail you entered here."
+   "out": "How they log in: open Instanton Campus, choose Student or Guardian, find \"2\" (or type code 3), then continue with the Gmail you entered here."
   },
   {
    "lang": "en",
@@ -2332,7 +2332,7 @@
     2,
     "Batch A"
    ],
-   "out": "How they log in: open ClassBARI, choose Student or Guardian, find \"2\" (or type code Batch A), then continue with the Gmail you entered here."
+   "out": "How they log in: open Instanton Campus, choose Student or Guardian, find \"2\" (or type code Batch A), then continue with the Gmail you entered here."
   },
   {
    "lang": "en",
@@ -2341,7 +2341,7 @@
     12,
     3
    ],
-   "out": "How they log in: open ClassBARI, choose Student or Guardian, find \"12\" (or type code 3), then continue with the Gmail you entered here."
+   "out": "How they log in: open Instanton Campus, choose Student or Guardian, find \"12\" (or type code 3), then continue with the Gmail you entered here."
   },
   {
    "lang": "en",
@@ -2350,7 +2350,7 @@
     12,
     "Batch A"
    ],
-   "out": "How they log in: open ClassBARI, choose Student or Guardian, find \"12\" (or type code Batch A), then continue with the Gmail you entered here."
+   "out": "How they log in: open Instanton Campus, choose Student or Guardian, find \"12\" (or type code Batch A), then continue with the Gmail you entered here."
   },
   {
    "lang": "en",
@@ -2359,7 +2359,7 @@
     1234567,
     3
    ],
-   "out": "How they log in: open ClassBARI, choose Student or Guardian, find \"1234567\" (or type code 3), then continue with the Gmail you entered here."
+   "out": "How they log in: open Instanton Campus, choose Student or Guardian, find \"1234567\" (or type code 3), then continue with the Gmail you entered here."
   },
   {
    "lang": "en",
@@ -2368,7 +2368,7 @@
     1234567,
     "Batch A"
    ],
-   "out": "How they log in: open ClassBARI, choose Student or Guardian, find \"1234567\" (or type code Batch A), then continue with the Gmail you entered here."
+   "out": "How they log in: open Instanton Campus, choose Student or Guardian, find \"1234567\" (or type code Batch A), then continue with the Gmail you entered here."
   },
   {
    "lang": "en",
@@ -2377,7 +2377,7 @@
     "Rahim Uddin",
     3
    ],
-   "out": "How they log in: open ClassBARI, choose Student or Guardian, find \"Rahim Uddin\" (or type code 3), then continue with the Gmail you entered here."
+   "out": "How they log in: open Instanton Campus, choose Student or Guardian, find \"Rahim Uddin\" (or type code 3), then continue with the Gmail you entered here."
   },
   {
    "lang": "en",
@@ -2386,7 +2386,7 @@
     "Rahim Uddin",
     "Batch A"
    ],
-   "out": "How they log in: open ClassBARI, choose Student or Guardian, find \"Rahim Uddin\" (or type code Batch A), then continue with the Gmail you entered here."
+   "out": "How they log in: open Instanton Campus, choose Student or Guardian, find \"Rahim Uddin\" (or type code Batch A), then continue with the Gmail you entered here."
   },
   {
    "lang": "en",
@@ -2395,7 +2395,7 @@
     0,
     3
    ],
-   "out": "How a teacher logs in the first time: open ClassBARI, choose Teacher, find \"0\" (or type code 3), enter this email and a new password, then press \"First time here? Create your password\"."
+   "out": "How a teacher logs in the first time: open Instanton Campus, choose Teacher, find \"0\" (or type code 3), enter this email and a new password, then press \"First time here? Create your password\"."
   },
   {
    "lang": "en",
@@ -2404,7 +2404,7 @@
     0,
     "Batch A"
    ],
-   "out": "How a teacher logs in the first time: open ClassBARI, choose Teacher, find \"0\" (or type code Batch A), enter this email and a new password, then press \"First time here? Create your password\"."
+   "out": "How a teacher logs in the first time: open Instanton Campus, choose Teacher, find \"0\" (or type code Batch A), enter this email and a new password, then press \"First time here? Create your password\"."
   },
   {
    "lang": "en",
@@ -2413,7 +2413,7 @@
     1,
     3
    ],
-   "out": "How a teacher logs in the first time: open ClassBARI, choose Teacher, find \"1\" (or type code 3), enter this email and a new password, then press \"First time here? Create your password\"."
+   "out": "How a teacher logs in the first time: open Instanton Campus, choose Teacher, find \"1\" (or type code 3), enter this email and a new password, then press \"First time here? Create your password\"."
   },
   {
    "lang": "en",
@@ -2422,7 +2422,7 @@
     1,
     "Batch A"
    ],
-   "out": "How a teacher logs in the first time: open ClassBARI, choose Teacher, find \"1\" (or type code Batch A), enter this email and a new password, then press \"First time here? Create your password\"."
+   "out": "How a teacher logs in the first time: open Instanton Campus, choose Teacher, find \"1\" (or type code Batch A), enter this email and a new password, then press \"First time here? Create your password\"."
   },
   {
    "lang": "en",
@@ -2431,7 +2431,7 @@
     2,
     3
    ],
-   "out": "How a teacher logs in the first time: open ClassBARI, choose Teacher, find \"2\" (or type code 3), enter this email and a new password, then press \"First time here? Create your password\"."
+   "out": "How a teacher logs in the first time: open Instanton Campus, choose Teacher, find \"2\" (or type code 3), enter this email and a new password, then press \"First time here? Create your password\"."
   },
   {
    "lang": "en",
@@ -2440,7 +2440,7 @@
     2,
     "Batch A"
    ],
-   "out": "How a teacher logs in the first time: open ClassBARI, choose Teacher, find \"2\" (or type code Batch A), enter this email and a new password, then press \"First time here? Create your password\"."
+   "out": "How a teacher logs in the first time: open Instanton Campus, choose Teacher, find \"2\" (or type code Batch A), enter this email and a new password, then press \"First time here? Create your password\"."
   },
   {
    "lang": "en",
@@ -2449,7 +2449,7 @@
     12,
     3
    ],
-   "out": "How a teacher logs in the first time: open ClassBARI, choose Teacher, find \"12\" (or type code 3), enter this email and a new password, then press \"First time here? Create your password\"."
+   "out": "How a teacher logs in the first time: open Instanton Campus, choose Teacher, find \"12\" (or type code 3), enter this email and a new password, then press \"First time here? Create your password\"."
   },
   {
    "lang": "en",
@@ -2458,7 +2458,7 @@
     12,
     "Batch A"
    ],
-   "out": "How a teacher logs in the first time: open ClassBARI, choose Teacher, find \"12\" (or type code Batch A), enter this email and a new password, then press \"First time here? Create your password\"."
+   "out": "How a teacher logs in the first time: open Instanton Campus, choose Teacher, find \"12\" (or type code Batch A), enter this email and a new password, then press \"First time here? Create your password\"."
   },
   {
    "lang": "en",
@@ -2467,7 +2467,7 @@
     1234567,
     3
    ],
-   "out": "How a teacher logs in the first time: open ClassBARI, choose Teacher, find \"1234567\" (or type code 3), enter this email and a new password, then press \"First time here? Create your password\"."
+   "out": "How a teacher logs in the first time: open Instanton Campus, choose Teacher, find \"1234567\" (or type code 3), enter this email and a new password, then press \"First time here? Create your password\"."
   },
   {
    "lang": "en",
@@ -2476,7 +2476,7 @@
     1234567,
     "Batch A"
    ],
-   "out": "How a teacher logs in the first time: open ClassBARI, choose Teacher, find \"1234567\" (or type code Batch A), enter this email and a new password, then press \"First time here? Create your password\"."
+   "out": "How a teacher logs in the first time: open Instanton Campus, choose Teacher, find \"1234567\" (or type code Batch A), enter this email and a new password, then press \"First time here? Create your password\"."
   },
   {
    "lang": "en",
@@ -2485,7 +2485,7 @@
     "Rahim Uddin",
     3
    ],
-   "out": "How a teacher logs in the first time: open ClassBARI, choose Teacher, find \"Rahim Uddin\" (or type code 3), enter this email and a new password, then press \"First time here? Create your password\"."
+   "out": "How a teacher logs in the first time: open Instanton Campus, choose Teacher, find \"Rahim Uddin\" (or type code 3), enter this email and a new password, then press \"First time here? Create your password\"."
   },
   {
    "lang": "en",
@@ -2494,7 +2494,7 @@
     "Rahim Uddin",
     "Batch A"
    ],
-   "out": "How a teacher logs in the first time: open ClassBARI, choose Teacher, find \"Rahim Uddin\" (or type code Batch A), enter this email and a new password, then press \"First time here? Create your password\"."
+   "out": "How a teacher logs in the first time: open Instanton Campus, choose Teacher, find \"Rahim Uddin\" (or type code Batch A), enter this email and a new password, then press \"First time here? Create your password\"."
   },
   {
    "lang": "en",
@@ -3575,6 +3575,798 @@
     "Rahim Uddin"
    ],
    "out": "Rahim Uddin chats on this device"
+  },
+  {
+   "lang": "en",
+   "key": "importer.column",
+   "args": [
+    0
+   ],
+   "out": "Column 0"
+  },
+  {
+   "lang": "en",
+   "key": "importer.column",
+   "args": [
+    0
+   ],
+   "out": "Column 0"
+  },
+  {
+   "lang": "en",
+   "key": "importer.column",
+   "args": [
+    1
+   ],
+   "out": "Column 1"
+  },
+  {
+   "lang": "en",
+   "key": "importer.column",
+   "args": [
+    1
+   ],
+   "out": "Column 1"
+  },
+  {
+   "lang": "en",
+   "key": "importer.column",
+   "args": [
+    2
+   ],
+   "out": "Column 2"
+  },
+  {
+   "lang": "en",
+   "key": "importer.column",
+   "args": [
+    2
+   ],
+   "out": "Column 2"
+  },
+  {
+   "lang": "en",
+   "key": "importer.column",
+   "args": [
+    12
+   ],
+   "out": "Column 12"
+  },
+  {
+   "lang": "en",
+   "key": "importer.column",
+   "args": [
+    12
+   ],
+   "out": "Column 12"
+  },
+  {
+   "lang": "en",
+   "key": "importer.column",
+   "args": [
+    1234567
+   ],
+   "out": "Column 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "importer.column",
+   "args": [
+    1234567
+   ],
+   "out": "Column 1234567"
+  },
+  {
+   "lang": "en",
+   "key": "importer.column",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Column Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "importer.column",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Column Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "importer.unmapped",
+   "args": [
+    0
+   ],
+   "out": "Choose which column is: 0."
+  },
+  {
+   "lang": "en",
+   "key": "importer.unmapped",
+   "args": [
+    0
+   ],
+   "out": "Choose which column is: 0."
+  },
+  {
+   "lang": "en",
+   "key": "importer.unmapped",
+   "args": [
+    1
+   ],
+   "out": "Choose which column is: 1."
+  },
+  {
+   "lang": "en",
+   "key": "importer.unmapped",
+   "args": [
+    1
+   ],
+   "out": "Choose which column is: 1."
+  },
+  {
+   "lang": "en",
+   "key": "importer.unmapped",
+   "args": [
+    2
+   ],
+   "out": "Choose which column is: 2."
+  },
+  {
+   "lang": "en",
+   "key": "importer.unmapped",
+   "args": [
+    2
+   ],
+   "out": "Choose which column is: 2."
+  },
+  {
+   "lang": "en",
+   "key": "importer.unmapped",
+   "args": [
+    12
+   ],
+   "out": "Choose which column is: 12."
+  },
+  {
+   "lang": "en",
+   "key": "importer.unmapped",
+   "args": [
+    12
+   ],
+   "out": "Choose which column is: 12."
+  },
+  {
+   "lang": "en",
+   "key": "importer.unmapped",
+   "args": [
+    1234567
+   ],
+   "out": "Choose which column is: 1234567."
+  },
+  {
+   "lang": "en",
+   "key": "importer.unmapped",
+   "args": [
+    1234567
+   ],
+   "out": "Choose which column is: 1234567."
+  },
+  {
+   "lang": "en",
+   "key": "importer.unmapped",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Choose which column is: Rahim Uddin."
+  },
+  {
+   "lang": "en",
+   "key": "importer.unmapped",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Choose which column is: Rahim Uddin."
+  },
+  {
+   "lang": "en",
+   "key": "importer.unknownBatch",
+   "args": [
+    0
+   ],
+   "out": "No batch called \"0\""
+  },
+  {
+   "lang": "en",
+   "key": "importer.unknownBatch",
+   "args": [
+    0
+   ],
+   "out": "No batch called \"0\""
+  },
+  {
+   "lang": "en",
+   "key": "importer.unknownBatch",
+   "args": [
+    1
+   ],
+   "out": "No batch called \"1\""
+  },
+  {
+   "lang": "en",
+   "key": "importer.unknownBatch",
+   "args": [
+    1
+   ],
+   "out": "No batch called \"1\""
+  },
+  {
+   "lang": "en",
+   "key": "importer.unknownBatch",
+   "args": [
+    2
+   ],
+   "out": "No batch called \"2\""
+  },
+  {
+   "lang": "en",
+   "key": "importer.unknownBatch",
+   "args": [
+    2
+   ],
+   "out": "No batch called \"2\""
+  },
+  {
+   "lang": "en",
+   "key": "importer.unknownBatch",
+   "args": [
+    12
+   ],
+   "out": "No batch called \"12\""
+  },
+  {
+   "lang": "en",
+   "key": "importer.unknownBatch",
+   "args": [
+    12
+   ],
+   "out": "No batch called \"12\""
+  },
+  {
+   "lang": "en",
+   "key": "importer.unknownBatch",
+   "args": [
+    1234567
+   ],
+   "out": "No batch called \"1234567\""
+  },
+  {
+   "lang": "en",
+   "key": "importer.unknownBatch",
+   "args": [
+    1234567
+   ],
+   "out": "No batch called \"1234567\""
+  },
+  {
+   "lang": "en",
+   "key": "importer.unknownBatch",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "No batch called \"Rahim Uddin\""
+  },
+  {
+   "lang": "en",
+   "key": "importer.unknownBatch",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "No batch called \"Rahim Uddin\""
+  },
+  {
+   "lang": "en",
+   "key": "importer.summary",
+   "args": [
+    0,
+    3
+   ],
+   "out": "0 ready to import · 3 need fixing (fix them in Excel and choose the file again)"
+  },
+  {
+   "lang": "en",
+   "key": "importer.summary",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "0 ready to import · Batch A need fixing (fix them in Excel and choose the file again)"
+  },
+  {
+   "lang": "en",
+   "key": "importer.summary",
+   "args": [
+    1,
+    3
+   ],
+   "out": "1 ready to import · 3 need fixing (fix them in Excel and choose the file again)"
+  },
+  {
+   "lang": "en",
+   "key": "importer.summary",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "1 ready to import · Batch A need fixing (fix them in Excel and choose the file again)"
+  },
+  {
+   "lang": "en",
+   "key": "importer.summary",
+   "args": [
+    2,
+    3
+   ],
+   "out": "2 ready to import · 3 need fixing (fix them in Excel and choose the file again)"
+  },
+  {
+   "lang": "en",
+   "key": "importer.summary",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "2 ready to import · Batch A need fixing (fix them in Excel and choose the file again)"
+  },
+  {
+   "lang": "en",
+   "key": "importer.summary",
+   "args": [
+    12,
+    3
+   ],
+   "out": "12 ready to import · 3 need fixing (fix them in Excel and choose the file again)"
+  },
+  {
+   "lang": "en",
+   "key": "importer.summary",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "12 ready to import · Batch A need fixing (fix them in Excel and choose the file again)"
+  },
+  {
+   "lang": "en",
+   "key": "importer.summary",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "1234567 ready to import · 3 need fixing (fix them in Excel and choose the file again)"
+  },
+  {
+   "lang": "en",
+   "key": "importer.summary",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "1234567 ready to import · Batch A need fixing (fix them in Excel and choose the file again)"
+  },
+  {
+   "lang": "en",
+   "key": "importer.summary",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "Rahim Uddin ready to import · 3 need fixing (fix them in Excel and choose the file again)"
+  },
+  {
+   "lang": "en",
+   "key": "importer.summary",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Rahim Uddin ready to import · Batch A need fixing (fix them in Excel and choose the file again)"
+  },
+  {
+   "lang": "en",
+   "key": "importer.row",
+   "args": [
+    0
+   ],
+   "out": "Row 0:"
+  },
+  {
+   "lang": "en",
+   "key": "importer.row",
+   "args": [
+    0
+   ],
+   "out": "Row 0:"
+  },
+  {
+   "lang": "en",
+   "key": "importer.row",
+   "args": [
+    1
+   ],
+   "out": "Row 1:"
+  },
+  {
+   "lang": "en",
+   "key": "importer.row",
+   "args": [
+    1
+   ],
+   "out": "Row 1:"
+  },
+  {
+   "lang": "en",
+   "key": "importer.row",
+   "args": [
+    2
+   ],
+   "out": "Row 2:"
+  },
+  {
+   "lang": "en",
+   "key": "importer.row",
+   "args": [
+    2
+   ],
+   "out": "Row 2:"
+  },
+  {
+   "lang": "en",
+   "key": "importer.row",
+   "args": [
+    12
+   ],
+   "out": "Row 12:"
+  },
+  {
+   "lang": "en",
+   "key": "importer.row",
+   "args": [
+    12
+   ],
+   "out": "Row 12:"
+  },
+  {
+   "lang": "en",
+   "key": "importer.row",
+   "args": [
+    1234567
+   ],
+   "out": "Row 1234567:"
+  },
+  {
+   "lang": "en",
+   "key": "importer.row",
+   "args": [
+    1234567
+   ],
+   "out": "Row 1234567:"
+  },
+  {
+   "lang": "en",
+   "key": "importer.row",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Row Rahim Uddin:"
+  },
+  {
+   "lang": "en",
+   "key": "importer.row",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Row Rahim Uddin:"
+  },
+  {
+   "lang": "en",
+   "key": "importer.import",
+   "args": [
+    0
+   ],
+   "out": "Import 0 students"
+  },
+  {
+   "lang": "en",
+   "key": "importer.import",
+   "args": [
+    0
+   ],
+   "out": "Import 0 students"
+  },
+  {
+   "lang": "en",
+   "key": "importer.import",
+   "args": [
+    1
+   ],
+   "out": "Import 1 student"
+  },
+  {
+   "lang": "en",
+   "key": "importer.import",
+   "args": [
+    1
+   ],
+   "out": "Import 1 student"
+  },
+  {
+   "lang": "en",
+   "key": "importer.import",
+   "args": [
+    2
+   ],
+   "out": "Import 2 students"
+  },
+  {
+   "lang": "en",
+   "key": "importer.import",
+   "args": [
+    2
+   ],
+   "out": "Import 2 students"
+  },
+  {
+   "lang": "en",
+   "key": "importer.import",
+   "args": [
+    12
+   ],
+   "out": "Import 12 students"
+  },
+  {
+   "lang": "en",
+   "key": "importer.import",
+   "args": [
+    12
+   ],
+   "out": "Import 12 students"
+  },
+  {
+   "lang": "en",
+   "key": "importer.import",
+   "args": [
+    1234567
+   ],
+   "out": "Import 1234567 students"
+  },
+  {
+   "lang": "en",
+   "key": "importer.import",
+   "args": [
+    1234567
+   ],
+   "out": "Import 1234567 students"
+  },
+  {
+   "lang": "en",
+   "key": "importer.import",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Import Rahim Uddin students"
+  },
+  {
+   "lang": "en",
+   "key": "importer.import",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Import Rahim Uddin students"
+  },
+  {
+   "lang": "en",
+   "key": "importer.adding",
+   "args": [
+    0,
+    3
+   ],
+   "out": "Adding 0 of 3…"
+  },
+  {
+   "lang": "en",
+   "key": "importer.adding",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "Adding 0 of Batch A…"
+  },
+  {
+   "lang": "en",
+   "key": "importer.adding",
+   "args": [
+    1,
+    3
+   ],
+   "out": "Adding 1 of 3…"
+  },
+  {
+   "lang": "en",
+   "key": "importer.adding",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "Adding 1 of Batch A…"
+  },
+  {
+   "lang": "en",
+   "key": "importer.adding",
+   "args": [
+    2,
+    3
+   ],
+   "out": "Adding 2 of 3…"
+  },
+  {
+   "lang": "en",
+   "key": "importer.adding",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "Adding 2 of Batch A…"
+  },
+  {
+   "lang": "en",
+   "key": "importer.adding",
+   "args": [
+    12,
+    3
+   ],
+   "out": "Adding 12 of 3…"
+  },
+  {
+   "lang": "en",
+   "key": "importer.adding",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "Adding 12 of Batch A…"
+  },
+  {
+   "lang": "en",
+   "key": "importer.adding",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "Adding 1234567 of 3…"
+  },
+  {
+   "lang": "en",
+   "key": "importer.adding",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "Adding 1234567 of Batch A…"
+  },
+  {
+   "lang": "en",
+   "key": "importer.adding",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "Adding Rahim Uddin of 3…"
+  },
+  {
+   "lang": "en",
+   "key": "importer.adding",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Adding Rahim Uddin of Batch A…"
+  },
+  {
+   "lang": "en",
+   "key": "importer.done",
+   "args": [
+    0
+   ],
+   "out": "0 students imported"
+  },
+  {
+   "lang": "en",
+   "key": "importer.done",
+   "args": [
+    0
+   ],
+   "out": "0 students imported"
+  },
+  {
+   "lang": "en",
+   "key": "importer.done",
+   "args": [
+    1
+   ],
+   "out": "1 student imported"
+  },
+  {
+   "lang": "en",
+   "key": "importer.done",
+   "args": [
+    1
+   ],
+   "out": "1 student imported"
+  },
+  {
+   "lang": "en",
+   "key": "importer.done",
+   "args": [
+    2
+   ],
+   "out": "2 students imported"
+  },
+  {
+   "lang": "en",
+   "key": "importer.done",
+   "args": [
+    2
+   ],
+   "out": "2 students imported"
+  },
+  {
+   "lang": "en",
+   "key": "importer.done",
+   "args": [
+    12
+   ],
+   "out": "12 students imported"
+  },
+  {
+   "lang": "en",
+   "key": "importer.done",
+   "args": [
+    12
+   ],
+   "out": "12 students imported"
+  },
+  {
+   "lang": "en",
+   "key": "importer.done",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 students imported"
+  },
+  {
+   "lang": "en",
+   "key": "importer.done",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 students imported"
+  },
+  {
+   "lang": "en",
+   "key": "importer.done",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin students imported"
+  },
+  {
+   "lang": "en",
+   "key": "importer.done",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin students imported"
   },
   {
    "lang": "en",
@@ -18126,7 +18918,7 @@
    "args": [
     0
    ],
-   "out": "Hello ClassBARI, our institute has 0 students. Please tell us the price."
+   "out": "Hello Instanton Campus, our institute has 0 students. Please tell us the price."
   },
   {
    "lang": "en",
@@ -18134,7 +18926,7 @@
    "args": [
     0
    ],
-   "out": "Hello ClassBARI, our institute has 0 students. Please tell us the price."
+   "out": "Hello Instanton Campus, our institute has 0 students. Please tell us the price."
   },
   {
    "lang": "en",
@@ -18142,7 +18934,7 @@
    "args": [
     1
    ],
-   "out": "Hello ClassBARI, our institute has 1 students. Please tell us the price."
+   "out": "Hello Instanton Campus, our institute has 1 students. Please tell us the price."
   },
   {
    "lang": "en",
@@ -18150,7 +18942,7 @@
    "args": [
     1
    ],
-   "out": "Hello ClassBARI, our institute has 1 students. Please tell us the price."
+   "out": "Hello Instanton Campus, our institute has 1 students. Please tell us the price."
   },
   {
    "lang": "en",
@@ -18158,7 +18950,7 @@
    "args": [
     2
    ],
-   "out": "Hello ClassBARI, our institute has 2 students. Please tell us the price."
+   "out": "Hello Instanton Campus, our institute has 2 students. Please tell us the price."
   },
   {
    "lang": "en",
@@ -18166,7 +18958,7 @@
    "args": [
     2
    ],
-   "out": "Hello ClassBARI, our institute has 2 students. Please tell us the price."
+   "out": "Hello Instanton Campus, our institute has 2 students. Please tell us the price."
   },
   {
    "lang": "en",
@@ -18174,7 +18966,7 @@
    "args": [
     12
    ],
-   "out": "Hello ClassBARI, our institute has 12 students. Please tell us the price."
+   "out": "Hello Instanton Campus, our institute has 12 students. Please tell us the price."
   },
   {
    "lang": "en",
@@ -18182,7 +18974,7 @@
    "args": [
     12
    ],
-   "out": "Hello ClassBARI, our institute has 12 students. Please tell us the price."
+   "out": "Hello Instanton Campus, our institute has 12 students. Please tell us the price."
   },
   {
    "lang": "en",
@@ -18190,7 +18982,7 @@
    "args": [
     1234567
    ],
-   "out": "Hello ClassBARI, our institute has 1234567 students. Please tell us the price."
+   "out": "Hello Instanton Campus, our institute has 1234567 students. Please tell us the price."
   },
   {
    "lang": "en",
@@ -18198,7 +18990,7 @@
    "args": [
     1234567
    ],
-   "out": "Hello ClassBARI, our institute has 1234567 students. Please tell us the price."
+   "out": "Hello Instanton Campus, our institute has 1234567 students. Please tell us the price."
   },
   {
    "lang": "en",
@@ -18206,7 +18998,7 @@
    "args": [
     "Rahim Uddin"
    ],
-   "out": "Hello ClassBARI, our institute has Rahim Uddin students. Please tell us the price."
+   "out": "Hello Instanton Campus, our institute has Rahim Uddin students. Please tell us the price."
   },
   {
    "lang": "en",
@@ -18214,7 +19006,7 @@
    "args": [
     "Rahim Uddin"
    ],
-   "out": "Hello ClassBARI, our institute has Rahim Uddin students. Please tell us the price."
+   "out": "Hello Instanton Campus, our institute has Rahim Uddin students. Please tell us the price."
   },
   {
    "lang": "en",
@@ -19850,99 +20642,195 @@
   },
   {
    "lang": "en",
-   "key": "importer.missing",
+   "key": "importer.column",
    "args": [
     0
    ],
-   "out": "The first row must have these headings: 0."
+   "out": "Column 0"
   },
   {
    "lang": "en",
-   "key": "importer.missing",
+   "key": "importer.column",
    "args": [
     0
    ],
-   "out": "The first row must have these headings: 0."
+   "out": "Column 0"
   },
   {
    "lang": "en",
-   "key": "importer.missing",
+   "key": "importer.column",
    "args": [
     1
    ],
-   "out": "The first row must have these headings: 1."
+   "out": "Column 1"
   },
   {
    "lang": "en",
-   "key": "importer.missing",
+   "key": "importer.column",
    "args": [
     1
    ],
-   "out": "The first row must have these headings: 1."
+   "out": "Column 1"
   },
   {
    "lang": "en",
-   "key": "importer.missing",
+   "key": "importer.column",
    "args": [
     2
    ],
-   "out": "The first row must have these headings: 2."
+   "out": "Column 2"
   },
   {
    "lang": "en",
-   "key": "importer.missing",
+   "key": "importer.column",
    "args": [
     2
    ],
-   "out": "The first row must have these headings: 2."
+   "out": "Column 2"
   },
   {
    "lang": "en",
-   "key": "importer.missing",
+   "key": "importer.column",
    "args": [
     12
    ],
-   "out": "The first row must have these headings: 12."
+   "out": "Column 12"
   },
   {
    "lang": "en",
-   "key": "importer.missing",
+   "key": "importer.column",
    "args": [
     12
    ],
-   "out": "The first row must have these headings: 12."
+   "out": "Column 12"
   },
   {
    "lang": "en",
-   "key": "importer.missing",
+   "key": "importer.column",
    "args": [
     1234567
    ],
-   "out": "The first row must have these headings: 1234567."
+   "out": "Column 1234567"
   },
   {
    "lang": "en",
-   "key": "importer.missing",
+   "key": "importer.column",
    "args": [
     1234567
    ],
-   "out": "The first row must have these headings: 1234567."
+   "out": "Column 1234567"
   },
   {
    "lang": "en",
-   "key": "importer.missing",
+   "key": "importer.column",
    "args": [
     "Rahim Uddin"
    ],
-   "out": "The first row must have these headings: Rahim Uddin."
+   "out": "Column Rahim Uddin"
   },
   {
    "lang": "en",
-   "key": "importer.missing",
+   "key": "importer.column",
    "args": [
     "Rahim Uddin"
    ],
-   "out": "The first row must have these headings: Rahim Uddin."
+   "out": "Column Rahim Uddin"
+  },
+  {
+   "lang": "en",
+   "key": "importer.unmapped",
+   "args": [
+    0
+   ],
+   "out": "Choose which column is: 0."
+  },
+  {
+   "lang": "en",
+   "key": "importer.unmapped",
+   "args": [
+    0
+   ],
+   "out": "Choose which column is: 0."
+  },
+  {
+   "lang": "en",
+   "key": "importer.unmapped",
+   "args": [
+    1
+   ],
+   "out": "Choose which column is: 1."
+  },
+  {
+   "lang": "en",
+   "key": "importer.unmapped",
+   "args": [
+    1
+   ],
+   "out": "Choose which column is: 1."
+  },
+  {
+   "lang": "en",
+   "key": "importer.unmapped",
+   "args": [
+    2
+   ],
+   "out": "Choose which column is: 2."
+  },
+  {
+   "lang": "en",
+   "key": "importer.unmapped",
+   "args": [
+    2
+   ],
+   "out": "Choose which column is: 2."
+  },
+  {
+   "lang": "en",
+   "key": "importer.unmapped",
+   "args": [
+    12
+   ],
+   "out": "Choose which column is: 12."
+  },
+  {
+   "lang": "en",
+   "key": "importer.unmapped",
+   "args": [
+    12
+   ],
+   "out": "Choose which column is: 12."
+  },
+  {
+   "lang": "en",
+   "key": "importer.unmapped",
+   "args": [
+    1234567
+   ],
+   "out": "Choose which column is: 1234567."
+  },
+  {
+   "lang": "en",
+   "key": "importer.unmapped",
+   "args": [
+    1234567
+   ],
+   "out": "Choose which column is: 1234567."
+  },
+  {
+   "lang": "en",
+   "key": "importer.unmapped",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Choose which column is: Rahim Uddin."
+  },
+  {
+   "lang": "en",
+   "key": "importer.unmapped",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Choose which column is: Rahim Uddin."
   },
   {
    "lang": "en",
@@ -20266,7 +21154,7 @@
    "args": [
     1
    ],
-   "out": "Import 1 students"
+   "out": "Import 1 student"
   },
   {
    "lang": "en",
@@ -20274,7 +21162,7 @@
    "args": [
     1
    ],
-   "out": "Import 1 students"
+   "out": "Import 1 student"
   },
   {
    "lang": "en",
@@ -20342,6 +21230,114 @@
   },
   {
    "lang": "en",
+   "key": "importer.adding",
+   "args": [
+    0,
+    3
+   ],
+   "out": "Adding 0 of 3…"
+  },
+  {
+   "lang": "en",
+   "key": "importer.adding",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "Adding 0 of Batch A…"
+  },
+  {
+   "lang": "en",
+   "key": "importer.adding",
+   "args": [
+    1,
+    3
+   ],
+   "out": "Adding 1 of 3…"
+  },
+  {
+   "lang": "en",
+   "key": "importer.adding",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "Adding 1 of Batch A…"
+  },
+  {
+   "lang": "en",
+   "key": "importer.adding",
+   "args": [
+    2,
+    3
+   ],
+   "out": "Adding 2 of 3…"
+  },
+  {
+   "lang": "en",
+   "key": "importer.adding",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "Adding 2 of Batch A…"
+  },
+  {
+   "lang": "en",
+   "key": "importer.adding",
+   "args": [
+    12,
+    3
+   ],
+   "out": "Adding 12 of 3…"
+  },
+  {
+   "lang": "en",
+   "key": "importer.adding",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "Adding 12 of Batch A…"
+  },
+  {
+   "lang": "en",
+   "key": "importer.adding",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "Adding 1234567 of 3…"
+  },
+  {
+   "lang": "en",
+   "key": "importer.adding",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "Adding 1234567 of Batch A…"
+  },
+  {
+   "lang": "en",
+   "key": "importer.adding",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "Adding Rahim Uddin of 3…"
+  },
+  {
+   "lang": "en",
+   "key": "importer.adding",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Adding Rahim Uddin of Batch A…"
+  },
+  {
+   "lang": "en",
    "key": "importer.done",
    "args": [
     0
@@ -20362,7 +21358,7 @@
    "args": [
     1
    ],
-   "out": "1 students imported"
+   "out": "1 student imported"
   },
   {
    "lang": "en",
@@ -20370,7 +21366,7 @@
    "args": [
     1
    ],
-   "out": "1 students imported"
+   "out": "1 student imported"
   },
   {
    "lang": "en",
@@ -24918,7 +25914,7 @@
    "args": [
     0
    ],
-   "out": "এই অ্যাকাউন্ট দিয়ে 0 খোলা যায় না। লগআউট করে সঠিক অ্যাকাউন্টে লগইন করুন, অথবা এই অ্যাকাউন্টের ClassBARI অ্যাপ ব্যবহার করুন।"
+   "out": "এই অ্যাকাউন্ট দিয়ে 0 খোলা যায় না। লগআউট করে সঠিক অ্যাকাউন্টে লগইন করুন, অথবা এই অ্যাকাউন্টের জন্য তৈরি Instanton অ্যাপ ব্যবহার করুন।"
   },
   {
    "lang": "bn",
@@ -24926,7 +25922,7 @@
    "args": [
     0
    ],
-   "out": "এই অ্যাকাউন্ট দিয়ে 0 খোলা যায় না। লগআউট করে সঠিক অ্যাকাউন্টে লগইন করুন, অথবা এই অ্যাকাউন্টের ClassBARI অ্যাপ ব্যবহার করুন।"
+   "out": "এই অ্যাকাউন্ট দিয়ে 0 খোলা যায় না। লগআউট করে সঠিক অ্যাকাউন্টে লগইন করুন, অথবা এই অ্যাকাউন্টের জন্য তৈরি Instanton অ্যাপ ব্যবহার করুন।"
   },
   {
    "lang": "bn",
@@ -24934,7 +25930,7 @@
    "args": [
     1
    ],
-   "out": "এই অ্যাকাউন্ট দিয়ে 1 খোলা যায় না। লগআউট করে সঠিক অ্যাকাউন্টে লগইন করুন, অথবা এই অ্যাকাউন্টের ClassBARI অ্যাপ ব্যবহার করুন।"
+   "out": "এই অ্যাকাউন্ট দিয়ে 1 খোলা যায় না। লগআউট করে সঠিক অ্যাকাউন্টে লগইন করুন, অথবা এই অ্যাকাউন্টের জন্য তৈরি Instanton অ্যাপ ব্যবহার করুন।"
   },
   {
    "lang": "bn",
@@ -24942,7 +25938,7 @@
    "args": [
     1
    ],
-   "out": "এই অ্যাকাউন্ট দিয়ে 1 খোলা যায় না। লগআউট করে সঠিক অ্যাকাউন্টে লগইন করুন, অথবা এই অ্যাকাউন্টের ClassBARI অ্যাপ ব্যবহার করুন।"
+   "out": "এই অ্যাকাউন্ট দিয়ে 1 খোলা যায় না। লগআউট করে সঠিক অ্যাকাউন্টে লগইন করুন, অথবা এই অ্যাকাউন্টের জন্য তৈরি Instanton অ্যাপ ব্যবহার করুন।"
   },
   {
    "lang": "bn",
@@ -24950,7 +25946,7 @@
    "args": [
     2
    ],
-   "out": "এই অ্যাকাউন্ট দিয়ে 2 খোলা যায় না। লগআউট করে সঠিক অ্যাকাউন্টে লগইন করুন, অথবা এই অ্যাকাউন্টের ClassBARI অ্যাপ ব্যবহার করুন।"
+   "out": "এই অ্যাকাউন্ট দিয়ে 2 খোলা যায় না। লগআউট করে সঠিক অ্যাকাউন্টে লগইন করুন, অথবা এই অ্যাকাউন্টের জন্য তৈরি Instanton অ্যাপ ব্যবহার করুন।"
   },
   {
    "lang": "bn",
@@ -24958,7 +25954,7 @@
    "args": [
     2
    ],
-   "out": "এই অ্যাকাউন্ট দিয়ে 2 খোলা যায় না। লগআউট করে সঠিক অ্যাকাউন্টে লগইন করুন, অথবা এই অ্যাকাউন্টের ClassBARI অ্যাপ ব্যবহার করুন।"
+   "out": "এই অ্যাকাউন্ট দিয়ে 2 খোলা যায় না। লগআউট করে সঠিক অ্যাকাউন্টে লগইন করুন, অথবা এই অ্যাকাউন্টের জন্য তৈরি Instanton অ্যাপ ব্যবহার করুন।"
   },
   {
    "lang": "bn",
@@ -24966,7 +25962,7 @@
    "args": [
     12
    ],
-   "out": "এই অ্যাকাউন্ট দিয়ে 12 খোলা যায় না। লগআউট করে সঠিক অ্যাকাউন্টে লগইন করুন, অথবা এই অ্যাকাউন্টের ClassBARI অ্যাপ ব্যবহার করুন।"
+   "out": "এই অ্যাকাউন্ট দিয়ে 12 খোলা যায় না। লগআউট করে সঠিক অ্যাকাউন্টে লগইন করুন, অথবা এই অ্যাকাউন্টের জন্য তৈরি Instanton অ্যাপ ব্যবহার করুন।"
   },
   {
    "lang": "bn",
@@ -24974,7 +25970,7 @@
    "args": [
     12
    ],
-   "out": "এই অ্যাকাউন্ট দিয়ে 12 খোলা যায় না। লগআউট করে সঠিক অ্যাকাউন্টে লগইন করুন, অথবা এই অ্যাকাউন্টের ClassBARI অ্যাপ ব্যবহার করুন।"
+   "out": "এই অ্যাকাউন্ট দিয়ে 12 খোলা যায় না। লগআউট করে সঠিক অ্যাকাউন্টে লগইন করুন, অথবা এই অ্যাকাউন্টের জন্য তৈরি Instanton অ্যাপ ব্যবহার করুন।"
   },
   {
    "lang": "bn",
@@ -24982,7 +25978,7 @@
    "args": [
     1234567
    ],
-   "out": "এই অ্যাকাউন্ট দিয়ে 1234567 খোলা যায় না। লগআউট করে সঠিক অ্যাকাউন্টে লগইন করুন, অথবা এই অ্যাকাউন্টের ClassBARI অ্যাপ ব্যবহার করুন।"
+   "out": "এই অ্যাকাউন্ট দিয়ে 1234567 খোলা যায় না। লগআউট করে সঠিক অ্যাকাউন্টে লগইন করুন, অথবা এই অ্যাকাউন্টের জন্য তৈরি Instanton অ্যাপ ব্যবহার করুন।"
   },
   {
    "lang": "bn",
@@ -24990,7 +25986,7 @@
    "args": [
     1234567
    ],
-   "out": "এই অ্যাকাউন্ট দিয়ে 1234567 খোলা যায় না। লগআউট করে সঠিক অ্যাকাউন্টে লগইন করুন, অথবা এই অ্যাকাউন্টের ClassBARI অ্যাপ ব্যবহার করুন।"
+   "out": "এই অ্যাকাউন্ট দিয়ে 1234567 খোলা যায় না। লগআউট করে সঠিক অ্যাকাউন্টে লগইন করুন, অথবা এই অ্যাকাউন্টের জন্য তৈরি Instanton অ্যাপ ব্যবহার করুন।"
   },
   {
    "lang": "bn",
@@ -24998,7 +25994,7 @@
    "args": [
     "Rahim Uddin"
    ],
-   "out": "এই অ্যাকাউন্ট দিয়ে Rahim Uddin খোলা যায় না। লগআউট করে সঠিক অ্যাকাউন্টে লগইন করুন, অথবা এই অ্যাকাউন্টের ClassBARI অ্যাপ ব্যবহার করুন।"
+   "out": "এই অ্যাকাউন্ট দিয়ে Rahim Uddin খোলা যায় না। লগআউট করে সঠিক অ্যাকাউন্টে লগইন করুন, অথবা এই অ্যাকাউন্টের জন্য তৈরি Instanton অ্যাপ ব্যবহার করুন।"
   },
   {
    "lang": "bn",
@@ -25006,7 +26002,7 @@
    "args": [
     "Rahim Uddin"
    ],
-   "out": "এই অ্যাকাউন্ট দিয়ে Rahim Uddin খোলা যায় না। লগআউট করে সঠিক অ্যাকাউন্টে লগইন করুন, অথবা এই অ্যাকাউন্টের ClassBARI অ্যাপ ব্যবহার করুন।"
+   "out": "এই অ্যাকাউন্ট দিয়ে Rahim Uddin খোলা যায় না। লগআউট করে সঠিক অ্যাকাউন্টে লগইন করুন, অথবা এই অ্যাকাউন্টের জন্য তৈরি Instanton অ্যাপ ব্যবহার করুন।"
   },
   {
    "lang": "bn",
@@ -25111,7 +26107,7 @@
     0,
     3
    ],
-   "out": "যেভাবে লগইন করবে: ClassBARI খুলে শিক্ষার্থী বা অভিভাবক বেছে নিন, \"0\" খুঁজুন (অথবা কোড 3 লিখুন), তারপর এখানে দেওয়া Gmail দিয়ে এগিয়ে যান।"
+   "out": "যেভাবে লগইন করবে: Instanton Campus খুলে শিক্ষার্থী বা অভিভাবক বেছে নিন, \"0\" খুঁজুন (অথবা কোড 3 লিখুন), তারপর এখানে দেওয়া Gmail দিয়ে এগিয়ে যান।"
   },
   {
    "lang": "bn",
@@ -25120,7 +26116,7 @@
     0,
     "Batch A"
    ],
-   "out": "যেভাবে লগইন করবে: ClassBARI খুলে শিক্ষার্থী বা অভিভাবক বেছে নিন, \"0\" খুঁজুন (অথবা কোড Batch A লিখুন), তারপর এখানে দেওয়া Gmail দিয়ে এগিয়ে যান।"
+   "out": "যেভাবে লগইন করবে: Instanton Campus খুলে শিক্ষার্থী বা অভিভাবক বেছে নিন, \"0\" খুঁজুন (অথবা কোড Batch A লিখুন), তারপর এখানে দেওয়া Gmail দিয়ে এগিয়ে যান।"
   },
   {
    "lang": "bn",
@@ -25129,7 +26125,7 @@
     1,
     3
    ],
-   "out": "যেভাবে লগইন করবে: ClassBARI খুলে শিক্ষার্থী বা অভিভাবক বেছে নিন, \"1\" খুঁজুন (অথবা কোড 3 লিখুন), তারপর এখানে দেওয়া Gmail দিয়ে এগিয়ে যান।"
+   "out": "যেভাবে লগইন করবে: Instanton Campus খুলে শিক্ষার্থী বা অভিভাবক বেছে নিন, \"1\" খুঁজুন (অথবা কোড 3 লিখুন), তারপর এখানে দেওয়া Gmail দিয়ে এগিয়ে যান।"
   },
   {
    "lang": "bn",
@@ -25138,7 +26134,7 @@
     1,
     "Batch A"
    ],
-   "out": "যেভাবে লগইন করবে: ClassBARI খুলে শিক্ষার্থী বা অভিভাবক বেছে নিন, \"1\" খুঁজুন (অথবা কোড Batch A লিখুন), তারপর এখানে দেওয়া Gmail দিয়ে এগিয়ে যান।"
+   "out": "যেভাবে লগইন করবে: Instanton Campus খুলে শিক্ষার্থী বা অভিভাবক বেছে নিন, \"1\" খুঁজুন (অথবা কোড Batch A লিখুন), তারপর এখানে দেওয়া Gmail দিয়ে এগিয়ে যান।"
   },
   {
    "lang": "bn",
@@ -25147,7 +26143,7 @@
     2,
     3
    ],
-   "out": "যেভাবে লগইন করবে: ClassBARI খুলে শিক্ষার্থী বা অভিভাবক বেছে নিন, \"2\" খুঁজুন (অথবা কোড 3 লিখুন), তারপর এখানে দেওয়া Gmail দিয়ে এগিয়ে যান।"
+   "out": "যেভাবে লগইন করবে: Instanton Campus খুলে শিক্ষার্থী বা অভিভাবক বেছে নিন, \"2\" খুঁজুন (অথবা কোড 3 লিখুন), তারপর এখানে দেওয়া Gmail দিয়ে এগিয়ে যান।"
   },
   {
    "lang": "bn",
@@ -25156,7 +26152,7 @@
     2,
     "Batch A"
    ],
-   "out": "যেভাবে লগইন করবে: ClassBARI খুলে শিক্ষার্থী বা অভিভাবক বেছে নিন, \"2\" খুঁজুন (অথবা কোড Batch A লিখুন), তারপর এখানে দেওয়া Gmail দিয়ে এগিয়ে যান।"
+   "out": "যেভাবে লগইন করবে: Instanton Campus খুলে শিক্ষার্থী বা অভিভাবক বেছে নিন, \"2\" খুঁজুন (অথবা কোড Batch A লিখুন), তারপর এখানে দেওয়া Gmail দিয়ে এগিয়ে যান।"
   },
   {
    "lang": "bn",
@@ -25165,7 +26161,7 @@
     12,
     3
    ],
-   "out": "যেভাবে লগইন করবে: ClassBARI খুলে শিক্ষার্থী বা অভিভাবক বেছে নিন, \"12\" খুঁজুন (অথবা কোড 3 লিখুন), তারপর এখানে দেওয়া Gmail দিয়ে এগিয়ে যান।"
+   "out": "যেভাবে লগইন করবে: Instanton Campus খুলে শিক্ষার্থী বা অভিভাবক বেছে নিন, \"12\" খুঁজুন (অথবা কোড 3 লিখুন), তারপর এখানে দেওয়া Gmail দিয়ে এগিয়ে যান।"
   },
   {
    "lang": "bn",
@@ -25174,7 +26170,7 @@
     12,
     "Batch A"
    ],
-   "out": "যেভাবে লগইন করবে: ClassBARI খুলে শিক্ষার্থী বা অভিভাবক বেছে নিন, \"12\" খুঁজুন (অথবা কোড Batch A লিখুন), তারপর এখানে দেওয়া Gmail দিয়ে এগিয়ে যান।"
+   "out": "যেভাবে লগইন করবে: Instanton Campus খুলে শিক্ষার্থী বা অভিভাবক বেছে নিন, \"12\" খুঁজুন (অথবা কোড Batch A লিখুন), তারপর এখানে দেওয়া Gmail দিয়ে এগিয়ে যান।"
   },
   {
    "lang": "bn",
@@ -25183,7 +26179,7 @@
     1234567,
     3
    ],
-   "out": "যেভাবে লগইন করবে: ClassBARI খুলে শিক্ষার্থী বা অভিভাবক বেছে নিন, \"1234567\" খুঁজুন (অথবা কোড 3 লিখুন), তারপর এখানে দেওয়া Gmail দিয়ে এগিয়ে যান।"
+   "out": "যেভাবে লগইন করবে: Instanton Campus খুলে শিক্ষার্থী বা অভিভাবক বেছে নিন, \"1234567\" খুঁজুন (অথবা কোড 3 লিখুন), তারপর এখানে দেওয়া Gmail দিয়ে এগিয়ে যান।"
   },
   {
    "lang": "bn",
@@ -25192,7 +26188,7 @@
     1234567,
     "Batch A"
    ],
-   "out": "যেভাবে লগইন করবে: ClassBARI খুলে শিক্ষার্থী বা অভিভাবক বেছে নিন, \"1234567\" খুঁজুন (অথবা কোড Batch A লিখুন), তারপর এখানে দেওয়া Gmail দিয়ে এগিয়ে যান।"
+   "out": "যেভাবে লগইন করবে: Instanton Campus খুলে শিক্ষার্থী বা অভিভাবক বেছে নিন, \"1234567\" খুঁজুন (অথবা কোড Batch A লিখুন), তারপর এখানে দেওয়া Gmail দিয়ে এগিয়ে যান।"
   },
   {
    "lang": "bn",
@@ -25201,7 +26197,7 @@
     "Rahim Uddin",
     3
    ],
-   "out": "যেভাবে লগইন করবে: ClassBARI খুলে শিক্ষার্থী বা অভিভাবক বেছে নিন, \"Rahim Uddin\" খুঁজুন (অথবা কোড 3 লিখুন), তারপর এখানে দেওয়া Gmail দিয়ে এগিয়ে যান।"
+   "out": "যেভাবে লগইন করবে: Instanton Campus খুলে শিক্ষার্থী বা অভিভাবক বেছে নিন, \"Rahim Uddin\" খুঁজুন (অথবা কোড 3 লিখুন), তারপর এখানে দেওয়া Gmail দিয়ে এগিয়ে যান।"
   },
   {
    "lang": "bn",
@@ -25210,7 +26206,7 @@
     "Rahim Uddin",
     "Batch A"
    ],
-   "out": "যেভাবে লগইন করবে: ClassBARI খুলে শিক্ষার্থী বা অভিভাবক বেছে নিন, \"Rahim Uddin\" খুঁজুন (অথবা কোড Batch A লিখুন), তারপর এখানে দেওয়া Gmail দিয়ে এগিয়ে যান।"
+   "out": "যেভাবে লগইন করবে: Instanton Campus খুলে শিক্ষার্থী বা অভিভাবক বেছে নিন, \"Rahim Uddin\" খুঁজুন (অথবা কোড Batch A লিখুন), তারপর এখানে দেওয়া Gmail দিয়ে এগিয়ে যান।"
   },
   {
    "lang": "bn",
@@ -25219,7 +26215,7 @@
     0,
     3
    ],
-   "out": "শিক্ষক প্রথমবার যেভাবে লগইন করবেন: ClassBARI খুলে শিক্ষক বেছে নিন, \"0\" খুঁজুন (অথবা কোড 3 লিখুন), এই ইমেইল ও একটি নতুন পাসওয়ার্ড লিখে \"প্রথমবার এসেছেন? পাসওয়ার্ড তৈরি করুন\" চাপুন।"
+   "out": "শিক্ষক প্রথমবার যেভাবে লগইন করবেন: Instanton Campus খুলে শিক্ষক বেছে নিন, \"0\" খুঁজুন (অথবা কোড 3 লিখুন), এই ইমেইল ও একটি নতুন পাসওয়ার্ড লিখে \"প্রথমবার এসেছেন? পাসওয়ার্ড তৈরি করুন\" চাপুন।"
   },
   {
    "lang": "bn",
@@ -25228,7 +26224,7 @@
     0,
     "Batch A"
    ],
-   "out": "শিক্ষক প্রথমবার যেভাবে লগইন করবেন: ClassBARI খুলে শিক্ষক বেছে নিন, \"0\" খুঁজুন (অথবা কোড Batch A লিখুন), এই ইমেইল ও একটি নতুন পাসওয়ার্ড লিখে \"প্রথমবার এসেছেন? পাসওয়ার্ড তৈরি করুন\" চাপুন।"
+   "out": "শিক্ষক প্রথমবার যেভাবে লগইন করবেন: Instanton Campus খুলে শিক্ষক বেছে নিন, \"0\" খুঁজুন (অথবা কোড Batch A লিখুন), এই ইমেইল ও একটি নতুন পাসওয়ার্ড লিখে \"প্রথমবার এসেছেন? পাসওয়ার্ড তৈরি করুন\" চাপুন।"
   },
   {
    "lang": "bn",
@@ -25237,7 +26233,7 @@
     1,
     3
    ],
-   "out": "শিক্ষক প্রথমবার যেভাবে লগইন করবেন: ClassBARI খুলে শিক্ষক বেছে নিন, \"1\" খুঁজুন (অথবা কোড 3 লিখুন), এই ইমেইল ও একটি নতুন পাসওয়ার্ড লিখে \"প্রথমবার এসেছেন? পাসওয়ার্ড তৈরি করুন\" চাপুন।"
+   "out": "শিক্ষক প্রথমবার যেভাবে লগইন করবেন: Instanton Campus খুলে শিক্ষক বেছে নিন, \"1\" খুঁজুন (অথবা কোড 3 লিখুন), এই ইমেইল ও একটি নতুন পাসওয়ার্ড লিখে \"প্রথমবার এসেছেন? পাসওয়ার্ড তৈরি করুন\" চাপুন।"
   },
   {
    "lang": "bn",
@@ -25246,7 +26242,7 @@
     1,
     "Batch A"
    ],
-   "out": "শিক্ষক প্রথমবার যেভাবে লগইন করবেন: ClassBARI খুলে শিক্ষক বেছে নিন, \"1\" খুঁজুন (অথবা কোড Batch A লিখুন), এই ইমেইল ও একটি নতুন পাসওয়ার্ড লিখে \"প্রথমবার এসেছেন? পাসওয়ার্ড তৈরি করুন\" চাপুন।"
+   "out": "শিক্ষক প্রথমবার যেভাবে লগইন করবেন: Instanton Campus খুলে শিক্ষক বেছে নিন, \"1\" খুঁজুন (অথবা কোড Batch A লিখুন), এই ইমেইল ও একটি নতুন পাসওয়ার্ড লিখে \"প্রথমবার এসেছেন? পাসওয়ার্ড তৈরি করুন\" চাপুন।"
   },
   {
    "lang": "bn",
@@ -25255,7 +26251,7 @@
     2,
     3
    ],
-   "out": "শিক্ষক প্রথমবার যেভাবে লগইন করবেন: ClassBARI খুলে শিক্ষক বেছে নিন, \"2\" খুঁজুন (অথবা কোড 3 লিখুন), এই ইমেইল ও একটি নতুন পাসওয়ার্ড লিখে \"প্রথমবার এসেছেন? পাসওয়ার্ড তৈরি করুন\" চাপুন।"
+   "out": "শিক্ষক প্রথমবার যেভাবে লগইন করবেন: Instanton Campus খুলে শিক্ষক বেছে নিন, \"2\" খুঁজুন (অথবা কোড 3 লিখুন), এই ইমেইল ও একটি নতুন পাসওয়ার্ড লিখে \"প্রথমবার এসেছেন? পাসওয়ার্ড তৈরি করুন\" চাপুন।"
   },
   {
    "lang": "bn",
@@ -25264,7 +26260,7 @@
     2,
     "Batch A"
    ],
-   "out": "শিক্ষক প্রথমবার যেভাবে লগইন করবেন: ClassBARI খুলে শিক্ষক বেছে নিন, \"2\" খুঁজুন (অথবা কোড Batch A লিখুন), এই ইমেইল ও একটি নতুন পাসওয়ার্ড লিখে \"প্রথমবার এসেছেন? পাসওয়ার্ড তৈরি করুন\" চাপুন।"
+   "out": "শিক্ষক প্রথমবার যেভাবে লগইন করবেন: Instanton Campus খুলে শিক্ষক বেছে নিন, \"2\" খুঁজুন (অথবা কোড Batch A লিখুন), এই ইমেইল ও একটি নতুন পাসওয়ার্ড লিখে \"প্রথমবার এসেছেন? পাসওয়ার্ড তৈরি করুন\" চাপুন।"
   },
   {
    "lang": "bn",
@@ -25273,7 +26269,7 @@
     12,
     3
    ],
-   "out": "শিক্ষক প্রথমবার যেভাবে লগইন করবেন: ClassBARI খুলে শিক্ষক বেছে নিন, \"12\" খুঁজুন (অথবা কোড 3 লিখুন), এই ইমেইল ও একটি নতুন পাসওয়ার্ড লিখে \"প্রথমবার এসেছেন? পাসওয়ার্ড তৈরি করুন\" চাপুন।"
+   "out": "শিক্ষক প্রথমবার যেভাবে লগইন করবেন: Instanton Campus খুলে শিক্ষক বেছে নিন, \"12\" খুঁজুন (অথবা কোড 3 লিখুন), এই ইমেইল ও একটি নতুন পাসওয়ার্ড লিখে \"প্রথমবার এসেছেন? পাসওয়ার্ড তৈরি করুন\" চাপুন।"
   },
   {
    "lang": "bn",
@@ -25282,7 +26278,7 @@
     12,
     "Batch A"
    ],
-   "out": "শিক্ষক প্রথমবার যেভাবে লগইন করবেন: ClassBARI খুলে শিক্ষক বেছে নিন, \"12\" খুঁজুন (অথবা কোড Batch A লিখুন), এই ইমেইল ও একটি নতুন পাসওয়ার্ড লিখে \"প্রথমবার এসেছেন? পাসওয়ার্ড তৈরি করুন\" চাপুন।"
+   "out": "শিক্ষক প্রথমবার যেভাবে লগইন করবেন: Instanton Campus খুলে শিক্ষক বেছে নিন, \"12\" খুঁজুন (অথবা কোড Batch A লিখুন), এই ইমেইল ও একটি নতুন পাসওয়ার্ড লিখে \"প্রথমবার এসেছেন? পাসওয়ার্ড তৈরি করুন\" চাপুন।"
   },
   {
    "lang": "bn",
@@ -25291,7 +26287,7 @@
     1234567,
     3
    ],
-   "out": "শিক্ষক প্রথমবার যেভাবে লগইন করবেন: ClassBARI খুলে শিক্ষক বেছে নিন, \"1234567\" খুঁজুন (অথবা কোড 3 লিখুন), এই ইমেইল ও একটি নতুন পাসওয়ার্ড লিখে \"প্রথমবার এসেছেন? পাসওয়ার্ড তৈরি করুন\" চাপুন।"
+   "out": "শিক্ষক প্রথমবার যেভাবে লগইন করবেন: Instanton Campus খুলে শিক্ষক বেছে নিন, \"1234567\" খুঁজুন (অথবা কোড 3 লিখুন), এই ইমেইল ও একটি নতুন পাসওয়ার্ড লিখে \"প্রথমবার এসেছেন? পাসওয়ার্ড তৈরি করুন\" চাপুন।"
   },
   {
    "lang": "bn",
@@ -25300,7 +26296,7 @@
     1234567,
     "Batch A"
    ],
-   "out": "শিক্ষক প্রথমবার যেভাবে লগইন করবেন: ClassBARI খুলে শিক্ষক বেছে নিন, \"1234567\" খুঁজুন (অথবা কোড Batch A লিখুন), এই ইমেইল ও একটি নতুন পাসওয়ার্ড লিখে \"প্রথমবার এসেছেন? পাসওয়ার্ড তৈরি করুন\" চাপুন।"
+   "out": "শিক্ষক প্রথমবার যেভাবে লগইন করবেন: Instanton Campus খুলে শিক্ষক বেছে নিন, \"1234567\" খুঁজুন (অথবা কোড Batch A লিখুন), এই ইমেইল ও একটি নতুন পাসওয়ার্ড লিখে \"প্রথমবার এসেছেন? পাসওয়ার্ড তৈরি করুন\" চাপুন।"
   },
   {
    "lang": "bn",
@@ -25309,7 +26305,7 @@
     "Rahim Uddin",
     3
    ],
-   "out": "শিক্ষক প্রথমবার যেভাবে লগইন করবেন: ClassBARI খুলে শিক্ষক বেছে নিন, \"Rahim Uddin\" খুঁজুন (অথবা কোড 3 লিখুন), এই ইমেইল ও একটি নতুন পাসওয়ার্ড লিখে \"প্রথমবার এসেছেন? পাসওয়ার্ড তৈরি করুন\" চাপুন।"
+   "out": "শিক্ষক প্রথমবার যেভাবে লগইন করবেন: Instanton Campus খুলে শিক্ষক বেছে নিন, \"Rahim Uddin\" খুঁজুন (অথবা কোড 3 লিখুন), এই ইমেইল ও একটি নতুন পাসওয়ার্ড লিখে \"প্রথমবার এসেছেন? পাসওয়ার্ড তৈরি করুন\" চাপুন।"
   },
   {
    "lang": "bn",
@@ -25318,7 +26314,7 @@
     "Rahim Uddin",
     "Batch A"
    ],
-   "out": "শিক্ষক প্রথমবার যেভাবে লগইন করবেন: ClassBARI খুলে শিক্ষক বেছে নিন, \"Rahim Uddin\" খুঁজুন (অথবা কোড Batch A লিখুন), এই ইমেইল ও একটি নতুন পাসওয়ার্ড লিখে \"প্রথমবার এসেছেন? পাসওয়ার্ড তৈরি করুন\" চাপুন।"
+   "out": "শিক্ষক প্রথমবার যেভাবে লগইন করবেন: Instanton Campus খুলে শিক্ষক বেছে নিন, \"Rahim Uddin\" খুঁজুন (অথবা কোড Batch A লিখুন), এই ইমেইল ও একটি নতুন পাসওয়ার্ড লিখে \"প্রথমবার এসেছেন? পাসওয়ার্ড তৈরি করুন\" চাপুন।"
   },
   {
    "lang": "bn",
@@ -26399,6 +27395,798 @@
     "Rahim Uddin"
    ],
    "out": "এই ডিভাইসে Rahim Uddinটি চ্যাট"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.column",
+   "args": [
+    0
+   ],
+   "out": "কলাম 0"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.column",
+   "args": [
+    0
+   ],
+   "out": "কলাম 0"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.column",
+   "args": [
+    1
+   ],
+   "out": "কলাম 1"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.column",
+   "args": [
+    1
+   ],
+   "out": "কলাম 1"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.column",
+   "args": [
+    2
+   ],
+   "out": "কলাম 2"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.column",
+   "args": [
+    2
+   ],
+   "out": "কলাম 2"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.column",
+   "args": [
+    12
+   ],
+   "out": "কলাম 12"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.column",
+   "args": [
+    12
+   ],
+   "out": "কলাম 12"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.column",
+   "args": [
+    1234567
+   ],
+   "out": "কলাম 1234567"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.column",
+   "args": [
+    1234567
+   ],
+   "out": "কলাম 1234567"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.column",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "কলাম Rahim Uddin"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.column",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "কলাম Rahim Uddin"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unmapped",
+   "args": [
+    0
+   ],
+   "out": "কোন কলামটি কী, বেছে নিন: 0।"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unmapped",
+   "args": [
+    0
+   ],
+   "out": "কোন কলামটি কী, বেছে নিন: 0।"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unmapped",
+   "args": [
+    1
+   ],
+   "out": "কোন কলামটি কী, বেছে নিন: 1।"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unmapped",
+   "args": [
+    1
+   ],
+   "out": "কোন কলামটি কী, বেছে নিন: 1।"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unmapped",
+   "args": [
+    2
+   ],
+   "out": "কোন কলামটি কী, বেছে নিন: 2।"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unmapped",
+   "args": [
+    2
+   ],
+   "out": "কোন কলামটি কী, বেছে নিন: 2।"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unmapped",
+   "args": [
+    12
+   ],
+   "out": "কোন কলামটি কী, বেছে নিন: 12।"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unmapped",
+   "args": [
+    12
+   ],
+   "out": "কোন কলামটি কী, বেছে নিন: 12।"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unmapped",
+   "args": [
+    1234567
+   ],
+   "out": "কোন কলামটি কী, বেছে নিন: 1234567।"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unmapped",
+   "args": [
+    1234567
+   ],
+   "out": "কোন কলামটি কী, বেছে নিন: 1234567।"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unmapped",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "কোন কলামটি কী, বেছে নিন: Rahim Uddin।"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unmapped",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "কোন কলামটি কী, বেছে নিন: Rahim Uddin।"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unknownBatch",
+   "args": [
+    0
+   ],
+   "out": "\"0\" নামে কোনো ব্যাচ নেই"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unknownBatch",
+   "args": [
+    0
+   ],
+   "out": "\"0\" নামে কোনো ব্যাচ নেই"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unknownBatch",
+   "args": [
+    1
+   ],
+   "out": "\"1\" নামে কোনো ব্যাচ নেই"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unknownBatch",
+   "args": [
+    1
+   ],
+   "out": "\"1\" নামে কোনো ব্যাচ নেই"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unknownBatch",
+   "args": [
+    2
+   ],
+   "out": "\"2\" নামে কোনো ব্যাচ নেই"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unknownBatch",
+   "args": [
+    2
+   ],
+   "out": "\"2\" নামে কোনো ব্যাচ নেই"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unknownBatch",
+   "args": [
+    12
+   ],
+   "out": "\"12\" নামে কোনো ব্যাচ নেই"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unknownBatch",
+   "args": [
+    12
+   ],
+   "out": "\"12\" নামে কোনো ব্যাচ নেই"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unknownBatch",
+   "args": [
+    1234567
+   ],
+   "out": "\"1234567\" নামে কোনো ব্যাচ নেই"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unknownBatch",
+   "args": [
+    1234567
+   ],
+   "out": "\"1234567\" নামে কোনো ব্যাচ নেই"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unknownBatch",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "\"Rahim Uddin\" নামে কোনো ব্যাচ নেই"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unknownBatch",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "\"Rahim Uddin\" নামে কোনো ব্যাচ নেই"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.summary",
+   "args": [
+    0,
+    3
+   ],
+   "out": "0টি যোগ করার জন্য প্রস্তুত · 3টি ঠিক করতে হবে (এক্সেলে ঠিক করে আবার ফাইল দিন)"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.summary",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "0টি যোগ করার জন্য প্রস্তুত · Batch Aটি ঠিক করতে হবে (এক্সেলে ঠিক করে আবার ফাইল দিন)"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.summary",
+   "args": [
+    1,
+    3
+   ],
+   "out": "1টি যোগ করার জন্য প্রস্তুত · 3টি ঠিক করতে হবে (এক্সেলে ঠিক করে আবার ফাইল দিন)"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.summary",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "1টি যোগ করার জন্য প্রস্তুত · Batch Aটি ঠিক করতে হবে (এক্সেলে ঠিক করে আবার ফাইল দিন)"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.summary",
+   "args": [
+    2,
+    3
+   ],
+   "out": "2টি যোগ করার জন্য প্রস্তুত · 3টি ঠিক করতে হবে (এক্সেলে ঠিক করে আবার ফাইল দিন)"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.summary",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "2টি যোগ করার জন্য প্রস্তুত · Batch Aটি ঠিক করতে হবে (এক্সেলে ঠিক করে আবার ফাইল দিন)"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.summary",
+   "args": [
+    12,
+    3
+   ],
+   "out": "12টি যোগ করার জন্য প্রস্তুত · 3টি ঠিক করতে হবে (এক্সেলে ঠিক করে আবার ফাইল দিন)"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.summary",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "12টি যোগ করার জন্য প্রস্তুত · Batch Aটি ঠিক করতে হবে (এক্সেলে ঠিক করে আবার ফাইল দিন)"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.summary",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "1234567টি যোগ করার জন্য প্রস্তুত · 3টি ঠিক করতে হবে (এক্সেলে ঠিক করে আবার ফাইল দিন)"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.summary",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "1234567টি যোগ করার জন্য প্রস্তুত · Batch Aটি ঠিক করতে হবে (এক্সেলে ঠিক করে আবার ফাইল দিন)"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.summary",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "Rahim Uddinটি যোগ করার জন্য প্রস্তুত · 3টি ঠিক করতে হবে (এক্সেলে ঠিক করে আবার ফাইল দিন)"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.summary",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Rahim Uddinটি যোগ করার জন্য প্রস্তুত · Batch Aটি ঠিক করতে হবে (এক্সেলে ঠিক করে আবার ফাইল দিন)"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.row",
+   "args": [
+    0
+   ],
+   "out": "সারি 0:"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.row",
+   "args": [
+    0
+   ],
+   "out": "সারি 0:"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.row",
+   "args": [
+    1
+   ],
+   "out": "সারি 1:"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.row",
+   "args": [
+    1
+   ],
+   "out": "সারি 1:"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.row",
+   "args": [
+    2
+   ],
+   "out": "সারি 2:"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.row",
+   "args": [
+    2
+   ],
+   "out": "সারি 2:"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.row",
+   "args": [
+    12
+   ],
+   "out": "সারি 12:"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.row",
+   "args": [
+    12
+   ],
+   "out": "সারি 12:"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.row",
+   "args": [
+    1234567
+   ],
+   "out": "সারি 1234567:"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.row",
+   "args": [
+    1234567
+   ],
+   "out": "সারি 1234567:"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.row",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "সারি Rahim Uddin:"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.row",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "সারি Rahim Uddin:"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.import",
+   "args": [
+    0
+   ],
+   "out": "0 জন শিক্ষার্থী যোগ করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.import",
+   "args": [
+    0
+   ],
+   "out": "0 জন শিক্ষার্থী যোগ করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.import",
+   "args": [
+    1
+   ],
+   "out": "1 জন শিক্ষার্থী যোগ করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.import",
+   "args": [
+    1
+   ],
+   "out": "1 জন শিক্ষার্থী যোগ করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.import",
+   "args": [
+    2
+   ],
+   "out": "2 জন শিক্ষার্থী যোগ করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.import",
+   "args": [
+    2
+   ],
+   "out": "2 জন শিক্ষার্থী যোগ করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.import",
+   "args": [
+    12
+   ],
+   "out": "12 জন শিক্ষার্থী যোগ করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.import",
+   "args": [
+    12
+   ],
+   "out": "12 জন শিক্ষার্থী যোগ করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.import",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 জন শিক্ষার্থী যোগ করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.import",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 জন শিক্ষার্থী যোগ করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.import",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin জন শিক্ষার্থী যোগ করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.import",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin জন শিক্ষার্থী যোগ করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.adding",
+   "args": [
+    0,
+    3
+   ],
+   "out": "3 জনের মধ্যে 0 জন যোগ হচ্ছে…"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.adding",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "Batch A জনের মধ্যে 0 জন যোগ হচ্ছে…"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.adding",
+   "args": [
+    1,
+    3
+   ],
+   "out": "3 জনের মধ্যে 1 জন যোগ হচ্ছে…"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.adding",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "Batch A জনের মধ্যে 1 জন যোগ হচ্ছে…"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.adding",
+   "args": [
+    2,
+    3
+   ],
+   "out": "3 জনের মধ্যে 2 জন যোগ হচ্ছে…"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.adding",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "Batch A জনের মধ্যে 2 জন যোগ হচ্ছে…"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.adding",
+   "args": [
+    12,
+    3
+   ],
+   "out": "3 জনের মধ্যে 12 জন যোগ হচ্ছে…"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.adding",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "Batch A জনের মধ্যে 12 জন যোগ হচ্ছে…"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.adding",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "3 জনের মধ্যে 1234567 জন যোগ হচ্ছে…"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.adding",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "Batch A জনের মধ্যে 1234567 জন যোগ হচ্ছে…"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.adding",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "3 জনের মধ্যে Rahim Uddin জন যোগ হচ্ছে…"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.adding",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Batch A জনের মধ্যে Rahim Uddin জন যোগ হচ্ছে…"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.done",
+   "args": [
+    0
+   ],
+   "out": "0 জন শিক্ষার্থী যোগ হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.done",
+   "args": [
+    0
+   ],
+   "out": "0 জন শিক্ষার্থী যোগ হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.done",
+   "args": [
+    1
+   ],
+   "out": "1 জন শিক্ষার্থী যোগ হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.done",
+   "args": [
+    1
+   ],
+   "out": "1 জন শিক্ষার্থী যোগ হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.done",
+   "args": [
+    2
+   ],
+   "out": "2 জন শিক্ষার্থী যোগ হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.done",
+   "args": [
+    2
+   ],
+   "out": "2 জন শিক্ষার্থী যোগ হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.done",
+   "args": [
+    12
+   ],
+   "out": "12 জন শিক্ষার্থী যোগ হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.done",
+   "args": [
+    12
+   ],
+   "out": "12 জন শিক্ষার্থী যোগ হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.done",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 জন শিক্ষার্থী যোগ হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.done",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 জন শিক্ষার্থী যোগ হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.done",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin জন শিক্ষার্থী যোগ হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.done",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin জন শিক্ষার্থী যোগ হয়েছে"
   },
   {
    "lang": "bn",
@@ -40950,7 +42738,7 @@
    "args": [
     0
    ],
-   "out": "হ্যালো ClassBARI, আমাদের প্রতিষ্ঠানে 0 জন শিক্ষার্থী আছে। দাম জানাবেন।"
+   "out": "হ্যালো Instanton Campus, আমাদের প্রতিষ্ঠানে 0 জন শিক্ষার্থী আছে। দাম জানাবেন।"
   },
   {
    "lang": "bn",
@@ -40958,7 +42746,7 @@
    "args": [
     0
    ],
-   "out": "হ্যালো ClassBARI, আমাদের প্রতিষ্ঠানে 0 জন শিক্ষার্থী আছে। দাম জানাবেন।"
+   "out": "হ্যালো Instanton Campus, আমাদের প্রতিষ্ঠানে 0 জন শিক্ষার্থী আছে। দাম জানাবেন।"
   },
   {
    "lang": "bn",
@@ -40966,7 +42754,7 @@
    "args": [
     1
    ],
-   "out": "হ্যালো ClassBARI, আমাদের প্রতিষ্ঠানে 1 জন শিক্ষার্থী আছে। দাম জানাবেন।"
+   "out": "হ্যালো Instanton Campus, আমাদের প্রতিষ্ঠানে 1 জন শিক্ষার্থী আছে। দাম জানাবেন।"
   },
   {
    "lang": "bn",
@@ -40974,7 +42762,7 @@
    "args": [
     1
    ],
-   "out": "হ্যালো ClassBARI, আমাদের প্রতিষ্ঠানে 1 জন শিক্ষার্থী আছে। দাম জানাবেন।"
+   "out": "হ্যালো Instanton Campus, আমাদের প্রতিষ্ঠানে 1 জন শিক্ষার্থী আছে। দাম জানাবেন।"
   },
   {
    "lang": "bn",
@@ -40982,7 +42770,7 @@
    "args": [
     2
    ],
-   "out": "হ্যালো ClassBARI, আমাদের প্রতিষ্ঠানে 2 জন শিক্ষার্থী আছে। দাম জানাবেন।"
+   "out": "হ্যালো Instanton Campus, আমাদের প্রতিষ্ঠানে 2 জন শিক্ষার্থী আছে। দাম জানাবেন।"
   },
   {
    "lang": "bn",
@@ -40990,7 +42778,7 @@
    "args": [
     2
    ],
-   "out": "হ্যালো ClassBARI, আমাদের প্রতিষ্ঠানে 2 জন শিক্ষার্থী আছে। দাম জানাবেন।"
+   "out": "হ্যালো Instanton Campus, আমাদের প্রতিষ্ঠানে 2 জন শিক্ষার্থী আছে। দাম জানাবেন।"
   },
   {
    "lang": "bn",
@@ -40998,7 +42786,7 @@
    "args": [
     12
    ],
-   "out": "হ্যালো ClassBARI, আমাদের প্রতিষ্ঠানে 12 জন শিক্ষার্থী আছে। দাম জানাবেন।"
+   "out": "হ্যালো Instanton Campus, আমাদের প্রতিষ্ঠানে 12 জন শিক্ষার্থী আছে। দাম জানাবেন।"
   },
   {
    "lang": "bn",
@@ -41006,7 +42794,7 @@
    "args": [
     12
    ],
-   "out": "হ্যালো ClassBARI, আমাদের প্রতিষ্ঠানে 12 জন শিক্ষার্থী আছে। দাম জানাবেন।"
+   "out": "হ্যালো Instanton Campus, আমাদের প্রতিষ্ঠানে 12 জন শিক্ষার্থী আছে। দাম জানাবেন।"
   },
   {
    "lang": "bn",
@@ -41014,7 +42802,7 @@
    "args": [
     1234567
    ],
-   "out": "হ্যালো ClassBARI, আমাদের প্রতিষ্ঠানে 1234567 জন শিক্ষার্থী আছে। দাম জানাবেন।"
+   "out": "হ্যালো Instanton Campus, আমাদের প্রতিষ্ঠানে 1234567 জন শিক্ষার্থী আছে। দাম জানাবেন।"
   },
   {
    "lang": "bn",
@@ -41022,7 +42810,7 @@
    "args": [
     1234567
    ],
-   "out": "হ্যালো ClassBARI, আমাদের প্রতিষ্ঠানে 1234567 জন শিক্ষার্থী আছে। দাম জানাবেন।"
+   "out": "হ্যালো Instanton Campus, আমাদের প্রতিষ্ঠানে 1234567 জন শিক্ষার্থী আছে। দাম জানাবেন।"
   },
   {
    "lang": "bn",
@@ -41030,7 +42818,7 @@
    "args": [
     "Rahim Uddin"
    ],
-   "out": "হ্যালো ClassBARI, আমাদের প্রতিষ্ঠানে Rahim Uddin জন শিক্ষার্থী আছে। দাম জানাবেন।"
+   "out": "হ্যালো Instanton Campus, আমাদের প্রতিষ্ঠানে Rahim Uddin জন শিক্ষার্থী আছে। দাম জানাবেন।"
   },
   {
    "lang": "bn",
@@ -41038,7 +42826,7 @@
    "args": [
     "Rahim Uddin"
    ],
-   "out": "হ্যালো ClassBARI, আমাদের প্রতিষ্ঠানে Rahim Uddin জন শিক্ষার্থী আছে। দাম জানাবেন।"
+   "out": "হ্যালো Instanton Campus, আমাদের প্রতিষ্ঠানে Rahim Uddin জন শিক্ষার্থী আছে। দাম জানাবেন।"
   },
   {
    "lang": "bn",
@@ -42674,99 +44462,195 @@
   },
   {
    "lang": "bn",
-   "key": "importer.missing",
+   "key": "importer.column",
    "args": [
     0
    ],
-   "out": "প্রথম সারিতে এই শিরোনামগুলো থাকতে হবে: 0।"
+   "out": "কলাম 0"
   },
   {
    "lang": "bn",
-   "key": "importer.missing",
+   "key": "importer.column",
    "args": [
     0
    ],
-   "out": "প্রথম সারিতে এই শিরোনামগুলো থাকতে হবে: 0।"
+   "out": "কলাম 0"
   },
   {
    "lang": "bn",
-   "key": "importer.missing",
+   "key": "importer.column",
    "args": [
     1
    ],
-   "out": "প্রথম সারিতে এই শিরোনামগুলো থাকতে হবে: 1।"
+   "out": "কলাম 1"
   },
   {
    "lang": "bn",
-   "key": "importer.missing",
+   "key": "importer.column",
    "args": [
     1
    ],
-   "out": "প্রথম সারিতে এই শিরোনামগুলো থাকতে হবে: 1।"
+   "out": "কলাম 1"
   },
   {
    "lang": "bn",
-   "key": "importer.missing",
+   "key": "importer.column",
    "args": [
     2
    ],
-   "out": "প্রথম সারিতে এই শিরোনামগুলো থাকতে হবে: 2।"
+   "out": "কলাম 2"
   },
   {
    "lang": "bn",
-   "key": "importer.missing",
+   "key": "importer.column",
    "args": [
     2
    ],
-   "out": "প্রথম সারিতে এই শিরোনামগুলো থাকতে হবে: 2।"
+   "out": "কলাম 2"
   },
   {
    "lang": "bn",
-   "key": "importer.missing",
+   "key": "importer.column",
    "args": [
     12
    ],
-   "out": "প্রথম সারিতে এই শিরোনামগুলো থাকতে হবে: 12।"
+   "out": "কলাম 12"
   },
   {
    "lang": "bn",
-   "key": "importer.missing",
+   "key": "importer.column",
    "args": [
     12
    ],
-   "out": "প্রথম সারিতে এই শিরোনামগুলো থাকতে হবে: 12।"
+   "out": "কলাম 12"
   },
   {
    "lang": "bn",
-   "key": "importer.missing",
+   "key": "importer.column",
    "args": [
     1234567
    ],
-   "out": "প্রথম সারিতে এই শিরোনামগুলো থাকতে হবে: 1234567।"
+   "out": "কলাম 1234567"
   },
   {
    "lang": "bn",
-   "key": "importer.missing",
+   "key": "importer.column",
    "args": [
     1234567
    ],
-   "out": "প্রথম সারিতে এই শিরোনামগুলো থাকতে হবে: 1234567।"
+   "out": "কলাম 1234567"
   },
   {
    "lang": "bn",
-   "key": "importer.missing",
+   "key": "importer.column",
    "args": [
     "Rahim Uddin"
    ],
-   "out": "প্রথম সারিতে এই শিরোনামগুলো থাকতে হবে: Rahim Uddin।"
+   "out": "কলাম Rahim Uddin"
   },
   {
    "lang": "bn",
-   "key": "importer.missing",
+   "key": "importer.column",
    "args": [
     "Rahim Uddin"
    ],
-   "out": "প্রথম সারিতে এই শিরোনামগুলো থাকতে হবে: Rahim Uddin।"
+   "out": "কলাম Rahim Uddin"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unmapped",
+   "args": [
+    0
+   ],
+   "out": "কোন কলামটি কী, বেছে নিন: 0।"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unmapped",
+   "args": [
+    0
+   ],
+   "out": "কোন কলামটি কী, বেছে নিন: 0।"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unmapped",
+   "args": [
+    1
+   ],
+   "out": "কোন কলামটি কী, বেছে নিন: 1।"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unmapped",
+   "args": [
+    1
+   ],
+   "out": "কোন কলামটি কী, বেছে নিন: 1।"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unmapped",
+   "args": [
+    2
+   ],
+   "out": "কোন কলামটি কী, বেছে নিন: 2।"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unmapped",
+   "args": [
+    2
+   ],
+   "out": "কোন কলামটি কী, বেছে নিন: 2।"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unmapped",
+   "args": [
+    12
+   ],
+   "out": "কোন কলামটি কী, বেছে নিন: 12।"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unmapped",
+   "args": [
+    12
+   ],
+   "out": "কোন কলামটি কী, বেছে নিন: 12।"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unmapped",
+   "args": [
+    1234567
+   ],
+   "out": "কোন কলামটি কী, বেছে নিন: 1234567।"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unmapped",
+   "args": [
+    1234567
+   ],
+   "out": "কোন কলামটি কী, বেছে নিন: 1234567।"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unmapped",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "কোন কলামটি কী, বেছে নিন: Rahim Uddin।"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.unmapped",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "কোন কলামটি কী, বেছে নিন: Rahim Uddin।"
   },
   {
    "lang": "bn",
@@ -43163,6 +45047,114 @@
     "Rahim Uddin"
    ],
    "out": "Rahim Uddin জন শিক্ষার্থী যোগ করুন"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.adding",
+   "args": [
+    0,
+    3
+   ],
+   "out": "3 জনের মধ্যে 0 জন যোগ হচ্ছে…"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.adding",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "Batch A জনের মধ্যে 0 জন যোগ হচ্ছে…"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.adding",
+   "args": [
+    1,
+    3
+   ],
+   "out": "3 জনের মধ্যে 1 জন যোগ হচ্ছে…"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.adding",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "Batch A জনের মধ্যে 1 জন যোগ হচ্ছে…"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.adding",
+   "args": [
+    2,
+    3
+   ],
+   "out": "3 জনের মধ্যে 2 জন যোগ হচ্ছে…"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.adding",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "Batch A জনের মধ্যে 2 জন যোগ হচ্ছে…"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.adding",
+   "args": [
+    12,
+    3
+   ],
+   "out": "3 জনের মধ্যে 12 জন যোগ হচ্ছে…"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.adding",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "Batch A জনের মধ্যে 12 জন যোগ হচ্ছে…"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.adding",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "3 জনের মধ্যে 1234567 জন যোগ হচ্ছে…"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.adding",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "Batch A জনের মধ্যে 1234567 জন যোগ হচ্ছে…"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.adding",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "3 জনের মধ্যে Rahim Uddin জন যোগ হচ্ছে…"
+  },
+  {
+   "lang": "bn",
+   "key": "importer.adding",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Batch A জনের মধ্যে Rahim Uddin জন যোগ হচ্ছে…"
   },
   {
    "lang": "bn",

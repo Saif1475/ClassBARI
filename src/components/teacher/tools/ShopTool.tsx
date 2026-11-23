@@ -10,7 +10,7 @@ import { box, card, label, primary } from "./ui";
 
 /**
  * Selling courses: coupons, and orders paid by bKash "Send Money" to the teacher's own number.
- * The teacher checks the TrxID in their bKash app, then confirms: the student is enrolled. ClassBARI never holds the money.
+ * The teacher checks the TrxID in their bKash app, then confirms: the student is enrolled. Instanton Campus never holds the money.
  */
 export function ShopTool({ notify }: ToolProps) {
   const { t, lang } = useLang();

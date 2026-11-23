@@ -1,7 +1,8 @@
 // Checks one Flutter app without a phone, and photographs its screens: opens its browser build in a phone-sized
-// window, logs in with a test account against the ClassBARI server on this computer (port 3000) and walks its screens.
+// window, logs in with a test account against the Instanton Campus server on this computer (port 3000) and walks its screens.
 //   cd flutter && flutter build web --dart-define=APP=teacher --dart-define-from-file=config.local.json -o /tmp/web-teacher
 //   cd ..      && node scripts/flutter-web-check.mjs teacher /tmp/web-teacher data/app-screens
+//                 node scripts/flutter-web-check.mjs institute /tmp/web-teacher data/app-screens   (the same Campus app, as the institute)
 //                 node scripts/flutter-web-check.mjs sheets data/app-screens        (one picture per app with all its screens)
 //                 node scripts/flutter-web-check.mjs pdf data/app-screens out.pdf   (every screen in one PDF)
 // Needs the test accounts and sample lessons (npm run test:accounts, npm run test:lessons); the password is read from
@@ -35,8 +36,8 @@ if (app === "sheets") {
 
 if (app === "pdf") {
   // Every screen in one PDF to read or print: an app per section, three screens to a row.
-  //   node scripts/flutter-web-check.mjs pdf data/app-screens ~/ClassBARI-docs/ClassBARI-apps.pdf
-  const APPS = { student: ["ClassBARI Student", "For students: a dashboard of chapter cards, what is due, results and notices."], guardian: ["ClassBARI Guardian", "For guardians: their child's month at a glance, results, notices and messages to the teacher."], teacher: ["ClassBARI Teacher", "For teachers: a card per batch, the register, hand-ins to mark, guardian messages and notices."], institute: ["ClassBARI Institution", "For owners and managers: money this month, batches, fees, students and notices."], chatbot: ["ClassBARI AI", "For students with an AI pack: the study chat, with chats filed into topic folders by themselves."] };
+  //   node scripts/flutter-web-check.mjs pdf data/app-screens data/Instanton-apps.pdf
+  const APPS = { student: ["Instanton Student", "For students: a dashboard of chapter cards, what is due, results and notices."], guardian: ["Instanton Guardian", "For guardians: their child's month at a glance, results, notices and messages to the teacher."], teacher: ["Instanton Campus: teacher", "For teachers (Instructor on the login page): a card per batch, the register, hand-ins to mark, guardian messages and notices."], institute: ["Instanton Campus: institute", "For owners and managers (Institute on the login page): money this month, batches, fees, students and notices."], chatbot: ["Instanton AI", "For students with an AI pack: the study chat, with chats filed into topic folders by themselves."] };
   const files = readdirSync(root).filter((f) => /^[a-z-]+-\d\d-.*\.png$/.test(f)).sort();
   const groups = [...new Set(files.map((f) => f.replace(/-\d\d-.*/, "")))].sort((a, b) => (a.endsWith("-dark") - b.endsWith("-dark")) || Object.keys(APPS).indexOf(a.replace("-dark", "")) - Object.keys(APPS).indexOf(b.replace("-dark", "")));
   const esc = (t) => t.replace(/&/g, "&amp;").replace(/</g, "&lt;");
@@ -67,8 +68,8 @@ if (app === "pdf") {
     img { width: 100%; display: block; border: 0.3mm solid #cfd8d3; border-radius: 3mm; }
     figcaption { font-size: 9pt; font-weight: bold; margin-top: 1.5mm; text-transform: capitalize; }
   </style></head><body>
-  <div class="cover"><h1>ClassBARI phone apps</h1><p>Every screen of the five apps, as they look now.</p>
-  <ul><li>Taken on ${day} from the apps themselves, opened in a phone-sized window and logged in to the test institute.</li><li>Names such as "Test Student" and "Teacher Batch" are test data.</li><li>The AI answers shown are real answers from the AI.</li><li>${files.length} screens: ${groups.map((g) => `${(APPS[g.replace("-dark", "")] ?? [g])[0].replace("ClassBARI ", "")}${g.endsWith("-dark") ? " (dark)" : ""} ${files.filter((x) => new RegExp(`^${g}-\\d\\d-`).test(x)).length}`).join(", ")}.</li></ul></div>
+  <div class="cover"><h1>Instanton Campus phone apps</h1><p>Every screen of the four apps, as they look now (Instanton Campus twice: as a teacher and as the institute).</p>
+  <ul><li>Taken on ${day} from the apps themselves, opened in a phone-sized window and logged in to the test institute.</li><li>Names such as "Test Student" and "Teacher Batch" are test data.</li><li>The AI answers shown are real answers from the AI.</li><li>${files.length} screens: ${groups.map((g) => `${(APPS[g.replace("-dark", "")] ?? [g])[0].replace("Instanton Campus ", "")}${g.endsWith("-dark") ? " (dark)" : ""} ${files.filter((x) => new RegExp(`^${g}-\\d\\d-`).test(x)).length}`).join(", ")}.</li></ul></div>
   ${body}</body></html>`;
   const browser = await chromium.launch();
   const page = await browser.newPage();
@@ -258,13 +259,14 @@ try {
   await page.waitForTimeout(2500);
   await page.evaluate(() => document.querySelector("flt-semantics-placeholder")?.click()); // lets the test find things by name
   await page.waitForTimeout(800);
+  if (app === "institute") await tap(page.getByRole("button", { name: "Institute", exact: true })); // Instanton Campus: run the institute
   if (app !== "institute") {
     await see("Find your institute");
     await shot("find-institute");
     await tap(page.getByRole("button", { name: "Find your institute", exact: true })); // the arrow drops the list down
-    await see("ClassBARI Test Institute");
+    await see("Instanton Test Institute");
     await shot("find-institute-list");
-    await tap(page.getByText("ClassBARI Test Institute"));
+    await tap(page.getByText("Instanton Test Institute"));
   }
   await page.waitForTimeout(600);
   if (app === "institute" || app === "teacher") await shot("login");

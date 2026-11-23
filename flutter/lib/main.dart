@@ -124,7 +124,7 @@ class Root extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Live((context) {
     if (!store.signedIn) return const LoginScreen();
-    final inst = kPicksInstitute ? store.institute : null;
+    final inst = store.picksInstitute ? store.institute : null;
     final problem = store.status == Status.noAccess
         ? (inst != null ? t('auth.notAtInstitute', [inst['name']]) : t('auth.notEnrolled'))
         : (store.role != null && !kApps[kApp]!.roles.contains(store.role) ? t('auth.wrongApp', [kAppName]) : null);
@@ -146,8 +146,7 @@ class Root extends StatelessWidget {
     }
     return switch (kApp) {
       'guardian' => const GuardianApp(),
-      'teacher' => const TeacherApp(),
-      'institute' => const InstituteApp(),
+      'teacher' => store.runsInstitute ? const InstituteApp() : const TeacherApp(),
       'chatbot' => const AiChatApp(),
       _ => const StudentApp(),
     };

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { LangSwitch } from "@/components/Brand";
+import { LangSwitch, Mark } from "@/components/Brand";
 import { SlidingSegmented } from "@/components/SlidingSegmented";
 import { useFlag } from "@/components/Platform";
 import { Icon } from "@/components/Icon";
@@ -71,8 +71,8 @@ export default function LoginPage() {
 
       <div className="relative w-full max-w-md">
         <div className="mb-8 flex items-center justify-between">
-          <Link href="/" className="flex h-14 w-14 items-center justify-center rounded-[20px_20px_20px_6px] bg-primary text-on-primary" aria-label="ClassBARI home">
-            <Icon name="home" size={28} strokeWidth={2} />
+          <Link href="/" className="flex h-14 w-14 items-center justify-center rounded-[20px] bg-primary text-on-primary" aria-label="Instanton Campus home">
+            <Mark size={32} />
           </Link>
           <LangSwitch />
         </div>

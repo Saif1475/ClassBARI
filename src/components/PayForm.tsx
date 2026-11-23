@@ -12,8 +12,8 @@ const box = "h-12 rounded-xl border border-outline bg-white px-4 text-base text-
 const chip = (on: boolean) => `min-h-11 rounded-full px-4 text-sm font-bold ${on ? "bg-primary text-on-primary" : "bg-surface-container text-on-surface"}`;
 
 /**
- * Pay ClassBARI by bKash or Nagad "Send Money": choose what and for how long, send the money to the number shown,
- * type the number paid from and the TrxID. ClassBARI's staff check it and switch it on; the payer is notified.
+ * Pay Instanton Campus by bKash or Nagad "Send Money": choose what and for how long, send the money to the number shown,
+ * type the number paid from and the TrxID. Instanton Campus's staff check it and switch it on; the payer is notified.
  */
 export function PayForm({ kind, studentId }: { kind: "ai_pack" | "plan" | "ai_credit"; studentId?: number }) {
   const { t } = useLang();

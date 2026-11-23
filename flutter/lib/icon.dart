@@ -1,4 +1,4 @@
-// ClassBARI's own icons in the apps: the same shapes as the website (src/lib/icon-set.ts → icons.g.dart), drawn here.
+// Instanton Campus's own icons in the apps: the same shapes as the website (src/lib/icon-set.ts → icons.g.dart), drawn here.
 import 'package:material_ui/material_ui.dart';
 
 import 'icons.g.dart';

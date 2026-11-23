@@ -1,5 +1,5 @@
 // Run: npm run test:lessons     (the website must be running on port 3000, and `npm run test:accounts` done)
-// Puts a few sample lessons into the ClassBARI Test Institute, so the website and the phone apps have something to
+// Puts a few sample lessons into the Instanton Test Institute, so the website and the phone apps have something to
 // show: a chapter with a video, two quizzes and two homeworks, a notice, meeting slots, one marked attendance day,
 // one homework handed in, one quiz taken and a guardian–teacher chat. Safe to run again: it adds nothing twice.
 // It logs in as the test teacher, student and guardian, like a person would (scripts/test-login.mjs).

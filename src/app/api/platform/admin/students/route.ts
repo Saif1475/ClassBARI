@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 const userKey = (institute: string, id: number) => `${institute}:student:${id}`;
 
-/** ClassBARI admin: students of every institute matching ?q= (name, email, institute name or code), with their AI pack, today's use and their extra credit (৳). */
+/** Instanton Campus admin: students of every institute matching ?q= (name, email, institute name or code), with their AI pack, today's use and their extra credit (৳). */
 export async function GET(request: Request) {
   if (!isAdmin(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!REAL_AUTH) return Response.json({ error: "demo mode" }, { status: 404 });
@@ -75,8 +75,8 @@ export async function POST(request: Request) {
   const pack = Number(b.pack);
   const until = String(b.until ?? "");
   if (!stop && (b.action !== "pack" || !(PACKS as readonly number[]).includes(pack) || !/^\d{4}-\d{2}-\d{2}$/.test(until))) return Response.json({ error: "Give a pack and an until date" }, { status: 400 });
-  // The same change an owner makes in Settings, done as the institute's owner "ClassBARI" (like an approved payment).
-  const system = { institute, who: { role: "owner" as const, name: "ClassBARI", studentIds: [] } };
+  // The same change an owner makes in Settings, done as the institute's owner "Instanton Campus" (like an approved payment).
+  const system = { institute, who: { role: "owner" as const, name: "Instanton Campus", studentIds: [] } };
   let name: string | null = null;
   await act(system, "setStudentPremium", [], Date.now(), (s) => {
     const st = s.students.find((x) => x.id === id);

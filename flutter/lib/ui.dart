@@ -513,12 +513,12 @@ class TabScope extends InheritedWidget {
 
 String get myName => switch (kApp) {
   'guardian' => '${store.children.firstOrNull?['guardianName'] ?? ''}',
-  'teacher' || 'institute' => store.staffName,
+  'teacher' => store.staffName,
   _ => '${store.me?['name'] ?? ''}',
 };
 String get _myPlace => switch (kApp) {
   'guardian' => '${store.child?['name'] ?? ''}',
-  'teacher' || 'institute' => '${store.state?['instituteName'] ?? ''}',
+  'teacher' => '${store.state?['instituteName'] ?? ''}',
   _ => '${store.me?['batch'] ?? ''}',
 };
 

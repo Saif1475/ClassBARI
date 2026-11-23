@@ -28,7 +28,7 @@ import 'teacher_more.dart';
 // ---- QR attendance (src/components/teacher/QrAttendance.tsx) ------------------------------------------------------
 const qrPrefix = 'edunest:student:'; // student/MyQr.tsx QR_PREFIX
 
-/// The student id in a scanned code; null when it isn't a ClassBARI student code (-1: one that can't be read).
+/// The student id in a scanned code; null when it isn't an Instanton Campus student code (-1: one that can't be read).
 int? qrStudent(String? raw) => raw != null && raw.startsWith(qrPrefix) ? (int.tryParse(raw.substring(qrPrefix.length)) ?? -1) : null;
 
 /// The camera: each student QR code scanned marks that student present on `day` (everyone was marked absent first).
