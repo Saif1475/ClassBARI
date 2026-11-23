@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Instanton Campus — Paper &amp; Prism Interactive UI &amp; Animation Prototype</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 20px;
+    background: #EFECE4;
+    color: #161B18;
+    font-family: "Plus Jakarta Sans", "Hind Siliguri", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+  .toolbar {
+    background: #FFFFFF;
+    border: 1px solid #E6E1D6;
+    border-radius: 20px;
+    padding: 14px 18px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-shadow: 0 2px 10px rgba(28,36,30,0.05);
+  }
+  .brand-row { display: flex; align-items: center; gap: 12px; }
+  .brand-mark { width: 38px; height: 38px; border-radius: 12px; background: #146C43; color: #FFF; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 12px; }
+  .ctrl-group { display: inline-flex; background: #F3F0E9; border: 1px solid #E6E1D6; border-radius: 12px; padding: 3px; gap: 2px; }
+  .ctrl-btn { border: 0; background: transparent; color: #535E58; font-weight: 700; font-size: 12px; padding: 6px 11px; border-radius: 9px; cursor: pointer; font-family: inherit; transition: background 180ms, color 180ms; }
+  .ctrl-btn.on { background: #146C43; color: #FFFFFF; }
+  .ctrl-btn.on-sky { background: #1769AA; color: #FFFFFF; }
+  .ctrl-pill { border: 1px solid #E6E1D6; background: #FAF8F4; color: #161B18; font-weight: 700; font-size: 12px; padding: 7px 12px; border-radius: 12px; cursor: pointer; font-family: inherit; }
+
+  .pp-stage {
+    --pp-canvas: #FAF8F4;
+    --pp-paper: #FFFFFF;
+    --pp-soft: #F3F0E9;
+    --pp-hover: #ECE8DE;
+    --pp-ink: #161B18;
+    --pp-ink-2: #535E58;
+    --pp-muted: #7A857F;
+    --pp-hairline: #E6E1D6;
+    --pp-brand: #146C43;
+    --pp-brand-soft: #E4F4EC;
+    --pp-brand-soft-ink: #0C472B;
+    --pp-brand-deep: #0B3B25;
+    --pp-on-brand: #FFFFFF;
+    --pp-warm: #E5953A;
+    --pp-warm-soft: #FEF2E2;
+    --pp-warm-ink: #7A4608;
+    --pp-ok-bg: #E6F5EC;
+    --pp-ok-ink: #11613C;
+    --pp-bad-bg: #FDECEB;
+    --pp-bad-ink: #B42318;
+    --pp-live: #E11D48;
+    --pp-chrome-bg: rgba(255, 253, 249, 0.80);
+    --pp-chrome-blur: 18px;
+    --pp-chrome-border: rgba(255, 255, 255, 0.85);
+    --pp-shadow-e1: 0 2px 8px rgba(28, 36, 30, 0.05), 0 1px 2px rgba(28, 36, 30, 0.03);
+    --pp-shadow-e2: 0 12px 30px rgba(22, 32, 26, 0.11), 0 2px 6px rgba(22, 32, 26, 0.04);
+    --pp-s0: #146C43; --pp-s0-bg: #E4F4EC;
+    --pp-s1: #1D63B8; --pp-s1-bg: #E5F0FC;
+    --pp-s2: #C46D10; --pp-s2-bg: #FEF1E1;
+    --pp-s3: #7A3EB1; --pp-s3-bg: #F3EAFD;
+    --pp-ease-paper: cubic-bezier(0.22, 1, 0.36, 1);
+    --pp-ease-tactile: cubic-bezier(0.34, 1.45, 0.64, 1);
+    background: var(--pp-canvas);
+    color: var(--pp-ink);
+    border: 1px solid var(--pp-hairline);
+    border-radius: 26px;
+    padding: 20px;
+    transition: background-color 260ms var(--pp-ease-paper), color 260ms var(--pp-ease-paper);
+  }
+  .pp-stage[data-tone="sky"] {
+    --pp-brand: #1769AA; --pp-brand-soft: #E4F1FC; --pp-brand-soft-ink: #0E436E; --pp-brand-deep: #10395C;
+    --pp-warm: #D85B88; --pp-warm-soft: #FCE8F0; --pp-warm-ink: #802246;
+  }
+  .pp-stage[data-mode="dark"] {
+    --pp-canvas: #0D1114; --pp-paper: #151B20; --pp-soft: #1C242B; --pp-hover: #232D36;
+    --pp-ink: #F2F4F2; --pp-ink-2: #9CA8A1; --pp-muted: #6E7B74; --pp-hairline: #26313A;
+    --pp-brand: #3EC786; --pp-brand-soft: #123526; --pp-brand-soft-ink: #A7EBC9; --pp-brand-deep: #092117; --pp-on-brand: #062B19;
+    --pp-warm: #F2B161; --pp-warm-soft: #332412; --pp-warm-ink: #FAD19E;
+    --pp-ok-bg: #113022; --pp-ok-ink: #5BD99B; --pp-bad-bg: #3A1718; --pp-bad-ink: #F98078;
+    --pp-chrome-bg: rgba(21, 27, 32, 0.78); --pp-chrome-border: rgba(255,255,255,0.08);
+    --pp-shadow-e1: inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 10px rgba(0,0,0,0.28);
+    --pp-shadow-e2: inset 0 1px 0 rgba(255,255,255,0.07), 0 12px 28px rgba(0,0,0,0.45);
+    --pp-s0: #4CD090; --pp-s0-bg: #123526; --pp-s1: #66A8F5; --pp-s1-bg: #132A45;
+    --pp-s2: #F0A44B; --pp-s2-bg: #362511; --pp-s3: #BE8DF0; --pp-s3-bg: #291B3A;
+  }
+  .pp-stage[data-mode="dark"][data-tone="sky"] {
+    --pp-brand: #5BB2F5; --pp-brand-soft: #132B40; --pp-brand-soft-ink: #B5DCFB; --pp-brand-deep: #0B2238; --pp-on-brand: #05233D;
+    --pp-warm: #F38FB2; --pp-warm-soft: #381826; --pp-warm-ink: #F8BBD0;
+  }
+  .pp-stage[data-glass="0"] { --pp-chrome-bg: var(--pp-paper); --pp-chrome-blur: 0px; --pp-chrome-border: var(--pp-hairline); }
+  .pp-stage[data-glass="1"] { --pp-chrome-blur: 10px; }
+  .pp-stage[data-glass="2"] { --pp-chrome-blur: 18px; }
+  .pp-stage[data-glass="3"] { --pp-chrome-blur: 26px; }
+
+  .seg-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+  .pp-seg { position: relative; display: inline-flex; flex-wrap: wrap; padding: 4px; border-radius: 999px; background: var(--pp-soft); border: 1px solid var(--pp-hairline); }
+  .pp-seg-thumb { position: absolute; top: 4px; left: 0; height: calc(100% - 8px); border-radius: 999px; background: var(--pp-brand); transition: transform 320ms var(--pp-ease-paper), width 320ms var(--pp-ease-paper); pointer-events: none; }
+  .pp-seg-btn { position: relative; z-index: 1; border: 0; background: transparent; padding: 8px 15px; font-size: 13px; font-weight: 700; border-radius: 999px; color: var(--pp-ink-2); cursor: pointer; font-family: inherit; transition: color 200ms; }
+  .pp-seg-btn[aria-pressed="true"] { color: var(--pp-on-brand); }
+
+  .device { margin: 0 auto; width: 100%; border-radius: 22px; overflow: hidden; border: 1px solid var(--pp-hairline); background: var(--pp-canvas); box-shadow: var(--pp-shadow-e2); position: relative; transition: max-width 340ms var(--pp-ease-paper), border-radius 340ms var(--pp-ease-paper); }
+  .pp-chrome { background: var(--pp-chrome-bg); backdrop-filter: blur(var(--pp-chrome-blur)) saturate(145%); -webkit-backdrop-filter: blur(var(--pp-chrome-blur)) saturate(145%); border-color: var(--pp-chrome-border); }
+  .pp-card { background: var(--pp-paper); border: 1px solid var(--pp-hairline); border-radius: 18px; box-shadow: var(--pp-shadow-e1); transition: transform 200ms var(--pp-ease-paper), box-shadow 200ms var(--pp-ease-paper); }
+  .pp-card.tap { cursor: pointer; }
+  .pp-card.tap:hover { transform: translateY(-2px); box-shadow: var(--pp-shadow-e2); }
+  .pp-card.tap:active { transform: scale(0.982); transition-duration: 90ms; }
+  .pp-spine { position: relative; padding-left: 18px; }
+  .pp-spine::before { content: ""; position: absolute; left: 6px; top: 12px; bottom: 12px; width: 4px; border-radius: 999px; background: var(--sc, var(--pp-brand)); }
+  .tactile { border: 0; cursor: pointer; font-family: inherit; transition: transform 220ms var(--pp-ease-tactile), background-color 160ms, color 160ms; }
+  .tactile:active { transform: scale(0.965); transition-duration: 90ms; }
+
+  .shell { display: flex; min-height: 540px; }
+  .rail { width: 80px; flex-shrink: 0; background: var(--pp-brand-deep); display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 20px 0; }
+  .main-col { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .top-bar { height: 64px; border-bottom: 1px solid var(--pp-hairline); padding: 0 22px; display: flex; align-items: center; justify-content: space-between; gap: 12px; position: sticky; top: 0; z-index: 10; }
+  .mob-bar { height: 56px; border-bottom: 1px solid var(--pp-hairline); padding: 0 14px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+  .content { padding: 22px; display: flex; flex-direction: column; gap: 18px; }
+  .mob-content { padding: 14px; display: flex; flex-direction: column; gap: 14px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; }
+  .hero { border-radius: 22px; padding: 20px; background: linear-gradient(135deg, var(--pp-brand), var(--pp-brand-deep)); color: #FFFFFF; box-shadow: var(--pp-shadow-e2); }
+  .dock-wrap { position: sticky; bottom: 10px; padding: 6px 12px 10px; z-index: 20; }
+  .dock { border: 1px solid var(--pp-chrome-border); border-radius: 22px; padding: 6px 8px; display: flex; justify-content: space-around; box-shadow: var(--pp-shadow-e2); }
+  .tabular { font-variant-numeric: tabular-nums; }
+
+  @keyframes settle { from { opacity: 0; transform: translate3d(0,10px,0); } to { opacity: 1; transform: translate3d(0,0,0); } }
+  .rev { animation: settle 240ms var(--pp-ease-paper) both; }
+  .d1 { animation-delay: 28ms; } .d2 { animation-delay: 56ms; } .d3 { animation-delay: 84ms; }
+  @keyframes beacon { 0% { transform: scale(1); opacity: 0.65; } 100% { transform: scale(2.3); opacity: 0; } }
+  .beacon { position: relative; display: inline-flex; width: 8px; height: 8px; }
+  .beacon::before { content: ""; position: absolute; inset: 0; border-radius: 999px; background: var(--pp-live); animation: beacon 1.8s ease-in-out infinite; }
+  .beacon::after { content: ""; position: relative; width: 8px; height: 8px; border-radius: 999px; background: var(--pp-live); }
+  @keyframes nudge { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 55% { transform: translateX(5px); } 80% { transform: translateX(-2px); } }
+  .nudge { animation: nudge 260ms var(--pp-ease-paper); }
+  @keyframes stamp { 0% { opacity:0; transform: scale(1.3) rotate(-8deg); } 70% { opacity:1; transform: scale(0.96) rotate(-2deg); } 100% { opacity:1; transform: scale(1) rotate(-2deg); } }
+  .stamp { animation: stamp 320ms var(--pp-ease-tactile) both; }
+  @keyframes floatUp { 0% { opacity:0; transform: translate3d(0,8px,0) scale(0.7); } 20% { opacity:1; transform: translate3d(6px,-18px,0) scale(1.1); } 65% { opacity:0.9; transform: translate3d(-8px,-68px,0) scale(1); } 100% { opacity:0; transform: translate3d(4px,-108px,0) scale(0.85); } }
+  .f-em { position: absolute; bottom: 8px; font-size: 20px; pointer-events: none; animation: floatUp 1450ms var(--pp-ease-paper) forwards; }
+  @keyframes confetti { 0% { opacity:1; transform: translate3d(0,0,0) rotate(0deg) scale(1); } 100% { opacity:0; transform: translate3d(var(--cx),var(--cy),0) rotate(var(--cr)) scale(0.4); } }
+  .conf { position: absolute; width: 7px; height: 7px; border-radius: 2px; pointer-events: none; animation: confetti 680ms var(--pp-ease-paper) forwards; }
+  @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+  .skel { position: relative; overflow: hidden; background: var(--pp-soft); border-radius: 8px; }
+  .skel::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent); animation: shimmer 1.6s ease-in-out infinite; }
+  @keyframes ringDraw { from { stroke-dashoffset: 90; } to { stroke-dashoffset: 0; } }
+  @keyframes dotPop { 0% { opacity:0; transform: translateY(7px) scale(0.35); } 100% { opacity:1; transform: translateY(0) scale(1); } }
+  .mark-anim .mr { stroke-dasharray: 90; animation: ringDraw 380ms var(--pp-ease-paper) both; }
+  .mark-anim .ms { stroke-dasharray: 24; animation: ringDraw 260ms var(--pp-ease-paper) 160ms both; }
+  .mark-anim .md { transform-box: fill-box; transform-origin: center; animation: dotPop 320ms var(--pp-ease-tactile) 320ms both; }
+
+  #toast-slot { position: absolute; bottom: 78px; left: 0; right: 0; display: flex; justify-content: center; pointer-events: none; z-index: 40; padding: 0 16px; }
+  .toast-pill { padding: 10px 16px; border-radius: 16px; font-size: 12.5px; font-weight: 700; box-shadow: 0 10px 28px rgba(0,0,0,0.22); animation: settle 200ms var(--pp-ease-paper) both; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <div class="brand-row">
+      <div class="brand-mark">
+        <svg width="20" height="20" viewBox="7 5 50 52" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="round"><path d="M41 28.3A14 14 0 1 1 23 28.3"/><path d="M32 21v16"/><circle cx="32" cy="11.5" r="3.4" fill="currentColor" stroke="none"/></svg>
+      </div>
+      <div>
+        <div style="font-weight:800;font-size:15px">Instanton Campus — "Paper &amp; Prism" Interactive Prototype</div>
+        <div style="font-size:12px;color:#535E58">Offline clickable preview of Student, Teacher, Guardian, AI Tutor &amp; Animations Lab</div>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="ctrl-group">
+        <button id="b-desk" class="ctrl-btn on" onclick="setVp('desktop')">Desktop Web</button>
+        <button id="b-mob" class="ctrl-btn" onclick="setVp('mobile')">Mobile App</button>
+      </div>
+      <div class="ctrl-group">
+        <button id="b-green" class="ctrl-btn on" onclick="setTone('green')">Forest Chalk</button>
+        <button id="b-sky" class="ctrl-btn" onclick="setTone('sky')">Sky Blossom</button>
+      </div>
+      <button id="b-mode" class="ctrl-pill" onclick="toggleMode()">🌙 Dark</button>
+      <button id="b-lang" class="ctrl-pill" onclick="toggleLang()">বাংলা</button>
+      <label class="ctrl-pill" style="display:inline-flex;align-items:center;gap:6px">
+        Glass <input type="range" min="0" max="3" value="2" oninput="setGlass(this.value)" style="width:64px;accent-color:#146C43" />
+        <span id="g-lbl" style="font-family:monospace;min-width:48px">Frosted</span>
+      </label>
+    </div>
+  </div>
+
+  <div id="stage" class="pp-stage" data-mode="light" data-tone="green" data-glass="2">
+    <div class="seg-bar">
+      <div id="r-seg" class="pp-seg">
+        <span id="r-thumb" class="pp-seg-thumb"></span>
+        <button class="pp-seg-btn" data-role="student" aria-pressed="true" onclick="setRole('student')">Student</button>
+        <button class="pp-seg-btn" data-role="teacher" aria-pressed="false" onclick="setRole('teacher')">Teacher &amp; Attendance</button>
+        <button class="pp-seg-btn" data-role="guardian" aria-pressed="false" onclick="setRole('guardian')">Guardian</button>
+        <button class="pp-seg-btn" data-role="ai" aria-pressed="false" onclick="setRole('ai')">Instanton AI</button>
+        <button class="pp-seg-btn" data-role="motion" aria-pressed="false" onclick="setRole('motion')">Animations Lab</button>
+      </div>
+      <span id="badge" style="font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px;background:var(--pp-brand-soft);color:var(--pp-brand-soft-ink)">Paper &amp; Prism · Forest Chalk · Glass 2</span>
+    </div>
+
+    <div id="device" class="device">
+      <div id="root"></div>
+      <div id="toast-slot"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const S = {
+  role:'student', vp:'desktop', mode:'light', tone:'green', glass:2, lang:'en', dock:0,
+  streak:7, xp:420, ch3Done:false, qPick:null, tools:{pdf:true,highlight:true,think:false},
+  students:[
+    {id:1,en:'Rafi Ahmed',bn:'রাফি আহমেদ',m:'Offline',p:true},
+    {id:2,en:'Nusrat Jahan',bn:'নুসরাত জাহান',m:'Offline',p:true},
+    {id:3,en:'Tanvir Hasan',bn:'তানভীর হাসান',m:'Online',p:false},
+    {id:4,en:'Sadia Akter',bn:'সাদিয়া আক্তার',m:'Offline',p:true},
+    {id:5,en:'Mehedi Islam',bn:'মেহেদী ইসলাম',m:'Online',p:true}
+  ]
+};
+const T = {
+  en:{hiS:'Hi, Rafi',subS:'HSC Physics · Batch A',ey:'LIVE IN 18 MIN · PHYSICS',lt:'Vector Calculus & Motion Part 2',lm:'Sir Tariq · Today, 4:30 PM',jl:'Join Live Class',mc:'My Chapters',ds:'Due Soon',qt:'Quick Tools',hiT:'Good afternoon, Sir Tariq',td:'TODAY · TUE 24 NOV',ta:'Take Attendance',sl:'Start Live',pr:'Present',ab:'Absent',gt:'This month at a glance',at:'Attended 11 of 12 classes',tst:'Last test: 26 / 30',fee:'৳ 1,200 fee due for November',call:'Call Tariq Sir',msg:'Message Teacher'},
+  bn:{hiS:'স্বাগতম, রাফি',subS:'এইচএসসি পদার্থবিজ্ঞান · ব্যাচ এ',ey:'১৮ মিনিটে লাইভ · পদার্থবিজ্ঞান',lt:'ভেক্টর ক্যালকুলাস ও গতি — পর্ব ২',lm:'তারেক স্যার · আজ বিকাল ৪:৩০',jl:'লাইভ ক্লাসে যোগ দিন',mc:'আমার অধ্যায়সমূহ',ds:'আসন্ন কাজ',qt:'দরকারি টুলস',hiT:'শুভ অপরাহ্ণ, তারেক স্যার',td:'আজ · মঙ্গলবার ২৪ নভেম্বর',ta:'হাজিরা নিন',sl:'লাইভ শুরু করুন',pr:'উপস্থিত',ab:'অনুপস্থিত',gt:'এই মাসের সারসংক্ষেপ',at:'১২টির মধ্যে ১১টি ক্লাসে উপস্থিত',tst:'সর্বশেষ পরীক্ষা: ২৬ / ৩০',fee:'নভেম্বরের বকেয়া ফি ৳ ১,২০০',call:'তারেক স্যারকে কল করুন',msg:'শিক্ষককে মেসেজ দিন'}
+};
+const t = k => T[S.lang][k];
+function toast(m){
+  const el=document.getElementById('toast-slot');
+  el.innerHTML=`<div class="toast-pill" style="background:${S.mode==='dark'?'#F2F4F2':'#161B18'};color:${S.mode==='dark'?'#0D1114':'#FFF'}">✓ ${m}</div>`;
+  clearTimeout(window._t); window._t=setTimeout(()=>el.innerHTML='',2300);
+}
+function posThumb(){
+  const seg=document.getElementById('r-seg'), th=document.getElementById('r-thumb'), act=seg.querySelector('[aria-pressed="true"]');
+  if(!act) return; th.style.width=act.offsetWidth+'px'; th.style.transform=`translate3d(${act.offsetLeft}px,0,0)`;
+}
+function sync(){
+  const st=document.getElementById('stage'); st.dataset.mode=S.mode; st.dataset.tone=S.tone; st.dataset.glass=S.glass;
+  const dev=document.getElementById('device'); dev.style.maxWidth=S.vp==='mobile'?'390px':'100%'; dev.style.borderRadius=S.vp==='mobile'?'34px':'22px';
+  document.getElementById('b-desk').className='ctrl-btn'+(S.vp==='desktop'?' on':'');
+  document.getElementById('b-mob').className='ctrl-btn'+(S.vp==='mobile'?' on':'');
+  document.getElementById('b-green').className='ctrl-btn'+(S.tone==='green'?' on':'');
+  document.getElementById('b-sky').className='ctrl-btn'+(S.tone==='sky'?' on-sky':'');
+  document.getElementById('b-mode').textContent=S.mode==='dark'?'☀ Light':'🌙 Dark';
+  document.getElementById('b-lang').textContent=S.lang==='bn'?'English':'বাংলা';
+  const g=['Paper','Whisper','Frosted','Crystal']; document.getElementById('g-lbl').textContent=g[S.glass];
+  document.getElementById('badge').textContent=`Paper & Prism · ${S.tone==='green'?'Forest Chalk':'Sky Blossom'} · Glass ${S.glass}`;
+  document.querySelectorAll('#r-seg .pp-seg-btn').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.role===S.role)));
+  requestAnimationFrame(posThumb);
+}
+function setRole(r){S.role=r;S.dock=0;sync();render();}
+function setVp(v){S.vp=v;sync();render();}
+function setTone(x){S.tone=x;sync();render();}
+function toggleMode(){S.mode=S.mode==='light'?'dark':'light';sync();render();}
+function toggleLang(){S.lang=S.lang==='en'?'bn':'en';sync();render();}
+function setGlass(g){S.glass=Number(g);sync();}
+
+function dockHtml(tabs){
+  return `<div class="dock-wrap"><div class="dock pp-chrome">${tabs.map((x,i)=>{
+    const on=i===S.dock;
+    return `<button onclick="S.dock=${i};render()" class="tactile" style="flex:1;background:transparent;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0">
+      <span style="width:48px;height:28px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:14px;background:${on?'var(--pp-brand-soft)':'transparent'};color:${on?'var(--pp-brand-soft-ink)':'var(--pp-ink-2)'}">${x[0]}</span>
+      <span style="font-size:11px;font-weight:${on?800:600};color:${on?'var(--pp-ink)':'var(--pp-ink-2)'}">${x[1]}</span></button>`;
+  }).join('')}</div></div>`;
+}
+function shell(rail,hdr,body){
+  return `<div class="shell"><aside class="rail">
+    <div style="width:40px;height:40px;border-radius:14px;background:rgba(255,255,255,0.14);color:#FFF;display:flex;align-items:center;justify-content:center;margin-bottom:6px">
+      <svg width="20" height="20" viewBox="7 5 50 52" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="round"><path d="M41 28.3A14 14 0 1 1 23 28.3"/><path d="M32 21v16"/><circle cx="32" cy="11.5" r="3.4" fill="currentColor" stroke="none"/></svg>
+    </div>
+    ${rail.map((x,i)=>`<button onclick="S.dock=${i};render()" class="tactile" style="background:transparent;display:flex;flex-direction:column;align-items:center;gap:4px">
+      <span style="width:48px;height:32px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:14px;background:${i===S.dock?'var(--pp-brand-soft)':'transparent'};color:${i===S.dock?'var(--pp-brand-deep)':'rgba(255,255,255,0.75)'}">${x[0]}</span>
+      <span style="font-size:10.5px;font-weight:700;color:${i===S.dock?'#FFF':'rgba(255,255,255,0.68)'}">${x[1]}</span></button>`).join('')}
+  </aside><div class="main-col"><header class="top-bar pp-chrome">${hdr}</header><main class="content">${body}</main></div></div>`;
+}
+
+function renderStudent(){
+  const m=S.vp==='mobile';
+  const chs=[
+    {t:S.lang==='bn'?'অধ্যায় ১: ভেক্টর':'Ch 1: Vectors',s:'6 lessons · 1 quiz',p:80,c:'var(--pp-s1)',bg:'var(--pp-s1-bg)',ic:'↗'},
+    {t:S.lang==='bn'?'অধ্যায় ২: তাপগতিবিদ্যা':'Ch 2: Thermodynamics',s:'5 lessons · 2 left',p:45,c:'var(--pp-s2)',bg:'var(--pp-s2-bg)',ic:'◈'},
+    {t:S.lang==='bn'?'অধ্যায় ৩: আলোকবিজ্ঞান':'Ch 3: Wave Optics',s:'4 lessons',p:S.ch3Done?100:68,c:'var(--pp-s3)',bg:'var(--pp-s3-bg)',ic:'◎'}
+  ];
+  const body=`
+    <div><h1 style="margin:0;font-size:24px;font-weight:800">${t('hiS')}</h1><div style="font-size:12.5px;color:var(--pp-ink-2);margin-top:2px;font-weight:600">${t('subS')}</div></div>
+    <section class="hero rev">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px">
+        <div>
+          <span style="display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:0.06em;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,0.16)"><span class="beacon"></span>${t('ey')}</span>
+          <div style="font-size:20px;font-weight:800;margin-top:8px">${t('lt')}</div>
+          <div style="font-size:12.5px;opacity:0.85;margin-top:2px">${t('lm')}</div>
+        </div>
+        <button onclick="toast('Joining Live Classroom...')" class="tactile" style="height:46px;padding:0 20px;border-radius:999px;background:#FFF;color:var(--pp-brand-deep);font-size:13.5px;font-weight:800">▶ ${t('jl')}</button>
+      </div>
+    </section>
+    <div class="rev d1" style="display:flex;flex-wrap:wrap;gap:8px">
+      <button onclick="S.streak++;S.xp+=15;render();toast('+15 XP · Streak updated!')" class="pp-card tap tactile" style="padding:9px 14px;display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:800;color:var(--pp-ink)"><span style="width:24px;height:24px;border-radius:8px;background:var(--pp-warm-soft);display:inline-flex;align-items:center;justify-content:center">🔥</span><span class="tabular">${S.streak}d streak</span></button>
+      <div class="pp-card" style="padding:9px 14px;display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:800"><span style="width:24px;height:24px;border-radius:8px;background:var(--pp-ok-bg);color:var(--pp-ok-ink);display:inline-flex;align-items:center;justify-content:center">✓</span>92% attendance</div>
+      <div class="pp-card" style="padding:9px 14px;display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:800"><span style="width:24px;height:24px;border-radius:8px;background:var(--pp-s1-bg);color:var(--pp-s1);display:inline-flex;align-items:center;justify-content:center">★</span><span class="tabular">${S.xp} XP</span></div>
+    </div>
+    <section class="rev d2">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><strong style="font-size:15px">${t('mc')}</strong><span style="font-size:12px;font-weight:700;color:var(--pp-brand)">See all ›</span></div>
+      <div class="${m?'grid-2':'grid-3'}">${chs.map((c,i)=>`
+        <div onclick="if(${i}===2){S.ch3Done=!S.ch3Done;render();toast(S.ch3Done?'Chapter 3 marked 100% Complete!':'Reset Chapter 3')}else toast('Opened chapter')" class="pp-card tap" style="overflow:hidden">
+          <div style="height:5px;background:${c.c}"></div>
+          <div style="padding:14px;display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;justify-content:space-between;align-items:center"><span style="width:32px;height:32px;border-radius:10px;background:${c.bg};color:${c.c};display:flex;align-items:center;justify-content:center;font-weight:800">${c.ic}</span><span class="tabular" style="font-size:12px;font-weight:800;color:${c.c}">${c.p}%</span></div>
+            <div><div style="font-size:14px;font-weight:800">${c.t}</div><div style="font-size:11.5px;color:var(--pp-ink-2);margin-top:2px">${c.s}</div></div>
+            <div style="height:6px;border-radius:99px;background:var(--pp-soft);overflow:hidden"><div style="height:100%;width:${c.p}%;background:${c.c};border-radius:99px;transition:width 420ms var(--pp-ease-paper)"></div></div>
+          </div>
+        </div>`).join('')}</div>
+    </section>
+    <div class="rev d3 ${m?'':'grid-2'}" style="display:grid;gap:14px">
+      <div><strong style="font-size:13.5px;display:block;margin-bottom:8px">${t('ds')}</strong>
+        <div onclick="toast('Opening Quiz Runner')" class="pp-card tap pp-spine" style="--sc:var(--pp-s2);padding:14px 14px 14px 18px;display:flex;justify-content:space-between;align-items:center">
+          <div><div style="font-size:14px;font-weight:700">Chapter 4 MCQ Quiz</div><div style="font-size:12px;color:var(--pp-ink-2)">Due Tomorrow · 30 marks</div></div>
+          <span style="padding:6px 12px;border-radius:999px;font-size:12px;font-weight:800;background:var(--pp-brand-soft);color:var(--pp-brand-soft-ink)">Start</span>
+        </div>
+      </div>
+      <div><strong style="font-size:13.5px;display:block;margin-bottom:8px">${t('qt')}</strong>
+        <div class="grid-4">${[['✨','AI Hub'],['📅','Routine'],['⊞','My QR'],['•••','More']].map(([ic,lb])=>`<button onclick="toast('Opened ${lb}')" class="pp-card tap tactile" style="padding:12px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--pp-ink)"><span style="font-size:16px">${ic}</span><span style="font-size:11px;font-weight:700;color:var(--pp-ink-2)">${lb}</span></button>`).join('')}</div>
+      </div>
+    </div>`;
+  if(m) return `<header class="mob-bar pp-chrome"><div style="display:flex;align-items:center;gap:10px"><span style="width:36px;height:36px;border-radius:999px;background:var(--pp-warm-soft);color:var(--pp-warm-ink);display:flex;align-items:center;justify-content:center;font-weight:800">R</span><div><div style="font-weight:800;font-size:15px">Home</div><div style="font-size:11px;color:var(--pp-ink-2)">${t('subS')}</div></div></div><span style="width:36px;height:36px;border-radius:999px;background:var(--pp-soft);display:flex;align-items:center;justify-content:center">🔔</span></header><div class="mob-content">${body}</div>${dockHtml([['⌂','Home'],['▤','Chapters'],['✨','AI'],['💬','Chat']])}`;
+  return shell([['⌂','Home'],['▤','Chapters'],['✨','AI Tutor'],['📅','Routine'],['💬','Chat']],
+    `<div style="display:flex;align-items:center;gap:10px"><strong style="font-size:16px">Instanton <span style="color:var(--pp-brand)">Campus</span></strong><span style="font-size:11.5px;font-weight:800;padding:4px 10px;border-radius:999px;background:var(--pp-brand-soft);color:var(--pp-brand-soft-ink)">Student</span></div><div style="display:flex;align-items:center;gap:10px"><span style="padding:7px 14px;border-radius:999px;border:1px solid var(--pp-hairline);background:var(--pp-paper);font-size:12px;color:var(--pp-muted)">🔍 Search chapters...</span><span style="width:36px;height:36px;border-radius:999px;background:var(--pp-warm-soft);color:var(--pp-warm-ink);display:flex;align-items:center;justify-content:center;font-weight:800">R</span></div>`,
+    body);
+}
+
+function flipAtt(id){ const x=S.students.find(a=>a.id===id); if(!x)return; x.p=!x.p; render(); toast((S.lang==='bn'?x.bn:x.en)+' → '+(x.p?t('pr'):t('ab'))); }
+
+function renderTeacher(){
+  const m=S.vp==='mobile', pN=S.students.filter(x=>x.p).length, aN=S.students.length-pN;
+  const body=`
+    <h1 style="margin:0;font-size:24px;font-weight:800">${t('hiT')}</h1>
+    <section class="hero rev">
+      <div style="font-size:11px;font-weight:800;letter-spacing:0.06em;opacity:0.85;margin-bottom:10px">${t('td')}</div>
+      <div style="background:rgba(255,255,255,0.12);border-radius:16px;padding:14px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px">
+        <div><div style="font-size:16px;font-weight:800">HSC Physics Batch A</div><div style="font-size:12px;opacity:0.85">Sat, Mon, Wed · 4:30 PM · ${S.students.length} students</div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button onclick="toast('Attendance synced (${pN}/${S.students.length})')" class="tactile" style="height:42px;padding:0 16px;border-radius:999px;background:#FFF;color:var(--pp-brand-deep);font-size:12.5px;font-weight:800">✓ ${t('ta')} (${pN}/${S.students.length})</button>
+          <button onclick="toast('Starting Live Class')" class="tactile" style="height:42px;padding:0 16px;border-radius:999px;background:var(--pp-warm);color:#FFF;font-size:12.5px;font-weight:800">▶ ${t('sl')}</button>
+        </div>
+      </div>
+    </section>
+    <section class="rev d1" style="display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div><strong style="font-size:15px">1-Tap Attendance Studio</strong><div style="font-size:12px;color:var(--pp-ink-2)">Click any student row to toggle Present / Absent</div></div>
+        <button onclick="S.students.forEach(x=>x.p=true);render();toast('All marked Present!')" class="tactile" style="padding:7px 12px;border-radius:999px;background:var(--pp-brand-soft);color:var(--pp-brand-soft-ink);font-size:12px;font-weight:800">Mark all ✓</button>
+      </div>
+      <div class="pp-card" style="overflow:hidden">
+        ${S.students.map((s,i)=>`
+          <button onclick="flipAtt(${s.id})" style="width:100%;border:0;border-top:${i?'1px solid var(--pp-hairline)':'0'};background:transparent;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-family:inherit;color:var(--pp-ink)">
+            <div style="display:flex;align-items:center;gap:12px;text-align:left">
+              <span style="width:36px;height:36px;border-radius:999px;background:var(--pp-soft);display:flex;align-items:center;justify-content:center;font-weight:800">${s.en[0]}</span>
+              <div><div style="font-size:14px;font-weight:700">${S.lang==='bn'?s.bn:s.en}</div><div style="font-size:11.5px;color:var(--pp-ink-2)">${s.m} · Roll 0${s.id}</div></div>
+            </div>
+            <span class="tactile" style="min-width:96px;text-align:center;padding:8px 12px;border-radius:999px;font-size:12px;font-weight:800;background:${s.p?'var(--pp-ok-bg)':'var(--pp-bad-bg)'};color:${s.p?'var(--pp-ok-ink)':'var(--pp-bad-ink)'}">${s.p?'✓ '+t('pr'):'✕ '+t('ab')}</span>
+          </button>`).join('')}
+      </div>
+      <div class="pp-chrome" style="border:1px solid var(--pp-hairline);border-radius:16px;padding:10px 16px;display:flex;align-items:center;justify-content:space-between">
+        <div class="tabular" style="display:flex;gap:14px;font-size:12.5px;font-weight:800"><span style="color:var(--pp-ok-ink)">✓ ${t('pr')}: ${pN}</span><span style="color:var(--pp-bad-ink)">✕ ${t('ab')}: ${aN}</span></div>
+        <button onclick="toast('Attendance saved!')" class="tactile" style="padding:8px 18px;border-radius:999px;background:var(--pp-brand);color:var(--pp-on-brand);font-size:12px;font-weight:800">Done</button>
+      </div>
+    </section>
+    <section class="rev d2">
+      <strong style="font-size:14px;display:block;margin-bottom:10px">Grouped Batch Tools</strong>
+      <div class="${m?'grid-2':'grid-4'}">
+        ${[['Teach','Chapters · Live · Video','var(--pp-s0)','var(--pp-s0-bg)','▤'],['Assess','Quizzes · Grades · Merit','var(--pp-s1)','var(--pp-s1-bg)','✓'],['Roster','Students · QR · Import','var(--pp-s2)','var(--pp-s2-bg)','👥'],['Engage','Notices · Dojo · Calendar','var(--pp-s3)','var(--pp-s3-bg)','★']].map(([ti,su,c,bg,ic])=>`
+          <div onclick="toast('Opened ${ti}')" class="pp-card tap pp-spine" style="--sc:${c};padding:14px 14px 14px 18px">
+            <span style="width:32px;height:32px;border-radius:10px;background:${bg};color:${c};display:flex;align-items:center;justify-content:center;font-weight:800;margin-bottom:8px">${ic}</span>
+            <div style="font-size:14px;font-weight:800">${ti}</div><div style="font-size:11.5px;color:var(--pp-ink-2);margin-top:2px">${su}</div>
+          </div>`).join('')}
+      </div>
+    </section>`;
+  if(m) return `<header class="mob-bar pp-chrome"><div style="display:flex;align-items:center;gap:10px"><span style="width:36px;height:36px;border-radius:999px;background:var(--pp-brand);color:var(--pp-on-brand);display:flex;align-items:center;justify-content:center;font-weight:800">T</span><div><div style="font-weight:800;font-size:15px">Today</div><div style="font-size:11px;color:var(--pp-ink-2)">Sunrise Coaching</div></div></div><button onclick="toast('New Lesson / Quiz / Notice')" class="tactile" style="padding:7px 14px;border-radius:999px;background:var(--pp-brand);color:var(--pp-on-brand);font-size:12px;font-weight:800">+ New</button></header><div class="mob-content">${body}</div>${dockHtml([['☀','Today'],['▤','Batches'],['👥','Students'],['💬','Chat']])}`;
+  return shell([['☀','Today'],['▤','Batches'],['👥','Students'],['⊞','Tools'],['💬','Chat']],
+    `<div style="display:flex;align-items:center;gap:10px"><strong style="font-size:16px">Instanton <span style="color:var(--pp-brand)">Campus</span></strong><span style="font-size:11.5px;font-weight:800;padding:4px 10px;border-radius:999px;background:var(--pp-brand-soft);color:var(--pp-brand-soft-ink)">Teacher</span><span style="padding:6px 14px;border-radius:999px;border:1px solid var(--pp-hairline);background:var(--pp-paper);font-size:12.5px;font-weight:700">HSC Physics Batch A ▾</span></div><div style="display:flex;align-items:center;gap:10px"><button onclick="toast('Create Lesson / Quiz / Notice')" class="tactile" style="height:40px;padding:0 16px;border-radius:999px;background:var(--pp-brand);color:var(--pp-on-brand);font-size:12.5px;font-weight:800">+ Create</button><span style="width:36px;height:36px;border-radius:12px;background:var(--pp-brand);color:var(--pp-on-brand);display:flex;align-items:center;justify-content:center;font-weight:800">T</span></div>`,
+    body);
+}
+
+function renderGuardian(){
+  const m=S.vp==='mobile';
+  const body=`<div style="max-width:560px;margin:0 auto;width:100%;display:flex;flex-direction:column;gap:16px">
+    <div class="rev" style="display:flex;align-items:center;gap:14px">
+      <span style="width:52px;height:52px;border-radius:999px;background:var(--pp-s1-bg);color:var(--pp-s1);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800">A</span>
+      <div><div style="font-size:12px;color:var(--pp-ink-2);font-weight:700">Guardian Portal · HSC Physics Batch A</div><h1 style="margin:0;font-size:24px;font-weight:800">Arafat Hossain</h1></div>
+    </div>
+    <section class="pp-card rev d1" style="overflow:hidden">
+      <div style="height:5px;background:var(--pp-brand)"></div>
+      <div style="padding:16px 16px 6px"><strong style="font-size:16px">${t('gt')}</strong></div>
+      ${[['📅','var(--pp-ok-bg)','var(--pp-ok-ink)',t('at'),'92% this month'],['▤','var(--pp-s1-bg)','var(--pp-s1)',t('tst'),'Chapter 4 MCQ'],['৳','var(--pp-warm-soft)','var(--pp-warm-ink)',t('fee'),'Pay at institute or bKash']].map(([ic,bg,c,ti,su],i)=>`
+        <div onclick="toast('${ti}')" style="padding:14px 16px;border-top:${i?'1px solid var(--pp-hairline)':'0'};display:flex;align-items:center;gap:14px;cursor:pointer">
+          <span style="width:40px;height:40px;border-radius:12px;background:${bg};color:${c};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;flex-shrink:0">${ic}</span>
+          <div style="flex:1"><div style="font-size:15px;font-weight:700">${ti}</div><div style="font-size:12px;color:var(--pp-ink-2)">${su}</div></div>
+          <span style="color:var(--pp-muted)">›</span>
+        </div>`).join('')}
+    </section>
+    <section class="pp-card rev d2" style="padding:16px;display:flex;flex-direction:column;gap:10px">
+      <strong style="font-size:14px">Talk to Teacher</strong>
+      <div class="${m?'':'grid-2'}" style="display:grid;gap:10px">
+        <button onclick="toast('Calling Tariq Sir')" class="tactile" style="height:48px;border-radius:999px;background:var(--pp-brand);color:var(--pp-on-brand);font-size:14px;font-weight:800">📞 ${t('call')}</button>
+        <button onclick="toast('Opening Chat')" class="tactile" style="height:48px;border-radius:999px;background:var(--pp-brand-soft);color:var(--pp-brand-soft-ink);font-size:14px;font-weight:800">💬 ${t('msg')}</button>
+      </div>
+    </section>
+    <section class="pp-card rev d3" style="padding:16px">
+      <strong style="font-size:14px;display:block;margin-bottom:10px">Attendance Log</strong>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:12.5px;font-weight:700">
+        ${[['16 Nov',1],['18 Nov',1],['20 Nov',0],['22 Nov',1],['24 Nov',1]].map(([d,ok])=>`<span style="padding:6px 12px;border-radius:12px;background:${ok?'var(--pp-ok-bg)':'var(--pp-bad-bg)'};color:${ok?'var(--pp-ok-ink)':'var(--pp-bad-ink)'}">${d} · ${ok?'✓':'✕'}</span>`).join('')}
+      </div>
+    </section>
+  </div>`;
+  return m
+    ? `<header class="mob-bar pp-chrome"><strong>Instanton Guardian</strong><span style="font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--pp-soft)">${S.lang==='bn'?'বাংলা':'EN'}</span></header><div class="mob-content">${body}</div>${dockHtml([['⌂','Home'],['★','Results'],['🔔','Notices'],['💬','Chat']])}`
+    : `<header class="top-bar pp-chrome"><strong>Instanton <span style="color:var(--pp-brand)">Guardian</span></strong><span style="font-size:12px;font-weight:700;padding:5px 12px;border-radius:999px;background:var(--pp-brand-soft);color:var(--pp-brand-soft-ink)">Parent View</span></header><div class="content">${body}</div>`;
+}
+
+function renderAi(){
+  return `<div style="display:flex;flex-direction:column;min-height:540px">
+    <header class="mob-bar pp-chrome">
+      <span style="font-size:13px;font-weight:700;color:var(--pp-ink-2)">☰ Chats</span>
+      <button onclick="toast('Model Picker')" class="tactile" style="padding:6px 14px;border-radius:999px;border:1px solid var(--pp-hairline);background:var(--pp-paper);color:var(--pp-ink);font-size:12.5px;font-weight:800">✨ Gemini Study ▾</button>
+      <span style="font-size:12px;font-weight:700;color:var(--pp-brand)">New ✎</span>
+    </header>
+    <div style="flex:1;max-width:680px;width:100%;margin:0 auto;padding:22px;display:flex;flex-direction:column;gap:18px">
+      <div class="rev" style="display:flex;justify-content:flex-end">
+        <div style="max-width:82%;padding:12px 16px;background:var(--pp-soft);border-radius:20px 20px 6px 20px;font-size:14px">Explain Newton's 2nd Law with a quick HSC exam example.</div>
+      </div>
+      <div class="rev d1" style="display:flex;flex-direction:column;gap:12px">
+        <div style="font-size:12px;font-weight:800;color:var(--pp-brand)">✨ Instanton AI</div>
+        <div style="font-size:18px;font-weight:800">Newton's Second Law of Motion</div>
+        <div class="pp-card pp-spine" style="--sc:var(--pp-s1);padding:14px 16px 14px 18px"><div style="font-size:11px;font-weight:800;color:var(--pp-s1);letter-spacing:0.06em">KEY FORMULA</div><div style="font-size:19px;font-weight:800;font-family:monospace;margin-top:4px">F = m × a</div></div>
+        <p style="margin:0;font-size:14.5px;line-height:1.6">The acceleration of an object depends directly on net force and inversely on mass. For a 4 kg block pushed with 20 N on a frictionless surface, <strong>a = 20 / 4 = 5 m/s²</strong>.</p>
+        <div class="pp-card pp-spine" style="--sc:var(--pp-s0);padding:14px 16px 14px 18px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px">
+          <div><div style="font-size:14px;font-weight:800">Highlighted Study Sheet Ready</div><div style="font-size:12px;color:var(--pp-ink-2)">Ch4-Newtonian-Notes.pdf · 6 highlights</div></div>
+          <button onclick="toast('Downloading highlighted PDF...')" class="tactile" style="padding:9px 16px;border-radius:999px;background:var(--pp-brand);color:var(--pp-on-brand);font-size:12px;font-weight:800">⬇ Download PDF</button>
+        </div>
+      </div>
+    </div>
+    <div style="max-width:680px;width:100%;margin:0 auto;padding:12px">
+      <div class="pp-chrome" style="border:1px solid var(--pp-chrome-border);border-radius:24px;padding:12px;box-shadow:var(--pp-shadow-e2);display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;gap:8px"><input readonly placeholder="Ask anything from your chapter..." style="flex:1;border:0;background:transparent;font-size:14px;outline:none;padding:0 8px;color:var(--pp-ink)" /><button onclick="toast('Sent to Instanton AI')" class="tactile" style="width:40px;height:40px;border-radius:999px;background:var(--pp-brand);color:var(--pp-on-brand);font-weight:800;font-size:16px">↑</button></div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          <button onclick="toast('Attach Camera / Photo / File')" class="tactile" style="padding:5px 12px;border-radius:999px;border:1px solid var(--pp-hairline);background:var(--pp-paper);color:var(--pp-ink);font-size:12px;font-weight:700">+ Attach</button>
+          ${[['pdf','Create PDF'],['highlight','Highlight PDF'],['think','Deep Think']].map(([k,l])=>{const on=S.tools[k];return `<button onclick="S.tools.${k}=!S.tools.${k};render()" class="tactile" style="padding:5px 12px;border-radius:999px;border:1px solid ${on?'var(--pp-brand)':'var(--pp-hairline)'};background:${on?'var(--pp-brand-soft)':'transparent'};color:${on?'var(--pp-brand-soft-ink)':'var(--pp-ink-2)'};font-size:12px;font-weight:700">${on?'✓ ':''}${l}</button>`;}).join('')}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function quizTap(k){
+  S.qPick=k; render();
+  if(k==='B'){
+    const h=document.getElementById('chost'), cols=['#146C43','#1D63B8','#E5953A','#7A3EB1'];
+    for(let i=0;i<12;i++){const p=document.createElement('span');p.className='conf';const a=(Math.PI*2*i)/12,d=34+Math.random()*28;p.style.left='50%';p.style.top='50%';p.style.background=cols[i%4];p.style.setProperty('--cx',Math.round(Math.cos(a)*d)+'px');p.style.setProperty('--cy',Math.round(Math.sin(a)*d-14)+'px');p.style.setProperty('--cr',Math.round((Math.random()-0.5)*260)+'deg');h.appendChild(p);setTimeout(()=>p.remove(),750);}
+    toast('Correct! +10 XP (12-particle burst)');
+  } else {
+    const el=document.getElementById('qo-'+k); if(el){el.classList.remove('nudge');void el.offsetWidth;el.classList.add('nudge');}
+    toast('Kind ±5px nudge — try B!');
+  }
+}
+function react(e){ const h=document.getElementById('rhost'); const s=document.createElement('span'); s.className='f-em'; s.textContent=e; s.style.left=(25+Math.random()*50)+'%'; h.appendChild(s); setTimeout(()=>s.remove(),1500); }
+function replayMark(){ const s=document.getElementById('msvg'); s.classList.remove('mark-anim'); void s.offsetWidth; s.classList.add('mark-anim'); }
+function stampFee(){ const s=document.getElementById('fstamp'); s.classList.remove('stamp'); void s.offsetWidth; s.classList.add('stamp'); toast('Receipt stamped PAID ✓'); }
+
+function renderMotion(){
+  const m=S.vp==='mobile';
+  return `<div class="${m?'mob-content':'content'}">
+    <div><h1 style="margin:0;font-size:21px;font-weight:800">Paper &amp; Spring — Animations Lab</h1><div style="font-size:12.5px;color:var(--pp-ink-2);margin-top:2px">100% GPU-composited (transform &amp; opacity) · Exact Web &amp; Flutter curves</div></div>
+    <div class="${m?'':'grid-2'}" style="display:grid;gap:14px">
+      <div class="pp-card" style="padding:16px;display:flex;justify-content:space-between;align-items:center;gap:12px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:52px;height:52px;border-radius:16px;background:var(--pp-brand);color:var(--pp-on-brand);display:flex;align-items:center;justify-content:center">
+            <svg id="msvg" class="mark-anim" width="28" height="28" viewBox="7 5 50 52" fill="none" stroke="currentColor" stroke-width="5.5" stroke-linecap="round"><path class="mr" d="M41 28.3A14 14 0 1 1 23 28.3"/><path class="ms" d="M32 21v16"/><circle class="md" cx="32" cy="11.5" r="3.4" fill="currentColor" stroke="none"/></svg>
+          </div>
+          <div><div style="font-weight:800;font-size:14px">1. Brand Mark Wake-Up</div><div style="font-size:12px;color:var(--pp-ink-2)">Ring draw + particle spring (680ms)</div></div>
+        </div>
+        <button onclick="replayMark()" class="tactile" style="padding:8px 14px;border-radius:999px;background:var(--pp-brand-soft);color:var(--pp-brand-soft-ink);font-size:12px;font-weight:800">Replay</button>
+      </div>
+      <div class="pp-card" style="padding:16px;display:flex;justify-content:space-between;align-items:center;gap:12px">
+        <div><div style="font-weight:800;font-size:14px">2. Fee Receipt Stamp</div><div style="font-size:12px;color:var(--pp-ink-2)">Tactile spring stamp (280ms)</div></div>
+        <div style="display:flex;align-items:center;gap:8px"><span id="fstamp" class="stamp" style="padding:4px 10px;border-radius:8px;border:2px solid var(--pp-ok-ink);color:var(--pp-ok-ink);background:var(--pp-ok-bg);font-size:12px;font-weight:900">PAID ✓</span><button onclick="stampFee()" class="tactile" style="padding:8px 12px;border-radius:999px;background:var(--pp-soft);color:var(--pp-ink);font-size:12px;font-weight:800">Stamp</button></div>
+      </div>
+      <div class="pp-card" style="padding:16px;position:relative;overflow:hidden;display:flex;flex-direction:column;gap:10px">
+        <div id="chost" style="position:absolute;inset:0;pointer-events:none"></div>
+        <div><div style="font-weight:800;font-size:14px">3. Quiz Feedback (Click A vs B)</div><div style="font-size:12px;color:var(--pp-ink-2)">SI unit of Force?</div></div>
+        <div class="grid-2">${[['A','Joule'],['B','Newton']].map(([k,l])=>{const p=S.qPick===k,ok=k==='B';return `<button id="qo-${k}" onclick="quizTap('${k}')" class="tactile" style="padding:10px;border-radius:12px;border:1px solid ${p?(ok?'var(--pp-ok-ink)':'var(--pp-bad-ink)'):'var(--pp-hairline)'};background:${p?(ok?'var(--pp-ok-bg)':'var(--pp-bad-bg)'):'var(--pp-paper)'};color:${p?(ok?'var(--pp-ok-ink)':'var(--pp-bad-ink)'):'var(--pp-ink)'};display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700"><span style="width:24px;height:24px;border-radius:999px;background:${p?(ok?'var(--pp-ok-ink)':'var(--pp-bad-ink)'):'var(--pp-soft)'};color:${p?'#FFF':'var(--pp-ink)'};display:flex;align-items:center;justify-content:center;font-weight:800">${k}</span>${l}</button>`;}).join('')}</div>
+      </div>
+      <div class="pp-card" style="padding:16px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-weight:800;font-size:14px">4. Live Reactions &amp; Warm Skeleton</div><div style="font-size:12px;color:var(--pp-ink-2)">Tap an emoji to float</div></div><span style="display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800"><span class="beacon"></span>LIVE</span></div>
+        <div id="rhost" style="position:relative;height:54px;border-radius:14px;background:var(--pp-soft);display:flex;align-items:center;justify-content:space-between;padding:0 12px;overflow:hidden">
+          <div style="display:flex;gap:6px">${['👏','🔥','💡','❤️'].map(e=>`<button onclick="react('${e}')" class="tactile" style="width:36px;height:36px;border-radius:999px;background:var(--pp-paper);box-shadow:var(--pp-shadow-e1);font-size:16px">${e}</button>`).join('')}</div>
+          <div style="width:96px;display:flex;flex-direction:column;gap:6px"><div class="skel" style="height:10px;width:100%"></div><div class="skel" style="height:10px;width:68%"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function render(){
+  const r=document.getElementById('root');
+  r.innerHTML=S.role==='student'?renderStudent():S.role==='teacher'?renderTeacher():S.role==='guardian'?renderGuardian():S.role==='ai'?renderAi():renderMotion();
+}
+window.addEventListener('resize', posThumb);
+sync(); render();
+</script>
+</body>
+</html>

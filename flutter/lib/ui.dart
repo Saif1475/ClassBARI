@@ -74,7 +74,8 @@ class Section extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(left: 4, top: 6),
-    child: Semantics(header: true, child: Text(text.toUpperCase(), style: context.type.labelSmall)),
+    // Bangla is never spaced out (and has no capitals).
+    child: Semantics(header: true, child: Text(text.toUpperCase(), style: lang.code == 'bn' ? context.type.labelSmall?.copyWith(letterSpacing: 0) : context.type.labelSmall)),
   );
 }
 
@@ -153,8 +154,8 @@ class Glyph extends StatelessWidget {
 }
 
 // ---- the glass effect (Settings → Glass effect) ----------------------------------------------------------------------
-/// The page behind everything: with the glass effect, a soft gradient with a few large colour blobs (the website's);
-/// off, only the plain page colour (as before). Painted once per page, so scrolling stays smooth.
+/// The page behind everything: warm paper. Only the highest glass level ("Crystal") washes it faintly with the brand
+/// colours, as the website does, so the frosted bars have something to frost. Painted once per page.
 class Backdrop extends StatelessWidget {
   const Backdrop({super.key, required this.child});
   final Widget child;
@@ -162,7 +163,7 @@ class Backdrop extends StatelessWidget {
   Widget build(BuildContext context) {
     final g = context.tone.glass, b = context.tone.blobs;
     // Off draws no gradient, but the boxes stay: moving the slider must not rebuild the page (its scroll, what was typed).
-    RadialGradient? blob(Alignment at, Color c, double strength, [double radius = 1.1]) => g == 0
+    RadialGradient? blob(Alignment at, Color c, double strength, [double radius = 1.1]) => g < 0.99
         ? null
         : RadialGradient(
             center: at,
@@ -189,14 +190,14 @@ class Backdrop extends StatelessWidget {
   }
 }
 
-/// A bar or panel's fill with the glass effect: the page colour, more see-through the stronger the setting.
-Color glassFill(BuildContext context, Color solid) => solid.withValues(alpha: solid.a * (1 - context.tone.glass * 0.4));
+/// A bar or panel's fill with the glass effect (floating chrome only, never a card): 90%, 78% or 64% of the colour.
+Color glassFill(BuildContext context, Color solid) => solid.withValues(alpha: solid.a * (1 - context.tone.glass * 0.36));
 
 // ---- cards and rows -----------------------------------------------------------------------------------------------
-const _cardCorner = BorderRadius.all(Radius.circular(18));
+const _cardCorner = BorderRadius.all(Radius.circular(20));
 
-/// A white card; its children sit one under another. `hero`: the brand-coloured summary card. `flush`: no padding,
-/// for a card made of rows.
+/// A white paper card with a hairline border (always solid: glass is for the bars, never for content); its children
+/// sit one under another. `hero`: the brand-coloured summary card. `flush`: no padding, for a card made of rows.
 class Box extends StatelessWidget {
   const Box({super.key, required this.children, this.onTap, this.color, this.title, this.hero = false, this.flush = false});
   final List<Widget> children;
@@ -228,13 +229,10 @@ class Box extends StatelessWidget {
       container: true,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          // With the glass effect a plain card lets some of the page through (no blur per card: lists stay smooth).
-          color: hero ? null : (color ?? context.colors.surfaceContainerLowest.withValues(alpha: 1 - context.tone.glass * 0.3)),
+          color: hero ? null : (color ?? context.colors.surfaceContainerLowest),
           gradient: hero ? LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: context.tone.hero) : null,
           borderRadius: _cardCorner,
-          border: hero || color != null
-              ? null
-              : Border.all(color: (context.dark ? context.colors.outlineVariant : Color.lerp(context.colors.outlineVariant, Colors.white, context.tone.glass)!).withValues(alpha: context.dark ? 0.6 : 0.7 + context.tone.glass * 0.3)),
+          border: hero || color != null ? null : Border.all(color: context.colors.outlineVariant),
           boxShadow: context.tone.lift,
         ),
         child: Material(
@@ -830,12 +828,12 @@ class TabItem extends StatelessWidget {
             spacing: 3,
             children: [
               AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeOutCubic,
+                duration: const Duration(milliseconds: 240),
+                curve: paperCurve,
                 width: 54,
                 height: 30,
                 decoration: BoxDecoration(
-                  color: on ? c.primary.withValues(alpha: context.dark ? 0.26 : 0.12) : Colors.transparent,
+                  color: on ? c.primaryContainer : Colors.transparent,
                   borderRadius: BorderRadius.circular(15),
                 ),
                 child: Badge(
@@ -926,9 +924,10 @@ class _Frost extends StatelessWidget {
   Widget build(BuildContext context) {
     final g = context.tone.glass;
     if (g == 0) return child;
+    final sigma = const [0.0, 10.0, 16.0, 24.0][(g * 3).round().clamp(0, 3)]; // Whisper, Frosted, Crystal
     return ClipRect(
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 12 + g * 12, sigmaY: 12 + g * 12),
+        filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
         child: child,
       ),
     );
@@ -1110,7 +1109,7 @@ class _DoingState extends State<Doing> {
       opacity: widget.onPressed == null ? 0.45 : 1,
       child: Material(
         color: fill,
-        borderRadius: BorderRadius.circular(14),
+        shape: const StadiumBorder(), // buttons are pills
         clipBehavior: Clip.antiAlias,
         child: Semantics(
           container: true,

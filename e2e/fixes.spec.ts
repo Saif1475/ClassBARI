@@ -150,7 +150,7 @@ test("dark mode: the switch changes the look and is remembered", async ({ page }
   await page.getByRole("button", { name: "Dark mode" }).click();
   await expect(page.locator("html")).toHaveClass(/dark/);
   const bg = () => page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--color-surface").trim());
-  expect(await bg()).toBe("#111314");
+  expect(await bg()).toBe("#0d1114"); // "Night Study Ink"
   await page.reload();
   await expect(page.locator("html")).toHaveClass(/dark/); // no flash back to light
   await page.getByRole("button", { name: "Light mode" }).click();

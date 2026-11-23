@@ -2,33 +2,79 @@
 /* The Flutter phone apps are not part of the website: their files are not searched for class names. */
 @source not "../../flutter";
 
-/* Material 3 Expressive — teal seed with iOS-inspired frosted glass. */
+/* "Paper & Prism" (design/02-visual-system.md): a warm paper page, crisp white cards with hairline borders, the
+   Forest Chalk green, and frosted glass only on the floating chrome (bars, rails, switches, sheets). Dark mode is
+   "Night Study Ink"; the Sky Blossom tone is chosen in Settings → Look. flutter/lib/theme.dart has the same values. */
 @theme {
-  --color-primary: #157347;
+  --color-primary: #146c43;
   --color-on-primary: #ffffff;
-  --color-primary-container: rgba(168, 236, 196, 0.72);
-  --color-on-primary-container: #05210f;
-  --color-secondary-container: rgba(206, 234, 214, 0.72);
-  --color-on-secondary-container: #0a2012;
-  --color-tertiary: #7a5900;
-  --color-tertiary-container: rgba(255, 222, 166, 0.78);
-  --color-on-tertiary-container: #261900;
-  --color-error: #ba1a1a;
-  --color-error-container: rgba(255, 218, 214, 0.8);
-  --color-on-error-container: #410002;
-  --color-surface: #f0f8f2;
-  --color-surface-container: rgba(226, 239, 230, 0.58);
-  --color-surface-high: rgba(214, 231, 220, 0.65);
-  --color-on-surface: #171d19;
-  --color-on-surface-variant: #3f4a43;
-  --color-outline: rgba(111, 122, 114, 0.45);
-  --color-outline-variant: rgba(255, 255, 255, 0.72);
-  --color-deep: #0c5132;
-  --color-bkash: #e2136e;
+  --color-primary-container: #e4f4ec; /* brand soft: active pills, soft badges */
+  --color-on-primary-container: #0c472b;
+  --color-secondary-container: #e4f4ec;
+  --color-on-secondary-container: #0c472b;
+  --color-tertiary: #925309; /* warm ink: readable as text on paper, white text reads on it */
+  --color-tertiary-container: #fef2e2;
+  --color-on-tertiary-container: #7a4608;
+  --color-accent: #e5953a; /* warm accent: streaks, live and featured badges (dark text on it) */
+  --color-on-accent: #2d1902;
+  --color-error: #b42318;
+  --color-error-container: #fdeceb;
+  --color-on-error-container: #b42318;
+  --color-success: #11613c;
+  --color-success-container: #e6f5ec;
+  --color-warning: #925309;
+  --color-warning-container: #fef3e0;
+  --color-live: #e11d48;
+  --color-surface: #faf8f4; /* the page: warm paper */
+  --color-paper: #ffffff; /* cards */
+  --color-surface-container: #f3f0e9; /* wells, grouped chips, inactive pills */
+  --color-surface-high: #ece8de; /* hover and pressed wells */
+  --color-on-surface: #161b18;
+  --color-on-surface-variant: #535e58;
+  --color-muted: #7a857f;
+  --color-outline: #cfc8ba; /* form fields, outlined buttons */
+  --color-outline-variant: #e6e1d6; /* hairlines: card borders, dividers */
+  --color-deep: #0b3b25; /* side rail, deep banners */
+  --color-bkash: #d12053;
+
+  /* The 8 subject spines ("Ink & Chalk"): chapters by moduleId % 8, batches by their place % 8. */
+  --color-spine-0: #146c43;
+  --color-spine-1: #1d63b8;
+  --color-spine-2: #c46d10;
+  --color-spine-3: #7a3eb1;
+  --color-spine-4: #0e7b8c;
+  --color-spine-5: #b84a39;
+  --color-spine-6: #5b7a1e;
+  --color-spine-7: #b8326a;
+  --color-spine-0-soft: #e4f4ec;
+  --color-spine-1-soft: #e5f0fc;
+  --color-spine-2-soft: #fef1e1;
+  --color-spine-3-soft: #f3eafd;
+  --color-spine-4-soft: #e2f5f8;
+  --color-spine-5-soft: #fcece9;
+  --color-spine-6-soft: #eef5e1;
+  --color-spine-7-soft: #fdeaf2;
+
+  /* Motion ("Paper & Spring", design/05-animations-and-motion.md). */
+  --ease-paper: cubic-bezier(0.22, 1, 0.36, 1); /* glide: pills, sheets, tabs, page pushes */
+  --ease-tactile: cubic-bezier(0.34, 1.45, 0.64, 1); /* micro-spring: press release, checkmarks, attendance flip */
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1); /* leaving is always quicker than arriving */
+  --ease-calm: cubic-bezier(0.37, 0, 0.63, 1); /* breathing: live beacon, shimmer */
 
   /* The four font variables are set on <html> by src/app/fonts.ts (fonts served from our own address). */
   --font-sans: var(--font-taka), var(--font-latin), var(--font-bn), system-ui, sans-serif;
   --font-bangla: var(--font-bn), var(--font-latin), sans-serif;
+}
+
+:root {
+  --chrome: #fffdf9; /* the floating chrome's tint (bars, rails, switch wells) */
+  --rail: #0b3b25; /* the deep side rail */
+  --brand-card: #17432f; /* big brand cards in dark mode */
+  /* Paper elevation: a warm stone tint, never harsh black. E1 cards; the softer one for tinted wells. */
+  --lift: 0 2px 8px rgb(28 36 30 / 0.045), 0 1px 2px rgb(28 36 30 / 0.03);
+  --lift-soft: 0 1px 2px rgb(28 36 30 / 0.035);
+  --lift-float: 0 10px 28px rgb(22 32 26 / 0.1), 0 2px 6px rgb(22 32 26 / 0.04); /* E2: floating dock, popovers */
+  --lift-sheet: 0 24px 56px rgb(16 26 20 / 0.18); /* E3: dialogs and sheets */
 }
 
 html {
@@ -44,60 +90,131 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   background-color: var(--color-surface);
-  background-image:
-    radial-gradient(at 12% 10%, var(--glow-a) 0px, transparent 50%),
-    radial-gradient(at 88% 14%, var(--glow-b) 0px, transparent 48%),
-    radial-gradient(at 80% 85%, var(--glow-a) 0px, transparent 52%),
-    radial-gradient(at 18% 82%, var(--glow-c) 0px, transparent 50%);
-  background-attachment: fixed;
 }
 
-/* iPhone-inspired frosted glass surfaces */
+/* Bangla is never spaced out or set in capitals (its vowel signs need room above and below). */
+html[lang="bn"] :is(.uppercase, [class*="tracking-"]) {
+  letter-spacing: 0 !important;
+  text-transform: none;
+}
+/* Base values only (no weight): a component's own leading-* or tracking-* still wins. */
+:where(html[lang="bn"]) :where(p, li, dd) {
+  line-height: 1.6;
+}
+:where(html:not([lang="bn"])) :where(h1, h2) {
+  letter-spacing: -0.015em;
+}
+
+/* ---------------------------------- Crisp paper: every content card ---------------------------------- */
 .bg-surface {
   background-color: transparent;
 }
-
 .bg-white,
 .bg-white\/80 {
-  background-color: rgba(255, 255, 255, 0.62) !important;
-  backdrop-filter: blur(24px) saturate(185%);
-  -webkit-backdrop-filter: blur(24px) saturate(185%);
-  border-color: rgba(255, 255, 255, 0.78);
-  box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.9),
-    0 10px 30px -8px rgba(0, 52, 46, 0.08);
+  background-color: var(--color-paper) !important;
+  border-color: var(--color-outline-variant);
+}
+:is(div, section, article, form, aside, li, a, details, label, ul, nav, header).bg-white,
+:is(div, section, article, form, aside, li, a, details, label, ul).bg-white\/80 {
+  box-shadow: var(--lift) !important;
+}
+:is(div, section, article, a, li, button).bg-primary-container,
+:is(div, section, article, a, li, button).bg-secondary-container,
+:is(div, section, article, a, li, button).bg-tertiary-container,
+:is(div, a, li).bg-surface-container[class*="rounded-"] {
+  box-shadow: var(--lift-soft);
+}
+/* The translucent white borders of the old glass look are paper hairlines now (solid white rings stay white). */
+[class*="border-white/"] {
+  border-color: var(--color-outline-variant);
 }
 
-.bg-surface-container,
-.bg-surface-high {
-  backdrop-filter: blur(22px) saturate(180%);
-  -webkit-backdrop-filter: blur(22px) saturate(180%);
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.65);
+/* Main buttons and brand cards: solid brand colour with a soft tinted shadow, so they feel pressable. */
+.bg-primary {
+  box-shadow: 0 1px 2px rgb(11 59 37 / 0.16), 0 6px 14px -8px color-mix(in srgb, var(--color-primary) 70%, transparent);
+}
+:is(section, div).bg-primary {
+  box-shadow: var(--lift);
 }
 
-.bg-primary-container,
-.bg-secondary-container,
-.bg-tertiary-container {
-  backdrop-filter: blur(18px) saturate(170%);
-  -webkit-backdrop-filter: blur(18px) saturate(170%);
-  box-shadow:
-    inset 0 1px 0 0 rgba(255, 255, 255, 0.6),
-    0 6px 20px -6px rgba(0, 52, 46, 0.06);
+/* ---------------------------------- Frosted chrome (Settings → Glass effect) ----------------------------------
+   Only the floating chrome is glass: headers, the phone's bottom bars, the side rails, the switch wells, dialogs and
+   sheets. Cards and lists are always solid paper (sharp to read, smooth on low-end phones). <html data-glass="1|2|3">
+   comes from src/lib/theme.ts; without it (Off) the chrome is plain paper too. */
+:root {
+  --chrome-alpha: 100%;
+  --chrome-blur: 0px;
+  --chrome-saturate: 100%;
 }
-
-.glass-dark {
-  background-color: var(--rail);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.16);
+html[data-glass="1"] {
+  --chrome-alpha: 90%;
+  --chrome-blur: 10px;
+  --chrome-saturate: 120%;
 }
-
+html[data-glass="2"] {
+  --chrome-alpha: 78%;
+  --chrome-blur: 18px;
+  --chrome-saturate: 140%;
+}
+html[data-glass="3"] {
+  --chrome-alpha: 64%;
+  --chrome-blur: 26px;
+  --chrome-saturate: 165%;
+}
+.glass-header,
+[class*="backdrop-blur"]:not(.fixed.inset-0, .glass-well, .bg-white) {
+  background-color: color-mix(in srgb, var(--chrome) var(--chrome-alpha), transparent) !important;
+  backdrop-filter: blur(var(--chrome-blur)) saturate(var(--chrome-saturate));
+  -webkit-backdrop-filter: blur(var(--chrome-blur)) saturate(var(--chrome-saturate));
+  border-color: var(--color-outline-variant);
+}
 .glass-header {
-  background-color: rgba(244, 251, 248, 0.65);
-  backdrop-filter: blur(24px) saturate(190%);
-  -webkit-backdrop-filter: blur(24px) saturate(190%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.72);
-  box-shadow: 0 4px 20px -4px rgba(0, 52, 46, 0.05);
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+.glass-dark {
+  background-color: color-mix(in srgb, var(--rail) calc(var(--chrome-alpha) + (100% - var(--chrome-alpha)) * 0.6), transparent);
+  backdrop-filter: blur(var(--chrome-blur)) saturate(var(--chrome-saturate));
+  -webkit-backdrop-filter: blur(var(--chrome-blur)) saturate(var(--chrome-saturate));
+}
+/* The sunken well of every switch, and the paper pill that glides inside it. */
+.glass-well {
+  background-color: color-mix(in srgb, var(--color-surface-container) var(--chrome-alpha), transparent) !important;
+  backdrop-filter: blur(var(--chrome-blur));
+  -webkit-backdrop-filter: blur(var(--chrome-blur));
+  border-color: var(--color-outline-variant) !important;
+}
+.glass-3d,
+.slide-pill {
+  border: 1px solid var(--color-outline-variant);
+  box-shadow: 0 1px 2px rgb(28 36 30 / 0.08), 0 4px 10px -4px rgb(28 36 30 / 0.16) !important;
+}
+/* Round chrome button (light/dark switch). */
+.glass-orb {
+  background: var(--color-paper);
+  border: 1px solid var(--color-outline-variant);
+  box-shadow: var(--lift);
+  color: var(--color-on-surface);
+}
+/* Dialogs and sheets: paper, a little see-through and frosted at the higher glass levels. */
+:is([role="dialog"], .fixed.inset-0 > *).bg-white {
+  background-color: color-mix(in srgb, var(--color-paper) calc(100% - (100% - var(--chrome-alpha)) * 0.4), transparent) !important;
+  backdrop-filter: blur(var(--chrome-blur));
+  -webkit-backdrop-filter: blur(var(--chrome-blur));
+  box-shadow: var(--lift-sheet) !important;
+}
+/* "Crystal" (level 3): a faint wash of the brand colours on the page, so the glass has something to frost. */
+@media screen {
+  html[data-glass="3"] body {
+    background-image:
+      radial-gradient(circle 50vmax at 8% 6%, color-mix(in srgb, var(--color-primary-container) 70%, transparent), transparent 70%),
+      radial-gradient(circle 45vmax at 96% 90%, color-mix(in srgb, var(--color-tertiary-container) 70%, transparent), transparent 70%);
+    background-attachment: fixed;
+  }
+}
+@media (max-width: 767px) {
+  html[data-glass="3"] body {
+    background-attachment: scroll; /* a fixed background repaints on every scroll on phones */
+  }
 }
 
 details > summary {
@@ -107,38 +224,13 @@ details > summary::-webkit-details-marker {
   display: none;
 }
 
-/* Phones: blur on every card makes scrolling janky on low-end Android, and a fixed
-   background repaints on every scroll. Use solid surfaces instead. */
-@media (max-width: 767px) {
-  body {
-    background-attachment: scroll;
-  }
-  .bg-white,
-  .bg-white\/80,
-  .bg-primary-container,
-  .bg-secondary-container,
-  .bg-tertiary-container,
-  .bg-surface-container,
-  .bg-surface-high {
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
-  .bg-white,
-  .bg-white\/80 {
-    background-color: rgba(255, 255, 255, 0.92) !important;
-  }
-  .bg-surface-container {
-    background-color: rgb(226, 238, 234);
-  }
-}
-
 /* Live game (phone): calm, light answer buttons. Each button sets --tone (RGB triplet). */
 .answer-key {
   color: #1c2422;
   background: rgb(var(--tone) / 0.1);
   border: 1.5px solid rgb(var(--tone) / 0.3);
   box-shadow: 0 2px 0 rgb(var(--tone) / 0.18);
-  transition: transform 0.08s ease-out, background-color 0.15s;
+  transition: transform 90ms ease-out, background-color 160ms;
 }
 .answer-key:active {
   transform: translateY(2px);
@@ -154,28 +246,18 @@ details > summary::-webkit-details-marker {
   background: rgb(var(--tone) / 0.85);
 }
 
-/* Frosted glass card for the question and results */
+/* Paper card for the question and results of the live game. */
 .glass-card {
-  background: rgb(255 255 255 / 0.7);
-  border: 1px solid rgb(0 52 46 / 0.08);
-  box-shadow: 0 4px 16px -8px rgb(0 52 46 / 0.15);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .answer-key,
-  .answer-key:active {
-    transition: none;
-    transform: none;
-  }
+  background: var(--color-paper);
+  border: 1px solid var(--color-outline-variant);
+  box-shadow: var(--lift);
 }
 
 /* ============================================================================================
-   iOS-style motion, applied site-wide. Curves follow UIKit: quick start, long soft settle;
-   presses shrink a little and spring back. Everything is switched off for "reduce motion".
+   Motion ("Paper & Spring"): swift glides, a small spring on release, exits quicker than entrances. Only transform
+   and opacity move. Everything is switched off for "reduce motion".
    ============================================================================================ */
 :root {
-  --ios-ease: cubic-bezier(0.32, 0.72, 0, 1); /* sheets, pages, slides */
-  --ios-spring: cubic-bezier(0.34, 1.36, 0.64, 1); /* small overshoot: press release, pop-ins */
   interpolate-size: allow-keywords; /* lets <details> animate to height: auto */
 }
 html {
@@ -189,74 +271,74 @@ html {
   }
 }
 
-/* 1. Pages: the new page slides in from the right over the old one, like a navigation push. */
+/* 1. Pages: the new page comes in a little way from the right over the old one, which steps back and dims. */
 ::view-transition-old(.ios-page) {
-  animation: ios-page-out 0.38s var(--ios-ease) both;
+  animation: page-out 0.22s var(--ease-paper) both;
 }
 ::view-transition-new(.ios-page) {
-  animation: ios-page-in 0.38s var(--ios-ease) both;
+  animation: page-in 0.28s var(--ease-paper) both;
 }
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: 0.25s;
+  animation-duration: 0.24s;
+  mix-blend-mode: normal; /* clean cross-fade when switching light/dark */
 }
-@keyframes ios-page-out {
-  to { opacity: 0; transform: translateX(-12%); }
+@keyframes page-out {
+  to { opacity: 0.92; transform: translateX(-6%); }
 }
-@keyframes ios-page-in {
-  from { opacity: 0; transform: translateX(18%); }
+@keyframes page-in {
+  from { opacity: 0; transform: translateX(20%); }
 }
 
-/* 2. Taps: buttons and button-like links shrink slightly while pressed and spring back. */
+/* 2. Taps: buttons and button-like links press in a little and spring back on release. */
 :where(button, [role="button"], a[class*="rounded-full"], a[class*="rounded-["], summary, label:has(> input[type="checkbox"], > input[type="radio"])) {
-  transition: transform 0.45s var(--ios-spring), background-color 0.2s ease, color 0.2s ease, box-shadow 0.25s ease, opacity 0.2s ease;
+  transition: transform 0.22s var(--ease-tactile), background-color 0.16s ease, color 0.16s ease, box-shadow 0.24s ease, opacity 0.16s ease;
   -webkit-tap-highlight-color: transparent;
 }
 :where(button, [role="button"], a[class*="rounded-full"], a[class*="rounded-["], summary):active:not(:disabled) {
-  transform: scale(0.96);
-  transition-duration: 0.1s;
+  transform: scale(0.97);
+  transition-duration: 0.09s;
 }
 
-/* 3. Screens appear: each block of a new screen slides in from the right, one after another. */
+/* 3. A new screen's first blocks settle up into place, one just after another (never sideways). Only the first
+   four wait; the rest come at once, so a long list never makes anyone wait. */
 main > *,
 [role="dialog"] > * {
-  animation: ios-rise 0.5s var(--ios-ease) both;
+  animation: paper-settle 0.24s var(--ease-paper) both;
 }
-main > :nth-child(2) { animation-delay: 0.03s; }
-main > :nth-child(3) { animation-delay: 0.06s; }
-main > :nth-child(4) { animation-delay: 0.09s; }
-main > :nth-child(5) { animation-delay: 0.12s; }
-main > :nth-child(n + 6) { animation-delay: 0.15s; }
-@keyframes ios-rise {
-  from { opacity: 0; transform: translateX(24px); } /* slides in from the right, like an iOS push */
+main > :nth-child(2) { animation-delay: 28ms; }
+main > :nth-child(3) { animation-delay: 56ms; }
+main > :nth-child(n + 4) { animation-delay: 84ms; }
+@keyframes paper-settle {
+  from { opacity: 0; transform: translate3d(0, 10px, 0); }
 }
 
-/* 4. Sheets: dim the background, slide the panel up from the bottom (phone) or zoom it in (desktop). */
+/* 4. Sheets: dim the page, lift the panel from the bottom (phone) or settle it in (desktop). */
 .fixed.inset-0:is(.bg-black\/35, .bg-black\/60),
 .fixed.inset-0 > button.bg-black\/40 {
-  animation: ios-fade 0.3s ease both;
+  animation: fade-in 0.2s ease both;
 }
 .fixed.inset-0.items-end > * {
-  animation: ios-sheet-up 0.5s var(--ios-ease) both;
+  animation: sheet-up 0.32s var(--ease-paper) both;
 }
 @media (min-width: 640px) {
   .fixed.inset-0.items-end > * {
-    animation: ios-pop 0.42s var(--ios-spring) both;
+    animation: modal-in 0.24s var(--ease-paper) both;
   }
 }
 .fixed.inset-0 > aside[role="dialog"] {
-  animation: ios-slide-right 0.45s var(--ios-ease) both; /* phone menu */
+  animation: drawer-in 0.32s var(--ease-paper) both; /* phone menu */
 }
-@keyframes ios-fade {
+@keyframes fade-in {
   from { opacity: 0; }
 }
-@keyframes ios-sheet-up {
+@keyframes sheet-up {
   from { transform: translateY(100%); }
 }
-@keyframes ios-pop {
-  from { opacity: 0; transform: scale(0.92); }
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.95); }
 }
-@keyframes ios-slide-right {
+@keyframes drawer-in {
   from { transform: translateX(-100%); }
 }
 
@@ -264,32 +346,35 @@ main > :nth-child(n + 6) { animation-delay: 0.15s; }
 details::details-content {
   height: 0;
   overflow: clip;
-  transition: height 0.4s var(--ios-ease), content-visibility 0.4s allow-discrete;
+  transition: height 0.26s var(--ease-paper), content-visibility 0.26s allow-discrete;
 }
 details[open]::details-content {
   height: auto;
 }
 
-/* 6. Toasts and banners drop in like iOS notifications; alerts give a small shake. */
+/* 6. Toasts rise in with a small spring; alerts give a kind little nudge. */
 .ios-toast,
 body > [role="status"]:first-child {
-  animation: ios-drop 0.55s var(--ios-spring) both;
+  animation: toast-in 0.32s var(--ease-tactile) both;
 }
-@keyframes ios-drop {
-  from { opacity: 0; transform: translateY(24px) scale(0.96); }
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
 }
 [role="alert"]:not(:empty) {
-  animation: ios-shake 0.4s ease both;
+  animation: nudge 0.26s var(--ease-paper) both;
 }
-@keyframes ios-shake {
-  20%, 60% { transform: translateX(-4px); }
-  40%, 80% { transform: translateX(4px); }
+@keyframes nudge {
+  25% { transform: translateX(-5px); }
+  55% { transform: translateX(5px); }
+  80% { transform: translateX(-3px); }
 }
 
-/* 7. Cards that are links or buttons lift gently on hover (mouse only). */
+/* 7. Cards that are links or buttons lift a little on hover (mouse only). */
 @media (hover: hover) {
   :where(a, button)[class*="rounded-[2"]:hover:not(:disabled) {
-    box-shadow: 0 10px 28px -14px rgb(0 52 46 / 0.35);
+    translate: 0 -2px; /* its own property, so a press (transform: scale) still shows while hovering */
+    box-shadow: var(--lift-float) !important;
+    transition: translate 0.18s var(--ease-paper), transform 0.22s var(--ease-tactile), box-shadow 0.18s var(--ease-paper);
   }
 }
 
@@ -308,61 +393,23 @@ body > [role="status"]:first-child {
   }
 }
 
-/* 8. Sliding selection pill (src/components/SlideIndicator.tsx): glides between tabs like iOS segmented controls. */
+/* 8. The sliding selection pill (src/components/SlideIndicator.tsx) glides between tabs, keeping its container's shape. */
 .slide-pill {
   position: absolute;
   left: 0;
   top: 0;
   z-index: -1;
   pointer-events: none;
-  transition: transform 0.5s var(--ios-ease), width 0.5s var(--ios-ease), height 0.5s var(--ios-ease), border-radius 0.3s ease, background-color 0.3s ease, opacity 0.2s ease;
-}
-
-/* ============================================================================================
-   Modern look: 3D glass selectors, depth on buttons and cards, and a dark mode (html.dark).
-   ============================================================================================ */
-
-/* 3D glass selector: the sliding pill of every tab bar / switch is a raised, lit piece of glass. */
-.glass-3d,
-.slide-pill {
-  background-image:
-    linear-gradient(180deg, rgb(255 255 255 / 0.5) 0%, rgb(255 255 255 / 0.12) 48%, rgb(255 255 255 / 0) 52%, rgb(0 0 0 / 0.06) 100%);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.85),
-    inset 0 -1px 2px rgb(0 0 0 / 0.12),
-    0 1px 2px rgb(0 40 36 / 0.18),
-    0 8px 20px -8px rgb(0 60 54 / 0.45) !important;
-  border: 1px solid rgb(255 255 255 / 0.55);
-}
-/* …sitting in a slightly sunken glass track. */
-.glass-well {
-  box-shadow:
-    inset 0 2px 5px rgb(0 40 36 / 0.12),
-    inset 0 -1px 0 rgb(255 255 255 / 0.7);
-}
-/* Round glass button (light/dark switch). */
-.glass-orb {
-  background: linear-gradient(180deg, rgb(255 255 255 / 0.85), rgb(255 255 255 / 0.45));
-  border: 1px solid rgb(255 255 255 / 0.8);
-  box-shadow: inset 0 1px 0 #fff, inset 0 -2px 4px rgb(0 0 0 / 0.06), 0 6px 16px -8px rgb(0 60 54 / 0.4);
-  color: var(--color-on-surface);
+  transition: transform 0.32s var(--ease-paper), width 0.32s var(--ease-paper), height 0.32s var(--ease-paper), border-radius 0.24s ease, background-color 0.24s ease, opacity 0.16s ease;
 }
 .theme-icon {
   display: inline-block;
-  animation: theme-spin 0.5s var(--ios-spring, ease) both;
+  animation: theme-spin 0.32s var(--ease-tactile) both;
 }
 @keyframes theme-spin {
   from { transform: rotate(-90deg) scale(0.6); opacity: 0; }
 }
 
-/* Main buttons: gentle top light and a coloured soft shadow, so they feel pressable. */
-.bg-primary {
-  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.16), rgb(255 255 255 / 0) 60%);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.25), 0 8px 18px -10px color-mix(in srgb, var(--color-primary) 80%, transparent);
-}
-h1, h2 {
-  letter-spacing: -0.015em;
-}
 :focus-visible {
   outline: 3px solid color-mix(in srgb, var(--color-primary) 55%, transparent);
   outline-offset: 2px;
@@ -372,62 +419,65 @@ h1, h2 {
   scrollbar-color: color-mix(in srgb, var(--color-on-surface) 25%, transparent) transparent;
 }
 
-/* ---------------------------------- Dark mode ---------------------------------- */
+/* ---------------------------------- Dark mode: "Night Study Ink" ---------------------------------- */
 html.dark {
   color-scheme: dark; /* native form controls, scrollbars and date pickers go dark too */
-  --color-primary: #6cc9a4;
-  --color-on-primary: #06231a;
-  --color-primary-container: rgba(28, 74, 56, 0.6);
-  --color-on-primary-container: #c4efd9;
-  --color-secondary-container: rgba(48, 58, 53, 0.66);
-  --color-on-secondary-container: #d5e5db;
-  --color-tertiary: #e7bd62;
-  --color-tertiary-container: rgba(92, 68, 8, 0.6);
-  --color-on-tertiary-container: #ffdfa8;
-  --color-error: #ffb4ab;
-  --color-error-container: rgba(147, 0, 10, 0.55);
-  --color-on-error-container: #ffdad6;
-  --color-surface: #111314;
-  --color-surface-container: rgba(38, 42, 44, 0.7);
-  --color-surface-high: rgba(48, 53, 56, 0.74);
-  --color-on-surface: #e3e6e5;
-  --color-on-surface-variant: #a8b0ad;
-  --color-outline: rgba(150, 160, 157, 0.4);
-  --color-outline-variant: rgba(255, 255, 255, 0.09);
-  --color-deep: #123a2a;
-  --rail: rgba(22, 25, 27, 0.94);
-  --brand-card: #1d4a37;
-}
-html.dark body {
-  background-image: none; /* flat charcoal: no coloured glow */
-}
-html.dark .bg-white,
-html.dark .bg-white\/80 {
-  background-color: rgba(27, 30, 32, 0.66) !important;
-  border-color: rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.07), 0 10px 30px -8px rgba(0, 0, 0, 0.5);
+  --color-primary: #3ec786;
+  --color-on-primary: #062b19;
+  --color-primary-container: #123526;
+  --color-on-primary-container: #a7ebc9;
+  --color-secondary-container: #123526;
+  --color-on-secondary-container: #a7ebc9;
+  --color-tertiary: #f5ba62;
+  --color-tertiary-container: #332412;
+  --color-on-tertiary-container: #fad19e;
+  --color-accent: #f2b161;
+  --color-on-accent: #2d1902;
+  --color-error: #f98078;
+  --color-error-container: #3a1718;
+  --color-on-error-container: #f98078;
+  --color-success: #5bd99b;
+  --color-success-container: #113022;
+  --color-warning: #f5ba62;
+  --color-warning-container: #332510;
+  --color-live: #f43f5e;
+  --color-surface: #0d1114;
+  --color-paper: #151b20;
+  --color-surface-container: #1c242b;
+  --color-surface-high: #232d36;
+  --color-on-surface: #f2f4f2;
+  --color-on-surface-variant: #9ca8a1;
+  --color-muted: #6e7b74;
+  --color-outline: #3a4956;
+  --color-outline-variant: #26313a;
+  --color-deep: #0a261a;
+  --color-spine-0: #4cd090;
+  --color-spine-1: #66a8f5;
+  --color-spine-2: #f0a44b;
+  --color-spine-3: #be8df0;
+  --color-spine-4: #4ac7d9;
+  --color-spine-5: #eb8676;
+  --color-spine-6: #9ec454;
+  --color-spine-7: #ee78aa;
+  --color-spine-0-soft: color-mix(in srgb, #4cd090 16%, #151b20);
+  --color-spine-1-soft: color-mix(in srgb, #66a8f5 16%, #151b20);
+  --color-spine-2-soft: color-mix(in srgb, #f0a44b 16%, #151b20);
+  --color-spine-3-soft: color-mix(in srgb, #be8df0 16%, #151b20);
+  --color-spine-4-soft: color-mix(in srgb, #4ac7d9 16%, #151b20);
+  --color-spine-5-soft: color-mix(in srgb, #eb8676 16%, #151b20);
+  --color-spine-6-soft: color-mix(in srgb, #9ec454 16%, #151b20);
+  --color-spine-7-soft: color-mix(in srgb, #ee78aa 16%, #151b20);
+  --chrome: #151b20;
+  --rail: #0a261a;
+  --brand-card: #17432f;
+  /* Shadows barely show on the dark page: a faint lit top edge lifts cards instead. */
+  --lift: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 2px 8px rgb(0 0 0 / 0.35);
+  --lift-soft: inset 0 1px 0 rgb(255 255 255 / 0.04);
+  --lift-float: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 10px 28px rgb(0 0 0 / 0.5);
+  --lift-sheet: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 24px 56px rgb(0 0 0 / 0.6);
 }
 html.dark [class*="bg-white/"]:not(.bg-white\/80) {
-  background-color: rgba(34, 38, 41, 0.6) !important;
-}
-html.dark .bg-surface-container,
-html.dark .bg-surface-high,
-html.dark .bg-primary-container,
-html.dark .bg-secondary-container,
-html.dark .bg-tertiary-container {
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
-}
-html.dark .border-white\/70,
-html.dark [class*="border-white"] {
-  border-color: rgba(255, 255, 255, 0.08);
-}
-html.dark .glass-header {
-  background-color: rgba(16, 18, 20, 0.7);
-  border-bottom-color: rgba(255, 255, 255, 0.07);
-}
-html.dark .glass-card {
-  background: rgb(27 30 32 / 0.75);
-  border-color: rgb(255 255 255 / 0.08);
+  background-color: color-mix(in srgb, var(--color-paper) 72%, transparent) !important;
 }
 html.dark .answer-key {
   color: #e6efec;
@@ -444,40 +494,12 @@ html.dark .ai-mark {
   color: #fff6d6;
 }
 html.dark .bg-\[\#eef7f4\] {
-  background-color: rgba(34, 38, 41, 0.75);
+  background-color: var(--color-surface-container);
 }
-html.dark .glass-3d,
-html.dark .slide-pill {
-  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.22) 0%, rgb(255 255 255 / 0.05) 48%, rgb(255 255 255 / 0) 52%, rgb(0 0 0 / 0.2) 100%);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.3), inset 0 -1px 2px rgb(0 0 0 / 0.35), 0 8px 20px -8px rgb(0 0 0 / 0.7) !important;
-  border-color: rgb(255 255 255 / 0.14);
-}
-html.dark .glass-well {
-  box-shadow: inset 0 2px 6px rgb(0 0 0 / 0.45), inset 0 -1px 0 rgb(255 255 255 / 0.05);
-}
-html.dark .glass-orb {
-  background: linear-gradient(180deg, rgb(255 255 255 / 0.14), rgb(255 255 255 / 0.04));
-  border-color: rgb(255 255 255 / 0.14);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.2), 0 6px 16px -8px rgb(0 0 0 / 0.8);
-}
-@media (max-width: 767px) {
-  html.dark .bg-white,
-  html.dark .bg-white\/80 {
-    background-color: rgba(25, 28, 30, 0.94) !important;
-  }
-  html.dark .bg-surface-container {
-    background-color: rgb(34, 38, 41);
-  }
-}
-::view-transition-old(root),
-::view-transition-new(root) {
-  mix-blend-mode: normal; /* clean cross-fade when switching light/dark */
-}
-/* Dark: large brand cards (live class, today, toasts) become deep teal glass with light text; buttons keep the bright accent. */
+/* Dark: large brand cards (live class, today, toasts) become deep brand cards with light text; buttons keep the bright accent. */
 html.dark :is(section, div).bg-primary {
   background-color: var(--brand-card);
-  color: #e2f7f2;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 12px 30px -14px rgb(0 0 0 / 0.8);
+  color: #e2f7ee;
 }
 html.dark :is(section, div).bg-primary .text-primary-container {
   color: var(--color-on-primary-container);
@@ -485,29 +507,53 @@ html.dark :is(section, div).bg-primary .text-primary-container {
 html.dark .glass-dark .text-primary-container {
   color: color-mix(in srgb, var(--color-on-primary-container) 80%, transparent); /* side-menu items that aren't selected */
 }
-
-/* Selectors: softly rounded rectangles rather than full pills (matches iOS segmented controls). */
-.slide-pill {
-  border-radius: 12px !important;
-}
-[data-slide] .rounded-full,
-[data-slide][class*="rounded-full"] {
-  border-radius: 12px;
-}
 html.dark :is(section, div).bg-primary [class*="text-on-primary"] {
-  color: rgb(226 247 242 / 0.82); /* secondary lines on the deep teal cards */
+  color: rgb(226 247 238 / 0.82); /* secondary lines on the deep brand cards */
 }
 html.dark :is(section, div).bg-primary [class*="text-secondary-container"],
 html.dark :is(section, div).bg-primary [class*="text-tertiary-container"] {
-  color: rgb(226 247 242 / 0.78);
+  color: rgb(226 247 238 / 0.78);
 }
 
-/* Live class: pulsing "live" dot and floating reactions. */
+/* ---------------------------------- Sky Blossom (Settings → Look) ---------------------------------- */
+/* The same paper neutrals; sky blue for the brand and blossom pink for the accents. */
+html[data-tone="sky"] {
+  --color-primary: #1769aa;
+  --color-primary-container: #e4f1fc;
+  --color-on-primary-container: #0e436e;
+  --color-secondary-container: #e4f1fc;
+  --color-on-secondary-container: #0e436e;
+  --color-tertiary: #a3365f;
+  --color-tertiary-container: #fce8f0;
+  --color-on-tertiary-container: #802246;
+  --color-accent: #d85b88;
+  --color-on-accent: #ffffff;
+  --color-deep: #10395c;
+  --rail: #10395c;
+}
+html.dark[data-tone="sky"] {
+  --color-primary: #5bb2f5;
+  --color-on-primary: #05233d;
+  --color-primary-container: #132b40;
+  --color-on-primary-container: #b5dcfb;
+  --color-secondary-container: #132b40;
+  --color-on-secondary-container: #b5dcfb;
+  --color-tertiary: #f38fb2;
+  --color-tertiary-container: #381826;
+  --color-on-tertiary-container: #f8bbd0;
+  --color-accent: #f38fb2;
+  --color-on-accent: #3d0b1f;
+  --color-deep: #0b2238;
+  --rail: #0b2238;
+  --brand-card: #163a5a;
+}
+
+/* Live class: the beacon breathes and reactions float up. */
 .live-dot {
-  animation: live-pulse 1.4s ease-in-out infinite;
+  animation: live-pulse 1.8s var(--ease-calm) infinite;
 }
 @keyframes live-pulse {
-  50% { opacity: 0.35; transform: scale(0.8); }
+  50% { opacity: 0.4; transform: scale(0.82); }
 }
 .reaction-float {
   animation: reaction-up 2.4s ease-out both;
@@ -530,16 +576,19 @@ label {
   min-width: 0; /* a label that holds a wide control may shrink with its row */
 }
 
-/* Dark: the light "container" colours used as TEXT on the deep teal (landing toolkit, video tiles) must stay light,
-   and the error colour (a light pink in dark mode) needs dark text on it. */
+/* Dark: the light "container" colours used as TEXT on the deep brand (landing toolkit, video tiles) must stay light,
+   and the error colour (a light coral in dark mode) needs dark text on it. */
 html.dark .bg-deep.text-primary-container,
 html.dark .bg-deep [class*="text-primary-container"],
 html.dark .bg-deep [class*="text-secondary-container"] {
-  color: #b9f5ea;
+  color: #b9f5da;
 }
 html.dark .bg-error,
 html.dark .bg-error.text-white {
-  color: #4a0006;
+  color: #3a0d0b;
+}
+html.dark .bg-tertiary.text-white {
+  color: #3a2a00; /* the warm accent is light in dark mode: white text on it can't be read */
 }
 
 /* A button whose words wrap (Bangla, large text, narrow phones) grows with them instead of the text spilling out:
@@ -579,212 +628,22 @@ html.dark .bg-error.text-white {
 .grid > * {
   min-width: 0;
 }
-html.dark .bg-tertiary.text-white {
-  color: #3a2a00; /* the amber accent is light in dark mode: white text on it can't be read */
-}
 
-/* "Find your institute": the list slides down from the box. */
+/* "Find your institute": the list slides down from the box, on solid paper. */
 .picker-drop {
-  background-color: #f8fcfb !important; /* solid: the page's glass surfaces would let the links underneath show through */
+  background-color: var(--color-paper) !important;
   transform-origin: top center;
-  animation: picker-drop 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.15) both;
+  box-shadow: var(--lift-float) !important;
+  animation: picker-drop 0.2s var(--ease-paper) both;
 }
 @keyframes picker-drop {
-  from { opacity: 0; transform: translateY(-10px) scaleY(0.94); }
+  from { opacity: 0; transform: translateY(-6px) scaleY(0.94); }
 }
 @media (prefers-reduced-motion: reduce) {
   .picker-drop { animation: none; }
 }
-html.dark .picker-drop {
-  background-color: #1b1e20 !important;
-}
-
-/* ---------------------------------- Colour themes ---------------------------------- */
-:root {
-  --glow-a: rgba(168, 236, 196, 0.55);
-  --glow-b: rgba(255, 222, 166, 0.4);
-  --glow-c: rgba(206, 234, 214, 0.5);
-  --rail: rgba(12, 81, 50, 0.88); /* the side menu */
-}
-/* "Sky & pink": sky blue, baby pink, near-white surfaces. Chosen in Settings → Look. */
-html[data-tone="sky"] {
-  --color-primary: #1976b8;
-  --color-primary-container: rgba(190, 226, 250, 0.78);
-  --color-on-primary-container: #062b47;
-  --color-secondary-container: rgba(255, 214, 228, 0.78);
-  --color-on-secondary-container: #4a1228;
-  --color-tertiary: #a83e6f;
-  --color-tertiary-container: rgba(255, 226, 236, 0.85);
-  --color-on-tertiary-container: #45132b;
-  --color-surface: #fbfcfe;
-  --color-surface-container: rgba(234, 242, 250, 0.62);
-  --color-surface-high: rgba(224, 235, 247, 0.68);
-  --color-on-surface: #1a1c20;
-  --color-on-surface-variant: #454a52;
-  --color-outline: rgba(110, 120, 135, 0.45);
-  --color-deep: #114b78;
-  --glow-a: rgba(190, 226, 250, 0.6);
-  --glow-b: rgba(255, 214, 228, 0.55);
-  --glow-c: rgba(255, 255, 255, 0.6);
-  --rail: rgba(17, 75, 120, 0.9);
-}
-html.dark[data-tone="sky"] {
-  --color-primary: #8ccaf5;
-  --color-on-primary: #062b47;
-  --color-primary-container: rgba(20, 74, 110, 0.62);
-  --color-on-primary-container: #cfe8fb;
-  --color-secondary-container: rgba(92, 44, 62, 0.6);
-  --color-on-secondary-container: #ffd9e6;
-  --color-tertiary: #f3a8c6;
-  --color-tertiary-container: rgba(100, 38, 64, 0.6);
-  --color-on-tertiary-container: #ffd9e6;
-  --color-surface: #111314;
-  --color-surface-container: rgba(38, 42, 44, 0.7);
-  --color-surface-high: rgba(48, 53, 56, 0.74);
-  --color-on-surface: #e3e6e5;
-  --color-on-surface-variant: #a8b0ad;
-  --color-outline: rgba(150, 160, 157, 0.4);
-  --color-deep: #0e3552;
-  --rail: rgba(22, 25, 27, 0.94);
-  --brand-card: #1b4466;
-}
-/* Buttons, chips and boxes with side padding: softly rounded instead of full pills (round icon buttons stay round). */
-.rounded-full[class*="px-"] {
-  border-radius: 12px;
-}
-
-/* Boxes stand slightly off the page: a soft two-layer shadow (a tight contact shadow and a wider, fainter one) gives
-   cards a gentle 3D look. Form fields stay flat. */
-:root {
-  --lift: inset 0 1px 0 rgb(255 255 255 / 0.85), 0 1px 2px rgb(0 32 24 / 0.08), 0 6px 18px -6px rgb(0 32 24 / 0.16);
-  --lift-soft: inset 0 1px 0 rgb(255 255 255 / 0.6), 0 1px 2px rgb(0 32 24 / 0.06), 0 4px 12px -6px rgb(0 32 24 / 0.12);
-}
-html.dark {
-  --lift: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 1px 2px rgb(0 0 0 / 0.5), 0 8px 22px -8px rgb(0 0 0 / 0.7);
-  --lift-soft: inset 0 1px 0 rgb(255 255 255 / 0.05), 0 1px 2px rgb(0 0 0 / 0.4), 0 6px 16px -8px rgb(0 0 0 / 0.6);
-}
-:is(div, section, article, form, aside, li, a, details, label, ul, nav, header).bg-white,
-:is(div, section, article, form, aside, li, a, details, label, ul).bg-white\/80,
-html.dark :is(div, section, article, form, aside, li, a, details, label, ul, nav, header).bg-white {
-  box-shadow: var(--lift) !important;
-}
-:is(div, section, article, a, li, button).bg-primary-container,
-:is(div, section, article, a, li, button).bg-secondary-container,
-:is(div, section, article, a, li, button).bg-tertiary-container,
-:is(section, div).bg-primary,
-:is(div, a, li).bg-surface-container[class*="rounded-"] {
-  box-shadow: var(--lift-soft);
-}
-html.dark :is(section, div).bg-primary {
-  box-shadow: var(--lift) !important;
-}
-.picker-drop {
-  box-shadow: 0 2px 4px rgb(0 32 24 / 0.08), 0 18px 40px -8px rgb(0 32 24 / 0.28) !important;
-}
 
 /* The "loading" mark of a dashboard that is still fetching its data: only shown if the wait passes half a second. */
 .wait-in {
-  animation: ios-fade 0.2s 0.5s both;
-}
-
-/* ---------------------------------- Glass effect (Settings → Glass effect) ----------------------------------
-   <html data-glass="1|2|3" style="--glass: 0.33|0.67|1"> (src/lib/theme.ts); no data-glass = Off, exactly the look above.
-   A soft gradient with a few large blurred colour blobs behind everything, and cards, bars and dialogs that let more
-   of it through, with a stronger frost. Screen only: printed pages (receipts, report cards) stay plain. The blobs are
-   pastel (light) or deep (dark) so text on the page keeps its AA contrast. */
-:root {
-  --blob-a: #9fe3bb; /* mint */
-  --blob-b: #9adfd6; /* teal */
-  --blob-c: #ffe2a8; /* warm sand */
-}
-html[data-tone="sky"] {
-  --blob-a: #b9defa;
-  --blob-b: #ffcfe0;
-  --blob-c: #dfe3ff;
-}
-html.dark {
-  --blob-a: #1c4a38;
-  --blob-b: #0f3b3c;
-  --blob-c: #3a3415;
-}
-html.dark[data-tone="sky"] {
-  --blob-a: #144a6e;
-  --blob-b: #5c2c3e;
-  --blob-c: #1f2a4a;
-}
-@media screen {
-  /* The backdrop is one fixed layer, so scrolling never repaints it (also on phones). */
-  html[data-glass] body {
-    background: transparent;
-  }
-  html[data-glass] body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background:
-      radial-gradient(circle 55vmax at 6% 4%, color-mix(in srgb, var(--blob-a) calc(var(--glass) * 60%), transparent), transparent 70%),
-      radial-gradient(circle 48vmax at 98% 16%, color-mix(in srgb, var(--blob-b) calc(var(--glass) * 55%), transparent), transparent 70%),
-      radial-gradient(circle 55vmax at 80% 102%, color-mix(in srgb, var(--blob-c) calc(var(--glass) * 45%), transparent), transparent 70%),
-      radial-gradient(circle 42vmax at 8% 92%, color-mix(in srgb, var(--blob-b) calc(var(--glass) * 35%), transparent), transparent 70%),
-      radial-gradient(at 12% 10%, var(--glow-a) 0px, transparent 50%),
-      radial-gradient(at 88% 14%, var(--glow-b) 0px, transparent 48%),
-      radial-gradient(at 18% 82%, var(--glow-c) 0px, transparent 50%),
-      var(--color-surface);
-  }
-  html.dark[data-glass] {
-    --glow-a: transparent; /* dark mode had no glow: only the deep blobs */
-    --glow-b: transparent;
-    --glow-c: transparent;
-  }
-
-  /* Cards: more see-through and a stronger frost. */
-  html[data-glass] .bg-white,
-  html[data-glass] .bg-white\/80 {
-    background-color: rgb(255 255 255 / calc(0.62 - var(--glass) * 0.2)) !important;
-    backdrop-filter: blur(calc(24px + var(--glass) * 16px)) saturate(calc(185% + var(--glass) * 15%));
-    -webkit-backdrop-filter: blur(calc(24px + var(--glass) * 16px)) saturate(calc(185% + var(--glass) * 15%));
-    border-color: rgb(255 255 255 / 0.85);
-  }
-  html.dark[data-glass] .bg-white,
-  html.dark[data-glass] .bg-white\/80 {
-    background-color: rgb(27 30 32 / calc(0.66 - var(--glass) * 0.2)) !important;
-    border-color: rgb(255 255 255 / 0.1);
-  }
-
-  /* Bars (headers, the phone's bottom bar, side menus) and dialogs: frosted on every screen size. These are a few
-     large surfaces, so the blur stays smooth on phones too (cards there are see-through without blur). */
-  html[data-glass] :is(.glass-header, [class*="backdrop-blur"]:not(.fixed.inset-0, .glass-well)) {
-    backdrop-filter: blur(calc(20px + var(--glass) * 16px)) saturate(190%);
-    -webkit-backdrop-filter: blur(calc(20px + var(--glass) * 16px)) saturate(190%);
-  }
-  html[data-glass] :is(.glass-header, .bg-surface-container[class*="backdrop-blur"]:not(.glass-well), .bg-surface\/90) {
-    background-color: color-mix(in srgb, var(--color-surface) calc(80% - var(--glass) * 30%), transparent) !important;
-  }
-  html[data-glass] .glass-dark {
-    background-color: color-mix(in srgb, var(--rail) calc(100% - var(--glass) * 8%), transparent); /* white text on it stays readable */
-    backdrop-filter: blur(calc(24px + var(--glass) * 16px)) saturate(190%);
-    -webkit-backdrop-filter: blur(calc(24px + var(--glass) * 16px)) saturate(190%);
-  }
-  html[data-glass] :is([role="dialog"], .fixed.inset-0 > *).bg-white {
-    background-color: rgb(255 255 255 / calc(0.9 - var(--glass) * 0.12)) !important;
-    backdrop-filter: blur(calc(20px + var(--glass) * 20px)) saturate(180%);
-    -webkit-backdrop-filter: blur(calc(20px + var(--glass) * 20px)) saturate(180%);
-  }
-  html.dark[data-glass] :is([role="dialog"], .fixed.inset-0 > *).bg-white {
-    background-color: rgb(27 30 32 / calc(0.92 - var(--glass) * 0.12)) !important;
-  }
-}
-@media screen and (max-width: 767px) {
-  html[data-glass] .bg-white:not(:is([role="dialog"], .fixed.inset-0 > *)),
-  html[data-glass] .bg-white\/80 {
-    background-color: rgb(255 255 255 / calc(0.92 - var(--glass) * 0.27)) !important;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
-  html.dark[data-glass] .bg-white:not(:is([role="dialog"], .fixed.inset-0 > *)),
-  html.dark[data-glass] .bg-white\/80 {
-    background-color: rgb(25 28 30 / calc(0.94 - var(--glass) * 0.27)) !important;
-  }
+  animation: fade-in 0.2s 0.5s both;
 }

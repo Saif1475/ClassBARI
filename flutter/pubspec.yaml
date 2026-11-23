@@ -9,6 +9,7 @@ dependencies:
   flutter:
     sdk: flutter
   material_ui: ^1.1.0
+  cupertino_ui: ^1.1.7 # already in the app through material_ui; named for the iPhone's swipe-back page transition
   supabase_flutter: ^2.18.3
   image_picker: ^1.2.4
   url_launcher: ^6.3.3

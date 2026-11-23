@@ -1,3 +1,4 @@
+import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoPageTransitionsBuilder; // iPhones keep their swipe-back
 import 'package:material_ui/material_ui.dart';
 
 /// What the look needs besides plain colours: the soft fill of chips and icon squares, the faint shadow under cards,
@@ -33,35 +34,55 @@ extension Look on BuildContext {
 Color lit(Color c, [double by = 0.10]) => Color.lerp(c, Colors.white, by)!;
 Color deep(Color c, [double by = 0.18]) => Color.lerp(c, Colors.black, by)!;
 
-/// Instanton Campus's colours: green, or sky blue with pink (the theme girls get on the website), each with a dark version.
-/// Flat and airy: a quiet page, white cards with generous corners, colour kept for what matters.
+/// "Paper & Spring" (design/05-animations-and-motion.md): the website's curves.
+const paperCurve = Cubic(0.22, 1, 0.36, 1); // glide: pills, sheets, tabs, page pushes (never overshoots: safe for fades)
+const tactileCurve = Cubic(0.34, 1.45, 0.64, 1); // micro-spring: press release, checkmarks (overshoots: not for opacity)
+const exitCurve = Curves.easeInCubic; // leaving is always quicker than arriving
+
+/// A new page comes in a little way from the right and fades in, as on the website (iPhones keep their own swipe-back).
+class PaperPageTransitions extends PageTransitionsBuilder {
+  const PaperPageTransitions();
+  @override
+  Widget buildTransitions<T>(PageRoute<T> route, BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+    final move = CurvedAnimation(parent: animation, curve: paperCurve, reverseCurve: exitCurve);
+    return FadeTransition(
+      opacity: move,
+      child: SlideTransition(position: Tween(begin: const Offset(0.2, 0), end: Offset.zero).animate(move), child: child),
+    );
+  }
+}
+
+/// Instanton Campus's colours, "Paper & Prism" (design/02-visual-system.md, the website's globals.css): a warm paper
+/// page, crisp white cards with hairline borders, Forest Chalk green or Sky Blossom (sky blue with pink), each with a
+/// dark "Night Study Ink" version. Colour is kept for what matters.
 ThemeData classbariTheme(Brightness brightness, {bool sky = false, double glass = 0}) {
   final dark = brightness == Brightness.dark;
   Color pick(int green, int greenDark, int blue, int blueDark) => Color(sky ? (dark ? blueDark : blue) : (dark ? greenDark : green));
-  final primary = pick(0xFF157347, 0xFF6CC9A4, 0xFF1976B8, 0xFF8CCAF5);
-  final onPrimary = pick(0xFFFFFFFF, 0xFF06231A, 0xFFFFFFFF, 0xFF062B47);
-  final surface = Color(dark ? 0xFF101312 : (sky ? 0xFFF4F6FA : 0xFFF3F6F4));
-  final card = Color(dark ? 0xFF1A1E1D : 0xFFFFFFFF);
-  final tile = Color(dark ? 0xFF262B2A : (sky ? 0xFFE9EFF7 : 0xFFE9F0EC));
-  final text = Color(dark ? 0xFFE6EAE8 : 0xFF17201B);
-  final muted = Color(dark ? 0xFFA3ADA8 : 0xFF57625C);
-  final line = Color(dark ? 0xFF2D3432 : 0xFFE0E6E2);
+  final primary = pick(0xFF146C43, 0xFF3EC786, 0xFF1769AA, 0xFF5BB2F5);
+  final onPrimary = pick(0xFFFFFFFF, 0xFF062B19, 0xFFFFFFFF, 0xFF05233D);
+  final surface = Color(dark ? 0xFF0D1114 : 0xFFFAF8F4); // the page: warm paper
+  final card = Color(dark ? 0xFF151B20 : 0xFFFFFFFF);
+  final tile = Color(dark ? 0xFF1C242B : 0xFFF3F0E9); // wells, chips, icon squares
+  final text = Color(dark ? 0xFFF2F4F2 : 0xFF161B18);
+  final muted = Color(dark ? 0xFF9CA8A1 : 0xFF535E58);
+  final line = Color(dark ? 0xFF26313A : 0xFFE6E1D6); // hairlines
   // Dialogs, sheets and the side menu: a little see-through with the glass effect (the menu also blurs what is behind).
   final sheet = card.withValues(alpha: 1 - glass * 0.12);
+  final soft = pick(0xFFE4F4EC, 0xFF123526, 0xFFE4F1FC, 0xFF132B40), onSoft = pick(0xFF0C472B, 0xFFA7EBC9, 0xFF0E436E, 0xFFB5DCFB);
   final scheme = ColorScheme.fromSeed(seedColor: primary, brightness: brightness).copyWith(
     primary: primary,
     onPrimary: onPrimary,
-    primaryContainer: pick(0xFFD5F0E0, 0xFF1C4A38, 0xFFD6EAFA, 0xFF144A6E),
-    onPrimaryContainer: pick(0xFF0B3D25, 0xFFC4EFD9, 0xFF0A3A5E, 0xFFCFE8FB),
-    secondaryContainer: pick(0xFFDDEDE3, 0xFF303A35, 0xFFFFDCE8, 0xFF5C2C3E),
-    onSecondaryContainer: text,
-    tertiary: pick(0xFF8A5A00, 0xFFE7BD62, 0xFFA83E6F, 0xFFF3A8C6),
-    tertiaryContainer: pick(0xFFFFE7BF, 0xFF5C4408, 0xFFFFE2EC, 0xFF642640),
-    onTertiaryContainer: Color(dark ? 0xFFFFE9C4 : 0xFF3D2800),
-    error: Color(dark ? 0xFFFFB4AB : 0xFFB3261E),
-    onError: Color(dark ? 0xFF690005 : 0xFFFFFFFF),
-    errorContainer: Color(dark ? 0xFF93000A : 0xFFFCE1DE),
-    onErrorContainer: Color(dark ? 0xFFFFDAD6 : 0xFF5C1410),
+    primaryContainer: soft,
+    onPrimaryContainer: onSoft,
+    secondaryContainer: soft,
+    onSecondaryContainer: onSoft,
+    tertiary: pick(0xFF925309, 0xFFF5BA62, 0xFFA3365F, 0xFFF38FB2),
+    tertiaryContainer: pick(0xFFFEF2E2, 0xFF332412, 0xFFFCE8F0, 0xFF381826),
+    onTertiaryContainer: pick(0xFF7A4608, 0xFFFAD19E, 0xFF802246, 0xFFF8BBD0),
+    error: Color(dark ? 0xFFF98078 : 0xFFB42318),
+    onError: Color(dark ? 0xFF3A0D0B : 0xFFFFFFFF),
+    errorContainer: Color(dark ? 0xFF3A1718 : 0xFFFDECEB),
+    onErrorContainer: Color(dark ? 0xFFF98078 : 0xFFB42318),
     surface: surface,
     onSurface: text,
     onSurfaceVariant: muted,
@@ -70,24 +91,23 @@ ThemeData classbariTheme(Brightness brightness, {bool sky = false, double glass 
     surfaceContainer: card,
     surfaceContainerHigh: tile,
     surfaceContainerHighest: tile,
-    outline: Color(dark ? 0xFF8A9390 : 0xFF6F7A72),
+    outline: Color(dark ? 0xFF3A4956 : 0xFFCFC8BA),
     outlineVariant: line,
     surfaceTint: Colors.transparent,
   );
   final tone = Tone(
     tile: tile,
-    lift: dark
-        ? const [BoxShadow(color: Color(0x66000000), blurRadius: 14, spreadRadius: -6, offset: Offset(0, 6))]
-        : const [BoxShadow(color: Color(0x0F0B2A1C), blurRadius: 2, offset: Offset(0, 1)), BoxShadow(color: Color(0x170B2A1C), blurRadius: 20, spreadRadius: -8, offset: Offset(0, 8))],
-    hero: dark ? [pick(0, 0xFF24573F, 0, 0xFF22527A), pick(0, 0xFF1A4433, 0, 0xFF183E5E)] : [pick(0xFF1C8553, 0, 0xFF2283C7, 0), pick(0xFF0F5F39, 0, 0xFF125F96, 0)],
-    courses: const [Color(0xFF157347), Color(0xFF1D6FB8), Color(0xFFB5416B), Color(0xFFC2580C), Color(0xFF6D3FC0), Color(0xFF0E7C86), Color(0xFF8A6A00), Color(0xFFBE3A3A)],
+    // Paper elevation: a warm stone tint, never harsh black; the dark page lifts cards by their lighter paper instead.
+    lift: dark ? const [] : const [BoxShadow(color: Color(0x0B1C241E), blurRadius: 10, offset: Offset(0, 3)), BoxShadow(color: Color(0x081C241E), blurRadius: 2, offset: Offset(0, 1))],
+    hero: dark ? [pick(0, 0xFF17432F, 0, 0xFF163A5A), pick(0, 0xFF0F3022, 0, 0xFF0F2A42)] : [pick(0xFF146C43, 0, 0xFF1769AA, 0), pick(0xFF0F5635, 0, 0xFF115388, 0)],
+    // The 8 subject spines ("Ink & Chalk"): chapters and batches by their place % 8. The light values in both modes:
+    // white text and icons sit on them.
+    courses: const [Color(0xFF146C43), Color(0xFF1D63B8), Color(0xFFC46D10), Color(0xFF7A3EB1), Color(0xFF0E7B8C), Color(0xFFB84A39), Color(0xFF5B7A1E), Color(0xFFB8326A)],
     glass: glass,
-    // The website's blobs (globals.css): pastel on light pages, deep on dark ones, so text keeps its contrast.
-    blobs: [
-      for (final (g, gd, b, bd) in const [(0xFF9FE3BB, 0xFF1C4A38, 0xFFB9DEFA, 0xFF144A6E), (0xFF9ADFD6, 0xFF0F3B3C, 0xFFFFCFE0, 0xFF5C2C3E), (0xFFFFE2A8, 0xFF3A3415, 0xFFDFE3FF, 0xFF1F2A4A)]) pick(g, gd, b, bd),
-    ],
+    // "Crystal" (the highest glass level) washes the page faintly with the brand colours, as on the website.
+    blobs: [soft, pick(0xFFFEF2E2, 0xFF332412, 0xFFFCE8F0, 0xFF381826), soft],
   );
-  const corner = BorderRadius.all(Radius.circular(14));
+  const corner = BorderRadius.all(Radius.circular(12)); // inputs and small controls; buttons are pills
   // The website's fonts: Plus Jakarta Sans for English letters; Bangla and ৳ fall through to Hind Siliguri.
   final base = ThemeData(colorScheme: scheme, scaffoldBackgroundColor: surface, extensions: [tone], fontFamily: 'PlusJakartaSans', fontFamilyFallback: const ['HindSiliguri']);
   return base.copyWith(
@@ -96,12 +116,23 @@ ThemeData classbariTheme(Brightness brightness, {bool sky = false, double glass 
       headlineSmall: base.textTheme.headlineSmall?.copyWith(fontSize: 22, height: 1.2, fontWeight: FontWeight.w800, letterSpacing: -0.2, color: text),
       titleLarge: base.textTheme.titleLarge?.copyWith(fontSize: 19, height: 1.25, fontWeight: FontWeight.w700, color: text),
       titleMedium: base.textTheme.titleMedium?.copyWith(fontSize: 16, height: 1.3, fontWeight: FontWeight.w700, letterSpacing: 0, color: text),
-      bodyLarge: base.textTheme.bodyLarge?.copyWith(fontSize: 16, height: 1.45, letterSpacing: 0.1, color: text),
-      bodyMedium: base.textTheme.bodyMedium?.copyWith(fontSize: 15, height: 1.4, letterSpacing: 0.1, color: text),
-      bodySmall: base.textTheme.bodySmall?.copyWith(fontSize: 13.5, height: 1.35, letterSpacing: 0.1, color: muted),
-      labelSmall: base.textTheme.labelSmall?.copyWith(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: 0.9, color: muted),
+      // A little more room between lines than English needs alone: Bangla's vowel signs reach above and below.
+      bodyLarge: base.textTheme.bodyLarge?.copyWith(fontSize: 16, height: 1.55, letterSpacing: 0.1, color: text),
+      bodyMedium: base.textTheme.bodyMedium?.copyWith(fontSize: 15, height: 1.5, letterSpacing: 0.1, color: text),
+      bodySmall: base.textTheme.bodySmall?.copyWith(fontSize: 13.5, height: 1.45, letterSpacing: 0.1, color: muted),
+      labelSmall: base.textTheme.labelSmall?.copyWith(fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: 0.7, color: muted),
     ),
     cardTheme: const CardThemeData(color: Colors.transparent, elevation: 0, margin: EdgeInsets.zero),
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: PaperPageTransitions(),
+        TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+        TargetPlatform.linux: PaperPageTransitions(),
+        TargetPlatform.windows: PaperPageTransitions(),
+        TargetPlatform.fuchsia: PaperPageTransitions(),
+      },
+    ),
     appBarTheme: AppBarTheme(
       backgroundColor: Colors.transparent,
       foregroundColor: text,
@@ -113,7 +144,7 @@ ThemeData classbariTheme(Brightness brightness, {bool sky = false, double glass 
       style: FilledButton.styleFrom(
         minimumSize: const Size(48, 50),
         elevation: 0,
-        shape: const RoundedRectangleBorder(borderRadius: corner),
+        shape: const StadiumBorder(),
         textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
       ),
     ),
@@ -121,7 +152,7 @@ ThemeData classbariTheme(Brightness brightness, {bool sky = false, double glass 
       style: OutlinedButton.styleFrom(
         minimumSize: const Size(48, 50),
         backgroundColor: card,
-        shape: const RoundedRectangleBorder(borderRadius: corner),
+        shape: const StadiumBorder(),
         side: BorderSide(color: line),
         textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
       ),
@@ -129,7 +160,7 @@ ThemeData classbariTheme(Brightness brightness, {bool sky = false, double glass 
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         minimumSize: const Size(48, 44),
-        shape: const RoundedRectangleBorder(borderRadius: corner),
+        shape: const StadiumBorder(),
         textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
       ),
     ),
@@ -152,20 +183,20 @@ ThemeData classbariTheme(Brightness brightness, {bool sky = false, double glass 
     ),
     dialogTheme: DialogThemeData(
       backgroundColor: sheet,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(26))),
     ),
     bottomSheetTheme: BottomSheetThemeData(
       backgroundColor: sheet,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(26))),
     ),
     drawerTheme: DrawerThemeData(
       backgroundColor: glass > 0 ? card.withValues(alpha: 1 - glass * 0.3) : card,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.horizontal(right: Radius.circular(24))),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.horizontal(right: Radius.circular(26))),
     ),
     dividerTheme: DividerThemeData(color: line, space: 1, thickness: 1),
     snackBarTheme: const SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: corner),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(16))),
     ),
   );
 }
