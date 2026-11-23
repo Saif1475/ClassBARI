@@ -12,11 +12,13 @@ const SETUP: Record<Exclude<Provider, "anthropic">, { key: string; url: string }
 };
 /** How each OpenAI-compatible provider is told to keep its hidden thinking low. */
 const THINK: Record<Exclude<Provider, "anthropic">, Record<string, unknown>> = {
-  google: { reasoning_effort: "low" },
+  google: { reasoning_effort: "low" }, // Gemini 3; Gemini 2.5 gets "none" (see thinkFor): "low" would switch its thinking ON
   openai: { reasoning_effort: "low" },
   qwen: { enable_thinking: false },
   openrouter: { reasoning: { effort: "low" } },
 };
+/** Measured Nov 2026: Gemini 2.5 Flash-Lite doesn't think unless asked, so "low" made its answers dearer; it gets "none". */
+const thinkFor = (model: string) => (model.startsWith("gemini-2.5") ? { reasoning_effort: "none" } : THINK[providerOf(model) as keyof typeof SETUP]);
 const providerOf = (model: string): Provider => MODELS[model]?.provider ?? "anthropic";
 /** Is this model's API key set on the server? */
 export const modelReady = (model: string) => !!process.env[providerOf(model) === "anthropic" ? "ANTHROPIC_API_KEY" : SETUP[providerOf(model) as keyof typeof SETUP].key];
@@ -108,7 +110,7 @@ export async function streamChat(ask: Ask, onText: (t: string) => void): Promise
     signal: AbortSignal.timeout(120_000),
     body: JSON.stringify({
       // Little hidden thinking: it is billed as answer and counts against the student, while chat questions rarely need much.
-      ...(think ? THINK[providerOf(ask.model) as keyof typeof SETUP] : {}),
+      ...(think ? thinkFor(ask.model) : {}),
       model: MODELS[ask.model]?.route ?? ask.model,
       stream: true,
       stream_options: { include_usage: true }, // the token count arrives as the last event
