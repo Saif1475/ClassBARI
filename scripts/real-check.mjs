@@ -233,7 +233,9 @@ try {
   r = await insights(student);
   check("a student without premium sees it's locked", r.status === 402);
   const free = await call(student, "GET", "/api/ai/assistant");
-  check("a student without a pack gets the free AI chat (Qwen Flash only)", free.status === 200 && free.json.pack === 0 && free.json.models.filter((m) => !m.locked).every((m) => m.id === "qwen3.7-flash"));
+  // Free models are the ones under $0.20 per million answer tokens (the server lists them with pack 0): today Qwen Flash and DeepSeek V4.1 Flash.
+  const freeModels = free.json?.models?.filter((m) => !m.locked) ?? [];
+  check("a student without a pack gets the free AI chat (only the free models)", free.status === 200 && free.json.pack === 0 && freeModels.length > 0 && freeModels.every((m) => m.pack === 0));
   r = await insights(guardian);
   check("guardians don't get it", r.status === 402);
   await act(owner, "setStudentPremium", [me.id, "2099-12-31"]);
