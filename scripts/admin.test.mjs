@@ -64,10 +64,10 @@ test("models and providers switched off are hidden from the picker and never pic
   assert.ok(!modelOn("claude-haiku-5-5", p.ai));
   assert.ok(!packPlan(400, p.ai).models.includes("claude-haiku-5-5"));
   assert.ok(!modelMenu(400, p.ai).some((m) => m.id === "claude-haiku-5-5"));
-  // Qwen and the 100B+ models all go through OpenRouter: switching it off leaves only Claude, Gemini and GPT.
+  // The 100B+ models go through OpenRouter: switching it off leaves Claude, Gemini, GPT and the Alibaba-direct Qwen ones.
   adminAction(p, { type: "ai", key: "provider", id: "openrouter", value: false }, now);
-  assert.ok(packPlan(1500, p.ai).models.every((id) => !id.startsWith("qwen") && !id.includes("/")));
-  assert.deepEqual(freePlan(p.ai).models, []); // both free models are OpenRouter ones
+  assert.ok(packPlan(1500, p.ai).models.every((id) => !id.includes("/")));
+  assert.deepEqual(freePlan(p.ai).models, ["qwen3.7-flash"]); // DeepSeek (OpenRouter) is off
   adminAction(p, { type: "ai", key: "provider", id: "openrouter", value: true }, now);
   adminAction(p, { type: "ai", key: "model", id: "claude-haiku-5-5", value: true }, now);
   assert.deepEqual(packPlan(1500, p.ai), packPlan(1500));

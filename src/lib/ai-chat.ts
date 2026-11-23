@@ -10,14 +10,16 @@ export const windowTokens = (daily = Number(process.env.AI_DAILY_TOKENS) || 200_
 
 /** The models students can chat with. provider: whose API answers. price: US$ per million tokens [input, output, cache read]. */
 export const MODELS: Record<string, { label: string; provider: "anthropic" | "google" | "qwen" | "openai" | "openrouter"; price: [number, number, number]; textOnly?: true; route?: string }> = { // route: the model's name at its provider, when it differs
-  "qwen3.7-flash": { label: "Qwen Flash", provider: "openrouter", route: "qwen/qwen3.7-flash", price: [0.03, 0.13, 0.03] },
+  // Alibaba-only Qwen models: on OpenRouter only Alibaba serves them, which fails the "don't keep students' data" rule, so
+  // they go to Alibaba's own API (DashScope) and show as "coming soon" until DASHSCOPE_API_KEY is set (owner's decision).
+  "qwen3.7-flash": { label: "Qwen Flash", provider: "qwen", price: [0.03, 0.13, 0.03] },
   "gemini-2.5-flash-lite": { label: "Gemini Flash-Lite", provider: "google", price: [0.1, 0.4, 0.1] },
   "claude-haiku-5-5": { label: "Claude Haiku", provider: "anthropic", price: [0.1, 0.5, 0.01] },
   "gemini-3-flash-preview": { label: "Gemini 3 Flash", provider: "google", price: [0.5, 3, 0.5] },
   "gpt-5.6-luna": { label: "GPT Luna", provider: "openai", price: [0.2, 1.2, 0.2] },
-  "qwen3.8-flash": { label: "Qwen 3.8 Flash", provider: "openrouter", route: "qwen/qwen3.8-flash", price: [0.15, 0.47, 0.15] },
-  "qwen3.7-plus": { label: "Qwen Plus", provider: "openrouter", route: "qwen/qwen3.7-plus", price: [0.32, 1.28, 0.32] }, // OpenRouter's list price
-  "qwen3.8-max": { label: "Qwen Max", provider: "openrouter", route: "qwen/qwen3.8-max-0902", price: [2, 6, 0.25] }, // Qwen goes through OpenRouter (owner's choice); Claude, Gemini, GPT stay direct
+  "qwen3.8-flash": { label: "Qwen 3.8 Flash", provider: "qwen", price: [0.15, 0.47, 0.15] },
+  "qwen3.7-plus": { label: "Qwen Plus", provider: "qwen", price: [0.4, 1.6, 0.4] },
+  "qwen3.8-max": { label: "Qwen Max", provider: "qwen", price: [2, 6, 0.25] },
   "claude-sonnet-5-5": { label: "Claude Sonnet", provider: "anthropic", price: [2, 10, 0.1] },
   "claude-opus-5-5": { label: "Claude Opus", provider: "anthropic", price: [4, 20, 0.2] }, // staff previews only
   // Through OpenRouter (one key): models of 100B+ parameters with Bangla support (official language list or a Bangla
