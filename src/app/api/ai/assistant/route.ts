@@ -1,5 +1,6 @@
-import { chatFile, chatImage, chatPrefs, cleanHistory, costUsd, MODELS, modelOn, modelMenu, monthlyBudgetUsd, prefsRule, takeTurn, TRAILER, usedTokens, withFile } from "@/lib/ai-chat";
+import { chatFile, chatImage, chatPrefs, cleanHistory, costUsd, MODELS, modelOn, modelMenu, budgetPaused, prefsRule, takeTurn, TRAILER, usedTokens, withFile } from "@/lib/ai-chat";
 import { allowance } from "@/lib/ai-allowance";
+import { creditHistory } from "@/lib/ai-credit";
 import { gate } from "@/lib/ai-gate";
 import { modelReady, streamChat } from "@/lib/ai-providers";
 import { embed, findAnswer, saveAnswer, shareable, VET_RULES, vetAsk, vetModel, vetSaysYes } from "@/lib/answer-cache";
@@ -20,14 +21,15 @@ const RULES = `You are ClassBARI's study assistant for Bangladeshi school and co
 export async function GET(request: Request) {
   const g = await gate(request);
   if ("error" in g) return g.error;
-  // Also how much of this 12-hour allowance is left and when it refills (shown in Chat settings).
-  const a = await allowance(`${g.me.institute}:student:${g.student.id}`, g.me.institute, g.plan, g.ai);
-  return Response.json({ pack: g.plan.pack, pick: g.models[0] ?? null, left: a.left(), resetsAt: a.resetsAt, models: modelMenu(g.plan.pack, g.ai).map((m) => ({ ...m, soon: !m.locked && !g.models.includes(m.id) })) });
+  // Also how much of today's allowance is left, when it refills, and the extra credit with its history (shown in Chat settings).
+  const key = `${g.me.institute}:student:${g.student.id}`;
+  const [a, creditLog] = await Promise.all([allowance(admin(), key, g.me.institute, g.plan, g.ai), creditHistory(admin(), key, g.ai).catch(() => [])]);
+  return Response.json({ pack: g.plan.pack, pick: g.models[0] ?? null, left: a.left(), resetsAt: a.resetsAt, credit: a.creditTk(), paying: a.paying, creditLog, models: modelMenu(g.plan.pack, g.ai).map((m) => ({ ...m, soon: !m.locked && !g.models.includes(m.id) })) });
 }
 
 /**
  * The AI chat (student AI packs): { messages: [{ role, content }], model?, image?, file?: { name, text }, tools?: { pdf?, highlight? } } → the answer as streamed text.
- * The student's pack decides which models they may pick and the tokens per 12-hour window.
+ * The student's pack decides which models they may pick and the tokens per day.
  */
 export async function POST(request: Request) {
   const g = await gate(request);
@@ -46,7 +48,7 @@ export async function POST(request: Request) {
   // A photo needs a model that can see: if the chosen one reads text only, the first one in their plan that can.
   const model = image && MODELS[picked]?.textOnly ? (g.models.find((id) => !MODELS[id]?.textOnly) ?? picked) : picked;
 
-  // Same allowance as "Ask AI" on a PDF: tokens per person per 12-hour window, and the monthly budget for everyone.
+  // Same allowance as "Ask AI" on a PDF: tokens per person per day (then extra credit), and the monthly budget for everyone.
   const db = admin();
   const key = `${me.institute}:student:${student.id}`;
   const fast = limited(request, "ai", 12, 60_000, key);
@@ -54,7 +56,7 @@ export async function POST(request: Request) {
   const release = await takeTurn(key); // one answer at a time per student, so the count read below is never out of date
   let streaming = false; // an answer on its way lets go itself, once it is counted
   try {
-    const a = await allowance(key, me.institute, plan, ai); // tokens and money for this 12-hour window
+    const a = await allowance(db, key, me.institute, plan, ai); // tokens and money for today, or extra credit
     const leftNow = a.left();
 
     // Asked before by someone? Answer from the saved copy: instant, and it uses none of the student's allowance.
@@ -67,7 +69,7 @@ export async function POST(request: Request) {
 
     if (a.over) return Response.json({ error: "limit", resetsAt: a.resetsAt }, { status: 429 });
     // Free chats stop at 80% of the monthly budget, so students who paid always have the last 20%.
-    if ((await aiSpent(`${a.day.slice(0, 7)}-01`)) >= monthlyBudgetUsd(ai) * (plan.pack ? 1 : 0.8)) return Response.json({ error: "paused" }, { status: 503 });
+    if (budgetPaused(await aiSpent(`${a.day.slice(0, 7)}-01`), ai, plan.pack)) return Response.json({ error: "paused" }, { status: 503 });
 
     const enc = new TextEncoder();
     const out = new ReadableStream<Uint8Array>({
@@ -90,7 +92,7 @@ export async function POST(request: Request) {
           // What was counted, to compare with the provider's bill (no names, no text).
           console.info(`ai answer: ${model} in=${r.usage.input_tokens} out=${r.usage.output_tokens} letters=${answer.length} cost=${cost.toFixed(5)}`);
           const left = a.left(tokens, cost);
-          send(TRAILER + JSON.stringify({ left, declined: r.declined, cut: r.cut }));
+          send(TRAILER + JSON.stringify({ left, credit: a.paying ? a.creditTk(cost) : undefined, declined: r.declined, cut: r.cut }));
         } catch (e) {
           console.error("ai assistant:", e instanceof Error ? e.message : e);
           send(TRAILER + JSON.stringify({ error: true }));

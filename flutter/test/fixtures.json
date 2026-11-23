@@ -2790,7 +2790,7 @@
    "args": [
     0
    ],
-   "out": "0% of this 12-hour allowance left"
+   "out": "0% of today's allowance left"
   },
   {
    "lang": "en",
@@ -2798,7 +2798,7 @@
    "args": [
     0
    ],
-   "out": "0% of this 12-hour allowance left"
+   "out": "0% of today's allowance left"
   },
   {
    "lang": "en",
@@ -2806,7 +2806,7 @@
    "args": [
     1
    ],
-   "out": "1% of this 12-hour allowance left"
+   "out": "1% of today's allowance left"
   },
   {
    "lang": "en",
@@ -2814,7 +2814,7 @@
    "args": [
     1
    ],
-   "out": "1% of this 12-hour allowance left"
+   "out": "1% of today's allowance left"
   },
   {
    "lang": "en",
@@ -2822,7 +2822,7 @@
    "args": [
     2
    ],
-   "out": "2% of this 12-hour allowance left"
+   "out": "2% of today's allowance left"
   },
   {
    "lang": "en",
@@ -2830,7 +2830,7 @@
    "args": [
     2
    ],
-   "out": "2% of this 12-hour allowance left"
+   "out": "2% of today's allowance left"
   },
   {
    "lang": "en",
@@ -2838,7 +2838,7 @@
    "args": [
     12
    ],
-   "out": "12% of this 12-hour allowance left"
+   "out": "12% of today's allowance left"
   },
   {
    "lang": "en",
@@ -2846,7 +2846,7 @@
    "args": [
     12
    ],
-   "out": "12% of this 12-hour allowance left"
+   "out": "12% of today's allowance left"
   },
   {
    "lang": "en",
@@ -2854,7 +2854,7 @@
    "args": [
     1234567
    ],
-   "out": "1234567% of this 12-hour allowance left"
+   "out": "1234567% of today's allowance left"
   },
   {
    "lang": "en",
@@ -2862,7 +2862,7 @@
    "args": [
     1234567
    ],
-   "out": "1234567% of this 12-hour allowance left"
+   "out": "1234567% of today's allowance left"
   },
   {
    "lang": "en",
@@ -2870,7 +2870,7 @@
    "args": [
     "Rahim Uddin"
    ],
-   "out": "Rahim Uddin% of this 12-hour allowance left"
+   "out": "Rahim Uddin% of today's allowance left"
   },
   {
    "lang": "en",
@@ -2878,7 +2878,7 @@
    "args": [
     "Rahim Uddin"
    ],
-   "out": "Rahim Uddin% of this 12-hour allowance left"
+   "out": "Rahim Uddin% of today's allowance left"
   },
   {
    "lang": "en",
@@ -2886,7 +2886,7 @@
    "args": [
     0
    ],
-   "out": "You've used this 12-hour allowance. It refills at 0."
+   "out": "You've used today's allowance. It refills at midnight (0)."
   },
   {
    "lang": "en",
@@ -2894,7 +2894,7 @@
    "args": [
     0
    ],
-   "out": "You've used this 12-hour allowance. It refills at 0."
+   "out": "You've used today's allowance. It refills at midnight (0)."
   },
   {
    "lang": "en",
@@ -2902,7 +2902,7 @@
    "args": [
     1
    ],
-   "out": "You've used this 12-hour allowance. It refills at 1."
+   "out": "You've used today's allowance. It refills at midnight (1)."
   },
   {
    "lang": "en",
@@ -2910,7 +2910,7 @@
    "args": [
     1
    ],
-   "out": "You've used this 12-hour allowance. It refills at 1."
+   "out": "You've used today's allowance. It refills at midnight (1)."
   },
   {
    "lang": "en",
@@ -2918,7 +2918,7 @@
    "args": [
     2
    ],
-   "out": "You've used this 12-hour allowance. It refills at 2."
+   "out": "You've used today's allowance. It refills at midnight (2)."
   },
   {
    "lang": "en",
@@ -2926,7 +2926,7 @@
    "args": [
     2
    ],
-   "out": "You've used this 12-hour allowance. It refills at 2."
+   "out": "You've used today's allowance. It refills at midnight (2)."
   },
   {
    "lang": "en",
@@ -2934,7 +2934,7 @@
    "args": [
     12
    ],
-   "out": "You've used this 12-hour allowance. It refills at 12."
+   "out": "You've used today's allowance. It refills at midnight (12)."
   },
   {
    "lang": "en",
@@ -2942,7 +2942,7 @@
    "args": [
     12
    ],
-   "out": "You've used this 12-hour allowance. It refills at 12."
+   "out": "You've used today's allowance. It refills at midnight (12)."
   },
   {
    "lang": "en",
@@ -2950,7 +2950,7 @@
    "args": [
     1234567
    ],
-   "out": "You've used this 12-hour allowance. It refills at 1234567."
+   "out": "You've used today's allowance. It refills at midnight (1234567)."
   },
   {
    "lang": "en",
@@ -2958,7 +2958,7 @@
    "args": [
     1234567
    ],
-   "out": "You've used this 12-hour allowance. It refills at 1234567."
+   "out": "You've used today's allowance. It refills at midnight (1234567)."
   },
   {
    "lang": "en",
@@ -2966,7 +2966,7 @@
    "args": [
     "Rahim Uddin"
    ],
-   "out": "You've used this 12-hour allowance. It refills at Rahim Uddin."
+   "out": "You've used today's allowance. It refills at midnight (Rahim Uddin)."
   },
   {
    "lang": "en",
@@ -2974,7 +2974,103 @@
    "args": [
     "Rahim Uddin"
    ],
-   "out": "You've used this 12-hour allowance. It refills at Rahim Uddin."
+   "out": "You've used today's allowance. It refills at midnight (Rahim Uddin)."
+  },
+  {
+   "lang": "en",
+   "key": "aichat.creditLeft",
+   "args": [
+    0
+   ],
+   "out": "Daily limit reached: answering from your extra credit, 0 left"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.creditLeft",
+   "args": [
+    0
+   ],
+   "out": "Daily limit reached: answering from your extra credit, 0 left"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.creditLeft",
+   "args": [
+    1
+   ],
+   "out": "Daily limit reached: answering from your extra credit, 1 left"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.creditLeft",
+   "args": [
+    1
+   ],
+   "out": "Daily limit reached: answering from your extra credit, 1 left"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.creditLeft",
+   "args": [
+    2
+   ],
+   "out": "Daily limit reached: answering from your extra credit, 2 left"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.creditLeft",
+   "args": [
+    2
+   ],
+   "out": "Daily limit reached: answering from your extra credit, 2 left"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.creditLeft",
+   "args": [
+    12
+   ],
+   "out": "Daily limit reached: answering from your extra credit, 12 left"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.creditLeft",
+   "args": [
+    12
+   ],
+   "out": "Daily limit reached: answering from your extra credit, 12 left"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.creditLeft",
+   "args": [
+    1234567
+   ],
+   "out": "Daily limit reached: answering from your extra credit, 1234567 left"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.creditLeft",
+   "args": [
+    1234567
+   ],
+   "out": "Daily limit reached: answering from your extra credit, 1234567 left"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.creditLeft",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Daily limit reached: answering from your extra credit, Rahim Uddin left"
+  },
+  {
+   "lang": "en",
+   "key": "aichat.creditLeft",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Daily limit reached: answering from your extra credit, Rahim Uddin left"
   },
   {
    "lang": "en",
@@ -3486,7 +3582,7 @@
    "args": [
     0
    ],
-   "out": "You've used this 12-hour AI allowance. It refills at 0."
+   "out": "You've used today's AI allowance. It refills at midnight (0)."
   },
   {
    "lang": "en",
@@ -3494,7 +3590,7 @@
    "args": [
     0
    ],
-   "out": "You've used this 12-hour AI allowance. It refills at 0."
+   "out": "You've used today's AI allowance. It refills at midnight (0)."
   },
   {
    "lang": "en",
@@ -3502,7 +3598,7 @@
    "args": [
     1
    ],
-   "out": "You've used this 12-hour AI allowance. It refills at 1."
+   "out": "You've used today's AI allowance. It refills at midnight (1)."
   },
   {
    "lang": "en",
@@ -3510,7 +3606,7 @@
    "args": [
     1
    ],
-   "out": "You've used this 12-hour AI allowance. It refills at 1."
+   "out": "You've used today's AI allowance. It refills at midnight (1)."
   },
   {
    "lang": "en",
@@ -3518,7 +3614,7 @@
    "args": [
     2
    ],
-   "out": "You've used this 12-hour AI allowance. It refills at 2."
+   "out": "You've used today's AI allowance. It refills at midnight (2)."
   },
   {
    "lang": "en",
@@ -3526,7 +3622,7 @@
    "args": [
     2
    ],
-   "out": "You've used this 12-hour AI allowance. It refills at 2."
+   "out": "You've used today's AI allowance. It refills at midnight (2)."
   },
   {
    "lang": "en",
@@ -3534,7 +3630,7 @@
    "args": [
     12
    ],
-   "out": "You've used this 12-hour AI allowance. It refills at 12."
+   "out": "You've used today's AI allowance. It refills at midnight (12)."
   },
   {
    "lang": "en",
@@ -3542,7 +3638,7 @@
    "args": [
     12
    ],
-   "out": "You've used this 12-hour AI allowance. It refills at 12."
+   "out": "You've used today's AI allowance. It refills at midnight (12)."
   },
   {
    "lang": "en",
@@ -3550,7 +3646,7 @@
    "args": [
     1234567
    ],
-   "out": "You've used this 12-hour AI allowance. It refills at 1234567."
+   "out": "You've used today's AI allowance. It refills at midnight (1234567)."
   },
   {
    "lang": "en",
@@ -3558,7 +3654,7 @@
    "args": [
     1234567
    ],
-   "out": "You've used this 12-hour AI allowance. It refills at 1234567."
+   "out": "You've used today's AI allowance. It refills at midnight (1234567)."
   },
   {
    "lang": "en",
@@ -3566,7 +3662,7 @@
    "args": [
     "Rahim Uddin"
    ],
-   "out": "You've used this 12-hour AI allowance. It refills at Rahim Uddin."
+   "out": "You've used today's AI allowance. It refills at midnight (Rahim Uddin)."
   },
   {
    "lang": "en",
@@ -3574,7 +3670,7 @@
    "args": [
     "Rahim Uddin"
    ],
-   "out": "You've used this 12-hour AI allowance. It refills at Rahim Uddin."
+   "out": "You've used today's AI allowance. It refills at midnight (Rahim Uddin)."
   },
   {
    "lang": "en",
@@ -3582,7 +3678,7 @@
    "args": [
     0
    ],
-   "out": "AI allowance (this 12 hours): 0% left"
+   "out": "AI allowance (today): 0% left"
   },
   {
    "lang": "en",
@@ -3590,7 +3686,7 @@
    "args": [
     0
    ],
-   "out": "AI allowance (this 12 hours): 0% left"
+   "out": "AI allowance (today): 0% left"
   },
   {
    "lang": "en",
@@ -3598,7 +3694,7 @@
    "args": [
     1
    ],
-   "out": "AI allowance (this 12 hours): 1% left"
+   "out": "AI allowance (today): 1% left"
   },
   {
    "lang": "en",
@@ -3606,7 +3702,7 @@
    "args": [
     1
    ],
-   "out": "AI allowance (this 12 hours): 1% left"
+   "out": "AI allowance (today): 1% left"
   },
   {
    "lang": "en",
@@ -3614,7 +3710,7 @@
    "args": [
     2
    ],
-   "out": "AI allowance (this 12 hours): 2% left"
+   "out": "AI allowance (today): 2% left"
   },
   {
    "lang": "en",
@@ -3622,7 +3718,7 @@
    "args": [
     2
    ],
-   "out": "AI allowance (this 12 hours): 2% left"
+   "out": "AI allowance (today): 2% left"
   },
   {
    "lang": "en",
@@ -3630,7 +3726,7 @@
    "args": [
     12
    ],
-   "out": "AI allowance (this 12 hours): 12% left"
+   "out": "AI allowance (today): 12% left"
   },
   {
    "lang": "en",
@@ -3638,7 +3734,7 @@
    "args": [
     12
    ],
-   "out": "AI allowance (this 12 hours): 12% left"
+   "out": "AI allowance (today): 12% left"
   },
   {
    "lang": "en",
@@ -3646,7 +3742,7 @@
    "args": [
     1234567
    ],
-   "out": "AI allowance (this 12 hours): 1234567% left"
+   "out": "AI allowance (today): 1234567% left"
   },
   {
    "lang": "en",
@@ -3654,7 +3750,7 @@
    "args": [
     1234567
    ],
-   "out": "AI allowance (this 12 hours): 1234567% left"
+   "out": "AI allowance (today): 1234567% left"
   },
   {
    "lang": "en",
@@ -3662,7 +3758,7 @@
    "args": [
     "Rahim Uddin"
    ],
-   "out": "AI allowance (this 12 hours): Rahim Uddin% left"
+   "out": "AI allowance (today): Rahim Uddin% left"
   },
   {
    "lang": "en",
@@ -3670,7 +3766,7 @@
    "args": [
     "Rahim Uddin"
    ],
-   "out": "AI allowance (this 12 hours): Rahim Uddin% left"
+   "out": "AI allowance (today): Rahim Uddin% left"
   },
   {
    "lang": "en",
@@ -25518,7 +25614,7 @@
    "args": [
     0
    ],
-   "out": "এই ১২ ঘণ্টার বরাদ্দের ০% বাকি"
+   "out": "আজকের বরাদ্দের ০% বাকি"
   },
   {
    "lang": "bn",
@@ -25526,7 +25622,7 @@
    "args": [
     0
    ],
-   "out": "এই ১২ ঘণ্টার বরাদ্দের ০% বাকি"
+   "out": "আজকের বরাদ্দের ০% বাকি"
   },
   {
    "lang": "bn",
@@ -25534,7 +25630,7 @@
    "args": [
     1
    ],
-   "out": "এই ১২ ঘণ্টার বরাদ্দের ১% বাকি"
+   "out": "আজকের বরাদ্দের ১% বাকি"
   },
   {
    "lang": "bn",
@@ -25542,7 +25638,7 @@
    "args": [
     1
    ],
-   "out": "এই ১২ ঘণ্টার বরাদ্দের ১% বাকি"
+   "out": "আজকের বরাদ্দের ১% বাকি"
   },
   {
    "lang": "bn",
@@ -25550,7 +25646,7 @@
    "args": [
     2
    ],
-   "out": "এই ১২ ঘণ্টার বরাদ্দের ২% বাকি"
+   "out": "আজকের বরাদ্দের ২% বাকি"
   },
   {
    "lang": "bn",
@@ -25558,7 +25654,7 @@
    "args": [
     2
    ],
-   "out": "এই ১২ ঘণ্টার বরাদ্দের ২% বাকি"
+   "out": "আজকের বরাদ্দের ২% বাকি"
   },
   {
    "lang": "bn",
@@ -25566,7 +25662,7 @@
    "args": [
     12
    ],
-   "out": "এই ১২ ঘণ্টার বরাদ্দের ১২% বাকি"
+   "out": "আজকের বরাদ্দের ১২% বাকি"
   },
   {
    "lang": "bn",
@@ -25574,7 +25670,7 @@
    "args": [
     12
    ],
-   "out": "এই ১২ ঘণ্টার বরাদ্দের ১২% বাকি"
+   "out": "আজকের বরাদ্দের ১২% বাকি"
   },
   {
    "lang": "bn",
@@ -25582,7 +25678,7 @@
    "args": [
     1234567
    ],
-   "out": "এই ১২ ঘণ্টার বরাদ্দের ১২,৩৪,৫৬৭% বাকি"
+   "out": "আজকের বরাদ্দের ১২,৩৪,৫৬৭% বাকি"
   },
   {
    "lang": "bn",
@@ -25590,7 +25686,7 @@
    "args": [
     1234567
    ],
-   "out": "এই ১২ ঘণ্টার বরাদ্দের ১২,৩৪,৫৬৭% বাকি"
+   "out": "আজকের বরাদ্দের ১২,৩৪,৫৬৭% বাকি"
   },
   {
    "lang": "bn",
@@ -25598,7 +25694,7 @@
    "args": [
     "Rahim Uddin"
    ],
-   "out": "এই ১২ ঘণ্টার বরাদ্দের Rahim Uddin% বাকি"
+   "out": "আজকের বরাদ্দের Rahim Uddin% বাকি"
   },
   {
    "lang": "bn",
@@ -25606,7 +25702,7 @@
    "args": [
     "Rahim Uddin"
    ],
-   "out": "এই ১২ ঘণ্টার বরাদ্দের Rahim Uddin% বাকি"
+   "out": "আজকের বরাদ্দের Rahim Uddin% বাকি"
   },
   {
    "lang": "bn",
@@ -25614,7 +25710,7 @@
    "args": [
     0
    ],
-   "out": "এই ১২ ঘণ্টার বরাদ্দ শেষ। 0-এ আবার চালু হবে।"
+   "out": "আজকের বরাদ্দ শেষ। রাত ১২টায় (0) আবার চালু হবে।"
   },
   {
    "lang": "bn",
@@ -25622,7 +25718,7 @@
    "args": [
     0
    ],
-   "out": "এই ১২ ঘণ্টার বরাদ্দ শেষ। 0-এ আবার চালু হবে।"
+   "out": "আজকের বরাদ্দ শেষ। রাত ১২টায় (0) আবার চালু হবে।"
   },
   {
    "lang": "bn",
@@ -25630,7 +25726,7 @@
    "args": [
     1
    ],
-   "out": "এই ১২ ঘণ্টার বরাদ্দ শেষ। 1-এ আবার চালু হবে।"
+   "out": "আজকের বরাদ্দ শেষ। রাত ১২টায় (1) আবার চালু হবে।"
   },
   {
    "lang": "bn",
@@ -25638,7 +25734,7 @@
    "args": [
     1
    ],
-   "out": "এই ১২ ঘণ্টার বরাদ্দ শেষ। 1-এ আবার চালু হবে।"
+   "out": "আজকের বরাদ্দ শেষ। রাত ১২টায় (1) আবার চালু হবে।"
   },
   {
    "lang": "bn",
@@ -25646,7 +25742,7 @@
    "args": [
     2
    ],
-   "out": "এই ১২ ঘণ্টার বরাদ্দ শেষ। 2-এ আবার চালু হবে।"
+   "out": "আজকের বরাদ্দ শেষ। রাত ১২টায় (2) আবার চালু হবে।"
   },
   {
    "lang": "bn",
@@ -25654,7 +25750,7 @@
    "args": [
     2
    ],
-   "out": "এই ১২ ঘণ্টার বরাদ্দ শেষ। 2-এ আবার চালু হবে।"
+   "out": "আজকের বরাদ্দ শেষ। রাত ১২টায় (2) আবার চালু হবে।"
   },
   {
    "lang": "bn",
@@ -25662,7 +25758,7 @@
    "args": [
     12
    ],
-   "out": "এই ১২ ঘণ্টার বরাদ্দ শেষ। 12-এ আবার চালু হবে।"
+   "out": "আজকের বরাদ্দ শেষ। রাত ১২টায় (12) আবার চালু হবে।"
   },
   {
    "lang": "bn",
@@ -25670,7 +25766,7 @@
    "args": [
     12
    ],
-   "out": "এই ১২ ঘণ্টার বরাদ্দ শেষ। 12-এ আবার চালু হবে।"
+   "out": "আজকের বরাদ্দ শেষ। রাত ১২টায় (12) আবার চালু হবে।"
   },
   {
    "lang": "bn",
@@ -25678,7 +25774,7 @@
    "args": [
     1234567
    ],
-   "out": "এই ১২ ঘণ্টার বরাদ্দ শেষ। 1234567-এ আবার চালু হবে।"
+   "out": "আজকের বরাদ্দ শেষ। রাত ১২টায় (1234567) আবার চালু হবে।"
   },
   {
    "lang": "bn",
@@ -25686,7 +25782,7 @@
    "args": [
     1234567
    ],
-   "out": "এই ১২ ঘণ্টার বরাদ্দ শেষ। 1234567-এ আবার চালু হবে।"
+   "out": "আজকের বরাদ্দ শেষ। রাত ১২টায় (1234567) আবার চালু হবে।"
   },
   {
    "lang": "bn",
@@ -25694,7 +25790,7 @@
    "args": [
     "Rahim Uddin"
    ],
-   "out": "এই ১২ ঘণ্টার বরাদ্দ শেষ। Rahim Uddin-এ আবার চালু হবে।"
+   "out": "আজকের বরাদ্দ শেষ। রাত ১২টায় (Rahim Uddin) আবার চালু হবে।"
   },
   {
    "lang": "bn",
@@ -25702,7 +25798,103 @@
    "args": [
     "Rahim Uddin"
    ],
-   "out": "এই ১২ ঘণ্টার বরাদ্দ শেষ। Rahim Uddin-এ আবার চালু হবে।"
+   "out": "আজকের বরাদ্দ শেষ। রাত ১২টায় (Rahim Uddin) আবার চালু হবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.creditLeft",
+   "args": [
+    0
+   ],
+   "out": "দিনের সীমা শেষ: এখন বাড়তি ক্রেডিট থেকে উত্তর আসছে, 0 বাকি"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.creditLeft",
+   "args": [
+    0
+   ],
+   "out": "দিনের সীমা শেষ: এখন বাড়তি ক্রেডিট থেকে উত্তর আসছে, 0 বাকি"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.creditLeft",
+   "args": [
+    1
+   ],
+   "out": "দিনের সীমা শেষ: এখন বাড়তি ক্রেডিট থেকে উত্তর আসছে, 1 বাকি"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.creditLeft",
+   "args": [
+    1
+   ],
+   "out": "দিনের সীমা শেষ: এখন বাড়তি ক্রেডিট থেকে উত্তর আসছে, 1 বাকি"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.creditLeft",
+   "args": [
+    2
+   ],
+   "out": "দিনের সীমা শেষ: এখন বাড়তি ক্রেডিট থেকে উত্তর আসছে, 2 বাকি"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.creditLeft",
+   "args": [
+    2
+   ],
+   "out": "দিনের সীমা শেষ: এখন বাড়তি ক্রেডিট থেকে উত্তর আসছে, 2 বাকি"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.creditLeft",
+   "args": [
+    12
+   ],
+   "out": "দিনের সীমা শেষ: এখন বাড়তি ক্রেডিট থেকে উত্তর আসছে, 12 বাকি"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.creditLeft",
+   "args": [
+    12
+   ],
+   "out": "দিনের সীমা শেষ: এখন বাড়তি ক্রেডিট থেকে উত্তর আসছে, 12 বাকি"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.creditLeft",
+   "args": [
+    1234567
+   ],
+   "out": "দিনের সীমা শেষ: এখন বাড়তি ক্রেডিট থেকে উত্তর আসছে, 1234567 বাকি"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.creditLeft",
+   "args": [
+    1234567
+   ],
+   "out": "দিনের সীমা শেষ: এখন বাড়তি ক্রেডিট থেকে উত্তর আসছে, 1234567 বাকি"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.creditLeft",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "দিনের সীমা শেষ: এখন বাড়তি ক্রেডিট থেকে উত্তর আসছে, Rahim Uddin বাকি"
+  },
+  {
+   "lang": "bn",
+   "key": "aichat.creditLeft",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "দিনের সীমা শেষ: এখন বাড়তি ক্রেডিট থেকে উত্তর আসছে, Rahim Uddin বাকি"
   },
   {
    "lang": "bn",
@@ -26214,7 +26406,7 @@
    "args": [
     0
    ],
-   "out": "এই ১২ ঘণ্টার AI সীমা শেষ। 0-এ আবার পাবেন।"
+   "out": "আজকের AI সীমা শেষ। রাত ১২টায় (0) আবার পাবেন।"
   },
   {
    "lang": "bn",
@@ -26222,7 +26414,7 @@
    "args": [
     0
    ],
-   "out": "এই ১২ ঘণ্টার AI সীমা শেষ। 0-এ আবার পাবেন।"
+   "out": "আজকের AI সীমা শেষ। রাত ১২টায় (0) আবার পাবেন।"
   },
   {
    "lang": "bn",
@@ -26230,7 +26422,7 @@
    "args": [
     1
    ],
-   "out": "এই ১২ ঘণ্টার AI সীমা শেষ। 1-এ আবার পাবেন।"
+   "out": "আজকের AI সীমা শেষ। রাত ১২টায় (1) আবার পাবেন।"
   },
   {
    "lang": "bn",
@@ -26238,7 +26430,7 @@
    "args": [
     1
    ],
-   "out": "এই ১২ ঘণ্টার AI সীমা শেষ। 1-এ আবার পাবেন।"
+   "out": "আজকের AI সীমা শেষ। রাত ১২টায় (1) আবার পাবেন।"
   },
   {
    "lang": "bn",
@@ -26246,7 +26438,7 @@
    "args": [
     2
    ],
-   "out": "এই ১২ ঘণ্টার AI সীমা শেষ। 2-এ আবার পাবেন।"
+   "out": "আজকের AI সীমা শেষ। রাত ১২টায় (2) আবার পাবেন।"
   },
   {
    "lang": "bn",
@@ -26254,7 +26446,7 @@
    "args": [
     2
    ],
-   "out": "এই ১২ ঘণ্টার AI সীমা শেষ। 2-এ আবার পাবেন।"
+   "out": "আজকের AI সীমা শেষ। রাত ১২টায় (2) আবার পাবেন।"
   },
   {
    "lang": "bn",
@@ -26262,7 +26454,7 @@
    "args": [
     12
    ],
-   "out": "এই ১২ ঘণ্টার AI সীমা শেষ। 12-এ আবার পাবেন।"
+   "out": "আজকের AI সীমা শেষ। রাত ১২টায় (12) আবার পাবেন।"
   },
   {
    "lang": "bn",
@@ -26270,7 +26462,7 @@
    "args": [
     12
    ],
-   "out": "এই ১২ ঘণ্টার AI সীমা শেষ। 12-এ আবার পাবেন।"
+   "out": "আজকের AI সীমা শেষ। রাত ১২টায় (12) আবার পাবেন।"
   },
   {
    "lang": "bn",
@@ -26278,7 +26470,7 @@
    "args": [
     1234567
    ],
-   "out": "এই ১২ ঘণ্টার AI সীমা শেষ। 1234567-এ আবার পাবেন।"
+   "out": "আজকের AI সীমা শেষ। রাত ১২টায় (1234567) আবার পাবেন।"
   },
   {
    "lang": "bn",
@@ -26286,7 +26478,7 @@
    "args": [
     1234567
    ],
-   "out": "এই ১২ ঘণ্টার AI সীমা শেষ। 1234567-এ আবার পাবেন।"
+   "out": "আজকের AI সীমা শেষ। রাত ১২টায় (1234567) আবার পাবেন।"
   },
   {
    "lang": "bn",
@@ -26294,7 +26486,7 @@
    "args": [
     "Rahim Uddin"
    ],
-   "out": "এই ১২ ঘণ্টার AI সীমা শেষ। Rahim Uddin-এ আবার পাবেন।"
+   "out": "আজকের AI সীমা শেষ। রাত ১২টায় (Rahim Uddin) আবার পাবেন।"
   },
   {
    "lang": "bn",
@@ -26302,7 +26494,7 @@
    "args": [
     "Rahim Uddin"
    ],
-   "out": "এই ১২ ঘণ্টার AI সীমা শেষ। Rahim Uddin-এ আবার পাবেন।"
+   "out": "আজকের AI সীমা শেষ। রাত ১২টায় (Rahim Uddin) আবার পাবেন।"
   },
   {
    "lang": "bn",
@@ -26310,7 +26502,7 @@
    "args": [
     0
    ],
-   "out": "AI সীমা (এই ১২ ঘণ্টা): 0% বাকি"
+   "out": "AI সীমা (আজ): 0% বাকি"
   },
   {
    "lang": "bn",
@@ -26318,7 +26510,7 @@
    "args": [
     0
    ],
-   "out": "AI সীমা (এই ১২ ঘণ্টা): 0% বাকি"
+   "out": "AI সীমা (আজ): 0% বাকি"
   },
   {
    "lang": "bn",
@@ -26326,7 +26518,7 @@
    "args": [
     1
    ],
-   "out": "AI সীমা (এই ১২ ঘণ্টা): 1% বাকি"
+   "out": "AI সীমা (আজ): 1% বাকি"
   },
   {
    "lang": "bn",
@@ -26334,7 +26526,7 @@
    "args": [
     1
    ],
-   "out": "AI সীমা (এই ১২ ঘণ্টা): 1% বাকি"
+   "out": "AI সীমা (আজ): 1% বাকি"
   },
   {
    "lang": "bn",
@@ -26342,7 +26534,7 @@
    "args": [
     2
    ],
-   "out": "AI সীমা (এই ১২ ঘণ্টা): 2% বাকি"
+   "out": "AI সীমা (আজ): 2% বাকি"
   },
   {
    "lang": "bn",
@@ -26350,7 +26542,7 @@
    "args": [
     2
    ],
-   "out": "AI সীমা (এই ১২ ঘণ্টা): 2% বাকি"
+   "out": "AI সীমা (আজ): 2% বাকি"
   },
   {
    "lang": "bn",
@@ -26358,7 +26550,7 @@
    "args": [
     12
    ],
-   "out": "AI সীমা (এই ১২ ঘণ্টা): 12% বাকি"
+   "out": "AI সীমা (আজ): 12% বাকি"
   },
   {
    "lang": "bn",
@@ -26366,7 +26558,7 @@
    "args": [
     12
    ],
-   "out": "AI সীমা (এই ১২ ঘণ্টা): 12% বাকি"
+   "out": "AI সীমা (আজ): 12% বাকি"
   },
   {
    "lang": "bn",
@@ -26374,7 +26566,7 @@
    "args": [
     1234567
    ],
-   "out": "AI সীমা (এই ১২ ঘণ্টা): 1234567% বাকি"
+   "out": "AI সীমা (আজ): 1234567% বাকি"
   },
   {
    "lang": "bn",
@@ -26382,7 +26574,7 @@
    "args": [
     1234567
    ],
-   "out": "AI সীমা (এই ১২ ঘণ্টা): 1234567% বাকি"
+   "out": "AI সীমা (আজ): 1234567% বাকি"
   },
   {
    "lang": "bn",
@@ -26390,7 +26582,7 @@
    "args": [
     "Rahim Uddin"
    ],
-   "out": "AI সীমা (এই ১২ ঘণ্টা): Rahim Uddin% বাকি"
+   "out": "AI সীমা (আজ): Rahim Uddin% বাকি"
   },
   {
    "lang": "bn",
@@ -26398,7 +26590,7 @@
    "args": [
     "Rahim Uddin"
    ],
-   "out": "AI সীমা (এই ১২ ঘণ্টা): Rahim Uddin% বাকি"
+   "out": "AI সীমা (আজ): Rahim Uddin% বাকি"
   },
   {
    "lang": "bn",

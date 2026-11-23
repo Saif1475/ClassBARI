@@ -3,7 +3,7 @@ import { admin } from "./data-server";
 import type { LmsState } from "./lms-actions";
 
 /** Every row of a query, 1000 at a time (the API's page size). */
-async function every<T>(page: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>) {
+export async function every<T>(page: (from: number, to: number) => PromiseLike<{ data: T[] | null; error: { message: string } | null }>) {
   const out: T[] = [];
   for (let from = 0; ; from += 1000) {
     const { data, error } = await page(from, from + 999);

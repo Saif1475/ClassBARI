@@ -22,11 +22,13 @@ import '../icons.g.dart';
 
 /// What the AI app hands to Settings: its models and pack, what is left of the allowance, and a way to clear the chats.
 class AiSettings {
-  const AiSettings({required this.models, required this.pack, required this.left, required this.resetsAt, required this.chats, required this.onDeleteAll});
+  const AiSettings({required this.models, required this.pack, required this.left, required this.resetsAt, this.credit, this.creditLog = const [], required this.chats, required this.onDeleteAll});
   final List<Json> models;
   final int? pack;
   final num? left;
   final String? resetsAt;
+  final num? credit; // extra credit left, ৳
+  final List<Json> creditLog; // the student's own credit history: {at, kind, taka}
   final int Function() chats; // asked each time, so the count is right after the chats are cleared
   final VoidCallback onDeleteAll;
 }
@@ -83,6 +85,31 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 if (ai!.left != null && ai!.resetsAt != null)
                   Item(icon: I.hourglass, color: context.course(1), title: t('aichat.usage'), subtitle: t('aichat.usageLeft', [ai!.left, clock(ai!.resetsAt)]), below: MarkBar(ai!.left!, plain: true)),
+                if (ai!.credit != null) Item(icon: I.sparkle, color: context.course(3), title: '${t('aichat.credit')}: ${taka(ai!.credit!)}', subtitle: t('aichat.creditNote')),
+                Item(
+                  icon: I.addCard,
+                  color: context.course(2),
+                  title: t('aichat.buyCredit'),
+                  onTap: () => push(
+                    context,
+                    Screen(
+                      title: t('pay.buyCredit'),
+                      children: const [PayForm(kind: 'ai_credit')],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          if (ai!.creditLog.isNotEmpty)
+            Group(
+              title: t('aichat.creditHistory'),
+              children: [
+                for (final r in ai!.creditLog)
+                  Item(
+                    icon: (r['taka'] as num? ?? 0) < 0 ? I.error : I.checkCircle,
+                    title: '${(r['taka'] as num? ?? 0) < 0 ? '−' : '+'}${taka(((r['taka'] as num?) ?? 0).abs())} · ${t('aichat.creditKinds.${r['kind']}')}',
+                    subtitle: fmtDate('${r['at']}'),
+                  ),
               ],
             ),
           if (ai!.models.any((m) => m['locked'] != true && m['soon'] != true))

@@ -10,6 +10,7 @@ import 'package:classbari/screens/guardian.dart';
 import 'package:classbari/screens/institute.dart';
 import 'package:classbari/config.dart';
 import 'package:classbari/screens/login.dart';
+import 'package:classbari/screens/pay.dart';
 import 'package:classbari/screens/settings.dart';
 import 'package:classbari/screens/student.dart';
 import 'package:classbari/screens/teacher.dart';
@@ -610,6 +611,77 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('AI chat: the daily limit reached offers extra credit, which opens the credit form (from ৳50)', (tester) async {
+    Object? paid;
+    aiApi = (path, {body, delete = false}) async => http.Response(
+      jsonEncode({
+        'models': [
+          {'id': 'm', 'label': 'Model M', 'pack': 0},
+        ],
+        'pick': 'm',
+        'pack': 0,
+        'left': 0,
+        'resetsAt': inDays(1),
+        'credit': 0,
+      }),
+      200,
+    );
+    aiStream = (client, path, sent) async => http.StreamedResponse(Stream.value(utf8.encode(jsonEncode({'error': 'limit', 'resetsAt': inDays(1)}))), 429);
+    payApi = (path, {body, delete = false}) async {
+      if (body != null) {
+        paid = body;
+        return http.Response(jsonEncode({'id': 'x', 'kind': 'ai_credit', 'amount': 50, 'status': 'pending'}), 200);
+      }
+      return http.Response(
+        jsonEncode({
+          'methods': [
+            {'method': 'bkash', 'number': '01712345678'},
+          ],
+          'packs': [150, 400, 800, 1500],
+          'plans': {},
+          'credit': {'min': 50, 'max': 5000},
+          'mine': [],
+        }),
+        200,
+      );
+    };
+    addTearDown(() {
+      aiApi = api;
+      aiStream = apiStream;
+      payApi = api;
+    });
+    await open(tester, const AiChatApp());
+    await tester.pumpAndSettle();
+    expect(find.text('Buy extra credit (from ৳50)'), findsNothing);
+    await tester.enterText(find.byType(TextField), 'Explain inertia');
+    await tester.pump();
+    await tester.tap(find.byTooltip('Send'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining("You've used today's allowance. It refills at midnight"), findsOneWidget);
+    await tester.tap(find.text('Buy extra credit (from ৳50)'));
+    await tester.pumpAndSettle();
+    expect(find.text('Buy extra AI credit'), findsWidgets);
+    final amount = find.byKey(const Key('credit-amount'));
+    expect(tester.widget<TextField>(amount).controller!.text, '50'); // the minimum to start with
+    expect(find.text('Amount (৳50 to ৳5,000)'), findsOneWidget);
+    expect(find.text('How long'), findsNothing); // bought once, no months
+    await tester.enterText(amount, '49');
+    await tester.enterText(find.widgetWithText(TextField, 'The number you paid from'), '01711111111');
+    await tester.enterText(find.widgetWithText(TextField, 'Transaction ID (TrxID)'), '9A1B2C3D4E');
+    await tester.ensureVisible(find.text("I've paid: send"));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text("I've paid: send"));
+    await tester.pumpAndSettle();
+    expect(paid, isNull); // ৳49: refused before sending
+    expect(find.text('Choose a whole amount from ৳50 to ৳5,000.'), findsOneWidget);
+    await tester.enterText(amount, '50');
+    await tester.tap(find.text("I've paid: send"));
+    await tester.pumpAndSettle();
+    expect((paid as Map)['kind'], 'ai_credit');
+    expect((paid as Map)['item'], '50');
+    expect(tester.takeException(), isNull);
+  });
+
   // ---- Settings ----------------------------------------------------------------------------------------------------
   AiSettings ai({VoidCallback? onDeleteAll, int Function()? chats}) => AiSettings(
     models: [
@@ -620,6 +692,11 @@ void main() {
     pack: 400,
     left: 62,
     resetsAt: inDays(0),
+    credit: 120.5,
+    creditLog: [
+      {'at': inDays(0), 'kind': 'spend', 'taka': -9.5},
+      {'at': inDays(-1), 'kind': 'purchase', 'taka': 130},
+    ],
     chats: chats ?? () => 3,
     onDeleteAll: onDeleteAll ?? () {},
   );

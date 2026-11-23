@@ -3,21 +3,21 @@ import type { PdfPage } from "./pdf-insights.ts";
 
 export type ChatTurn = { role: "user" | "assistant"; content: string };
 /**
- * Tokens per person per day (input incl. the lesson text and cached parts, plus output), split into two 12-hour
- * windows that each refill on their own. Staff previews use AI_DAILY_TOKENS (default 200,000); students use their pack's.
+ * Tokens per person per day (input incl. the lesson text and cached parts, plus output), refilled at midnight in Dhaka.
+ * Staff previews use AI_DAILY_TOKENS (default 200,000); students use their pack's.
  */
-export const windowTokens = (daily = Number(process.env.AI_DAILY_TOKENS) || 200_000) => daily / 2;
+export const windowTokens = (daily = Number(process.env.AI_DAILY_TOKENS) || 200_000) => daily;
 
 /** The models students can chat with. provider: whose API answers. price: US$ per million tokens [input, output, cache read]. */
-export const MODELS: Record<string, { label: string; provider: "anthropic" | "google" | "qwen" | "openai" | "openrouter"; price: [number, number, number]; textOnly?: true }> = {
-  "qwen3.7-flash": { label: "Qwen Flash", provider: "qwen", price: [0.03, 0.13, 0.03] },
+export const MODELS: Record<string, { label: string; provider: "anthropic" | "google" | "qwen" | "openai" | "openrouter"; price: [number, number, number]; textOnly?: true; route?: string }> = { // route: the model's name at its provider, when it differs
+  "qwen3.7-flash": { label: "Qwen Flash", provider: "openrouter", route: "qwen/qwen3.7-flash", price: [0.03, 0.13, 0.03] },
   "gemini-2.5-flash-lite": { label: "Gemini Flash-Lite", provider: "google", price: [0.1, 0.4, 0.1] },
   "claude-haiku-5-5": { label: "Claude Haiku", provider: "anthropic", price: [0.1, 0.5, 0.01] },
   "gemini-3-flash-preview": { label: "Gemini 3 Flash", provider: "google", price: [0.5, 3, 0.5] },
   "gpt-5.6-luna": { label: "GPT Luna", provider: "openai", price: [0.2, 1.2, 0.2] },
-  "qwen3.8-flash": { label: "Qwen 3.8 Flash", provider: "qwen", price: [0.15, 0.47, 0.15] },
-  "qwen3.7-plus": { label: "Qwen Plus", provider: "qwen", price: [0.4, 1.6, 0.4] },
-  "qwen3.8-max": { label: "Qwen Max", provider: "qwen", price: [2, 6, 0.25] },
+  "qwen3.8-flash": { label: "Qwen 3.8 Flash", provider: "openrouter", route: "qwen/qwen3.8-flash", price: [0.15, 0.47, 0.15] },
+  "qwen3.7-plus": { label: "Qwen Plus", provider: "openrouter", route: "qwen/qwen3.7-plus", price: [0.32, 1.28, 0.32] }, // OpenRouter's list price
+  "qwen3.8-max": { label: "Qwen Max", provider: "openrouter", route: "qwen/qwen3.8-max-0902", price: [2, 6, 0.25] }, // Qwen goes through OpenRouter (owner's choice); Claude, Gemini, GPT stay direct
   "claude-sonnet-5-5": { label: "Claude Sonnet", provider: "anthropic", price: [2, 10, 0.1] },
   "claude-opus-5-5": { label: "Claude Opus", provider: "anthropic", price: [4, 20, 0.2] }, // staff previews only
   // Through OpenRouter (one key): models of 100B+ parameters with Bangla support (official language list or a Bangla
@@ -58,10 +58,10 @@ const usdToBdt = (s: AiSettings = {}) => s.usdToBdt ?? (Number(process.env.USD_T
 /** The most AI money one student's pack may use in a calendar month (Dhaka time), US$: what the margin leaves, to the cent below. */
 export const packCapUsd = (pack: number, s: AiSettings = {}) => Math.floor((pack * (1 - (s.packMargin ?? PACK_MARGIN)) * 100) / usdToBdt(s)) / 100;
 export const PACK_MONTHLY_USD: Record<number, number> = Object.fromEntries(PACKS.map((p) => [p, packCapUsd(p)]));
-/** Students without a pack: the free models (under $0.20 for answers), 10,000 answer tokens every 12 hours. pack 0 means free. */
+/** Students without a pack: the free models (under $0.20 for answers), 20,000 tokens a day. pack 0 means free. */
 export const FREE = { pack: 0, daily: 20_000, models: inPlan(0) };
-/** Free: the most AI money one student may use in a 12-hour window (a backstop to the tokens; ~$0.0015 at full use). */
-const FREE_WINDOW_USD = Number(process.env.AI_FREE_WINDOW_USD) || 0.004;
+/** Free: the most AI money one student may use in a day (a backstop to the tokens; ~$0.003 at full use). */
+const FREE_WINDOW_USD = Number(process.env.AI_FREE_WINDOW_USD) || 0.008;
 export function packPlan(pack: number | undefined, s: AiSettings = {}) {
   const price = PLANS[pack ?? 0] ? (pack as number) : 150; // premium given before packs existed counts as the smallest
   // Cheapest model first: the first one that is set up is the default; students switch to a stronger one when they want.
@@ -82,8 +82,8 @@ export type AiSettings = {
   offProviders?: string[];
   offModels?: string[];
   freeOn?: boolean;
-  freeDaily?: number; // tokens a day (two 12-hour windows)
-  freeWindowUsd?: number;
+  freeDaily?: number; // tokens a day
+  freeWindowUsd?: number; // the free plan's money backstop per day (the name is from the 12-hour windows)
   packDaily?: Record<string, number>; // by pack price
   packMonthlyUsd?: Record<string, number>; // by pack price: the most AI money one student may use in a month (overrides the margin)
   packMargin?: number; // share of each pack's price that is ours (0.4 = 40%); the monthly caps follow it
@@ -93,6 +93,8 @@ export const PROVIDERS = ["anthropic", "google", "qwen", "openai", "openrouter"]
 /** Switched on in the admin panel (both the model and its provider). */
 export const modelOn = (id: string, s: AiSettings = {}) => !!MODELS[id] && !s.offModels?.includes(id) && !s.offProviders?.includes(MODELS[id].provider);
 export const monthlyBudgetUsd = (s: AiSettings = {}) => s.budgetUsd ?? Number(process.env.AI_MONTHLY_BUDGET_USD || 30);
+/** The site's monthly AI budget is used up for this plan: free chats stop at 80%, so students who paid always have the last 20%. Extra credit never gets past it. */
+export const budgetPaused = (spentUsd: number, s: AiSettings, pack: number) => spentUsd >= monthlyBudgetUsd(s) * (pack ? 1 : 0.8);
 /** The values used when the admin panel has not changed them. */
 export const aiDefaults = (s: AiSettings = {}) => ({
   packMargin: PACK_MARGIN,
@@ -107,23 +109,22 @@ export const aiDefaults = (s: AiSettings = {}) => ({
 
 /** A pack's monthly AI money cap (US$) as the admin panel set it, else the owner's default. */
 export const packMonthlyUsd = (pack: number, s: AiSettings = {}) => s.packMonthlyUsd?.[pack] ?? ((PACKS as readonly number[]).includes(pack) ? packCapUsd(pack, s) : 0);
-/** The free plan's money backstop per 12-hour window (packs have a monthly cap instead). */
+/** The free plan's money backstop per day (packs have a monthly cap instead). */
 export const windowCostUsd = (pack: number, s: AiSettings = {}) => (pack ? Infinity : (s.freeWindowUsd ?? FREE_WINDOW_USD));
 /** When the next calendar month starts in Dhaka (UTC+6), as a time: when a pack's monthly AI cap refills. */
 export const monthStartAfter = (day: string) => new Date(Date.UTC(Number(day.slice(0, 4)), Number(day.slice(5, 7)), 1) - 6 * 3600_000).toISOString();
-/** The window just before this one (overuse in it is taken from this one). */
-export function previousWindow(w: { day: string; slot: number }) {
-  if (w.slot > 0) return { day: w.day, slot: w.slot - 1 };
+/** The day before this one (overuse in it is taken from this one). */
+export function previousWindow(w: { day: string; slot?: number }) {
   const d = new Date(`${w.day}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() - 1);
-  return { day: d.toISOString().slice(0, 10), slot: 1 };
+  return { day: d.toISOString().slice(0, 10), slot: 0 };
 }
-/** What went over the limits in the last window and so counts against this one. */
+/** What went over the limits yesterday and so counts against today. */
 export const carried = (prev: { tokens?: number | null; cost_usd?: number | null } | null | undefined, limit: number, costLimit: number) => ({
   tokens: Math.max(0, Number(prev?.tokens ?? 0) - limit),
   cost: Math.max(0, Number(prev?.cost_usd ?? 0) - costLimit),
 });
-/** % of this window left: the smaller of what's left in tokens and in money. */
+/** % of today's allowance left: the smaller of what's left in tokens and in money. */
 export const leftPct = (tokens: number, limit: number, cost: number, costLimit: number) =>
   Math.max(0, Math.round(100 * Math.min(1 - tokens / limit, costLimit === Infinity ? 1 : 1 - cost / costLimit)));
 // One answer at a time per person on this server: the next question waits until the one before it is counted, so
@@ -176,13 +177,21 @@ export function chatImage(raw: unknown) {
   return m ? { media_type: m[1] as "image/png" | "image/jpeg" | "image/webp", data: m[2] } : null;
 }
 
-/** The 12-hour window (Bangladesh time, UTC+6) a moment falls in, and when the next one starts. */
+/** The day (Bangladesh time, UTC+6) a moment falls in, and the next midnight in Dhaka, when the allowance refills. slot is always 0. */
 export function aiWindow(now = new Date()) {
   const bd = new Date(now.getTime() + 6 * 3600_000); // shift so the UTC fields read as Dhaka time
-  const slot = Math.floor(bd.getUTCHours() / 12);
-  const next = Date.UTC(bd.getUTCFullYear(), bd.getUTCMonth(), bd.getUTCDate(), (slot + 1) * 12) - 6 * 3600_000;
-  return { day: bd.toISOString().slice(0, 10), slot, resetsAt: new Date(next).toISOString() };
+  const next = Date.UTC(bd.getUTCFullYear(), bd.getUTCMonth(), bd.getUTCDate() + 1) - 6 * 3600_000;
+  return { day: bd.toISOString().slice(0, 10), slot: 0, resetsAt: new Date(next).toISOString() };
 }
+
+/** Extra credit a student buys (whole taka) to keep chatting after the daily limit; it never expires. */
+export const CREDIT_MIN = 50;
+export const CREDIT_MAX = 5000;
+const marginOf = (s: AiSettings) => s.packMargin ?? PACK_MARGIN;
+/** ৳ paid → US$ of AI the credit may use: what the margin leaves, at the dollar rate (so the 40% margin holds). */
+export const creditUsd = (taka: number, s: AiSettings = {}) => Math.round(((taka * (1 - marginOf(s))) / usdToBdt(s)) * 1e6) / 1e6;
+/** US$ of credit → ৳ as the student sees it (the same rate and margin, to 0.1). */
+export const creditTaka = (usd: number, s: AiSettings = {}) => Math.round(((usd * usdToBdt(s)) / (1 - marginOf(s))) * 10) / 10;
 /** One more line for the model, naming the language to answer in: small models otherwise answer English questions in Bangla. */
 export const answerIn = (question: string) =>
   /[ঀ-৿]/.test(question)

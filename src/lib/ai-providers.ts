@@ -83,7 +83,7 @@ export async function streamChat(ask: Ask, onText: (t: string) => void): Promise
   const last = ask.messages.length - 1;
   if (providerOf(ask.model) === "anthropic") {
     const stream = new Anthropic().beta.messages.stream({
-      model: ask.model,
+      model: MODELS[ask.model]?.route ?? ask.model,
       max_tokens: ask.maxTokens,
       ...(ask.model.includes("haiku") ? {} : { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" as const }), // Haiku has no server-side fallback
       output_config: { effort: "low" },
@@ -100,7 +100,7 @@ export async function streamChat(ask: Ask, onText: (t: string) => void): Promise
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env[key]}` },
     signal: AbortSignal.timeout(120_000),
     body: JSON.stringify({
-      model: ask.model,
+      model: MODELS[ask.model]?.route ?? ask.model,
       stream: true,
       stream_options: { include_usage: true }, // the token count arrives as the last event
       // OpenRouter: only providers that don't keep or train on what students ask (also turn on Zero Data Retention in the account's privacy settings).

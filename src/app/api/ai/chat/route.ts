@@ -31,7 +31,7 @@ export async function POST(request: Request) {
   if (!doc?.pages) return Response.json({ status: doc?.status ?? "queued" }, { status: 409 }); // still being read
   const pages = (doc.pages ?? []) as PdfPage[];
 
-  // Limits: tokens per person per 12-hour window, and the monthly budget for everyone.
+  // Limits: tokens per person per day (then extra credit), and the monthly budget for everyone.
   const key = `${g.me.institute}:${g.me.who.role}:${g.me.who.studentIds[0] ?? g.me.who.name}`;
   const ai = (await readPlatform()).ai; // what the admin panel switched off or changed
   const plan = g.staff ? null : packPlan(g.pack, ai); // students: their pack decides the models, tokens and money per window
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
   if (fast) return fast;
   const release = await takeTurn(key); // one answer at a time per person, so the count read below is never out of date
   try {
-    const a = await allowance(key, g.me.institute, plan, ai);
+    const a = await allowance(db, key, g.me.institute, plan, ai);
     if (a.over) return Response.json({ error: "limit", resetsAt: a.resetsAt }, { status: 429 });
     if ((await aiSpent(`${a.day.slice(0, 7)}-01`)) >= monthlyBudgetUsd(ai)) return Response.json({ error: "paused" }, { status: 503 });
     const record = a.record;
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
       const cost = costUsd(model, r.usage);
       await record(cost, tokens);
       if (r.declined) return Response.json({ answer: null, source: "ai", declined: true, left: left(tokens, cost) });
-      return Response.json({ answer: answer.trim(), source: "ai", left: left(tokens, cost) });
+      return Response.json({ answer: answer.trim(), source: "ai", left: left(tokens, cost), credit: a.paying ? a.creditTk(cost) : undefined });
     } catch (e) {
       console.error("ai chat:", e instanceof Error ? e.message : e);
       return Response.json({ error: "try again" }, { status: 503 });

@@ -1,4 +1,4 @@
-import { aiWindow, freePlan, packPlan, PACKS, previousWindow, windowTokens } from "@/lib/ai-chat";
+import { aiWindow, creditTaka, freePlan, packPlan, PACKS, previousWindow, windowTokens } from "@/lib/ai-chat";
 import { institutesWithStudents } from "@/lib/admin-server";
 import { REAL_AUTH } from "@/lib/auth-mode";
 import { act, admin } from "@/lib/data-server";
@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 const userKey = (institute: string, id: number) => `${institute}:student:${id}`;
 
-/** ClassBARI admin: students of every institute matching ?q= (name, email, institute name or code), with their AI pack and this 12-hour window's use. */
+/** ClassBARI admin: students of every institute matching ?q= (name, email, institute name or code), with their AI pack, today's use and their extra credit (৳). */
 export async function GET(request: Request) {
   if (!isAdmin(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
   if (!REAL_AUTH) return Response.json({ error: "demo mode" }, { status: 404 });
@@ -20,10 +20,12 @@ export async function GET(request: Request) {
     .filter(({ i, s }) => !q || `${s.name} ${s.email ?? ""} ${i.name} ${i.code}`.toLowerCase().includes(q));
   const shown = found.slice(0, 100);
   const w = aiWindow();
-  const { data: use } = shown.length
-    ? await admin().from("ai_usage").select("user_key, tokens, cost_usd, questions").eq("day", w.day).eq("slot", w.slot).in("user_key", shown.map(({ i, s }) => userKey(i.id, s.id)))
-    : { data: [] };
+  const keys = shown.map(({ i, s }) => userKey(i.id, s.id));
+  const [{ data: use }, { data: credits }] = shown.length
+    ? await Promise.all([admin().from("ai_usage").select("user_key, tokens, cost_usd, questions").eq("day", w.day).eq("slot", w.slot).in("user_key", keys), admin().from("ai_credit").select("user_key, usd").in("user_key", keys)])
+    : [{ data: [] }, { data: [] }];
   const used = new Map((use ?? []).map((u) => [u.user_key as string, u]));
+  const credit = new Map((credits ?? []).map((c) => [c.user_key as string, Number(c.usd)]));
   const ai = (await readPlatform()).ai;
   const today = dayKey();
   return Response.json({
@@ -37,6 +39,7 @@ export async function GET(request: Request) {
         pack: s.aiPack ?? null, until: s.premiumUntil ?? null, paid,
         tokens: Number(u?.tokens ?? 0), costUsd: Number(u?.cost_usd ?? 0), questions: Number(u?.questions ?? 0),
         limit: windowTokens((paid ? packPlan(s.aiPack, ai) : freePlan(ai)).daily),
+        creditTk: creditTaka(credit.get(userKey(i.id, s.id)) ?? 0, ai),
       };
     }),
   });
@@ -44,7 +47,7 @@ export async function GET(request: Request) {
 
 /**
  * Change one student's AI: { institute, id, action: "pack", pack, until } gives, extends or changes a pack;
- * "stop" ends it now; "reset" frees this 12-hour window (its use stays counted in the month's spending).
+ * "stop" ends it now; "reset" frees today's allowance (its use stays counted in the month's spending).
  */
 export async function POST(request: Request) {
   if (!isAdmin(request)) return Response.json({ error: "Unauthorized" }, { status: 401 });
@@ -64,7 +67,7 @@ export async function POST(request: Request) {
       const { error } = await db.from("ai_usage").update({ user_key: `${userKey(institute, id)}#reset-${stamp}` }).eq("user_key", userKey(institute, id)).eq("day", x.day).eq("slot", x.slot);
       if (error) return Response.json({ error: "reset failed" }, { status: 503 });
     }
-    await log(`${institute} student #${id}: AI window reset`);
+    await log(`${institute} student #${id}: AI day reset`);
     return Response.json({ ok: true });
   }
 

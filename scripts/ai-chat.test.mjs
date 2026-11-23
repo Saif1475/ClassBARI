@@ -28,10 +28,15 @@ test("without AI, the answer quotes the most relevant sentences with their page"
   assert.equal(basicAnswer(pages, "?!"), null);
 });
 
-test("the allowance refills in two 12-hour windows, Bangladesh time", () => {
-  assert.deepEqual(aiWindow(new Date("2026-11-20T23:59:00Z")), { day: "2026-11-21", slot: 0, resetsAt: "2026-11-21T06:00:00.000Z" }); // 05:59 Dhaka
-  assert.equal(aiWindow(new Date("2026-11-21T06:00:00Z")).slot, 1); // noon Dhaka
-  assert.deepEqual(aiWindow(new Date("2026-11-21T17:30:00Z")), { day: "2026-11-21", slot: 1, resetsAt: "2026-11-21T18:00:00.000Z" });
+test("the allowance is one Dhaka calendar day and refills at midnight in Dhaka", () => {
+  const midnight = "2026-11-21T18:00:00.000Z"; // 22 November 00:00 Dhaka
+  assert.deepEqual(aiWindow(new Date("2026-11-20T23:59:00Z")), { day: "2026-11-21", slot: 0, resetsAt: midnight }); // 05:59 Dhaka
+  assert.deepEqual(aiWindow(new Date("2026-11-21T06:00:00Z")), { day: "2026-11-21", slot: 0, resetsAt: midnight }); // noon: same day, no second window
+  assert.deepEqual(aiWindow(new Date("2026-11-21T17:59:59Z")), { day: "2026-11-21", slot: 0, resetsAt: midnight }); // 23:59:59 Dhaka
+  assert.deepEqual(aiWindow(new Date(midnight)), { day: "2026-11-22", slot: 0, resetsAt: "2026-11-22T18:00:00.000Z" }); // midnight: a new day
+  assert.deepEqual(aiWindow(new Date("2026-11-30T18:00:00Z")), { day: "2026-12-01", slot: 0, resetsAt: "2026-12-01T18:00:00.000Z" }); // month rollover
+  assert.deepEqual(aiWindow(new Date("2026-12-31T17:00:00Z")), { day: "2026-12-31", slot: 0, resetsAt: "2026-12-31T18:00:00.000Z" }); // 23:00 on 31 December
+  assert.equal(aiWindow(new Date("2026-12-31T18:00:00Z")).day, "2027-01-01"); // year rollover
 });
 
 test("the daily limit counts every token, cached ones included", () => {
@@ -49,9 +54,9 @@ test("AI packs: models and allowance by pack; photos are checked", async () => {
   assert.equal(packPlan(undefined).pack, 150); // premium from before packs
   assert.equal(packPlan(999).pack, 150);
   assert.deepEqual(packPlan(150).models, ["qwen3.7-flash", "deepseek/deepseek-v4.1-flash", "openai/gpt-oss-120b", "gemini-2.5-flash-lite", "qwen3.8-flash"]); // cheapest first
-  assert.equal(windowTokens(packPlan(150).daily), 50_000);
-  assert.equal(windowTokens(packPlan(800).daily), 75_000);
-  assert.equal(windowTokens(packPlan(1500).daily), 100_000);
+  assert.equal(windowTokens(packPlan(150).daily), 100_000); // the whole day's tokens, no halving
+  assert.equal(windowTokens(packPlan(800).daily), 150_000);
+  assert.equal(windowTokens(packPlan(1500).daily), 200_000);
   assert.ok(Object.values({ 150: packPlan(150), 1500: packPlan(1500) }).every((p) => !p.models.includes("claude-sonnet-5-5"))); // no Sonnet in any pack
   // The owner's rule (2026-11-23), by price for answers: <$0.20 free, <$0.50 ৳150, <$1.20 ৳400, <$3 ৳800, ≤$6 ৳1500.
   const { planOf } = await import("../src/lib/ai-chat.ts");
@@ -110,10 +115,11 @@ test("the model picker lists every model and locks the ones a bigger pack has", 
   assert.ok(modelMenu(1500).every((m) => !m.locked));
 });
 
-test("free plan: only Qwen Flash, 10,000 tokens a window, a small money backstop", async () => {
+test("free plan: the free models, 20,000 tokens a day, a small money backstop per day", async () => {
   const { FREE, modelMenu, windowTokens, windowCostUsd } = await import("../src/lib/ai-chat.ts");
   assert.deepEqual(FREE.models, ["qwen3.7-flash", "deepseek/deepseek-v4.1-flash"]); // under $0.20 for answers
-  assert.equal(windowTokens(FREE.daily), 10_000);
+  assert.equal(windowTokens(FREE.daily), 20_000);
+  assert.equal(windowCostUsd(0), 0.008); // twice the old 12-hour 0.004
   assert.ok(windowCostUsd(0) > 0 && windowCostUsd(0) < windowCostUsd(150));
   const free = modelMenu(0);
   assert.deepEqual(free.filter((m) => !m.locked).map((m) => [m.id, m.pack]), [["qwen3.7-flash", 0], ["deepseek/deepseek-v4.1-flash", 0]]);
@@ -180,16 +186,18 @@ test("only a first question on its own, with nothing personal in it, is shared b
   assert.ok(!goodEnough("qwen3.8-max").includes("gemini-2.5-flash-lite")); // never a weaker one
 });
 
-test("profit guard: each pack has a monthly AI money cap below its price; overuse comes off the next window", async () => {
+test("profit guard: each pack has a monthly AI money cap below its price; overuse comes off the next day", async () => {
   const { windowCostUsd, previousWindow, carried, leftPct, packPlan, MODELS, PACKS, PACK_MONTHLY_USD, packMonthlyUsd, monthStartAfter } = await import("../src/lib/ai-chat.ts");
   assert.deepEqual(PACK_MONTHLY_USD, { 150: 0.73, 400: 1.96, 800: 3.93, 1500: 7.37 }); // 60% of each price at ৳122 a dollar, US$ per student per month
   for (const pack of PACKS) assert.ok(packMonthlyUsd(pack) * 122 <= pack * 0.6, `৳${pack}`); // at least 40% of the price is ours
   assert.equal(packMonthlyUsd(400, { packMonthlyUsd: { 400: 3 } }), 3); // the admin panel can change it
-  assert.equal(windowCostUsd(150), Infinity); // packs: no 12-hour money cap, the monthly one instead
+  assert.equal(windowCostUsd(150), Infinity); // packs: no daily money cap, the monthly one instead
   assert.equal(monthStartAfter("2026-11-23"), "2026-11-30T18:00:00.000Z"); // 1 December, midnight in Dhaka
   assert.equal(monthStartAfter("2026-12-31"), "2026-12-31T18:00:00.000Z");
-  assert.deepEqual(previousWindow({ day: "2026-11-21", slot: 1 }), { day: "2026-11-21", slot: 0 });
-  assert.deepEqual(previousWindow({ day: "2026-12-01", slot: 0 }), { day: "2026-11-30", slot: 1 });
+  assert.deepEqual(previousWindow({ day: "2026-11-21", slot: 0 }), { day: "2026-11-20", slot: 0 }); // yesterday
+  assert.deepEqual(previousWindow({ day: "2026-12-01", slot: 0 }), { day: "2026-11-30", slot: 0 });
+  assert.deepEqual(previousWindow({ day: "2027-01-01", slot: 0 }), { day: "2026-12-31", slot: 0 });
+  assert.deepEqual(previousWindow({ day: "2028-03-01", slot: 0 }), { day: "2028-02-29", slot: 0 }); // leap year
   assert.deepEqual(carried({ tokens: 60_000, cost_usd: 0.2 }, 50_000, 0.13), { tokens: 10_000, cost: 0.2 - 0.13 });
   assert.deepEqual(carried(null, 50_000, 0.13), { tokens: 0, cost: 0 });
   assert.equal(leftPct(25_000, 50_000, 0.1, 0.13), 23); // money runs out first: that decides

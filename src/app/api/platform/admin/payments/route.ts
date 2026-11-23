@@ -1,8 +1,10 @@
 import { REAL_AUTH } from "@/lib/auth-mode";
+import { creditUsd } from "@/lib/ai-chat";
+import { changeCredit } from "@/lib/ai-credit";
 import { act, admin, loadDoc } from "@/lib/data-server";
 import { send } from "@/lib/notify-server";
 import { packUntil } from "@/lib/pay";
-import { isAdmin, updatePlatform } from "@/lib/platform-server";
+import { isAdmin, readPlatform, updatePlatform } from "@/lib/platform-server";
 import type { Plan } from "@/lib/platform";
 
 export const dynamic = "force-dynamic";
@@ -23,7 +25,8 @@ export async function GET(request: Request) {
 
 /**
  * Approve or reject after checking the TrxID in the bKash or Nagad app: { id, approve, reason }. Approving an AI pack
- * switches it on (or adds the months to the one running); approving a plan makes the institute active on that plan.
+ * switches it on (or adds the months to the one running); approving extra AI credit adds it to the student's balance
+ * (taka x (1 - margin) / dollar rate, once per payment); approving a plan makes the institute active on that plan.
  * The payer is told either way.
  */
 export async function POST(request: Request) {
@@ -57,6 +60,17 @@ export async function POST(request: Request) {
       return Response.json({ error: "student not found" }, { status: 404 });
     }
   }
+  if (body.approve && p.kind === "ai_credit") {
+    const ai = (await readPlatform()).ai;
+    try {
+      const r = await changeCredit(db, { key: `${p.institute_id}:student:${p.student_id}`, institute: p.institute_id, kind: "purchase", usd: creditUsd(p.amount, ai), taka: p.amount, payId: p.id, by: "admin" });
+      await updatePlatform((pl) => void pl.audit.unshift({ at: new Date().toISOString(), action: "AI credit", detail: `purchase ${p.payer_email} ৳${p.amount} = US$${r.usd} (balance US$${r.balance}) ${p.method} ${p.trx_id}` }));
+    } catch (e) {
+      console.error(e instanceof Error ? e.message : e);
+      await db.from("pay_requests").update({ status: "pending", decided_at: null }).eq("id", p.id); // nothing changed: back in the queue
+      return Response.json({ error: "credit failed" }, { status: 503 });
+    }
+  }
   if (body.approve && p.kind === "plan")
     await updatePlatform((pl) => {
       const inst = pl.institutes.find((i) => i.email.toLowerCase() === String(p.payer_email).toLowerCase());
@@ -69,9 +83,9 @@ export async function POST(request: Request) {
 
   // Tell the payer: the student (and their guardians) for a pack, the owner for a plan.
   const state = (await loadDoc(p.institute_id)).state;
-  const what = p.kind === "ai_pack" ? `AI ৳${p.item}` : String(p.item);
+  const what = p.kind === "ai_pack" ? `AI ৳${p.item}` : p.kind === "ai_credit" ? `AI credit ৳${p.amount}` : String(p.item);
   const text: [string, ...(string | number)[]] = body.approve ? ["payApproved", what, until] : ["payRejected", what, String(p.reason ?? "")];
-  if (p.kind === "ai_pack") {
+  if (p.kind === "ai_pack" || p.kind === "ai_credit") {
     await send(p.institute_id, { to: { students: [p.student_id] }, group: "ai", text, screen: "home" }, state);
     await send(p.institute_id, { to: { guardians: [p.student_id] }, group: "fees", text, screen: "home" }, state);
   } else await send(p.institute_id, { to: { owners: true }, group: "work", text, screen: "home" }, state);

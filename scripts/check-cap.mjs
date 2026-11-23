@@ -1,14 +1,14 @@
 // Run: npm run check:cap -- --yes
-// Uses up the test student's AI allowance for the current 12-hour window, through the website on port 3000, and checks
+// Uses up the test student's AI allowance for today (Dhaka day), through the website on port 3000, and checks
 // that the cap holds: every answer lowers what is left, questions sent at the same moment are all counted, the chat is
 // refused once nothing is left (on every model), and the page says when it refills.
-// Costs real money on the AI accounts: at most one window of the test student's pack plus the last answer (a few taka).
-// Afterwards the test student has no AI chat until the window ends (12 noon or 12 midnight, Bangladesh time).
+// Costs real money on the AI accounts: at most one day of the test student's pack plus the last answer (a few taka).
+// Afterwards the test student has no AI chat until midnight, Bangladesh time (or until it has extra credit, which then pays).
 import { mkdirSync } from "node:fs";
 import { as, finish, SITE } from "./test-login.mjs";
 
 if (!process.argv.includes("--yes")) {
-  console.log("This uses up the test student's AI allowance until the next 12-hour refill and costs a few taka.\nRun it with: npm run check:cap -- --yes");
+  console.log("This uses up the test student's AI allowance until midnight (Bangladesh time) and costs a few taka.\nRun it with: npm run check:cap -- --yes");
   process.exit(1);
 }
 const TRAILER = "\u001e"; // ends a streamed chat answer; JSON follows it
@@ -56,13 +56,13 @@ if (typeof m.left !== "number") throw new Error("The website does not say how mu
 const ready = m.models.filter((x) => !x.locked && !x.soon);
 const cheap = ready[0], strong = ready[ready.length - 1];
 if (!cheap) throw new Error("No chat model is switched on for the test student.");
-say(`The test student's pack: ৳${m.pack} a month. Allowance left in this 12-hour window: ${m.left}%.`);
-// When this window ends, worked out here on its own: the next 12 noon or 12 midnight in Bangladesh (UTC+6).
+say(`The test student's pack: ৳${m.pack} a month. Allowance left today: ${m.left}%.`);
+// When today ends, worked out here on its own: the next midnight in Bangladesh (UTC+6).
 const dhaka = new Date(Date.now() + 6 * 3600_000);
-const ends = new Date(Date.UTC(dhaka.getUTCFullYear(), dhaka.getUTCMonth(), dhaka.getUTCDate(), dhaka.getUTCHours() < 12 ? 12 : 24) - 6 * 3600_000).toISOString();
+const ends = new Date(Date.UTC(dhaka.getUTCFullYear(), dhaka.getUTCMonth(), dhaka.getUTCDate() + 1) - 6 * 3600_000).toISOString();
 const at = (iso) => new Date(iso).toLocaleTimeString("en-GB", { timeZone: "Asia/Dhaka", hour: "2-digit", minute: "2-digit" });
-if (m.resetsAt === ends) ok(`It refills at ${at(m.resetsAt)} Bangladesh time: the end of this 12-hour window.`);
-else fail(`The website says it refills at ${m.resetsAt}; this window really ends at ${ends}.`);
+if (m.resetsAt === ends) ok(`It refills at ${at(m.resetsAt)} Bangladesh time: midnight.`);
+else fail(`The website says it refills at ${m.resetsAt}; today really ends at ${ends}.`);
 
 if (m.left > 0) {
   // ---- one answer lowers what is left ------------------------------------------------------------------------------

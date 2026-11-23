@@ -279,6 +279,30 @@ try {
   r = await call(student, "GET", "/api/pay");
   check("the student sees their payment as confirmed", r.json?.mine?.[0]?.status === "approved");
 
+  console.log("Extra AI credit…");
+  r = await pay(student, { kind: "ai_credit", item: "49", method: "bkash", sender: "01711111111", trxId: `${trx}C0` });
+  check("credit under ৳50 is refused", r.status === 400);
+  r = await pay(student, { kind: "ai_credit", item: "120", months: 12, amount: 1, method: "bkash", sender: "01711111111", trxId: `${trx}C1` });
+  check("a credit payment is accepted with the server's amount (৳120, one time)", r.status === 200 && r.json.amount === 120 && r.json.months === 1 && r.json.kind === "ai_credit");
+  const creditPay = r.json?.id;
+  const userKey = `${institute}:student:${me.id}`;
+  const okCredit = await adminPay({ id: creditPay, approve: true }).then((x) => x.json());
+  const { data: bal } = await admin.from("ai_credit").select("usd").eq("user_key", userKey).maybeSingle();
+  check("approval adds the credit (taka × (1 − margin) ÷ rate)", okCredit.ok === true && Number(bal?.usd) > 0 && Number(bal?.usd) < 120 / 100);
+  const { data: logRows } = await admin.from("ai_credit_log").select("kind, pay_request_id").eq("user_key", userKey);
+  check("…with one 'purchase' row in the credit log, linked to the payment", logRows?.length === 1 && logRows[0].kind === "purchase" && logRows[0].pay_request_id === creditPay);
+  r = await call(student, "GET", "/api/ai/assistant");
+  check("the student sees their credit and its history", r.status !== 200 || (r.json.credit > 0 && r.json.creditLog?.length === 1));
+  const selfCredit = await student.sb.rpc("ai_credit_change", { p_key: userKey, p_institute: institute, p_kind: "admin_add", p_usd: 100 });
+  const peekCredit = await student.sb.from("ai_credit").select("usd");
+  check("a client can't run the credit function or read the balances", !!selfCredit.error && (!!peekCredit.error || !peekCredit.data?.length));
+  const adminCredits = (body) => fetch(`${BASE}/api/platform/admin/credits`, { method: "POST", headers: { Authorization: `Bearer ${env.ADMIN_TOKEN}`, "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(async (x) => ({ status: x.status, json: await x.json().catch(() => ({})) }));
+  r = await adminCredits({ action: "refund", payId: creditPay, reason: "check" });
+  check("the admin refunds the unused credit", r.status === 200 && r.json.taka === 120 && Number(r.json.balance) === 0);
+  check("…once only", (await adminCredits({ action: "refund", payId: creditPay })).status === 409);
+  r = await adminCredits({ action: "check" });
+  check("every balance equals the sum of its log", r.status === 200 && Array.isArray(r.json.mismatches) && !r.json.mismatches.some((m) => m.user_key === userKey));
+
   console.log("Public pages…");
   await act(owner, "updateBatch", [batchId, { public: true }]);
   r = await call(null, "GET", `/api/public?batch=${batchId}`);

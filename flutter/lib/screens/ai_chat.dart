@@ -49,8 +49,11 @@ class _AiChatAppState extends State<AiChatApp> {
   var openId = 0; // 0: a new chat not started yet
   List<Json> models = [];
   var pick = '', access = 'loading'; // loading, ok, pack (no AI pack), soon (not set up), offline
-  num? left; // % of the allowance left, and when it refills (shown in Settings)
+  num? left; // % of today's allowance left, and when it refills (shown in Settings)
   String? resetsAt;
+  num? credit; // extra credit left (৳), and the student's own credit history (shown in Settings)
+  List<Json> creditLog = [];
+  var limitHit = false; // today's limit reached with no credit: offer to buy some
 
   /// The model picked last time (kept in Settings); until then the one the server suggests.
   String get model => store.aiModel ?? pick;
@@ -149,6 +152,8 @@ class _AiChatAppState extends State<AiChatApp> {
         pick = '${d['pick'] ?? ''}';
         left = d['left'] as num?;
         resetsAt = d['resetsAt'] as String?;
+        credit = d['credit'] as num?;
+        creditLog = rows(d['creditLog']);
         next = 'ok';
       } else if (res.statusCode == 402) {
         next = 'pack';
@@ -246,6 +251,7 @@ class _AiChatAppState extends State<AiChatApp> {
         } catch (_) {
           // not JSON: the plain error line
         }
+        limitHit = res.statusCode == 429;
         note = res.statusCode == 429 && d['resetsAt'] != null
             ? t('aichat.limit', [clock(d['resetsAt'])])
             : (d['error'] == 'paused' ? t('aichat.paused') : (res.statusCode == 404 || d['error'] == 'soon' ? t('aichat.soon') : t('aichat.error')));
@@ -276,7 +282,8 @@ class _AiChatAppState extends State<AiChatApp> {
         },
       ]);
       if (info['left'] is num) left = info['left'] as num;
-      note = info['error'] == true ? t('aichat.error') : (info['left'] is num ? t('aichat.left', [info['left']]) : '');
+      if (info['credit'] is num) credit = info['credit'] as num;
+      note = info['error'] == true ? t('aichat.error') : (info['credit'] is num ? t('aichat.creditLeft', [taka(info['credit'] as num)]) : (info['left'] is num ? t('aichat.left', [info['left']]) : ''));
     } catch (_) {
       // Stopped by the student, or the connection dropped: keep what arrived.
       stopped = stream == null;
@@ -343,6 +350,7 @@ class _AiChatAppState extends State<AiChatApp> {
         } catch (_) {
           // not JSON
         }
+        limitHit = res.statusCode == 429;
         throw res.statusCode == 429 && d['resetsAt'] != null
             ? t('aichat.limit', [clock(d['resetsAt'])])
             : (d['error'] == 'paused' ? t('aichat.paused') : (res.statusCode == 404 ? t('aichat.soon') : (res.statusCode == 413 ? t('aichat.highlightTooBig') : t('aichat.highlightFailed'))));
@@ -361,6 +369,11 @@ class _AiChatAppState extends State<AiChatApp> {
       if (l != null) {
         left = l;
         note = t('aichat.left', [l]);
+      }
+      final paid = num.tryParse(res.headers['x-credit'] ?? '');
+      if (paid != null) {
+        credit = paid;
+        note = t('aichat.creditLeft', [taka(paid)]);
       }
     } catch (e) {
       // Nothing came back: the question out again, the PDF back in the box.
@@ -585,6 +598,21 @@ class _AiChatAppState extends State<AiChatApp> {
                         ),
                       if (busy && (list.isEmpty || list.last['role'] == 'user')) Muted(t(highlighting ? 'aichat.highlighting' : 'aichat.thinking')),
                       if (note.isNotEmpty) Semantics(liveRegion: true, child: Muted(note)),
+                      if (limitHit)
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: Doing(
+                            label: t('aichat.buyCredit'),
+                            small: true,
+                            onPressed: () async => push(
+                              context,
+                              Screen(
+                                title: t('pay.buyCredit'),
+                                children: const [PayForm(kind: 'ai_credit')],
+                              ),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
           ),
@@ -1063,7 +1091,7 @@ class _AiChatAppState extends State<AiChatApp> {
       context,
       SettingsScreen(
         details: [(t('settings.yourName'), myName), (t('settings.instituteName'), '${store.state?['instituteName'] ?? ''}')],
-        ai: AiSettings(models: models, pack: pack, left: left, resetsAt: resetsAt, chats: () => chats.length, onDeleteAll: deleteAll),
+        ai: AiSettings(models: models, pack: pack, left: left, resetsAt: resetsAt, credit: credit, creditLog: creditLog, chats: () => chats.length, onDeleteAll: deleteAll),
       ),
     );
   }

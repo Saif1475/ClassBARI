@@ -1,8 +1,8 @@
-import { costUsd, MODELS, monthlyBudgetUsd, takeTurn, usedTokens } from "@/lib/ai-chat";
+import { costUsd, MODELS, budgetPaused, takeTurn, usedTokens } from "@/lib/ai-chat";
 import { allowance } from "@/lib/ai-allowance";
 import { gate } from "@/lib/ai-gate";
 import { HIGHLIGHT_MAX_BYTES, HIGHLIGHT_MAX_PAGES, highlightInput } from "@/lib/chat-tools";
-import { aiSpent } from "@/lib/data-server";
+import { admin, aiSpent } from "@/lib/data-server";
 import { aiHighlights, basicHighlights, type Highlight } from "@/lib/pdf-insights";
 import { highlightPdf, readPages } from "@/lib/pdf-mark";
 import { geminiRead } from "@/lib/pdf-pipeline";
@@ -35,14 +35,14 @@ export async function POST(request: Request) {
 
   const release = await takeTurn(key); // one AI job at a time per student, as the chat
   try {
-    const a = await allowance(key, me.institute, plan, ai);
+    const a = await allowance(admin(), key, me.institute, plan, ai);
     if (a.over) return Response.json({ error: "limit", resetsAt: a.resetsAt }, { status: 429 });
     // The cheapest Gemini model of the student's plan (only Gemini reads the PDF file itself here).
     const model = g.models.find((id) => MODELS[id]?.provider === "google");
     let highlights: Highlight[] | null = null;
     let tokens = 0, cost = 0;
     if (model) {
-      if ((await aiSpent(`${a.day.slice(0, 7)}-01`)) >= monthlyBudgetUsd(ai) * (plan.pack ? 1 : 0.8)) return Response.json({ error: "paused" }, { status: 503 });
+      if (budgetPaused(await aiSpent(`${a.day.slice(0, 7)}-01`), ai, plan.pack)) return Response.json({ error: "paused" }, { status: 503 });
       try {
         const read = await geminiRead(model, pdf, NOTE, 120, async (u) => {
           tokens = usedTokens(u);
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
     highlights ??= basicHighlights(pages);
     const out = await highlightPdf(pdf, highlights);
     return new Response(new Uint8Array(out), {
-      headers: { "Content-Type": "application/pdf", "Cache-Control": "no-store", "X-Highlights": String(highlights.length), "X-Left": String(a.left(tokens, cost)) },
+      headers: { "Content-Type": "application/pdf", "Cache-Control": "no-store", "X-Highlights": String(highlights.length), "X-Left": String(a.left(tokens, cost)), ...(a.paying ? { "X-Credit": String(a.creditTk(cost)) } : {}) },
     });
   } catch (e) {
     console.error("ai highlight:", e instanceof Error ? e.message : e);

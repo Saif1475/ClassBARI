@@ -10,7 +10,7 @@ import { packUntil } from "@/lib/pay";
 // ClassBARI staff panel. Staff-only, so English only. Data: /api/platform/admin + /api/leads (ADMIN_TOKEN).
 type Lead = { name: string; phone: string; size: string; at: string };
 type Data = Platform & { overview: ReturnType<typeof overview>; smsLive: boolean; errors?: { at: string; where: string; message: string }[]; alertsOn?: boolean };
-const TABS = ["Overview", "Payments", "Institutes", "Subscriptions", "Students", "AI control", "API keys", "Enquiries", "Support", "Announcements", "Features", "SMS", "Plans", "AI answers", "Activity"] as const;
+const TABS = ["Overview", "Payments", "Institutes", "Subscriptions", "Students", "Credits", "AI control", "API keys", "Enquiries", "Support", "Announcements", "Features", "SMS", "Plans", "AI answers", "Activity"] as const;
 type Tab = (typeof TABS)[number];
 const TOKEN_KEY = "classbari-admin-token"; // this tab only; closed tab = logged out
 const FLAG_INFO: Record<keyof Flags, [string, string]> = {
@@ -193,6 +193,7 @@ export default function Admin() {
           {tab === "Payments" && <Payments token={token} />}
           {tab === "Subscriptions" && <Subscriptions token={token} act={act} />}
           {tab === "Students" && <Students token={token} />}
+          {tab === "Credits" && <Credits token={token} />}
           {tab === "AI control" && <AiControl token={token} act={act} />}
           {tab === "API keys" && <ApiKeys token={token} />}
 
@@ -414,20 +415,29 @@ function Payments({ token }: { token: string }) {
     setMsg(res.ok ? (approve ? `Approved${d.until ? `: on until ${d.until}` : ""}` : "Rejected") : d.error ?? "Failed");
     void load();
   };
+  const refund = async (p: Payment) => {
+    const reason = window.prompt(`Refund this ৳${p.amount} AI credit? Only the part not used yet is taken back. You then send that money back by ${p.method} yourself. Reason:`);
+    if (reason === null) return;
+    const res = await fetch("/api/platform/admin/credits", { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify({ action: "refund", payId: p.id, reason }) });
+    const d = await res.json().catch(() => ({}));
+    setMsg(res.ok ? `Refunded: send ৳${d.taka} back to ${p.sender} by ${p.method} by hand.` : d.error ?? "Failed");
+    void load();
+  };
   const waiting = list.filter((p) => p.status === "pending");
   return (
     <section className={`${card} flex flex-col gap-3`}>
       <h2 className="font-bold">Payments ({waiting.length} waiting)</h2>
-      <p className="text-sm text-on-surface-variant">Open the bKash or Nagad app, find the transaction by its TrxID, and check the amount and the sender's number before approving. An approved AI pack switches on at once; an approved plan makes the institute active. The payer gets a notification either way.</p>
+      <p className="text-sm text-on-surface-variant">Open the bKash or Nagad app, find the transaction by its TrxID, and check the amount and the sender's number before approving. An approved AI pack switches on at once; approved AI credit is added to the student's balance; an approved plan makes the institute active. The payer gets a notification either way.</p>
       {msg && <p role="status" className="text-sm font-semibold">{msg}</p>}
       {!msg && !list.length && <p className="text-sm text-on-surface-variant">No payments yet.</p>}
       {list.map((p) => (
         <article key={p.id} className={`flex flex-wrap items-center gap-3 rounded-[12px] px-4 py-3 text-sm ${p.status === "pending" ? "bg-tertiary-container" : "bg-surface-container"}`}>
           <div className="min-w-0 flex-1">
             <p className="font-bold">৳{p.amount.toLocaleString("en-IN")} · {p.method} · TrxID <span className="font-mono">{p.trx_id}</span> · from {p.sender}</p>
-            <p className="text-on-surface-variant">{p.kind === "ai_pack" ? `AI pack ৳${p.item}, student #${p.student_id}` : `Plan ${p.item}`} · {p.months} month(s) · {p.payer_email} ({p.payer_role}) · {p.institute} · {new Date(p.created_at).toLocaleString()}</p>
+            <p className="text-on-surface-variant">{p.kind === "ai_pack" ? `AI pack ৳${p.item}, student #${p.student_id} · ${p.months} month(s)` : p.kind === "ai_credit" ? `AI credit ৳${p.item}, student #${p.student_id}` : `Plan ${p.item} · ${p.months} month(s)`} · {p.payer_email} ({p.payer_role}) · {p.institute} · {new Date(p.created_at).toLocaleString()}</p>
             {p.status !== "pending" && <p className="font-semibold">{p.status}{p.reason ? `: ${p.reason}` : ""}</p>}
           </div>
+          {p.status === "approved" && p.kind === "ai_credit" && <button type="button" onClick={() => void refund(p)} className={`${btn} bg-white text-error`}>Refund</button>}
           {p.status === "pending" && (
             <span className="flex gap-2">
               <button type="button" onClick={() => void decide(p, true)} className={`${btn} bg-primary text-on-primary`}>Approve</button>
@@ -592,8 +602,8 @@ function Subscriptions({ token, act }: { token: string; act: Act }) {
   );
 }
 
-type StudentRow = { institute: string; instituteName: string; code: string; id: number; name: string; email: string; batch: string; pack: number | null; until: string | null; paid: boolean; tokens: number; costUsd: number; questions: number; limit: number };
-/** Students of every institute: their AI pack, and this 12-hour window's use. */
+type StudentRow = { institute: string; instituteName: string; code: string; id: number; name: string; email: string; batch: string; pack: number | null; until: string | null; paid: boolean; tokens: number; costUsd: number; questions: number; limit: number; creditTk: number };
+/** Students of every institute: their AI pack, today's use and their extra credit. */
 function Students({ token }: { token: string }) {
   const [q, setQ] = useState("");
   const [search, setSearch] = useState("");
@@ -611,7 +621,7 @@ function Students({ token }: { token: string }) {
         <button type="submit" className={`${btn} bg-primary text-on-primary`}>Search</button>
       </form>
       {msg && <p role="status" className="text-sm font-semibold">{msg}</p>}
-      {data && <p className="text-sm text-on-surface-variant">{data.total} found{data.total > data.students.length ? `, first ${data.students.length} shown` : ""}. This AI window refills {when(data.resetsAt)}.</p>}
+      {data && <p className="text-sm text-on-surface-variant">{data.total} found{data.total > data.students.length ? `, first ${data.students.length} shown` : ""}. Today's AI allowance refills {when(data.resetsAt)} (midnight, Dhaka).</p>}
       {data?.students.map((s) => <StudentCard key={`${s.institute}:${s.id}`} s={s} send={send} />)}
     </>
   );
@@ -628,7 +638,7 @@ function StudentCard({ s, send }: { s: StudentRow; send: (body: Record<string, u
         <span className="text-on-surface-variant">{s.email} · {s.batch} · {s.instituteName} ({s.code})</span>
       </p>
       <p>
-        AI: {s.paid ? <b>pack ৳{s.pack ?? 150} until {s.until}</b> : <b>free{s.until ? ` (pack ended ${s.until})` : ""}</b>} · this window {s.tokens.toLocaleString()} of {s.limit.toLocaleString()} tokens, ${s.costUsd.toFixed(4)}, {s.questions} questions
+        AI: {s.paid ? <b>pack ৳{s.pack ?? 150} until {s.until}</b> : <b>free{s.until ? ` (pack ended ${s.until})` : ""}</b>} · today {s.tokens.toLocaleString()} of {s.limit.toLocaleString()} tokens, ${s.costUsd.toFixed(4)}, {s.questions} questions · extra credit <b>৳{s.creditTk}</b>
       </p>
       <div className="flex flex-wrap items-end gap-2">
         <label className="flex flex-col gap-1 font-semibold">Pack
@@ -642,9 +652,118 @@ function StudentCard({ s, send }: { s: StudentRow; send: (body: Record<string, u
         <button type="button" onClick={() => setUntil(packUntil(until, today(), 1))} className={`${btn} bg-surface-container`}>+1 month</button>
         <button type="button" onClick={() => confirm(`Give ${s.name} the ৳${pack} pack until ${until}? (No payment is recorded.)`) && send({ ...who, action: "pack", pack: Number(pack), until }, "Pack saved")} className={`${btn} bg-primary text-on-primary`}>{s.paid ? "Save pack" : "Give pack"}</button>
         {s.paid && <button type="button" onClick={() => confirm(`Stop ${s.name}'s AI pack now?`) && send({ ...who, action: "stop" }, "Pack stopped")} className={`${btn} bg-error text-white`}>Stop pack</button>}
-        <button type="button" onClick={() => confirm(`Reset ${s.name}'s AI use for this 12-hour window? (It still counts in the month's spending.)`) && send({ ...who, action: "reset" }, "AI window reset")} className={`${btn} bg-surface-container`}>Reset AI window</button>
+        <button type="button" onClick={() => confirm(`Reset ${s.name}'s AI use for today? (It still counts in the month's spending.)`) && send({ ...who, action: "reset" }, "AI day reset")} className={`${btn} bg-surface-container`}>Reset today's AI</button>
+        <CreditButtons name={s.name} who={who} send={send} />
       </div>
     </article>
+  );
+}
+
+/** Add or remove extra AI credit by hand: a whole ৳ amount and a reason (both go in the credit log and Activity). */
+function CreditButtons({ name, who, send }: { name: string; who: { institute: string; id: number }; send: (body: Record<string, unknown>, done: string) => Promise<void> }) {
+  const go = (action: "add" | "remove") => {
+    const taka = Number(window.prompt(`${action === "add" ? "Add" : "Remove"} how much AI credit for ${name}? (whole ৳)`) ?? "");
+    if (!Number.isInteger(taka) || taka <= 0) return;
+    const reason = window.prompt("Reason (required, kept in the log):")?.trim();
+    if (reason && reason.length >= 3) void send({ ...who, action, taka, reason }, `Credit ${action === "add" ? "added" : "removed"}`);
+  };
+  return (
+    <>
+      <button type="button" onClick={() => go("add")} className={`${btn} bg-surface-container`}>+ Credit</button>
+      <button type="button" onClick={() => go("remove")} className={`${btn} bg-surface-container`}>− Credit</button>
+    </>
+  );
+}
+
+type CreditRow = { key: string; institute: string; instituteName: string; code: string; id: number; name: string; email: string; usd: number; taka: number; updatedAt: string };
+type CreditLog = { id: number; at: string; kind: string; usd: number; taka: number | null; pay_request_id: string | null; note: string | null; by: string | null; day: string | null; worthTk: number; refundable: boolean };
+/**
+ * Students' extra AI credit: this month's totals, every balance, each student's history from the log, credit by hand,
+ * refunds, and a check that every balance equals the sum of its log. Credit never expires, so there is no daily job.
+ */
+function Credits({ token }: { token: string }) {
+  const [q, setQ] = useState("");
+  const [search, setSearch] = useState("");
+  const [open, setOpen] = useState("");
+  const [log, setLog] = useState<CreditLog[]>([]);
+  const { data, msg, setMsg, load } = useAdminGet<{ totals: { takaSold: number; usdIssued: number; usdSpent: number; usdOutstanding: number } | null; total: number; balances: CreditRow[] }>(token, `/api/platform/admin/credits?q=${encodeURIComponent(search)}`);
+  const post = async (body: Record<string, unknown>) => {
+    const res = await fetch("/api/platform/admin/credits", { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    return { ok: res.ok, d: await res.json().catch(() => ({})) };
+  };
+  const history = async (key: string) => {
+    setOpen(key);
+    const res = await fetch(`/api/platform/admin/credits?key=${encodeURIComponent(key)}`, { headers: { Authorization: `Bearer ${token}` } });
+    setLog(res.ok ? (await res.json()).history : []);
+  };
+  const send = async (body: Record<string, unknown>, done: string) => {
+    const { ok, d } = await post(body);
+    await load();
+    if (open) await history(open);
+    setMsg(ok ? done : d.error ?? "Failed");
+  };
+  const check = async () => {
+    const { ok, d } = await post({ action: "check" });
+    setMsg(!ok ? d.error ?? "Failed" : d.mismatches.length ? `${d.mismatches.length} balance(s) differ from their log (nothing was changed): ${d.mismatches.map((m: { user_key: string; balance: number; logged: number }) => `${m.user_key} US$${m.balance} vs log US$${m.logged}`).join("; ")}` : "Every balance matches its log ✓");
+  };
+  const refund = async (r: CreditLog) => {
+    if (!r.pay_request_id) return;
+    const reason = window.prompt("Refund this purchase? Only the part not used yet is taken back; then send that ৳ back by bKash/Nagad yourself. Reason:");
+    if (reason === null) return;
+    const { ok, d } = await post({ action: "refund", payId: r.pay_request_id, reason });
+    if (open) await history(open);
+    await load();
+    setMsg(ok ? `Refunded: send ৳${d.taka} back to the payer by hand (bKash/Nagad).` : d.error ?? "Failed");
+  };
+  const t = data?.totals;
+  const usd = (n: number) => `US$${Number(n).toFixed(4)}`;
+  return (
+    <>
+      {t && (
+        <section className={`${card} grid grid-cols-2 gap-3 text-sm sm:grid-cols-4`}>
+          <p>Sold this month<br /><b className="text-lg">৳{Number(t.takaSold).toLocaleString("en-IN")}</b></p>
+          <p>Credit issued this month<br /><b className="text-lg">{usd(t.usdIssued)}</b></p>
+          <p>Spent this month<br /><b className="text-lg">{usd(t.usdSpent)}</b></p>
+          <p>Not used yet (all students)<br /><b className="text-lg">{usd(t.usdOutstanding)}</b></p>
+        </section>
+      )}
+      <form className="flex flex-wrap gap-2" onSubmit={(e) => (e.preventDefault(), setSearch(q))}>
+        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Name, email, institute or code" aria-label="Search credit balances" className={`${input} min-w-0 flex-1`} />
+        <button type="submit" className={`${btn} bg-primary text-on-primary`}>Search</button>
+        <button type="button" onClick={() => void check()} className={`${btn} bg-surface-container`}>Check credits</button>
+      </form>
+      <p className="text-sm text-on-surface-variant">Credit never expires. To give credit to a student without a balance yet, use + Credit in the Students tab. A refund takes back only the unused part; you return the money by bKash/Nagad by hand.</p>
+      {msg && <p role="status" className="text-sm font-semibold">{msg}</p>}
+      {data && !data.balances.length && <p className="text-sm text-on-surface-variant">No credit balances yet.</p>}
+      {data?.balances.map((b) => (
+        <article key={b.key} className={`${card} flex flex-col gap-2 text-sm`}>
+          <p className="flex flex-wrap items-center gap-2">
+            <b className="text-base">{b.name || `#${b.id}`}</b>
+            <span className="text-on-surface-variant">{b.email} · {b.instituteName} ({b.code})</span>
+            <b className="ml-auto">৳{b.taka} · {usd(b.usd)}</b>
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={() => void (open === b.key ? setOpen("") : history(b.key))} className={`${btn} bg-surface-container`}>{open === b.key ? "Hide history" : "History"}</button>
+            <CreditButtons name={b.name || `#${b.id}`} who={{ institute: b.institute, id: b.id }} send={send} />
+          </div>
+          {open === b.key && (
+            <ul className="flex flex-col divide-y divide-outline-variant">
+              {log.map((r) => (
+                <li key={r.id} className="flex flex-wrap items-center gap-x-3 py-1.5">
+                  <span className="text-on-surface-variant">{r.kind === "spend" ? r.day : when(r.at)}</span>
+                  <b>{r.kind}</b>
+                  <span>{usd(r.usd)} (৳{r.worthTk}){r.taka !== null ? ` · ৳${r.taka} ${r.kind === "refund" ? "to give back" : "paid"}` : ""}</span>
+                  {r.note && <span className="text-on-surface-variant">“{r.note}”</span>}
+                  {r.by && <span className="text-on-surface-variant">by {r.by}</span>}
+                  {r.refundable && <button type="button" onClick={() => void refund(r)} className={`${btn} ml-auto bg-white text-error`}>Refund</button>}
+                </li>
+              ))}
+              {!log.length && <li className="py-1.5 text-on-surface-variant">No history.</li>}
+            </ul>
+          )}
+        </article>
+      ))}
+    </>
   );
 }
 
@@ -685,8 +804,8 @@ function AiControl({ token, act }: { token: string; act: Act }) {
         <p className="text-sm text-on-surface-variant">Empty box: the value from the code or .env.local (shown greyed). Save with Enter; clear the box and save to go back to it.</p>
         <Setting label="Monthly AI budget (US$, whole site)" value={s.budgetUsd} def={d.budgetUsd} step="0.01" onSave={(v) => set({ key: "budgetUsd", value: v })} />
         <div className="flex flex-wrap items-center gap-3"><b className="text-sm">Free plan (students without a pack)</b>{swatch(s.freeOn ?? d.freeOn, (on) => set({ key: "freeOn", value: on }), "Free plan")}</div>
-        <Setting label="Free plan: tokens a day (half per 12-hour window)" value={s.freeDaily} def={d.freeDaily} onSave={(v) => set({ key: "freeDaily", value: v })} />
-        <Setting label="Free plan: most money per 12-hour window (US$)" value={s.freeWindowUsd} def={d.freeWindowUsd} step="0.0001" onSave={(v) => set({ key: "freeWindowUsd", value: v })} />
+        <Setting label="Free plan: tokens a day" value={s.freeDaily} def={d.freeDaily} onSave={(v) => set({ key: "freeDaily", value: v })} />
+        <Setting label="Free plan: most money per day (US$)" value={s.freeWindowUsd} def={d.freeWindowUsd} step="0.0001" onSave={(v) => set({ key: "freeWindowUsd", value: v })} />
         {PACKS.map((p) => <Setting key={p} label={`Pack ৳${p}: tokens a day`} value={s.packDaily?.[p]} def={d.packDaily[p]} onSave={(v) => set({ key: "packDaily", pack: p, value: v })} />)}
         <Setting label="Profit margin on AI packs (0.40 = 40%; the monthly caps below follow it)" value={s.packMargin} def={d.packMargin} step="0.01" onSave={(v) => set({ key: "packMargin", value: v })} />
         <Setting label="Dollar rate (৳ per US$)" value={s.usdToBdt} def={d.usdToBdt} step="0.5" onSave={(v) => set({ key: "usdToBdt", value: v })} />

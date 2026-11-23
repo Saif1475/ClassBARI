@@ -60,7 +60,11 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
   const modelKey = `edunest-ai-model-${meId}`;
   const prefsKey = `edunest-ai-prefs-${meId}`;
   const [prefs, setPrefs] = useState<{ lang: "auto" | "bn" | "en"; length: "normal" | "short" | "long" }>({ lang: "auto", length: "normal" });
-  const [usage, setUsage] = useState<{ left: number; resetsAt: string } | null>(null); // this 12-hour allowance
+  const [usage, setUsage] = useState<{ left: number; resetsAt: string } | null>(null); // today's allowance
+  // Extra credit (৳ left and the student's own history), and whether the daily limit was hit (offers to buy credit).
+  const [credit, setCredit] = useState<{ tk: number; log: { at: string; kind: string; taka: number }[] } | null>(null);
+  const [limitHit, setLimitHit] = useState(false);
+  const [buying, setBuying] = useState(false);
   useEffect(() => {
     try {
       const p = JSON.parse(localStorage.getItem(prefsKey) ?? "{}") as Partial<typeof prefs>;
@@ -139,7 +143,7 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
     if (!REAL_AUTH) return;
     void fetch("/api/ai/assistant")
       .then((r) => (r.ok ? r.json() : null))
-      .then((d: { models: Model[]; pick: string | null; pack?: number; left?: number; resetsAt?: string } | null) => {
+      .then((d: { models: Model[]; pick: string | null; pack?: number; left?: number; resetsAt?: string; credit?: number; creditLog?: { at: string; kind: string; taka: number }[] } | null) => {
         if (!d?.models) return;
         setModels(d.models);
         setPack(d.pack ?? null);
@@ -151,6 +155,7 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
         }
         setModel(mine && d.models.some((m) => m.id === mine && !m.locked && !m.soon) ? mine : (d.pick ?? ""));
         if (typeof d.left === "number" && d.resetsAt) setUsage({ left: d.left, resetsAt: d.resetsAt });
+        if (typeof d.credit === "number") setCredit({ tk: d.credit, log: d.creditLog ?? [] });
       })
       .catch(() => {});
   }, []);
@@ -211,6 +216,7 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
       });
       if (!res.ok || !res.body) {
         const d = (await res.json().catch(() => ({}))) as { error?: string; resetsAt?: string };
+        setLimitHit(res.status === 429);
         setNote(res.status === 429 && d.resetsAt ? A.limit(new Date(d.resetsAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })) : d.error === "paused" ? A.paused : res.status === 404 || d.error === "soon" ? A.soon : A.error);
         undo();
         return;
@@ -224,9 +230,10 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
         put([...asked, { role: "assistant", content: answer.split(TRAILER)[0] }], true);
       }
       const [text, tail] = answer.split(TRAILER);
-      const info = (tail ? JSON.parse(tail) : { error: true }) as { left?: number; declined?: boolean; cut?: boolean; error?: boolean };
+      const info = (tail ? JSON.parse(tail) : { error: true }) as { left?: number; credit?: number; declined?: boolean; cut?: boolean; error?: boolean };
       put([...asked, { role: "assistant", content: info.declined ? A.declined : (text.trim() || A.error) + (info.cut ? `\n\n${A.cut}` : ""), ...(tools.pdf && !info.declined && !info.error && text.trim() ? { pdf: true as const } : {}) }]);
-      setNote(info.error ? A.error : typeof info.left === "number" ? A.left(info.left) : "");
+      setNote(info.error ? A.error : typeof info.credit === "number" ? A.creditLeft(taka(info.credit)) : typeof info.left === "number" ? A.left(info.left) : "");
+      if (typeof info.credit === "number") setCredit((c) => ({ tk: info.credit!, log: c?.log ?? [] }));
       if (typeof info.left === "number") setUsage((u) => (u ? { ...u, left: info.left! } : u));
     } catch {
       // Stopped by the student, or the connection dropped: keep what arrived.
@@ -260,6 +267,7 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
       const res = await fetch("/api/ai/highlight", { method: "POST", headers: { "Content-Type": "application/pdf" }, body: file, signal: stopper.current.signal });
       if (!res.ok) {
         const d = (await res.json().catch(() => ({}))) as { error?: string; resetsAt?: string };
+        setLimitHit(res.status === 429);
         setNote(res.status === 429 && d.resetsAt ? A.limit(new Date(d.resetsAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })) : d.error === "paused" ? A.paused : res.status === 404 ? A.soon : res.status === 413 ? A.highlightTooBig : A.highlightFailed);
         return undo();
       }
@@ -268,6 +276,8 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
       put([...asked, { role: "assistant", content: A.highlightDone(file.name, Number(res.headers.get("X-Highlights")) || 0), hl: { name: file.name, at } }]);
       const left = Number(res.headers.get("X-Left"));
       if (res.headers.has("X-Left") && Number.isFinite(left)) (setNote(A.left(left)), setUsage((u) => (u ? { ...u, left } : u)));
+      const paid = res.headers.get("X-Credit");
+      if (paid !== null && Number.isFinite(Number(paid))) (setNote(A.creditLeft(taka(Number(paid)))), setCredit((c) => ({ tk: Number(paid), log: c?.log ?? [] })));
     } catch {
       undo();
       if (!stopper.current?.signal.aborted) setNote(A.highlightFailed);
@@ -411,6 +421,27 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
               <span className="font-bold text-on-surface">{A.freePlan}:</span> {A.packNote[0]}
             </p>
           )}
+          {credit && (
+            <div className="flex flex-col gap-1 text-xs text-on-surface-variant">
+              <p><span className="font-bold text-on-surface">{A.credit}:</span> {taka(credit.tk)} · {A.creditNote}</p>
+              {credit.log.length > 0 && (
+                <details>
+                  <summary className="cursor-pointer font-bold">{A.creditHistory}</summary>
+                  <ul className="mt-1 flex flex-col gap-0.5">
+                    {credit.log.map((r, i) => (
+                      <li key={i} className="flex justify-between gap-2"><span>{new Date(r.at).toLocaleDateString()} · {A.creditKinds[r.kind] ?? r.kind}</span><span className="font-semibold">{r.taka < 0 ? "−" : "+"}{taka(Math.abs(r.taka))}</span></li>
+                    ))}
+                  </ul>
+                </details>
+              )}
+            </div>
+          )}
+          {REAL_AUTH && (
+            <details className="rounded-[10px] border border-outline-variant">
+              <summary className="cursor-pointer px-3 py-2 text-xs font-bold">{A.buyCredit}</summary>
+              <div className="p-2"><PayForm kind="ai_credit" /></div>
+            </details>
+          )}
           {REAL_AUTH && (
             <details className="rounded-[10px] border border-outline-variant">
               <summary className="cursor-pointer px-3 py-2 text-xs font-bold">{t.pay.buyPack}</summary>
@@ -490,6 +521,8 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
 
         <div className="mx-auto flex w-full max-w-3xl flex-col gap-1 px-4 pb-24 md:px-8 md:pb-4">
           {note && <p role="status" className="text-xs text-on-surface-variant">{note}</p>}
+          {limitHit && !buying && <button type="button" onClick={() => setBuying(true)} className="min-h-10 self-start rounded-full bg-primary px-4 text-xs font-bold text-on-primary">{A.buyCredit}</button>}
+          {limitHit && buying && <PayForm kind="ai_credit" />}
           <form onSubmit={send} className="flex flex-col gap-2 rounded-[16px] border border-outline bg-white p-2 focus-within:border-primary">
             {photo && (
               <span className="flex items-center gap-2 px-2">
