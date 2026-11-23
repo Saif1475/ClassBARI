@@ -234,7 +234,7 @@ class _ChatRoomState extends State<ChatRoom> {
                 SwitchListTile(
                   contentPadding: EdgeInsets.zero,
                   title: Text(t('chat.enterSend')),
-                  subtitle: Text(t('chat.enterSendHint')),
+                  subtitle: Text(t('chat.enterSendHintApp')),
                   value: chatEnter,
                   onChanged: (v) => _pref(() => store.prefs.setBool('classbari-chat-enter', v), again),
                 ),
@@ -439,57 +439,63 @@ class _Message extends StatelessWidget {
         ),
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 2, offset: const Offset(0, 1))],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        spacing: 4,
-        children: [
-          if (quoted != null)
-            Container(
-              padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(8),
-                border: Border(left: BorderSide(color: c.primary, width: 4)),
+      // As wide as its longest line, so the time can sit at the bottom right.
+      child: IntrinsicWidth(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          spacing: 4,
+          children: [
+            if (quoted != null)
+              Container(
+                padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border(left: BorderSide(color: c.primary, width: 4)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      quotedMine ? t('chat.you') : '${quoted!['sender']}',
+                      style: TextStyle(color: c.primary, fontWeight: FontWeight.bold, fontSize: 12),
+                    ),
+                    Text(
+                      preview(quoted),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 12, color: fg),
+                    ),
+                  ],
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            if (m['photo'] is String) _ChatPhoto('${m['photo']}'),
+            if (deleted)
+              Text(
+                '🚫 ${t(mine ? 'chat.deletedMine' : 'chat.deleted')}',
+                style: TextStyle(fontStyle: FontStyle.italic, color: fg.withValues(alpha: 0.7)),
+              )
+            else if ('${m['text'] ?? ''}'.isNotEmpty)
+              Text('${m['text']}', style: TextStyle(color: fg)),
+            Align(
+              alignment: Alignment.centerRight, // the time and ticks sit bottom right, as in WhatsApp
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 4,
                 children: [
-                  Text(
-                    quotedMine ? t('chat.you') : '${quoted!['sender']}',
-                    style: TextStyle(color: c.primary, fontWeight: FontWeight.bold, fontSize: 12),
-                  ),
-                  Text(
-                    preview(quoted),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 12, color: fg),
-                  ),
+                  if (m['edited'] == true && !deleted) Text(t('chat.edited'), style: meta),
+                  if (m['at'] is String) Text(fmtTime('${m['at']}'), style: meta),
+                  if (mine && !deleted)
+                    Semantics(
+                      label: t(ticks ? 'chat.read' : 'chat.sent'),
+                      child: Ico(ticks ? I.checkAll : I.check, size: 15, color: ticks ? const Color(0xFF0284C7) : meta.color),
+                    ),
                 ],
               ),
             ),
-          if (m['photo'] is String) _ChatPhoto('${m['photo']}'),
-          if (deleted)
-            Text(
-              '🚫 ${t(mine ? 'chat.deletedMine' : 'chat.deleted')}',
-              style: TextStyle(fontStyle: FontStyle.italic, color: fg.withValues(alpha: 0.7)),
-            )
-          else if ('${m['text'] ?? ''}'.isNotEmpty)
-            Text('${m['text']}', style: TextStyle(color: fg)),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            spacing: 4,
-            children: [
-              if (m['edited'] == true && !deleted) Text(t('chat.edited'), style: meta),
-              if (m['at'] is String) Text(fmtTime('${m['at']}'), style: meta),
-              if (mine && !deleted)
-                Semantics(
-                  label: t(ticks ? 'chat.read' : 'chat.sent'),
-                  child: Ico(ticks ? I.checkAll : I.check, size: 15, color: ticks ? const Color(0xFF0284C7) : meta.color),
-                ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
     return Align(
@@ -508,8 +514,7 @@ class _Message extends StatelessWidget {
               if (reacts.isNotEmpty)
                 Positioned(
                   bottom: 0,
-                  right: mine ? 8 : null,
-                  left: mine ? null : 8,
+                  left: 8, // under the start of the message, clear of the time
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                     decoration: BoxDecoration(

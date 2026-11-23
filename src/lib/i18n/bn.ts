@@ -1374,6 +1374,7 @@ const bn: Dict = {
     walls: { plain: "সাধারণ", mint: "পুদিনা", sky: "আকাশ", sand: "বালি", night: "রাত" },
     enterSend: "এন্টার চাপলে পাঠানো",
     enterSendHint: "এন্টার চাপলে মেসেজ চলে যাবে। নতুন লাইনের জন্য Shift + Enter।",
+    enterSendHintApp: "কিবোর্ডের এন্টার চাপলে নতুন লাইনের বদলে মেসেজ চলে যাবে।",
     receipts: "পড়ার রসিদ",
     receiptsHint: "বন্ধ করলে আপনি নীল টিক পাঠাবেন না, দেখবেনও না।",
     attach: "ছবি যোগ করুন",

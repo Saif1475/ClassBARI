@@ -1373,6 +1373,7 @@ const en = {
     walls: { plain: "Plain", mint: "Mint", sky: "Sky", sand: "Sand", night: "Night" },
     enterSend: "Enter is send",
     enterSendHint: "The Enter key sends your message. Shift + Enter starts a new line.",
+    enterSendHintApp: "The keyboard's Enter key sends your message instead of starting a new line.",
     receipts: "Read receipts",
     receiptsHint: "If turned off, you won't send or see blue ticks.",
     attach: "Add a photo",

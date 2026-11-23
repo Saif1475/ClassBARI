@@ -1589,6 +1589,7 @@
  "chat.walls.night": "রাত",
  "chat.enterSend": "এন্টার চাপলে পাঠানো",
  "chat.enterSendHint": "এন্টার চাপলে মেসেজ চলে যাবে। নতুন লাইনের জন্য Shift + Enter।",
+ "chat.enterSendHintApp": "কিবোর্ডের এন্টার চাপলে নতুন লাইনের বদলে মেসেজ চলে যাবে।",
  "chat.receipts": "পড়ার রসিদ",
  "chat.receiptsHint": "বন্ধ করলে আপনি নীল টিক পাঠাবেন না, দেখবেনও না।",
  "chat.attach": "ছবি যোগ করুন",
