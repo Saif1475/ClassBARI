@@ -9,7 +9,7 @@ export type ChatTurn = { role: "user" | "assistant"; content: string };
 export const windowTokens = (daily = Number(process.env.AI_DAILY_TOKENS) || 200_000) => daily / 2;
 
 /** The models students can chat with. provider: whose API answers. price: US$ per million tokens [input, output, cache read]. */
-export const MODELS: Record<string, { label: string; provider: "anthropic" | "google" | "qwen" | "openai"; price: [number, number, number] }> = {
+export const MODELS: Record<string, { label: string; provider: "anthropic" | "google" | "qwen" | "openai" | "openrouter"; price: [number, number, number]; textOnly?: true }> = {
   "qwen3.7-flash": { label: "Qwen Flash", provider: "qwen", price: [0.03, 0.13, 0.03] },
   "gemini-2.5-flash-lite": { label: "Gemini Flash-Lite", provider: "google", price: [0.1, 0.4, 0.1] },
   "claude-haiku-5-5": { label: "Claude Haiku", provider: "anthropic", price: [0.1, 0.5, 0.01] },
@@ -20,6 +20,16 @@ export const MODELS: Record<string, { label: string; provider: "anthropic" | "go
   "qwen3.8-max": { label: "Qwen Max", provider: "qwen", price: [2, 6, 0.25] },
   "claude-sonnet-5-5": { label: "Claude Sonnet", provider: "anthropic", price: [2, 10, 0.1] },
   "claude-opus-5-5": { label: "Claude Opus", provider: "anthropic", price: [4, 20, 0.2] }, // staff previews only
+  // Through OpenRouter (one key): models of 100B+ parameters with Bangla support (official language list or a Bangla
+  // test, Nov 2026). Prices are OpenRouter's list prices; its 5.5% top-up fee is added when counting cost (costUsd).
+  "deepseek/deepseek-v4.1-flash": { label: "DeepSeek V4.1 Flash", provider: "openrouter", price: [0.05, 0.199, 0.05], textOnly: true },
+  "openai/gpt-oss-120b": { label: "GPT-OSS 120B", provider: "openrouter", price: [0.05, 0.25, 0.05], textOnly: true },
+  "qwen/qwen3-235b-a22b-2507": { label: "Qwen3 235B", provider: "openrouter", price: [0.14, 0.8, 0.14], textOnly: true },
+  "z-ai/glm-5.3": { label: "GLM-5.3", provider: "openrouter", price: [0.07, 1.4, 0.07], textOnly: true },
+  "qwen/qwen3-vl-235b-a22b-instruct": { label: "Qwen3-VL 235B (reads photos)", provider: "openrouter", price: [0.21, 1.9, 0.21] },
+  "qwen/qwen3.5-122b-a10b": { label: "Qwen3.5 122B", provider: "openrouter", price: [0.26, 2.08, 0.26], textOnly: true },
+  "qwen/qwen3.5-397b-a17b": { label: "Qwen3.5 397B", provider: "openrouter", price: [0.45, 3, 0.45], textOnly: true },
+  "qwen/qwen3-235b-a22b-thinking-2507": { label: "Qwen3 235B Thinking", provider: "openrouter", price: [0.45, 3.5, 0.45], textOnly: true },
 };
 
 /** Student AI packs (৳ per month): tokens a day, and the models added at that pack (a bigger pack keeps the smaller packs' models). */
@@ -79,7 +89,7 @@ export type AiSettings = {
   packMargin?: number; // share of each pack's price that is ours (0.4 = 40%); the monthly caps follow it
   usdToBdt?: number; // ৳ per US$
 };
-export const PROVIDERS = ["anthropic", "google", "qwen", "openai"] as const;
+export const PROVIDERS = ["anthropic", "google", "qwen", "openai", "openrouter"] as const;
 /** Switched on in the admin panel (both the model and its provider). */
 export const modelOn = (id: string, s: AiSettings = {}) => !!MODELS[id] && !s.offModels?.includes(id) && !s.offProviders?.includes(MODELS[id].provider);
 export const monthlyBudgetUsd = (s: AiSettings = {}) => s.budgetUsd ?? Number(process.env.AI_MONTHLY_BUDGET_USD || 30);
@@ -227,7 +237,10 @@ type Usage = { input_tokens: number; output_tokens: number; cache_read_input_tok
 /** Every token a request used, cached or not: what the daily limit counts. */
 export const usedTokens = (u: Usage) => u.input_tokens + u.output_tokens + (u.cache_read_input_tokens ?? 0) + (u.cache_creation_input_tokens ?? 0);
 
+/** OpenRouter's fee on buying credits (5.5%, Nov 2026): part of what its answers really cost us. */
+export const OPENROUTER_FEE = 0.055;
 export function costUsd(model: string, u: Usage) {
   const [i, o, r] = MODELS[model]?.price ?? [8, 40, 0.2]; // unknown models count at the most expensive rate
-  return (u.input_tokens * i + (u.cache_creation_input_tokens ?? 0) * i * 1.25 + (u.cache_read_input_tokens ?? 0) * r + u.output_tokens * o) / 1e6;
+  const fee = MODELS[model]?.provider === "openrouter" ? 1 + OPENROUTER_FEE : 1;
+  return ((u.input_tokens * i + (u.cache_creation_input_tokens ?? 0) * i * 1.25 + (u.cache_read_input_tokens ?? 0) * r + u.output_tokens * o) * fee) / 1e6;
 }

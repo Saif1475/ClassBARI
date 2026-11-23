@@ -8,13 +8,14 @@ const SETUP: Record<Exclude<Provider, "anthropic">, { key: string; url: string }
   google: { key: "GEMINI_API_KEY", url: process.env.GEMINI_BASE_URL || "https://generativelanguage.googleapis.com/v1beta/openai" },
   qwen: { key: "DASHSCOPE_API_KEY", url: process.env.DASHSCOPE_BASE_URL || "https://dashscope-intl.aliyuncs.com/compatible-mode/v1" },
   openai: { key: "OPENAI_API_KEY", url: process.env.OPENAI_BASE_URL || "https://api.openai.com/v1" },
+  openrouter: { key: "OPENROUTER_API_KEY", url: process.env.OPENROUTER_BASE_URL || "https://openrouter.ai/api/v1" },
 };
 const providerOf = (model: string): Provider => MODELS[model]?.provider ?? "anthropic";
 /** Is this model's API key set on the server? */
 export const modelReady = (model: string) => !!process.env[providerOf(model) === "anthropic" ? "ANTHROPIC_API_KEY" : SETUP[providerOf(model) as keyof typeof SETUP].key];
 
 /** The .env.local name of each provider's API key. */
-export const PROVIDER_KEY: Record<Provider, string> = { anthropic: "ANTHROPIC_API_KEY", google: SETUP.google.key, qwen: SETUP.qwen.key, openai: SETUP.openai.key };
+export const PROVIDER_KEY: Record<Provider, string> = { anthropic: "ANTHROPIC_API_KEY", google: SETUP.google.key, qwen: SETUP.qwen.key, openai: SETUP.openai.key, openrouter: SETUP.openrouter.key };
 
 /** Does the key work? Asks the provider's free "list models" endpoint (never a paid answer). The key never leaves the server. */
 export async function checkProvider(p: Provider): Promise<{ ok: boolean; status: number | string }> {
@@ -25,7 +26,8 @@ export async function checkProvider(p: Provider): Promise<{ ok: boolean; status:
       return { ok: true, status: 200 };
     }
     const { key, url } = SETUP[p];
-    const res = await fetch(`${url}/models`, { headers: { Authorization: `Bearer ${process.env[key]}` }, signal: AbortSignal.timeout(10_000) });
+    // OpenRouter's model list is open to anyone, so its own key-info page checks the key instead.
+    const res = await fetch(`${url}/${p === "openrouter" ? "key" : "models"}`, { headers: { Authorization: `Bearer ${process.env[key]}` }, signal: AbortSignal.timeout(10_000) });
     await res.body?.cancel();
     return { ok: res.ok, status: res.status };
   } catch (e) {
@@ -101,6 +103,8 @@ export async function streamChat(ask: Ask, onText: (t: string) => void): Promise
       model: ask.model,
       stream: true,
       stream_options: { include_usage: true }, // the token count arrives as the last event
+      // OpenRouter: only providers that don't keep or train on what students ask (also turn on Zero Data Retention in the account's privacy settings).
+      ...(providerOf(ask.model) === "openrouter" ? { provider: { data_collection: "deny" } } : {}),
       // The longest answer we pay for. Their limit also counts the model's own thinking, so it is twice the answer's
       // size; without it one answer could run to the model's full length (tens of thousands of tokens).
       [providerOf(ask.model) === "openai" ? "max_completion_tokens" : "max_tokens"]: ask.maxTokens * 2,

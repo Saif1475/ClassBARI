@@ -1,4 +1,4 @@
-import { chatFile, chatImage, chatPrefs, cleanHistory, costUsd, modelOn, modelMenu, monthlyBudgetUsd, prefsRule, takeTurn, TRAILER, usedTokens, withFile } from "@/lib/ai-chat";
+import { chatFile, chatImage, chatPrefs, cleanHistory, costUsd, MODELS, modelOn, modelMenu, monthlyBudgetUsd, prefsRule, takeTurn, TRAILER, usedTokens, withFile } from "@/lib/ai-chat";
 import { allowance } from "@/lib/ai-allowance";
 import { gate } from "@/lib/ai-gate";
 import { modelReady, streamChat } from "@/lib/ai-providers";
@@ -42,7 +42,9 @@ export async function POST(request: Request) {
   const tools = chatTools(body?.tools); // Create PDF / Highlight, from the Tools menu
   if (!history || !tools || (body?.image !== undefined && !image) || (body?.file !== undefined && !file)) return Response.json({ error: "bad request" }, { status: 400 });
   if (!g.models.length) return Response.json({ error: "soon" }, { status: 503 }); // no AI key set up yet
-  const model = g.models.find((id) => id === body?.model) ?? g.models[0]; // only a model of their own pack
+  const picked = g.models.find((id) => id === body?.model) ?? g.models[0]; // only a model of their own pack
+  // A photo needs a model that can see: if the chosen one reads text only, the first one in their plan that can.
+  const model = image && MODELS[picked]?.textOnly ? (g.models.find((id) => !MODELS[id]?.textOnly) ?? picked) : picked;
 
   // Same allowance as "Ask AI" on a PDF: tokens per person per 12-hour window, and the monthly budget for everyone.
   const db = admin();

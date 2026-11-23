@@ -11,7 +11,7 @@ test("no AI settings: everything is what the code and .env.local say", () => {
   const p = defaultPlatform();
   assert.deepEqual(p.ai, {});
   assert.deepEqual(packPlan(400, p.ai), packPlan(400));
-  assert.deepEqual(freePlan(p.ai), { pack: 0, daily: 20_000, models: ["qwen3.7-flash"] });
+  assert.deepEqual(freePlan(p.ai), { pack: 0, daily: 20_000, models: ["qwen3.7-flash", "deepseek/deepseek-v4.1-flash"] });
   assert.equal(windowCostUsd(150, p.ai), windowCostUsd(150));
   assert.equal(monthlyBudgetUsd(p.ai), aiDefaults().budgetUsd);
   assert.equal(aiDefaults().packDaily[1500], 200_000);
@@ -65,8 +65,8 @@ test("models and providers switched off are hidden from the picker and never pic
   assert.ok(!packPlan(400, p.ai).models.includes("claude-haiku-5-5"));
   assert.ok(!modelMenu(400, p.ai).some((m) => m.id === "claude-haiku-5-5"));
   adminAction(p, { type: "ai", key: "provider", id: "qwen", value: false }, now);
-  assert.ok(packPlan(1500, p.ai).models.every((id) => !id.startsWith("qwen")));
-  assert.deepEqual(freePlan(p.ai).models, []); // the free model is Qwen
+  assert.ok(packPlan(1500, p.ai).models.every((id) => !id.startsWith("qwen3."))); // Qwen direct off (the OpenRouter ones are another provider)
+  assert.deepEqual(freePlan(p.ai).models, ["deepseek/deepseek-v4.1-flash"]); // the other free model stays
   adminAction(p, { type: "ai", key: "provider", id: "qwen", value: true }, now);
   adminAction(p, { type: "ai", key: "model", id: "claude-haiku-5-5", value: true }, now);
   assert.deepEqual(packPlan(1500, p.ai), packPlan(1500));

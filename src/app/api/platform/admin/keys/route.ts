@@ -11,6 +11,7 @@ const KEYS: { group: string; name: string; secret: boolean; check?: (typeof PROV
   { group: "AI", name: "GEMINI_API_KEY", secret: true, check: "google" },
   { group: "AI", name: "DASHSCOPE_API_KEY", secret: true, check: "qwen" },
   { group: "AI", name: "OPENAI_API_KEY", secret: true, check: "openai" },
+  { group: "AI", name: "OPENROUTER_API_KEY", secret: true, check: "openrouter" },
   ...["GEMINI_BASE_URL", "DASHSCOPE_BASE_URL", "OPENAI_BASE_URL", "AI_CHAT_MODEL", "AI_PDF_MODEL", "AI_DAILY_TOKENS", "AI_MONTHLY_BUDGET_USD", "AI_FREE_WINDOW_USD", "USD_TO_BDT", "AI_CACHE_SIMILARITY", "AI_CACHE_TIMEOUT_MS", "OCR_SERVICE_URL", "IMAGE_FLAG_AT", "IMAGE_CHECK_TIMEOUT_MS"].map((name) => ({ group: "AI", name, secret: false })),
   { group: "Database", name: "NEXT_PUBLIC_SUPABASE_URL", secret: false },
   { group: "Database", name: "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", secret: false },

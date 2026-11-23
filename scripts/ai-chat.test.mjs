@@ -48,7 +48,7 @@ test("AI packs: models and allowance by pack; photos are checked", async () => {
   const { packPlan, chatImage, windowTokens, MODELS } = await import("../src/lib/ai-chat.ts");
   assert.equal(packPlan(undefined).pack, 150); // premium from before packs
   assert.equal(packPlan(999).pack, 150);
-  assert.deepEqual(packPlan(150).models, ["qwen3.7-flash", "gemini-2.5-flash-lite", "qwen3.8-flash"]); // cheapest first
+  assert.deepEqual(packPlan(150).models, ["qwen3.7-flash", "deepseek/deepseek-v4.1-flash", "openai/gpt-oss-120b", "gemini-2.5-flash-lite", "qwen3.8-flash"]); // cheapest first
   assert.equal(windowTokens(packPlan(150).daily), 50_000);
   assert.equal(windowTokens(packPlan(800).daily), 75_000);
   assert.equal(windowTokens(packPlan(1500).daily), 100_000);
@@ -58,6 +58,8 @@ test("AI packs: models and allowance by pack; photos are checked", async () => {
   assert.deepEqual(Object.fromEntries(Object.keys(MODELS).map((id) => [id, planOf(id)])), {
     "qwen3.7-flash": 0, "gemini-2.5-flash-lite": 150, "qwen3.8-flash": 150, "claude-haiku-5-5": 400, "gpt-5.6-luna": 800, "qwen3.7-plus": 800,
     "gemini-3-flash-preview": 1500, "qwen3.8-max": 1500, "claude-sonnet-5-5": null, "claude-opus-5-5": null,
+    "deepseek/deepseek-v4.1-flash": 0, "openai/gpt-oss-120b": 150, "qwen/qwen3-235b-a22b-2507": 400, "z-ai/glm-5.3": 800,
+    "qwen/qwen3-vl-235b-a22b-instruct": 800, "qwen/qwen3.5-122b-a10b": 800, "qwen/qwen3.5-397b-a17b": 1500, "qwen/qwen3-235b-a22b-thinking-2507": 1500,
   });
   assert.ok(packPlan(1500).models.every((id) => MODELS[id])); // every pack model has a provider and a price
   assert.ok(packPlan(800).models.includes("qwen3.7-plus") && !packPlan(800).models.includes("qwen3.8-max") && packPlan(1500).models.includes("qwen3.8-max"));
@@ -102,19 +104,19 @@ test("thinking that a provider leaves out of completion_tokens is still counted 
 test("the model picker lists every model and locks the ones a bigger pack has", async () => {
   const { modelMenu } = await import("../src/lib/ai-chat.ts");
   const m150 = modelMenu(150);
-  assert.equal(m150.length, 8);
-  assert.deepEqual(m150.filter((m) => !m.locked).map((m) => m.id), ["qwen3.7-flash", "gemini-2.5-flash-lite", "qwen3.8-flash"]); // free model first
+  assert.equal(m150.length, 16);
+  assert.deepEqual(m150.filter((m) => !m.locked).map((m) => m.id), ["qwen3.7-flash", "deepseek/deepseek-v4.1-flash", "gemini-2.5-flash-lite", "qwen3.8-flash", "openai/gpt-oss-120b"]); // free models first
   assert.equal(m150.find((m) => m.id === "qwen3.8-max").pack, 1500);
   assert.ok(modelMenu(1500).every((m) => !m.locked));
 });
 
 test("free plan: only Qwen Flash, 10,000 tokens a window, a small money backstop", async () => {
   const { FREE, modelMenu, windowTokens, windowCostUsd } = await import("../src/lib/ai-chat.ts");
-  assert.deepEqual(FREE.models, ["qwen3.7-flash"]);
+  assert.deepEqual(FREE.models, ["qwen3.7-flash", "deepseek/deepseek-v4.1-flash"]); // under $0.20 for answers
   assert.equal(windowTokens(FREE.daily), 10_000);
   assert.ok(windowCostUsd(0) > 0 && windowCostUsd(0) < windowCostUsd(150));
   const free = modelMenu(0);
-  assert.deepEqual(free.filter((m) => !m.locked).map((m) => [m.id, m.pack]), [["qwen3.7-flash", 0]]);
+  assert.deepEqual(free.filter((m) => !m.locked).map((m) => [m.id, m.pack]), [["qwen3.7-flash", 0], ["deepseek/deepseek-v4.1-flash", 0]]);
   assert.equal(free.find((m) => m.id === "gemini-2.5-flash-lite").pack, 150); // shown as "unlock with ৳150"
 });
 
@@ -225,4 +227,13 @@ test("chat settings: only the known choices are kept, and they shape the lines s
   assert.equal(prefsRule({}, "What is speed?"), answerIn("What is speed?")); // nothing chosen: the question's own language
   assert.match(prefsRule({ length: "short" }, "What is speed?"), /Answer in English[\s\S]*short answers/);
   assert.match(prefsRule({ lang: "bn", length: "long" }, "x"), /Bangla[\s\S]*detailed answers/);
+});
+
+test("OpenRouter models: the 5.5% fee counts in their cost; text-only ones are marked", async () => {
+  const { costUsd, MODELS } = await import("../src/lib/ai-chat.ts");
+  const u = { input_tokens: 1_000_000, output_tokens: 1_000_000 };
+  assert.ok(Math.abs(costUsd("qwen/qwen3-235b-a22b-2507", u) - (0.14 + 0.8) * 1.055) < 1e-9);
+  assert.equal(costUsd("gemini-2.5-flash-lite", u), 0.5); // direct: no fee
+  assert.equal(MODELS["deepseek/deepseek-v4.1-flash"].textOnly, true);
+  assert.equal(MODELS["qwen/qwen3-vl-235b-a22b-instruct"].textOnly, undefined); // reads photos
 });
