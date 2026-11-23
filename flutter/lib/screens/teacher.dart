@@ -1,3 +1,4 @@
+import 'chat.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../api.dart';
@@ -5,7 +6,6 @@ import '../store.dart';
 import '../strings.dart';
 import '../ui.dart';
 import '../views.dart';
-import 'guardian.dart' show ChatThread;
 import 'lesson.dart' show OpenFile;
 import 'pdf.dart';
 import '../icons.g.dart';
@@ -283,12 +283,10 @@ class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key, required this.threadId});
   final String threadId;
   @override
-  Widget build(BuildContext context) => Live(
-    (context) => Screen(
-      title: '${rows(store.state?['chats']).where((c) => c['id'] == threadId).firstOrNull?['name'] ?? ''}',
-      children: [ChatThread(threadId: threadId, family: false)],
-    ),
-  );
+  Widget build(BuildContext context) => Live((context) {
+    final th = rows(store.state?['chats']).where((c) => c['id'] == threadId).firstOrNull;
+    return ChatRoom(threadId: threadId, family: false, title: '${th?['name'] ?? ''}', subtitle: '${th?['role'] ?? ''}', hint: t(threadId.startsWith('student-') ? 'app.writeStudent' : 'app.writeGuardian'));
+  });
 }
 
 /// The register for a day (today unless another date is picked, as on the website): everyone starts present; tap a

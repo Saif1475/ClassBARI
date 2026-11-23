@@ -1,5 +1,7 @@
 "use client";
 
+import { ChatRoom } from "@/components/chat/ChatRoom";
+import { preview, unreadFor } from "@/lib/chat";
 import { BottomBar } from "@/components/BottomBar";
 import { defaultTone } from "@/lib/theme";
 import { REAL_AUTH } from "@/lib/auth-mode";
@@ -89,7 +91,6 @@ export default function StudentPage() {
   const [query, setQuery] = useState("");
   const [selectedDay, setSelectedDay] = useState("all");
   const [activeChatId, setActiveChatId] = useState("");
-  const [draft, setDraft] = useState("");
   const [active, setActive] = useState<{ moduleId: number; itemId: number } | null>(null);
   const [staffHome, setStaffHome] = useState<string | null>(null); // teacher / institute previewing the student view
   const [scanOpen, setScanOpen] = useState(false);
@@ -923,7 +924,7 @@ export default function StudentPage() {
                       <button
                         key={c.id}
                         type="button"
-                        onClick={() => { setActiveChatId(c.id); lms.markChatRead(c.id); }}
+                        onClick={() => setActiveChatId(c.id)}
                         className={`flex min-w-60 items-center gap-3 rounded-[16px] p-3.5 text-left transition-all md:min-w-0 ${selected ? "bg-primary-container text-on-primary-container shadow-xs" : "border border-outline-variant bg-white hover:bg-surface-high"}`}
                       >
                         <div className="relative">
@@ -933,10 +934,10 @@ export default function StudentPage() {
                         <div className="flex min-w-0 flex-1 flex-col">
                           <div className="flex items-center justify-between gap-2">
                             <span className="truncate text-sm font-bold">{c.name}</span>
-                            {c.unread > 0 && <span className="rounded-full bg-primary px-2 py-0.5 text-[11px] font-bold text-on-primary">{c.unread}</span>}
+                            {unreadFor(c, "family") > 0 && <span className="rounded-full bg-primary px-2 py-0.5 text-[11px] font-bold text-on-primary">{unreadFor(c, "family")}</span>}
                           </div>
                           <span className="truncate text-xs opacity-75">{c.role}</span>
-                          <span className="mt-0.5 truncate text-xs opacity-90">{last?.text}</span>
+                          <span className="mt-0.5 truncate text-xs opacity-90">{preview(last, t.chat)}</span>
                         </div>
                       </button>
                     );
@@ -946,47 +947,16 @@ export default function StudentPage() {
 
               {!activeChat && <p className="flex flex-1 items-center justify-center p-8 text-center text-on-surface-variant">{t.app.noMessages}</p>}
               {activeChat && (
-                <section className="flex min-h-0 min-w-0 flex-1 flex-col">
-                  <header className="flex items-center justify-between border-b border-white/70 bg-white/50 px-6 py-3.5 backdrop-blur-xl">
-                    <div className="flex items-center gap-3">
-                      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary font-bold text-on-primary">{activeChat.name.charAt(0)}</span>
-                      <div>
-                        <div className="font-bold">{activeChat.name}</div>
-                        <div className="text-xs text-on-surface-variant">{activeChat.online ? S.online : S.offline} · {activeChat.role}</div>
-                      </div>
-                    </div>
-                  </header>
-                  <div className="flex flex-1 flex-col gap-3 p-4 md:overflow-y-auto md:p-6">
-                    {activeChat.messages.map((m) => (
-                      <div key={m.id} className={`flex min-w-0 max-w-[min(32rem,100%)] flex-col gap-1 ${m.mine ? "ml-auto items-end" : "mr-auto items-start"}`}>
-                        <span className="px-2 text-[11px] font-semibold text-on-surface-variant">{m.sender} · {fmtWhen(m.at, lang)}</span>
-                        <div className={`rounded-[16px] px-4 py-3 text-sm leading-relaxed [overflow-wrap:anywhere] ${m.mine ? "rounded-br-xs bg-primary text-on-primary shadow-sm" : "rounded-bl-xs border border-outline-variant bg-white text-on-surface"}`}>{m.text}</div>
-                      </div>
-                    ))}
-                  </div>
-                  <form
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      const text = draft.trim();
-                      if (!text) return;
-                      if (activeChat.id.startsWith("student-")) lms.sendStudentMessage(meId, text);
-                      else lms.sendChatMessage(activeChat.id, myName, text, true);
-                      setDraft("");
-                    }}
-                    className="glass-header sticky bottom-18 flex items-center gap-3 border-t border-white/70 px-4 py-3 md:static md:bg-white/50 md:px-6"
-                  >
-                    <input
-                      value={draft}
-                      onChange={(e) => setDraft(e.target.value)}
-                      placeholder={S.messagePh(activeChat.name)}
-                      aria-label={S.messagePh(activeChat.name)}
-                      className="h-12 flex-1 rounded-full border border-outline-variant bg-white px-5 text-sm outline-none focus:border-primary"
-                    />
-                    <button type="submit" className="inline-flex h-12 items-center gap-2 rounded-full bg-primary px-6 text-sm font-bold text-on-primary">
-                      {t.common.send} <Icon name="arrow" size={16} />
-                    </button>
-                  </form>
-                </section>
+                <ChatRoom
+                  key={activeChat.id}
+                  thread={activeChat}
+                  side="family"
+                  title={activeChat.name}
+                  subtitle={activeChat.role}
+                  placeholder={S.messagePh(activeChat.name)}
+                  empty={t.app.noMessages}
+                  onSend={(text, extra) => (activeChat.id.startsWith("student-") ? lms.sendStudentMessage(meId, text, extra) : lms.sendChatMessage(activeChat.id, myName, text, true, extra))}
+                />
               )}
             </div>
           )}

@@ -1,3 +1,4 @@
+import 'chat.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../store.dart';
@@ -5,7 +6,6 @@ import '../strings.dart';
 import '../ui.dart';
 import '../views.dart';
 import 'lesson.dart';
-import 'guardian.dart' show ChatThread;
 import 'student_more.dart';
 import 'community.dart';
 import '../icon.dart';
@@ -426,7 +426,8 @@ class StudentMessages extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Live((context) {
     final me = store.me?['id'];
-    return Screen(children: [Muted(t('app.privateChat')), if (me != null) ChatThread(threadId: 'student-$me', family: true)]);
+    if (me == null) return Screen(children: [Muted(t('app.privateChat'))]);
+    return ChatRoom(threadId: 'student-$me', family: true, subtitle: t('app.privateChat'), hint: t('app.writeTeacher'));
   });
 }
 

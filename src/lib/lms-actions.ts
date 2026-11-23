@@ -49,6 +49,9 @@ const markDone = (list: number[] | undefined, id: number, on: boolean) => (on ? 
 
 let lastId = Date.now();
 export const uid = () => ++lastId;
+/** What a message may carry besides its text: the message it answers and a photo. */
+export type ChatExtra = { reply?: number; photo?: string };
+const extraOf = (x?: ChatExtra) => ({ ...(x?.reply ? { reply: x.reply } : {}), ...(x?.photo ? { photo: x.photo } : {}) });
 /** The id counter: the browser sends it with each action so the server makes the same new ids. */
 export const idBase = () => lastId;
 export const setIdBase = (n: number) => {
@@ -140,6 +143,8 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
   const addXp = (s: LmsState, studentId: number, amount: number) =>
     amount > 0 ? { ...s.xp, [studentId]: { ...s.xp[studentId], [today]: Math.min(DAILY_XP_MAX, (s.xp[studentId]?.[today] ?? 0) + amount) } } : s.xp;
   const batchOf = (s: LmsState, name: string) => s.batches.find((b) => b.name === name);
+  const setChatMessage = (threadId: string, msgId: number, fn: (m: ChatThread["messages"][number]) => ChatThread["messages"][number]) =>
+    set((s) => ({ chats: s.chats.map((c) => (c.id === threadId ? { ...c, messages: c.messages.map((m) => (m.id === msgId ? fn(m) : m)) } : c)) }));
   const batchFee = (s: LmsState, name: string) => batchOf(s, name)?.fee ?? 0;
   const payment = (st: StudentRecord, method: Payment["method"], amount = st.feeDue): Payment => ({ id: uid(), studentId: st.id, batch: st.batch, amount, at: new Date().toISOString(), method });
 
@@ -477,16 +482,16 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
     deleteNote: (id: number) => set((s) => ({ notes: s.notes.filter((n) => n.id !== id) })),
     setReportComment: (studentId: number, comment: string) => set((s) => ({ reportComments: { ...s.reportComments, [studentId]: comment } })),
 
-    sendChatMessage: (threadId: string, sender: string, text: string, mine: boolean) =>
+    sendChatMessage: (threadId: string, sender: string, text: string, mine: boolean, extra?: ChatExtra) =>
       set((s) => ({
-        chats: s.chats.map((c): ChatThread => (c.id === threadId ? { ...c, messages: [...c.messages, { id: uid(), sender, text, at: new Date().toISOString(), mine }] } : c)),
+        chats: s.chats.map((c): ChatThread => (c.id === threadId ? { ...c, messages: [...c.messages, { id: uid(), sender, text, at: new Date().toISOString(), mine, ...extraOf(extra) }] } : c)),
       })),
     /** Student ↔ teacher thread (private: only the student and their batch teacher see it), created on first message. */
-    sendStudentMessage: (studentId: number, text: string) =>
+    sendStudentMessage: (studentId: number, text: string, extra?: ChatExtra) =>
       set((s) => {
         const st = s.students.find((x) => x.id === studentId);
         const id = `student-${studentId}`;
-        const msg = { id: uid(), sender: st?.name ?? "", text, at: new Date().toISOString(), mine: true };
+        const msg = { id: uid(), sender: st?.name ?? "", text, at: new Date().toISOString(), mine: true, ...extraOf(extra) };
         const exists = s.chats.some((c) => c.id === id);
         return {
           chats: exists
@@ -495,12 +500,12 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
         };
       }),
     /** Parent ↔ teacher thread for one child, created on first message. */
-    sendParentMessage: (childId: number, text: string) =>
+    sendParentMessage: (childId: number, text: string, extra?: ChatExtra) =>
       set((s) => {
         const child = s.students.find((x) => x.id === childId);
         const id = `parent-${childId}`;
         const sender = `${child?.name ?? ""} — guardian`;
-        const msg = { id: uid(), sender, text, at: new Date().toISOString(), mine: true };
+        const msg = { id: uid(), sender, text, at: new Date().toISOString(), mine: true, ...extraOf(extra) };
         const exists = s.chats.some((c) => c.id === id);
         return {
           chats: exists
@@ -508,7 +513,22 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
             : [...s.chats, { id, name: sender, role: child?.batch ?? "", unread: 1, online: false, messages: [msg] }],
         };
       }),
-    markChatRead: (threadId: string) => set((s) => ({ chats: s.chats.map((c) => (c.id === threadId ? { ...c, unread: 0 } : c)) })),
+    /** Opened the chat: the teacher's unread count goes to 0, and (with read receipts on) the other side's ticks turn blue. */
+    markChatRead: (threadId: string, side: "family" | "staff" = "staff", receipt = true) =>
+      set((s) => ({
+        chats: s.chats.map((c) =>
+          c.id !== threadId ? c : { ...c, ...(side === "staff" ? { unread: 0 } : {}), ...(receipt ? { [side === "staff" ? "readStaff" : "readFamily"]: new Date().toISOString() } : {}) },
+        ),
+      })),
+    editChatMessage: (threadId: string, msgId: number, text: string) => setChatMessage(threadId, msgId, (m) => (m.deleted ? m : { ...m, text, edited: true })),
+    /** "Delete for everyone": the message stays as "This message was deleted". */
+    deleteChatMessage: (threadId: string, msgId: number) => setChatMessage(threadId, msgId, (m) => ({ id: m.id, sender: m.sender, at: m.at, mine: m.mine, text: "", deleted: true })),
+    reactChatMessage: (threadId: string, msgId: number, side: "family" | "staff", emoji: string | null) =>
+      setChatMessage(threadId, msgId, (m) => {
+        const react = { ...m.react, [side]: emoji ?? undefined };
+        if (!emoji) delete react[side];
+        return { ...m, react: Object.keys(react).length ? react : undefined };
+      }),
 
     // Centre (coaching-centre mode) and accounts.
     addStaff: (name: string, phone: string, email?: string) =>

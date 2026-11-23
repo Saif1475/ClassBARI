@@ -4,7 +4,7 @@ import '../store.dart';
 import '../strings.dart';
 import '../ui.dart';
 import '../views.dart';
-import 'pdf.dart' show Bubble;
+import 'chat.dart';
 import 'student.dart';
 import 'student_more.dart' show boxScreen, calendarFor, CalendarScreen, MasteryBox, StoryBox;
 import 'guardian_more.dart';
@@ -211,85 +211,14 @@ class GuardianNotices extends StatelessWidget {
   });
 }
 
-/// A thread with the teacher: a guardian's (`parent-<child id>`) or a student's private one (`student-<id>`).
-/// `family`: the guardian or student side, where "mine" means they wrote it; the Teacher app shows the other side.
-class ChatThread extends StatefulWidget {
-  const ChatThread({super.key, required this.threadId, required this.family});
-  final String threadId;
-  final bool family;
-  @override
-  State<ChatThread> createState() => _ChatThreadState();
-}
-
-class _ChatThreadState extends State<ChatThread> {
-  final text = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    if (!widget.family && ((thread?['unread'] as num?) ?? 0) > 0) Future.microtask(() => store.act('markChatRead', [widget.threadId])); // after this screen is drawn
-  }
-
-  @override
-  void dispose() {
-    text.dispose();
-    super.dispose();
-  }
-
-  Json? get thread => rows(store.state?['chats']).where((c) => c['id'] == widget.threadId).firstOrNull;
-
-  Future<void> send() async {
-    final msg = text.text.trim();
-    if (msg.isEmpty) return;
-    text.clear();
-    setState(() {});
-    final id = int.parse(widget.threadId.replaceFirst(RegExp(r'^(parent|student)-'), ''));
-    final saved = widget.family
-        ? await store.act(widget.threadId.startsWith('student-') ? 'sendStudentMessage' : 'sendParentMessage', [id, msg])
-        : await store.act('sendChatMessage', [widget.threadId, store.state?['teacherLogin'] ?? store.state?['teacherName'] ?? '', msg, false]);
-    if (!saved && mounted && store.status == Status.offline) toast(context, t('app.sentLater'));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final messages = rows(thread?['messages']);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: 10,
-      children: [
-        if (messages.isEmpty) Muted(t('app.noMessages')),
-        for (final m in messages) Bubble(text: '${m['text']}', mine: widget.family ? m['mine'] == true : m['mine'] != true, sender: '${m['sender'] ?? ''}', when: m['at'] is String ? fmtWhen(m['at'] as String) : null),
-        Box(
-          children: [
-            Semantics(
-              container: true,
-              child: TextField(
-                controller: text,
-                minLines: 1,
-                maxLines: 5,
-                maxLength: 2000,
-                onChanged: (_) => setState(() {}),
-                decoration: InputDecoration(hintText: t(widget.family ? 'app.writeTeacher' : (widget.threadId.startsWith('student-') ? 'app.writeStudent' : 'app.writeGuardian')), counterText: '', fillColor: context.colors.surface),
-              ),
-            ),
-            Doing(label: t('app.send'), icon: I.send, onPressed: text.text.trim().isEmpty ? null : send),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
 class GuardianMessages extends StatelessWidget {
   const GuardianMessages({super.key});
   @override
   Widget build(BuildContext context) => Live((context) {
     final child = store.child;
-    return Screen(
-      children: [
-        if (store.children.length > 1) const ChildChips(),
-        if (child != null) ChatThread(key: ValueKey(child['id']), threadId: 'parent-${child['id']}', family: true),
-      ],
-    );
+    final header = [if (store.children.length > 1) const ChildChips()];
+    if (child == null) return Screen(children: header);
+    final teacher = rows(store.state?['batches']).where((b) => b['name'] == child['batch']).firstOrNull?['teacher'] ?? store.state?['teacherName'] ?? '';
+    return ChatRoom(key: ValueKey(child['id']), threadId: 'parent-${child['id']}', family: true, subtitle: '$teacher · ${child['batch'] ?? ''}', header: header, hint: t('app.writeTeacher'));
   });
 }

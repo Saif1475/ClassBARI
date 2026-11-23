@@ -47,7 +47,7 @@ test("students act only as themselves", () => {
 });
 
 test("guardians act only for their own children", () => {
-  assert.deepEqual(checkAction("sendParentMessage", [8, "hi"], guardian, s), [8, "hi"]);
+  assert.deepEqual(checkAction("sendParentMessage", [8, "hi"], guardian, s), [8, "hi", undefined]);
   refused(() => checkAction("sendParentMessage", [2, "hi"], guardian, s));
   refused(() => checkAction("payFee", [8, "bkash"], guardian, s));
   refused(() => checkAction("submitQuiz", [1, 104, 1, 30, [], 0], guardian, s));
@@ -358,7 +358,7 @@ test("a student's chat with their teacher is private: not the owner, not guardia
   const myTeacher = { role: "teacher", name: s.batches.find((b) => b.name === mineBatch).teacher, studentIds: [] };
   const other = s.batches.find((b) => b.teacher !== myTeacher.name && b.teacher !== owner.name);
   const otherTeacher = { role: "teacher", name: other.teacher, studentIds: [] };
-  assert.deepEqual(checkAction("sendStudentMessage", [99, "Sir, a question"], student, s), [3, "Sir, a question"]); // always as themselves
+  assert.deepEqual(checkAction("sendStudentMessage", [99, "Sir, a question"], student, s), [3, "Sir, a question", undefined]); // always as themselves
   const next = runAction(s, "sendStudentMessage", [3, "Sir, a question"], Date.now());
   assert.ok(viewFor(next, student).chats.some((c) => c.id === "student-3"));
   assert.ok(viewFor(next, myTeacher).chats.some((c) => c.id === "student-3"));
@@ -414,4 +414,56 @@ test("website bug hunt: batch names, event times, discounts and poll options are
   const p = { name: "N", email: "nusratjahan+x@gmail.com", guardianName: "G", guardianEmail: "h@gmail.com", phone: "01712345678" };
   assert.equal(validateStudent(p, roll).email, "emailTaken");
   assert.equal(isGmail("a..b@gmail.com"), false);
+});
+
+test("messages: replies, photos, edits, delete for everyone, reactions and read ticks, each side only its own", async () => {
+  const { seen, unreadFor, canEdit } = await import("../src/lib/chat.ts");
+  const mineBatch = s.students.find((x) => x.id === 3).batch;
+  const myTeacher = { role: "teacher", name: s.batches.find((b) => b.name === mineBatch).teacher, studentIds: [] };
+  const run = (st, who, name, args) => runAction(st, name, checkAction(name, args, who, st), Date.now());
+  let st = run(s, student, "sendStudentMessage", [3, "Sir, question 5?"]);
+  const q = st.chats.find((c) => c.id === "student-3").messages.at(-1);
+  // The teacher answers it, quoting it; the name is always the teacher's own, whatever the app sends.
+  st = run(st, myTeacher, "sendChatMessage", ["student-3", "Someone Else", "Use F = -kx", true, { reply: q.id }]);
+  let t = st.chats.find((c) => c.id === "student-3");
+  const a = t.messages.at(-1);
+  assert.equal(a.sender, myTeacher.name);
+  assert.equal(a.mine, false);
+  assert.equal(a.reply, q.id);
+  refused(() => checkAction("sendChatMessage", ["student-3", "", "hi", false, { reply: 424242 }], myTeacher, st)); // no such message
+  refused(() => checkAction("sendStudentMessage", [3, "   "], student, st)); // empty
+  refused(() => checkAction("sendStudentMessage", [3, "", { photo: "data:text/html;base64,AAAA" }], student, st)); // not a photo
+  assert.ok(checkAction("sendStudentMessage", [3, "", { photo: "data:image/png;base64,AAAA" }], student, st)); // a photo alone is fine
+
+  // Ticks: grey until the student opens the chat, then blue; the teacher's unread count is untouched by the student.
+  assert.equal(seen(t, a), false);
+  assert.equal(unreadFor(t, "family"), 1);
+  st = run(st, student, "markChatRead", ["student-3", "staff", true]); // the side is always the student's own
+  t = st.chats.find((c) => c.id === "student-3");
+  assert.equal(seen(t, a), true);
+  assert.equal(unreadFor(t, "family"), 0);
+  assert.equal(t.unread, 1);
+  assert.equal(checkAction("markChatRead", ["student-3", "family", false], student, st), null); // read receipts off: nothing sent
+  refused(() => checkAction("markChatRead", ["student-4", "family", true], student, st));
+
+  // Edit and delete: only your own messages, within the time limits.
+  st = run(st, student, "editChatMessage", ["student-3", q.id, "Sir, question 6?"]);
+  t = st.chats.find((c) => c.id === "student-3");
+  assert.deepEqual([t.messages.find((m) => m.id === q.id).text, t.messages.find((m) => m.id === q.id).edited], ["Sir, question 6?", true]);
+  refused(() => checkAction("editChatMessage", ["student-3", a.id, "changed"], student, st)); // the teacher's message
+  refused(() => checkAction("deleteChatMessage", ["student-3", q.id], myTeacher, st)); // the student's message
+  assert.equal(canEdit({ ...q, at: new Date(Date.now() - 16 * 60_000).toISOString() }), false);
+  st = run(st, myTeacher, "deleteChatMessage", ["student-3", a.id]);
+  const gone = st.chats.find((c) => c.id === "student-3").messages.find((m) => m.id === a.id);
+  assert.deepEqual([gone.deleted, gone.text, gone.reply], [true, "", undefined]);
+  refused(() => checkAction("reactChatMessage", ["student-3", a.id, "family", "👍"], student, st)); // deleted
+
+  // Reactions: one per side, from the fixed list; sending none takes it away.
+  st = run(st, myTeacher, "reactChatMessage", ["student-3", q.id, "family", "❤️"]); // stored as the teacher's side
+  assert.deepEqual(st.chats.find((c) => c.id === "student-3").messages.find((m) => m.id === q.id).react, { staff: "❤️" });
+  refused(() => checkAction("reactChatMessage", ["student-3", q.id, "family", "💩"], student, st));
+  st = run(st, myTeacher, "reactChatMessage", ["student-3", q.id, "staff", null]);
+  assert.equal(st.chats.find((c) => c.id === "student-3").messages.find((m) => m.id === q.id).react, undefined);
+  // A guardian can't touch the student's private chat.
+  refused(() => checkAction("reactChatMessage", ["student-3", q.id, "family", "👍"], { ...guardian, studentIds: [3] }, st));
 });

@@ -633,7 +633,7 @@ class TopBar extends StatelessWidget {
 
 /// A scrolling page: pull down to refresh; says when the phone is offline or a change could not be saved.
 class Screen extends StatelessWidget {
-  const Screen({super.key, required this.children, this.title, this.subtitle, this.color, this.refresh = true, this.bottom, this.actions});
+  const Screen({super.key, required this.children, this.title, this.subtitle, this.color, this.refresh = true, this.bottom, this.actions, this.controller, this.background});
   final List<Widget> children;
 
   /// The name in the top bar. Left out on a tab's own page, which shows the tab's name.
@@ -647,9 +647,14 @@ class Screen extends StatelessWidget {
   /// Something that stays at the bottom of the page: the main button of a lesson.
   final Widget? bottom;
   final List<Widget>? actions;
+
+  /// A chat follows its newest message; its wallpaper goes behind the list.
+  final ScrollController? controller;
+  final Color? background;
   @override
   Widget build(BuildContext context) {
     final list = ListView.separated(
+      controller: controller,
       physics: const AlwaysScrollableScrollPhysics(),
       padding: EdgeInsets.fromLTRB(16, 12, 16, 28 + (bottom == null ? MediaQuery.paddingOf(context).bottom : 0)),
       itemCount: children.length,
@@ -671,7 +676,7 @@ class Screen extends StatelessWidget {
             child: MediaQuery.removePadding(
               context: context,
               removeTop: true,
-              child: refresh ? RefreshIndicator(onRefresh: store.refresh, child: list) : list,
+              child: ColoredBox(color: background ?? Colors.transparent, child: refresh ? RefreshIndicator(onRefresh: store.refresh, child: list) : list),
             ),
           ),
           if (bottom != null)

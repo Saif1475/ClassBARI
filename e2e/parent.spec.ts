@@ -48,3 +48,47 @@ test("message reaches the teacher's inbox", async ({ page }) => {
   await page.getByRole("button", { name: /Nusrat Jahan — guardian/ }).click();
   await expect(page.locator("section").getByText("Will Nusrat get extra class?")).toBeVisible();
 });
+
+test("WhatsApp-style chat: reply, react, edit, delete for everyone, search and settings", async ({ page }) => {
+  await page.getByRole("link", { name: "Messages" }).first().click();
+  const box = page.getByPlaceholder("Write to the teacher…");
+  await box.fill("Is there class on Friday?");
+  await box.press("Enter"); // Enter is send (the default on a computer)
+  const bubble = page.locator("section").getByText("Is there class on Friday?");
+  await expect(bubble).toBeVisible();
+  await expect(page.getByRole("img", { name: "Sent" }).last()).toBeVisible();
+
+  const menu = () => page.getByRole("button", { name: "Message options" }).last();
+  await menu().click();
+  await page.getByRole("menuitem", { name: "👍" }).click();
+  await expect(page.locator("section").getByText("👍")).toBeVisible();
+
+  await menu().click();
+  await page.getByRole("menuitem", { name: "Reply" }).click();
+  await box.fill("Or Saturday?");
+  await page.getByRole("button", { name: "Send" }).click();
+  await expect(page.locator("section a[href^='#msg-']").getByText("Is there class on Friday?")).toBeVisible(); // the quote
+
+  await menu().click();
+  await page.getByRole("menuitem", { name: "Edit" }).click();
+  await box.fill("Or on Saturday?");
+  await box.press("Enter");
+  await expect(page.locator("section").getByText("Or on Saturday?")).toBeVisible();
+  await expect(page.locator("section").getByText("edited")).toBeVisible();
+
+  await menu().click();
+  await page.getByRole("menuitem", { name: "Delete for everyone" }).click();
+  await expect(page.getByText("You deleted this message")).toBeVisible();
+
+  await page.getByRole("button", { name: "Search messages" }).click();
+  await page.getByRole("textbox", { name: "Search messages" }).fill("friday");
+  await expect(page.locator("section mark").getByText("Friday")).toBeVisible();
+
+  await page.getByRole("button", { name: "Chat settings" }).click();
+  await page.getByRole("button", { name: "Night" }).click();
+  await page.getByRole("switch", { name: /Enter is send/ }).uncheck();
+  await page.reload();
+  await page.getByRole("button", { name: "Chat settings" }).click();
+  await expect(page.getByRole("button", { name: "Night" })).toHaveAttribute("aria-pressed", "true"); // kept on this device
+  await expect(page.getByRole("switch", { name: /Enter is send/ })).not.toBeChecked();
+});

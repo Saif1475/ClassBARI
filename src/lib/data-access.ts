@@ -1,5 +1,7 @@
 // With real accounts: which actions each person may send to the server, and what they get back.
 // Students and guardians act only as themselves and see only their own slice of the institute.
+import { canDelete, canEdit, REACTIONS, TEXT_MAX } from "./chat.ts";
+import type { ChatMessage } from "./mock-data.ts";
 import { blankState, makeActions, setIdBase, type LmsState } from "./lms-actions.ts";
 import { markQuiz, scoreQuiz } from "./quiz.ts";
 import { averagePct, leagueRank, myRank } from "./lms-views.ts";
@@ -63,7 +65,7 @@ const TEACHER_BATCH: Record<string, (a: A, s: LmsState) => (string | undefined)[
   removeStudent: viaStudent, toggleStudentMode: viaStudent, setReportComment: viaStudent, approveStudent: viaStudent,
   updateStudent: (a, s) => [...viaStudent(a, s), (a[1] as { batch?: string }).batch], // not moved into someone else's batch either
   markAllPresent: viaStudents, markAllAbsent: viaStudents,
-  sendChatMessage: viaThread, markChatRead: viaThread, // a teacher writes only in their own batches' threads
+  sendChatMessage: viaThread, markChatRead: viaThread, editChatMessage: viaThread, deleteChatMessage: viaThread, reactChatMessage: viaThread, // a teacher writes only in their own batches' threads
   submitQuiz: viaModule, // marks from OMR sheets
   addExploreVideo: ([v], s) => ((v as { moduleId?: unknown })?.moduleId === undefined ? [] : viaModule([(v as { moduleId: unknown }).moduleId], s)),
   removePoint: ([id], s) => [s.students.find((x) => x.id === s.points.find((p) => p.id === id)?.studentId)?.batch],
@@ -130,6 +132,30 @@ const ids = (x: unknown, s: LmsState) =>
 const today = (list: { at: string }[]) => list.filter((x) => x.at.slice(0, 10) === new Date().toISOString().slice(0, 10)).length;
 
 type Rule = (a: unknown[], me: number, s: LmsState, who: Who) => unknown[] | null; // null: nothing to save
+
+// Messages: replies, photos, edits, "delete for everyone" and reactions.
+const CHAT_CHANGES = new Set(["editChatMessage", "deleteChatMessage", "reactChatMessage"]);
+const msgIn = (s: LmsState, thread: unknown, id: unknown) => s.chats.find((c) => c.id === thread)?.messages.find((m) => m.id === id) ?? refuse("no such message");
+const chatExtra = (x: unknown, s: LmsState, thread: string) => {
+  if (x === undefined || x === null) return undefined;
+  const e = x as { reply?: unknown; photo?: unknown };
+  return { reply: e.reply === undefined ? undefined : msgIn(s, thread, e.reply).id, photo: e.photo === undefined ? undefined : upload(e.photo, "image") };
+};
+const chatText = (text: unknown, x: { photo?: string } | undefined) => {
+  const t = str(text, TEXT_MAX);
+  return t.trim() || x?.photo ? t : refuse("empty message");
+};
+const reaction = (emoji: unknown) => (emoji === null || emoji === undefined ? null : (REACTIONS as readonly unknown[]).includes(emoji) ? (emoji as string) : refuse("bad reaction"));
+/** A student's own chat with their teacher, or a guardian's chat about one of their children. */
+const familyThread = (who: Who, me: number, thread: unknown) =>
+  (who.role === "student" ? thread === `student-${me}` : /^parent-\d+$/.test(String(thread)) && who.studentIds.includes(chatStudent(thread))) ? (thread as string) : refuse("not your chat");
+/** Edit, delete or react, for whichever side `side` is; `own` says whether the message is this person's. */
+const chatChange = (name: string, a: unknown[], s: LmsState, thread: string, side: "family" | "staff", own: (m: ChatMessage) => boolean) => {
+  const m = msgIn(s, thread, a[1]);
+  if (name === "reactChatMessage") return m.deleted ? refuse("deleted") : [thread, m.id, side, reaction(a[3])];
+  if (name === "editChatMessage") return own(m) && canEdit(m) && String(a[2] ?? "").trim() ? [thread, m.id, str(a[2], TEXT_MAX)] : refuse("can't edit");
+  return own(m) && canDelete(m) ? [thread, m.id] : refuse("can't delete");
+};
 /** Things only a student or guardian does for themselves (taking a quiz, liking, chatting as the student…). */
 const FAMILY_ONLY = new Set(["startQuiz", "submitAssignment", "toggleItemDone", "earnXp", "recordWatch", "sendStudentMessage", "sendParentMessage", "askDoubt", "toggleLike", "toggleSave", "votePoll", "reportPost", "requestFriend", "answerFriend", "setCommunityProfile", "bookMeeting", "cancelMeeting", "addPortfolio", "deletePortfolio"]);
 /** Attendance changes take a date second: not more than a day ahead (time zones), so no absence alerts for the future. */
@@ -204,18 +230,29 @@ const STUDENT: Record<string, Rule> = {
     s.students.some((x) => x.id === other) && canRequest(s.communityProfiles, { me: batchOf(s, me), other: batchOf(s, other as number) }, me, other as number) ? [me, other] : refuse("not allowed"),
   answerFriend: ([, other, accept], me) => [me, int(other), accept === true],
   ensureLiveRoom: ([batch], me, s) => (batch === batchOf(s, me) ? [batch] : refuse("not your class")),
-  sendStudentMessage: ([, text], me) => [me, str(text, 2000)],
+  sendStudentMessage: ([, text, extra], me, s) => {
+    const x = chatExtra(extra, s, `student-${me}`);
+    return [me, chatText(text, x), x];
+  },
 };
 const FAMILY: Record<string, Rule> = {
   addPortfolio: ([id, title, image], _me, s, who) =>
     who.studentIds.includes(id as number) && s.portfolio.filter((p) => p.studentId === id).length < 100 ? [id, str(title, 200), upload(image, "image")] : refuse("not your child"),
-  markChatRead: () => null, // the unread count is the teacher's
+  // Opening the chat: only this side's read time (the blue ticks); the teacher's unread count is theirs.
+  markChatRead: ([thread, , receipt], me, _s, who) => (receipt === false ? null : [familyThread(who, me, thread), "family", true]),
+  editChatMessage: (a, me, s, who) => chatChange("editChatMessage", a, s, familyThread(who, me, a[0]), "family", (m) => !!m.mine),
+  deleteChatMessage: (a, me, s, who) => chatChange("deleteChatMessage", a, s, familyThread(who, me, a[0]), "family", (m) => !!m.mine),
+  reactChatMessage: (a, me, s, who) => chatChange("reactChatMessage", a, s, familyThread(who, me, a[0]), "family", () => false),
 };
 const GUARDIAN: Record<string, Rule> = {
   bookMeeting: ([id, child], _me, s, who) =>
     who.studentIds.includes(child as number) && s.meetings.find((m) => m.id === id)?.batch === batchOf(s, child as number) ? [int(id), child] : refuse("not your child's teacher"),
   cancelMeeting: ([id], _me, s, who) => (who.studentIds.includes(s.meetings.find((m) => m.id === id)?.bookedBy ?? -1) ? [id] : refuse("not your booking")),
-  sendParentMessage: ([child, text], _me, _s, who) => (who.studentIds.includes(child as number) ? [child, str(text, 2000)] : refuse("not your child")),
+  sendParentMessage: ([child, text, extra], _me, s, who) => {
+    if (!who.studentIds.includes(child as number)) refuse("not your child");
+    const x = chatExtra(extra, s, `parent-${child}`);
+    return [child, chatText(text, x), x];
+  },
 };
 
 /** The arguments to run `name` with on the server for this person, null to skip quietly; throws Refused. */
@@ -242,7 +279,7 @@ export function checkAction(name: string, args: unknown[], who: Who, s: LmsState
       const fee = s.batches.find((b) => b.name === s.students.find((x) => x.id === args[0])?.batch)?.fee ?? 0;
       if (!(typeof args[1] === "number" && args[1] >= 0 && args[1] <= fee)) refuse("discount more than the fee");
     }
-    if ((name === "sendChatMessage" || name === "markChatRead") && !privateChatOf(s, args[0], staffName(s, who))) refuse("private chat");
+    if ((name === "sendChatMessage" || name === "markChatRead" || CHAT_CHANGES.has(name)) && !privateChatOf(s, args[0], staffName(s, who))) refuse("private chat");
     if (who.role === "teacher" && name === "updateStaffProfile" && args[0] !== staffName(s, who)) refuse("only your own profile");
     // Batches belong to a teacher by name: taking a colleague's name would take their batches.
     const newName = String(args[1]).trim().slice(0, 60);
@@ -253,6 +290,13 @@ export function checkAction(name: string, args: unknown[], who: Who, s: LmsState
     if (name !== "importBackup" && JSON.stringify(args).replace(/"data:[a-z]+\/[\w.+-]+;base64,[A-Za-z0-9+/=]*"/g, '""').length > STAFF_TEXT_MAX) refuse("too large");
     if (name === "addStudent" && badStudent(args[0], s)) refuse("bad student");
     if (name === "updateStudent" && badStudent(args[1], s, args[0])) refuse("bad student");
+    // Staff write as themselves, on the teacher's side: never in someone else's name.
+    if (name === "sendChatMessage") {
+      const x = chatExtra(args[4], s, String(args[0]));
+      return [args[0], staffName(s, who), chatText(args[2], x), false, x];
+    }
+    if (name === "markChatRead") return [args[0], "staff", args[2] !== false];
+    if (CHAT_CHANGES.has(name)) return chatChange(name, args, s, String(args[0]), "staff", (m) => !m.mine && m.sender === staffName(s, who));
     return args;
   }
   // Own keys only: a name like "constructor" must not find something on every object.

@@ -1,6 +1,8 @@
 "use client";
 
 import { BottomBar } from "@/components/BottomBar";
+import { ChatRoom } from "@/components/chat/ChatRoom";
+import { preview } from "@/lib/chat";
 import { PdfHighlights } from "@/components/PdfHighlights";
 import { REAL_AUTH } from "@/lib/auth-mode";
 import { Gradebook } from "@/components/teacher/Gradebook";
@@ -176,7 +178,6 @@ export default function TeacherApp({
 
   // --- Inbox ---
   const [activeChatId, setActiveChatId] = useState<string>(lms.chats[0]?.id ?? "");
-  const [chatDraft, setChatDraft] = useState("");
   const activeChat = lms.chats.find((c) => c.id === activeChatId) ?? lms.chats[0];
   const totalUnread = lms.chats.reduce((sum, c) => sum + c.unread, 0);
 
@@ -1773,14 +1774,14 @@ export default function TeacherApp({
                     <button
                       key={c.id}
                       type="button"
-                      onClick={() => { setActiveChatId(c.id); lms.markChatRead(c.id); }}
+                      onClick={() => setActiveChatId(c.id)}
                       className={`flex min-w-60 items-center gap-3 rounded-[16px] p-3.5 text-left transition-all md:min-w-0 ${selected ? "bg-primary-container text-on-primary-container shadow-xs" : "border border-outline-variant bg-white hover:bg-surface-high"}`}
                     >
                       <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary text-base font-bold text-on-primary">{c.name.charAt(0)}</span>
                       <div className="flex min-w-0 flex-1 flex-col">
                         <span className="truncate text-sm font-bold">{c.name}</span>
                         <span className="truncate text-xs opacity-75">{c.role}</span>
-                        <span className="mt-0.5 truncate text-xs opacity-90">{last?.text}</span>
+                        <span className="mt-0.5 truncate text-xs opacity-90">{preview(last, t.chat)}</span>
                       </div>
                     </button>
                   );
@@ -1790,40 +1791,16 @@ export default function TeacherApp({
 
             {!activeChat && <p className="flex flex-1 items-center justify-center p-8 text-center text-on-surface-variant">{T.inboxEmpty}</p>}
             {activeChat && (
-              <section className="flex min-h-0 min-w-0 flex-1 flex-col">
-                <header className="flex items-center justify-between border-b border-white/70 bg-white/50 px-6 py-3.5 backdrop-blur-xl">
-                  <div>
-                    <div className="font-bold">{activeChat.name}</div>
-                    <div className="text-xs text-on-surface-variant">{T.replyAs(teacherName)}</div>
-                  </div>
-                </header>
-                <div className="flex flex-1 flex-col gap-3 p-4 md:overflow-y-auto md:p-6">
-                  {activeChat.messages.map((m) => {
-                    const fromTeacher = m.sender === teacherName;
-                    return (
-                      <div key={m.id} className={`flex min-w-0 max-w-[min(32rem,100%)] flex-col gap-1 ${fromTeacher ? "ml-auto items-end" : "mr-auto items-start"}`}>
-                        <span className="px-2 text-[11px] font-semibold text-on-surface-variant">{m.sender} · {fmtWhen(m.at, lang)}</span>
-                        <div className={`rounded-[16px] px-4 py-3 text-sm leading-relaxed [overflow-wrap:anywhere] ${fromTeacher ? "rounded-br-xs bg-primary text-on-primary shadow-sm" : "rounded-bl-xs border border-outline-variant bg-white text-on-surface"}`}>{m.text}</div>
-                      </div>
-                    );
-                  })}
-                </div>
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    if (!chatDraft.trim()) return;
-                    lms.sendChatMessage(activeChat.id, teacherName, chatDraft.trim(), false);
-                    setChatDraft("");
-                    notify(T.toast.replySent);
-                  }}
-                  className="glass-header sticky bottom-18 flex items-center gap-3 border-t border-white/70 px-4 py-3 md:static md:bg-white/50 md:px-6"
-                >
-                  <input value={chatDraft} onChange={(e) => setChatDraft(e.target.value)} placeholder={T.replyPh(teacherName)} aria-label={T.replyPh(teacherName)} className="h-12 flex-1 rounded-full border border-outline-variant bg-white px-5 text-sm outline-none" />
-                  <button type="submit" className="inline-flex h-12 items-center gap-2 rounded-full bg-primary px-6 text-sm font-bold text-on-primary">
-                    {t.common.send} <Icon name="arrow" size={16} />
-                  </button>
-                </form>
-              </section>
+              <ChatRoom
+                key={activeChat.id}
+                thread={activeChat}
+                side="staff"
+                title={activeChat.name}
+                subtitle={`${activeChat.role} · ${T.replyAs(teacherName)}`}
+                placeholder={T.replyPh(teacherName)}
+                empty={T.inboxEmpty}
+                onSend={(text, extra) => (lms.sendChatMessage(activeChat.id, teacherName, text, false, extra), notify(T.toast.replySent))}
+              />
             )}
           </div>
         )}

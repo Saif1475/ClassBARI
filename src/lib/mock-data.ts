@@ -129,8 +129,20 @@ export type ExploreVideo = {
 export type EnrolledCourse = { id: string; title: string; teacher: string; schedule: string; progress: number; nextTopic: string; next?: string };
 export type CalendarEvent = { id: number; title: string; start: string; end?: string; meta: string; kind: "live" | "exam" | "due"; batch?: string }; // batch: whose calendar it is on (none: everyone's)
 export type LiveClassInfo = { batch: string; topic: string; start: string; link: string };
-export type ChatMessage = { id: number; sender: string; text: string; at: string; mine?: boolean };
-export type ChatThread = { id: string; name: string; role: string; unread: number; online: boolean; messages: ChatMessage[] };
+export type ChatMessage = {
+  id: number;
+  sender: string;
+  text: string;
+  at: string;
+  mine?: boolean; // written by the student or guardian (else by the teacher's side)
+  reply?: number; // the message it answers
+  photo?: string;
+  edited?: true;
+  deleted?: true; // taken back for everyone: the text and photo are gone
+  react?: { family?: string; staff?: string }; // one reaction per side
+};
+// readFamily / readStaff: when each side last opened the chat (the ticks). Not sent when that side turned read receipts off.
+export type ChatThread = { id: string; name: string; role: string; unread: number; online: boolean; messages: ChatMessage[]; readFamily?: string; readStaff?: string };
 
 const ch4Quiz: QuizQuestion[] = [
   { q: "In SHM, acceleration is proportional to…", options: ["velocity", "displacement", "time", "mass"], answer: 1, topic: "SHM basics" },

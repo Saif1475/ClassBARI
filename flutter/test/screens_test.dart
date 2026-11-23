@@ -371,9 +371,15 @@ void main() {
     expect(find.text('Yes, at 5 pm.'), findsOneWidget);
     await tester.enterText(find.byType(TextField), '  Thank you  ');
     await tester.pump();
-    await press(tester, find.text('Send'));
+    await tester.tap(find.byTooltip('Send')); // the round send button under the chat, as in WhatsApp
     await tester.pump(const Duration(milliseconds: 300));
     expect(sent('sendParentMessage').single['args'], [5, 'Thank you']);
+    // Long-press a message: react with a heart; the teacher's side is never the one sent.
+    await tester.longPress(find.text('Yes, at 5 pm.'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('❤️'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect((sent('reactChatMessage').single['args'] as List).sublist(2), ['family', '❤️']);
     await tester.pumpWidget(const SizedBox());
   });
 
