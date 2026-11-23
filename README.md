@@ -1,7 +1,13 @@
-# ClassBARI — website & app (front-end)
+# ClassBARI
 
-Material 3 Expressive design, built with **Next.js 16 + TypeScript + Tailwind CSS v4**.
-English by default, with a **বাংলা** switch on the login page, landing page and app screens.
+A coaching-centre system for Bangladesh, in English and Bangla: one website and five Android apps (Student,
+Guardian, Teacher, Institution, ClassBARI AI) on one shared server and database.
+
+- **Website and server:** Next.js 16 (webpack build), React 19, TypeScript, Tailwind CSS v4.
+- **Database and sign-in:** Supabase (Postgres with row-level security, Auth, Storage). Migrations in `supabase/migrations/`.
+- **Phone apps:** Flutter, in `flutter/` (one codebase, five Android flavours).
+- **Python service:** `ocr-service/` (FastAPI): matches reworded AI questions to saved answers, handwriting to text.
+- **AI:** student chat with packs and monthly money caps (Gemini, Qwen, Claude, GPT), highlighted PDFs, PDF downloads.
 
 ## Run it locally
 
@@ -144,63 +150,53 @@ For the ClassBARI team only. Set `ADMIN_TOKEN` in `.env.local` (a long random st
 
 Data is saved in `data/platform.json` on the server (gitignored). Like `data/leads.jsonl`, this needs a normal server, not Vercel/serverless; it moves into Supabase later. "Suspended" is a label for now: blocking the institute's logins needs the Supabase accounts. Tests use `data/e2e-platform.json` instead.
 
-## Database (Supabase) — in progress
+## Database (Supabase)
 
-`supabase/migrations/0001_institutes.sql` is the institute schema: institutes → branches → members
-(owner / branch manager / teacher, with pay settings), then Class → Subject → Shift → Teacher(s):
-the institute assigns teachers to shifts. Guardians; each student is in one class and takes several
-subjects (one shift per subject); fees and payments per enrolment; attendance; staff payouts.
-Only the institute (owner / branch manager) enrols students. Row-level security keeps each
-institute's data apart; managers see only their branch, teachers only the shifts assigned to them
-(and those shifts' classes, subjects and students), students only themselves, guardians only their children. Access is by the
-signed-in Gmail (`my_access()`); sign-up calls `create_institute(...)`.
+Every institute's data is one checked document; the server replays each change through the permission rules in
+`src/lib/data-access.ts` and sends each person only their own view. Accounts, files, AI usage, payments and
+notifications live in Supabase tables (`supabase/migrations/`). Apply new migrations with
+`npm run db:migrate -- test --yes` (test project) and `npm run db:migrate -- main --yes` (live project).
 
-The rules are tested on real Postgres in Node (`npm test` → `scripts/rls.test.mjs`, uses PGlite).
-To load it into a Supabase project: Dashboard → SQL Editor → paste the file → Run.
-The app itself still uses browser storage until it is switched over (Phase 1).
+## The Python service
 
-## Demo limits
+`npm run ocr` starts `ocr-service/` on port 8000 (create its virtualenv first: `cd ocr-service && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt`).
+Without it the site still works, but reworded AI questions are never answered from saved answers.
+Chat → PDF needs Chromium on the server: `npx playwright install chromium`.
 
-All app data lives in each browser's localStorage, so a teacher's phone and a parent's phone don't see
-each other's changes, invite links only work in the browser that created the batch, and uploaded
-assignment files must be small (800 KB). These all go away with the Supabase backend.
-The app is installable (manifest + `public/sw.js`); pages you've opened keep working offline.
+## Phone apps (`flutter/`)
+
+```bash
+cd flutter
+flutter test && flutter analyze
+flutter build apk --flavor student --dart-define-from-file=<config.json>   # student, guardian, teacher, institute, chatbot
+```
+The config file holds `API_URL`, `SUPABASE_URL` and `SUPABASE_KEY` (the publishable key). Words come from the
+website's `src/lib/i18n` through `npm run flutter:gen`; run it after changing any text. New features go into the
+website and the apps in the same change.
 
 ## Tests
 
-`npm test` checks the MCQ quiz parser and marking (`src/lib/quiz.ts`).
+- `npm test`: unit tests (permissions, money, AI caps, PDF, notifications…).
+- `npm run test:e2e`: browser tests on a demo build.
+- `npm run check:real`: end-to-end checks against the Supabase **test** project with real accounts.
+- `cd flutter && flutter test`: app tests (layout, contrast, Bangla, offline).
 
 ## Where things live
 
 ```
-src/
-  app/                 one folder per page (Next.js App Router)
-    globals.css        colours, fonts — the whole theme is here
-  components/
-    AppShell.tsx       bottom nav (phone) / nav rail (desktop)
-    Brand.tsx          Logo + language switch
-    Icon.tsx           icon set — add new icons to the map
-  lib/
-    i18n/en.ts         all English text
-    i18n/bn.ts         all Bangla text (TypeScript errors if a key is missing)
-    i18n/LanguageProvider.tsx   useLang() hook, saves choice in the browser
-    mock-data.ts       sample data + types (dates are relative to today) — replace with real data
-    lms-store.tsx      app state, actions, derived to-dos / calendar; saved in localStorage
-    dates.ts, quiz.ts, site.ts, role.ts   small helpers
+src/app/               pages and API routes (Next.js App Router); /admin is the ClassBARI staff panel
+src/components/        website components
+src/lib/               shared rules: data-access (permissions), lms-actions (every change), ai-chat (packs, caps),
+                       i18n/en.ts + bn.ts (all words), notify, pay, chat-pdf, pdf-*
+flutter/lib/           the five apps (screens/*), store, ui, theme; generated: icons.g.dart, assets/gen/*.json
+ocr-service/           Python service (embeddings, handwriting)
+supabase/migrations/   database schema and rules
+scripts/               tests, code generators, real-account checks, deploy helpers
+e2e/                   browser tests
+data/                  local runtime files: admin settings, logs, test-account password (git-ignored, never upload)
 ```
 
-## Common changes
+## Secrets
 
-- **Change a colour:** edit `--color-*` in `src/app/globals.css`, then use it as `bg-primary`, `text-on-surface`, etc.
-- **Add or edit text:** add the key in `en.ts` and `bn.ts`, then use `const { t } = useLang(); t.section.key`.
-- **Add a page:** create `src/app/your-page/page.tsx`. Put `"use client";` at the top if it uses `useLang()` or state.
-- **Add a nav item:** edit the `nav` list in `src/app/teacher/layout.tsx` or `src/app/parent/layout.tsx`.
-
-## Next steps (need accounts / keys)
-
-1. Supabase: phone-OTP auth (replace the role cookie), tables for batches, students, attendance, payments, modules.
-2. Replace `mock-data.ts` + localStorage with Supabase queries; batches should own their modules (today modules are shared).
-3. bKash / SSLCommerz merchant account — the parent "Pay with bKash" button is a clearly-labelled demo.
-4. SMS gateway for automatic absence / fee messages (today: one-tap WhatsApp messages from the teacher's roster).
-5. Video upload (Cloudflare R2) + protected player; today teachers paste YouTube / .mp4 links.
-6. AI question builder (needs an LLM API key) — the landing page still advertises it.
+Copy `.env.example` to `.env.local` and fill it in. `.env.local`, `data/`, keystores and the Firebase service
+account file are git-ignored: never commit or share them.
