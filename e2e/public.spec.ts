@@ -4,7 +4,7 @@ import { alertText, BASE, expect, expectVideoPlays, test } from "./helpers";
 test.describe("Landing page", () => {
   test("renders in English and switches to Bangla", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { level: 1 })).toContainText("Run your online batches");
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Run your education institute");
     await page.getByRole("button", { name: "বাং" }).first().click();
     await expect(page.getByRole("heading", { level: 1 })).toContainText("আপনার অনলাইন ব্যাচ চালান");
     await expect(page.locator("html")).toHaveAttribute("lang", "bn");

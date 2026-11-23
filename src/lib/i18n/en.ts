@@ -53,7 +53,7 @@ const en = {
     navFaq: "FAQ",
     startFree: "Start free",
     badge: "Free setup & training included",
-    heroTitle: "Run your online batches",
+    heroTitle: "Run your education institute",
     heroTitleAccent: "in one app",
     heroSub: "Classes, fees, exams and parent updates — all in one place, right from your phone.",
     watchDemo: "Watch demo",
