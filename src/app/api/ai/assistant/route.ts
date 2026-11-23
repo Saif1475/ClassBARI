@@ -63,7 +63,7 @@ export async function POST(request: Request) {
     // Asked before by someone? Answer from the saved copy: instant, and it uses none of the student's allowance.
     const question = history[0].content;
     // An answer shaped by the student's own settings or tools is theirs alone: it is neither taken from the saved answers nor added to them.
-    const share = shareable(history, { image: !!image, file: !!file, fresh: body?.fresh === true || !!prefs.lang || !!prefs.length || !!tools.pdf || !!tools.highlight });
+    const share = shareable(history, { image: !!image, file: !!file, fresh: body?.fresh === true || !!prefs.lang || !!prefs.length || !!tools.pdf || !!tools.highlight || !!tools.think });
     const vec = share ? await embed(question) : null;
     const saved = vec ? await findAnswer(db, vec, model, question).catch(() => null) : null;
     if (saved) return new Response(saved.answer + TRAILER + JSON.stringify({ left: leftNow }), { headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" } });
@@ -85,7 +85,7 @@ export async function POST(request: Request) {
         let keep = "";
         try {
           let answer = "";
-          const r = await streamChat({ model, system: [{ text: RULES }, { text: [prefsRule(prefs, history[history.length - 1].content), toolsRule(tools)].filter(Boolean).join("\n") }], messages: withFile(history, file), image, maxTokens: tools.think ? 6000 : 4000, think: !!tools.think }, (t) => ((answer += t), send(t)));
+          const r = await streamChat({ model, system: [{ text: RULES }, { text: [prefsRule(prefs, history[history.length - 1].content), toolsRule(tools)].filter(Boolean).join("\n") }], messages: withFile(history, file), image, maxTokens: tools.think ? 6000 : 4000, think: !!tools.think, cacheFirst: !!file }, (t) => ((answer += t), send(t)));
           keep = !!vec && !r.declined && !r.cut && answer.trim().length > 20 ? answer.trim() : "";
           const tokens = usedTokens(r.usage);
           const cost = costUsd(model, r.usage);

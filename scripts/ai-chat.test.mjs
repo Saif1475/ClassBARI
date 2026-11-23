@@ -88,7 +88,7 @@ test("an OpenAI-style answer stream gives the text and the token count, even spl
   let text = "";
   const r = await readSse(body, (t) => (text += t));
   assert.equal(text, "Hello");
-  assert.deepEqual(r, { input: 12, output: 3, finish: "stop" });
+  assert.deepEqual(r, { input: 12, output: 3, cached: 0, finish: "stop" });
 });
 
 test("one answer at a time per student: the next question waits until the one before is counted", async () => {
@@ -111,6 +111,9 @@ test("thinking that a provider leaves out of completion_tokens is still counted 
   assert.equal((await readSse(stream({ prompt_tokens: 100, completion_tokens: 20, total_tokens: 520 }), () => {})).output, 420); // 400 of thinking
   assert.equal((await readSse(stream({ prompt_tokens: 100, completion_tokens: 420, total_tokens: 520 }), () => {})).output, 420); // already inside
   assert.equal((await readSse(stream({ prompt_tokens: 100, completion_tokens: 20 }), () => {})).output, 20); // no total sent
+  // The cached part of the question (OpenAI/Gemini/OpenRouter style, and DeepSeek's own name for it).
+  assert.equal((await readSse(stream({ prompt_tokens: 100, completion_tokens: 20, prompt_tokens_details: { cached_tokens: 64 } }), () => {})).cached, 64);
+  assert.equal((await readSse(stream({ prompt_tokens: 100, completion_tokens: 20, prompt_cache_hit_tokens: 90 }), () => {})).cached, 90);
 });
 
 test("the model picker lists every model and locks the ones a bigger pack has", async () => {

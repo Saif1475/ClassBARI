@@ -213,7 +213,7 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
       const res = await fetch("/api/ai/assistant", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: asked.map(({ role, content }) => ({ role, content })), ...(image ? { image } : {}), ...(doc ? { file: doc } : {}), ...(chosen ? { model: chosen.id } : {}), ...(fresh ? { fresh: true } : {}), ...(tools.pdf || tools.highlight ? { tools } : {}), ...(prefs.lang !== "auto" || prefs.length !== "normal" ? { prefs: { ...(prefs.lang !== "auto" ? { lang: prefs.lang } : {}), ...(prefs.length !== "normal" ? { length: prefs.length } : {}) } } : {}) }),
+        body: JSON.stringify({ messages: asked.map(({ role, content }) => ({ role, content })), ...(image ? { image } : {}), ...(doc ? { file: doc } : {}), ...(chosen ? { model: chosen.id } : {}), ...(fresh ? { fresh: true } : {}), ...(tools.pdf || tools.highlight || tools.think ? { tools } : {}), ...(prefs.lang !== "auto" || prefs.length !== "normal" ? { prefs: { ...(prefs.lang !== "auto" ? { lang: prefs.lang } : {}), ...(prefs.length !== "normal" ? { length: prefs.length } : {}) } } : {}) }),
         signal: stopper.current.signal,
       });
       if (!res.ok || !res.body) {

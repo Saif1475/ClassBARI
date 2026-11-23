@@ -424,7 +424,7 @@ class _AiChatAppState extends State<AiChatApp> {
     );
     if (pick == null || !mounted) return;
     if (fileKinds.containsKey(pick)) return pickFile(pick);
-    final p = await pickPhoto(context, camera: pick == 'camera');
+    final p = await pickPhoto(context, camera: pick == 'camera', max: 1280); // as on the website: a smaller photo costs the AI fewer tokens to read
     if (p != null && mounted) setState(() => photo = (bytes: p.bytes, data: p.data));
   }
 

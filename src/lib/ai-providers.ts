@@ -59,12 +59,13 @@ export type Ask = {
   image?: { media_type: "image/png" | "image/jpeg" | "image/webp"; data: string } | null; // goes with the last question
   maxTokens: number;
   think?: boolean; // "Think deeper": let the model reason more (slower, uses more of the allowance)
+  cacheFirst?: boolean; // the first turn carries a file: worth caching (Claude; the other providers cache by themselves)
 };
 export type Answered = { usage: { input_tokens: number; output_tokens: number; cache_read_input_tokens?: number | null; cache_creation_input_tokens?: number | null }; declined: boolean; cut: boolean };
 
 /** Pull the text pieces and the token count out of an OpenAI-style event stream. Exported for the unit test. */
 export async function readSse(body: ReadableStream<Uint8Array>, onText: (t: string) => void) {
-  const out = { input: 0, output: 0, finish: "" };
+  const out = { input: 0, output: 0, cached: 0, finish: "" };
   const dec = new TextDecoder();
   let buf = "";
   const reader = body.getReader();
@@ -76,7 +77,7 @@ export async function readSse(body: ReadableStream<Uint8Array>, onText: (t: stri
     for (const line of lines) {
       const data = line.startsWith("data:") ? line.slice(5).trim() : "";
       if (!data || data === "[DONE]") continue;
-      let ev: { choices?: { delta?: { content?: unknown }; finish_reason?: string | null }[]; usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number } | null };
+      let ev: { choices?: { delta?: { content?: unknown }; finish_reason?: string | null }[]; usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number; prompt_tokens_details?: { cached_tokens?: number } | null; prompt_cache_hit_tokens?: number } | null };
       try {
         ev = JSON.parse(data);
       } catch {
@@ -90,11 +91,16 @@ export async function readSse(body: ReadableStream<Uint8Array>, onText: (t: stri
         // Everything that is not the question is billed as answer. Some providers leave the model's own thinking out
         // of completion_tokens but put it in the total, so the bigger of the two is counted.
         out.output = Math.max(ev.usage.completion_tokens ?? 0, (ev.usage.total_tokens ?? 0) - out.input);
+        // The part of the question the provider had seen before (same start of the chat) is billed at its cheap cached price.
+        out.cached = Math.min(out.input, ev.usage.prompt_tokens_details?.cached_tokens ?? ev.usage.prompt_cache_hit_tokens ?? 0);
       }
     }
     if (done) return out;
   }
 }
+
+/** Models that refused the thinking setting (HTTP 400) since the server started. */
+const noThink = new Set<string>();
 
 /** Ask the model; `onText` gets the answer piece by piece. Throws when the provider can't be reached or refuses the request. */
 export async function streamChat(ask: Ask, onText: (t: string) => void): Promise<Answered> {
@@ -106,7 +112,14 @@ export async function streamChat(ask: Ask, onText: (t: string) => void): Promise
       ...(ask.model.includes("haiku") ? {} : { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" as const }), // Haiku has no server-side fallback
       output_config: { effort: ask.think ? "medium" : "low" },
       system: ask.system.map((b) => ({ type: "text" as const, text: b.text, ...(b.cache ? { cache_control: { type: "ephemeral" as const } } : {}) })),
-      messages: ask.messages.map((m, i) => (ask.image && i === last ? { role: "user" as const, content: [{ type: "image" as const, source: { type: "base64" as const, ...ask.image } }, { type: "text" as const, text: m.content }] } : m)),
+      messages: ask.messages.map((m, i) =>
+        ask.image && i === last
+          ? { role: "user" as const, content: [{ type: "image" as const, source: { type: "base64" as const, ...ask.image } }, { type: "text" as const, text: m.content }] }
+          : // A long first turn (an attached file) is sent again with every question: cached, Claude re-reads it at a tenth of the price.
+            i === 0 && last > 0 && ask.cacheFirst
+            ? { role: "user" as const, content: [{ type: "text" as const, text: m.content, cache_control: { type: "ephemeral" as const } }] }
+            : m,
+      ),
     });
     for await (const ev of stream) if (ev.type === "content_block_delta" && ev.delta.type === "text_delta") onText(ev.delta.text);
     const final = await stream.finalMessage();
@@ -136,12 +149,13 @@ export async function streamChat(ask: Ask, onText: (t: string) => void): Promise
       ],
     }),
   });
-  let res = await send(true);
-  if (res.status === 400) res = await send(false); // a model that doesn't take the thinking setting: ask again without it
+  let res = await send(!noThink.has(ask.model));
+  // A model that doesn't take the thinking setting: ask again without it, and from now on straight away.
+  if (res.status === 400 && !noThink.has(ask.model)) (noThink.add(ask.model), await res.body?.cancel(), (res = await send(false)));
   if (!res.ok || !res.body) throw new Error(`${ask.model}: HTTP ${res.status}`);
   let chars = 0;
   const r = await readSse(res.body, (t) => ((chars += t.length), onText(t)));
   // shortcut: a provider that sends no token count is charged by length (about 2 characters a token for Bangla) plus the question.
-  const usage = r.input || r.output ? { input_tokens: r.input, output_tokens: r.output } : { input_tokens: Math.ceil(JSON.stringify(ask.messages).length / 2), output_tokens: Math.ceil(chars / 2) };
+  const usage = r.input || r.output ? { input_tokens: r.input - r.cached, cache_read_input_tokens: r.cached, output_tokens: r.output } : { input_tokens: Math.ceil(JSON.stringify(ask.messages).length / 2), output_tokens: Math.ceil(chars / 2) };
   return { usage, declined: r.finish === "content_filter", cut: r.finish === "length" };
 }

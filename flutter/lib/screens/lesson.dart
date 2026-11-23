@@ -19,9 +19,9 @@ import '../icons.g.dart';
 const _fileMax = 8000000; // the server's limit for a photo sent as text
 
 /// A photo from the camera or gallery, made small enough to send: (file name, the picture, the picture as a data: link).
-Future<({String name, Uint8List bytes, String data})?> pickPhoto(BuildContext context, {required bool camera}) async {
+Future<({String name, Uint8List bytes, String data})?> pickPhoto(BuildContext context, {required bool camera, double max = 1800}) async {
   try {
-    final x = await ImagePicker().pickImage(source: camera ? ImageSource.camera : ImageSource.gallery, imageQuality: 60, maxWidth: 1800, maxHeight: 1800);
+    final x = await ImagePicker().pickImage(source: camera ? ImageSource.camera : ImageSource.gallery, imageQuality: 60, maxWidth: max, maxHeight: max);
     if (x == null) return null;
     final bytes = await x.readAsBytes();
     final png = bytes.length > 3 && bytes[0] == 0x89 && bytes[1] == 0x50; // a PNG stays a PNG; everything else comes back as JPEG
