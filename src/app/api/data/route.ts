@@ -1,6 +1,6 @@
 import { REAL_AUTH } from "@/lib/auth-mode";
-import { checkAction, heard, Refused, SAVES_PER_MINUTE, viewFor } from "@/lib/data-access";
-import { act, instituteCard, loadChanged, loadDoc, whoIs } from "@/lib/data-server";
+import { checkAction, heard, newlyPublished, Refused, SAVES_PER_MINUTE, viewFor } from "@/lib/data-access";
+import { act, instituteCard, loadChanged, loadDoc, loadPart, publicDocs, whoIs } from "@/lib/data-server";
 import { afterSaved } from "@/lib/notify-server";
 import { afterAction } from "@/lib/pdf-pipeline";
 import { holdPost } from "@/lib/image-check";
@@ -37,9 +37,10 @@ export async function POST(request: Request) {
   const me = await whoIs(request);
   if (!me) return Response.json({ error: "sign in" }, { status: 401 });
   const quiet = heard(`${me.institute}:${me.who.role}:${me.who.studentIds[0] ?? me.who.email}`);
-  // Suspended by Instanton Campus (admin panel): everyone there can still look, but nothing is saved.
+  // Suspended by Instanton Campus (admin panel): everyone there can still look, but nothing is saved. 423, not 403: the
+  // phones and browsers keep their queued changes (cash fees taken offline) and send them once the institute is unsuspended.
   if (isSuspended(await readPlatform(), me.institute))
-    return Response.json({ error: "suspended", message: "This institute is suspended by Instanton Campus, so changes can't be saved. Please contact Instanton Campus support." }, { status: 403 });
+    return Response.json({ error: "suspended", message: "This institute is suspended by Instanton Campus, so changes can't be saved. Please contact Instanton Campus support." }, { status: 423 });
   // A homework photo is a few MB; nothing a person does by hand needs more than this, or more often.
   // Only a restore may be bigger: it carries the whole institute (up to DOC_MAX), so the owner can restore any backup the server made.
   const max = postLimit(me.who.role);
@@ -65,6 +66,12 @@ export async function POST(request: Request) {
     const images = (args[3] as { images?: unknown } | undefined)?.images;
     if (name === "addCommunityPost" && Array.isArray(images) && images.length > MAX_IMAGES) return Response.json({ error: "not allowed" }, { status: 403 }); // before any photo is checked
     const hold = name === "addCommunityPost" && me.who.role === "student" && (unkind(String(args[1] ?? "")) || (await holdPost(args)));
+    // Two institutes never publish one address: visitors (and their bKash payments) would reach the wrong centre.
+    // shortcut: two owners publishing the same new address in the same second can both pass; add a unique index on the published slug if that ever matters.
+    if (name === "updateSite" && me.who.role !== "teacher") {
+      const slug = newlyPublished((await loadPart(me.institute, "site")).site, args[0]);
+      if (slug && (await publicDocs({ slug })).some((d) => d.institute !== me.institute)) return Response.json({ error: "address taken" }, { status: 409 });
+    }
     let checked: unknown[] = args; // what was really saved: notifications use this, never the raw request
     const doc = await act(me, name, args, base, (s) => {
       const ok = checkAction(name, args, me.who, s, quiet);

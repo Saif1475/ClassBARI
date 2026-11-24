@@ -6,7 +6,7 @@ import { blankState, makeActions, setIdBase, type LmsState } from "./lms-actions
 import { markQuiz, overTime, scoreQuiz } from "./quiz.ts";
 import { aiWindow } from "./ai-chat.ts";
 import { averagePct, leagueRank, myRank } from "./lms-views.ts";
-import { validateStudent, type StudentContact } from "./site.ts";
+import { inbox, studentWithGmail, validateStudent, type StudentContact } from "./site.ts";
 import { unkind } from "./word-filter.ts";
 import { AUDIENCES, BIO_MAX, canRequest, canSee, COMMENT_MAX, MAX_IMAGES, POLL_OPTION_MAX, pollFor, POST_MAX, seer } from "./community.ts";
 
@@ -19,8 +19,13 @@ export const staffName = (s: Pick<LmsState, "staff">, who: Who) => s.staff.find(
 export const LOCAL_ONLY = new Set(["setViewer", "setMe", "signInWithEmail", "signInTeacher", "exportBackup"]);
 /** Not shown until the server answers: a quiz is marked there, so the browser has nothing right to show first. */
 export const SERVER_FIRST = new Set(["submitQuiz"]);
-/** What the browser's queue does with the server's answer to its first change (after `tries` sends of it): "sent", "wait" (kept, tried again later) or "drop" (refused: only that change goes, the rest are still sent, as the server checks each one by itself). Busy a few times in a row counts as refused, so one bad change can't block the rest. */
-export const afterAnswer = (status: number, tries: number) => (status >= 200 && status < 300 ? "sent" : status === 401 || status === 429 || (status >= 500 && tries < 5) ? "wait" : "drop"); // too fast (429) is about the sender, not this change: it always waits, so a big import never loses a student
+/**
+ * What the browser's queue does with the server's answer to its first change: "sent", "wait" (kept, tried again later)
+ * or "drop" (refused: only that change goes, the rest are still sent, as the server checks each one by itself).
+ * Signed out (401), too fast (429), suspended (423) and server trouble (5xx: a restart, a deploy) always wait, as in the apps, so no
+ * change is lost to an outage. A change that itself breaks the server is answered as refused (see actNow), never 5xx.
+ */
+export const afterAnswer = (status: number) => (status >= 200 && status < 300 ? "sent" : status === 401 || status === 423 || status === 429 || status >= 500 ? "wait" : "drop");
 /** How many changes one person may save a minute (the server answers 429 after that). */
 export const SAVES_PER_MINUTE = 240;
 
@@ -58,6 +63,44 @@ export function onceSoon(fn: () => void) {
     queueMicrotask(() => ((due = false), fn()));
   };
 }
+/**
+ * Website: the offline queues a tab takes over, oldest change first. Each tab keeps its queue under `prefix:<tab>`, and
+ * a live tab holds a lock of that name; this tab's own queue and those of tabs that are gone (and the single queue
+ * older versions kept under `prefix`) are taken, never a live tab's, so two tabs neither overwrite nor double-send.
+ * Taken queues are removed from storage (this tab's own stays); another sign-in's are dropped, never sent.
+ */
+export function claimOutboxes<T extends { base: number }>(store: Pick<Storage, "getItem" | "removeItem" | "key" | "length">, prefix: string, mine: string, owner: string, live: Set<string>): T[] {
+  const keys: string[] = [];
+  for (let i = 0; i < store.length; i++) {
+    const k = store.key(i);
+    if (k && (k === prefix || k.startsWith(`${prefix}:`)) && (k === mine || !live.has(k))) keys.push(k);
+  }
+  const items: T[] = [];
+  for (const k of keys) {
+    try {
+      const saved = JSON.parse(store.getItem(k) ?? "null") as { owner?: string; items?: T[] } | null;
+      if (saved?.owner === owner && Array.isArray(saved.items)) {
+        items.push(...saved.items);
+        if (k !== mine) store.removeItem(k);
+        continue;
+      }
+    } catch {
+      /* corrupt: dropped below */
+    }
+    store.removeItem(k);
+  }
+  return items.sort((a, b) => a.base - b.base); // stable: one tab's changes keep their order
+}
+/**
+ * The website address this site change would newly publish ("" if none): a new address on a published site, or an
+ * address being published. Only that is looked up, so another institute's published page is never taken over.
+ */
+export function newlyPublished(site: { slug: string; published: boolean }, patch: unknown): string {
+  const p = (patch ?? {}) as { slug?: unknown; published?: unknown };
+  const slug = typeof p.slug === "string" ? p.slug : site.slug;
+  const published = typeof p.published === "boolean" ? p.published : site.published;
+  return published && slug && (slug !== site.slug || !site.published) ? slug : "";
+}
 /** Lets a screen wait for one queued change's answer ("sent", "wait" or "drop"), so a restore says "Restored" only once the server has saved it. */
 export function answerWaits() {
   const w = new Map<object, (what: string) => void>();
@@ -73,7 +116,7 @@ export const savedView = <S,>(d: { state?: S; version?: number } | null) => (d?.
 const NEVER = new Set(["resetDemoData"]);
 /** Money, staff and institute settings: owner (and branch managers). */
 /** Money, staff, institute settings, and creating or setting up a batch (fee, teacher, days): owner (and branch managers). */
-const OWNER = new Set(["importBackup", "addStaff", "updateStaff", "payStaff", "setInstituteName", "decideLeave", "signUpTeacher", "updateSite", "addCoupon", "removeCoupon", "setStudentPremium", "addBatch", "updateBatch", "addExpense", "removeExpense", "addAdmission", "updateAdmission", "decideOrder", "toggleStaffAbsent", "exportBackup"]);
+const OWNER = new Set(["importBackup", "addStaff", "removeStaff", "updateStaff", "payStaff", "setInstituteName", "decideLeave", "signUpTeacher", "updateSite", "addCoupon", "removeCoupon", "setStudentPremium", "addBatch", "updateBatch", "addExpense", "removeExpense", "addAdmission", "updateAdmission", "decideOrder", "toggleStaffAbsent", "exportBackup"]);
 
 type A = unknown[];
 const viaModule = ([m]: A, s: LmsState) => [s.modules.find((x) => x.id === m)?.batch];
@@ -359,6 +402,12 @@ export function checkAction(name: string, args: unknown[], who: Who, s: LmsState
     if (who.role === "teacher" && OWNER.has(name)) refuse("owner only");
     // A student's or guardian's own actions: staff may not do them in someone's name.
     if (FAMILY_ONLY.has(name)) refuse("students and guardians only");
+    // A website address is what slugify makes: the public page is found by it, and a link must not break.
+    if (name === "updateSite" && Object.hasOwn((args[0] ?? {}) as object, "slug") && !(typeof (args[0] as { slug?: unknown }).slug === "string" && /^[a-z0-9-]{0,40}$/.test((args[0] as { slug: string }).slug))) refuse("bad address");
+    // A teacher leaves only once their batches have another teacher: a batch is never left with nobody to teach or mark it.
+    if (name === "removeStaff" && s.batches.some((b) => b.teacher === args[0])) refuse("still teaches a batch");
+    // A course bought with a Gmail that is already a student here: a second record would leave one of the two batches unusable.
+    if (name === "decideOrder" && args[1] === true && studentWithGmail(s.orders.find((o) => o.id === args[0])?.student.email ?? "", s.students)) refuse("already a student");
     if ((name === "addCommunityPost" && args[0] !== "teacher") || (name === "addComment" && args[1] !== "teacher")) refuse("staff post as the teacher");
     // Staff change or delete only the teacher's own posts; a student's post is moderated by hiding it (moderatePost), never rewritten.
     if ((name === "editPost" || name === "deletePost") && s.community.find((p) => p.id === args[0])?.author !== "teacher") refuse("not your post");
@@ -371,6 +420,8 @@ export function checkAction(name: string, args: unknown[], who: Who, s: LmsState
     // Students, fees and attendance find their batch by its name: two batches may never share one.
     const sameName = (a: unknown, b: unknown) => String(a ?? "").trim().toLowerCase() === String(b ?? "").trim().toLowerCase();
     if (name === "addBatch" && s.batches.some((b) => sameName(b.name, (args[0] as { name?: unknown })?.name))) refuse("batch name taken");
+    // Batches, pay and private chats follow a teacher's name, and sign-in finds the name by Gmail: both must be one person's.
+    if (name === "addStaff" && (sameName(args[0], s.teacherName) || s.staff.some((x) => sameName(x.name, args[0]) || (!!x.email && typeof args[2] === "string" && inbox(x.email) === inbox(args[2]))) || s.batches.some((b) => sameName(b.teacher, args[0])))) refuse("name taken");
     // Only an untouched centre is set up: two devices finishing sign-up at once would each add a first batch.
     if (name === "signUpTeacher" && (s.teacherName || s.batches.length || s.staff.length)) refuse("already set up");
     // A chapter in a batch that does not exist (e.g. "" before the first batch) is shown to no one and can never be found again.

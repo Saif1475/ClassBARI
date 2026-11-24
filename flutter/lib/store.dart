@@ -24,7 +24,7 @@ const _queueMax = 1000000; // changes waiting for internet survive closing the a
 /// What the queue does with the server's answer to its first change: 'sent', 'wait' (kept, tried again later), 'login' (kept, and the login checked) or 'drop'
 /// (refused: only that change goes, the rest are still sent, as the server checks each one by itself).
 @visibleForTesting
-String afterAnswer(int code) => code == 200 ? 'sent' : code == 401 ? 'login' : code == 429 || code >= 500 ? 'wait' : 'drop';
+String afterAnswer(int code) => code == 200 ? 'sent' : code == 401 ? 'login' : code == 423 || code == 429 || code >= 500 ? 'wait' : 'drop'; // 423: suspended, kept until it is lifted
 
 class Store extends ChangeNotifier {
   late SharedPreferences prefs;
@@ -296,10 +296,10 @@ class Store extends ChangeNotifier {
           if (renewed) status = Status.noAccess;
           break;
         } else if (what == 'wait') {
-          status = Status.offline; // busy or too fast: kept, and tried again on the next refresh
+          status = Status.offline; // busy, too fast or suspended: kept, and tried again on the next refresh
+          if (res.statusCode == 423) suspended = syncFailed = true; // the banner says why nothing is saved; the changes are kept
           break;
         } else {
-          suspended = res.statusCode == 403 && res.body.contains('"suspended"');
           _refused[_outbox.removeAt(0)] = true; // refused: only this one goes; the rest are still sent, and the real data is reloaded at the end
           refused = syncFailed = true;
         }

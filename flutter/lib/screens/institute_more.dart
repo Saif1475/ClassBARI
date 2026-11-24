@@ -465,7 +465,13 @@ class _StaffScreenState extends State<StaffScreen> {
   Future<void> add() async {
     final n = name.text.trim();
     setState(() => badPhone = !isBdMobile(phone.text));
-    if (badPhone || n.isEmpty || email.text.trim().isEmpty || _staff.any((s) => s['name'] == n)) return;
+    if (badPhone || n.isEmpty || email.text.trim().isEmpty) return;
+    // One name, one person (batches, pay and private chats follow the name); the server checks the same.
+    bool same(Object? a, String b) => '${a ?? ''}'.trim().toLowerCase() == b.trim().toLowerCase();
+    if (same(store.state?['teacherName'], n) || _staff.any((s) => same(s['name'], n) || inbox('${s['email'] ?? ''}') == inbox(email.text)) || store.batches.any((b) => same(b['teacher'], n))) {
+      toast(context, t('centre.taken'));
+      return;
+    }
     final saved = await store.act('addStaff', [n, phone.text.trim(), email.text.trim()]);
     if (!mounted) return;
     toast(context, _said(saved, t('settings.saved')));
@@ -476,6 +482,7 @@ class _StaffScreenState extends State<StaffScreen> {
 
   Future<void> edit(({String name, num salary, num share, num collected, num payable, num paid, num balance}) r) async {
     final salary = TextEditingController(text: show(r.salary)), share = TextEditingController(text: show(r.share));
+    bool? remove; // set to false by "Remove" (and the dialog closes with false): a tap outside the dialog never removes anyone
     final ok = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -489,11 +496,26 @@ class _StaffScreenState extends State<StaffScreen> {
           ],
         ),
         actions: [
+          // A teacher who has left (only once their batches have another teacher; the server checks the same).
+          if (_staff.any((x) => x['name'] == r.name)) TextButton(onPressed: () => Navigator.pop(context, remove = false), child: Text(t('centre.remove'), style: TextStyle(color: Theme.of(context).colorScheme.error))),
           TextButton(onPressed: () => Navigator.pop(context, false), child: Text(t('app.cancel'))),
           FilledButton(onPressed: () => Navigator.pop(context, true), child: Text(t('settings.save'))),
         ],
       ),
     );
+    if (remove == false && mounted) {
+      salary.dispose();
+      share.dispose();
+      if (store.batches.any((b) => b['teacher'] == r.name)) {
+        toast(context, t('centre.stillTeaches', [r.name]));
+        return;
+      }
+      if (await confirm(context, t('centre.remove'), t('centre.removeQ', [r.name]))) {
+        final saved = await store.act('removeStaff', [r.name]);
+        if (mounted) toast(context, _said(saved, t('settings.saved')));
+      }
+      return;
+    }
     final s = _num(salary) < 0 ? 0 : _num(salary), p = _num(share).clamp(0, 100);
     salary.dispose();
     share.dispose();
@@ -873,16 +895,18 @@ class _ShopScreenState extends State<ShopScreen> {
               Builder(
                 builder: (context) {
                   final who = (o['student'] as Map?) ?? const {};
+                  // Already a student here (one Gmail, one batch): confirming would make a second record, so only "not received" is offered.
+                  final taken = o['status'] == 'pending' && '${who['email'] ?? ''}'.trim().isNotEmpty ? store.students.where((x) => inbox('${x['email'] ?? ''}') == inbox('${who['email'] ?? ''}')).firstOrNull : null;
                   return Item(
                     title: '${who['name'] ?? ''} → ${course(o['batchId'])}',
-                    subtitle: '${taka((o['price'] as num?) ?? 0)}${o['coupon'] != null ? ' (${o['coupon']})' : ''} · TrxID ${o['trxId'] ?? ''} · ${who['phone'] ?? ''}${o['at'] is String ? ' · ${fmtDateTime(o['at'] as String)}' : ''}',
+                    subtitle: '${taka((o['price'] as num?) ?? 0)}${o['coupon'] != null ? ' (${o['coupon']})' : ''} · TrxID ${o['trxId'] ?? ''} · ${who['phone'] ?? ''}${o['at'] is String ? ' · ${fmtDateTime(o['at'] as String)}' : ''}${taken != null ? '\n${t('shop.taken', ['${taken['name'] ?? ''}', '${taken['batch'] ?? ''}'])}' : ''}',
                     trailing: o['status'] == 'pending' ? null : Tag(t('shop.status.${o['status']}'), kind: o['status'] == 'confirmed' ? 'ok' : 'bad'),
                     below: o['status'] != 'pending'
                         ? null
                         : Wrap(
                             spacing: 8,
                             children: [
-                              Doing(
+                              if (taken == null) Doing(
                                 label: t('shop.confirm'),
                                 small: true,
                                 onPressed: () async {
@@ -995,6 +1019,15 @@ class _WebsiteScreenState extends State<WebsiteScreen> {
       if (published != (site['published'] == true)) 'published': published,
     };
     if (patch.isEmpty) return;
+    // An address another institute already shows is refused by the server too; asked first so the owner is told why.
+    final wanted = (patch['published'] ?? site['published']) == true && slug.text.isNotEmpty && (patch.containsKey('slug') || site['published'] != true) ? slug.text : '';
+    if (wanted.isNotEmpty) {
+      final theirs = await api('/api/public?slug=${Uri.encodeQueryComponent(wanted)}').then((r) => r.statusCode == 200 ? jsonDecode(r.body) : null).catchError((_) => null);
+      if (theirs is Map && theirs['site'] != null) {
+        if (mounted) toast(context, t('website.taken'));
+        return;
+      }
+    }
     final saved = await store.act('updateSite', [patch]);
     if (mounted) toast(context, _said(saved, t('settings.saved')));
   }

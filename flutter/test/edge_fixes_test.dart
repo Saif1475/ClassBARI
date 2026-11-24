@@ -327,7 +327,7 @@ void main() {
   });
 
   test('a refused change drops only itself; not sent yet stays queued', () {
-    expect([200, 400, 403, 413, 401, 429, 500, 503].map(afterAnswer), ['sent', 'drop', 'drop', 'drop', 'login', 'wait', 'wait', 'wait']);
+    expect([200, 400, 403, 413, 401, 423, 429, 500, 503].map(afterAnswer), ['sent', 'drop', 'drop', 'drop', 'login', 'wait', 'wait', 'wait', 'wait']); // 423: suspended
   });
 
   test('the invoice shows the discount the month was charged with, and earlier dues, so its lines add up', () {

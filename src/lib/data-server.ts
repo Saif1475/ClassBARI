@@ -234,6 +234,17 @@ export function act(me: Me, name: string, args: unknown[], base: number, check: 
   return run;
 }
 
+/** Checking or applying a change gives the same result every time it is sent: if it crashes, it is refused (and logged), or the sender's queue would wait on it forever. */
+function same<T>(name: string, run: () => T): T {
+  try {
+    return run();
+  } catch (e) {
+    if (e instanceof Refused) throw e;
+    console.error("data: this change can't be applied:", name, e instanceof Error ? e.message : e);
+    throw new Refused("can't be applied");
+  }
+}
+
 async function actNow(me: Me, name: string, args: unknown[], base: number, check: (s: LmsState) => unknown[] | null) {
   // Sent again because its answer never arrived: it is already in the data, so the answer is the data as it is now (see ran-before.ts).
   const change = changeKey(me.who, name, args, base);
@@ -244,14 +255,14 @@ async function actNow(me: Me, name: string, args: unknown[], base: number, check
     // The copy this server saved last, if it still has it (no download); a save from elsewhere makes it fail and reload.
     const kept = attempt === 0 ? latest.get(me.institute) : undefined;
     const doc = kept ? await kept.doc.then((d) => ({ ...d, state: rollFees(d.state) }), () => loadDoc(me.institute)) : await loadDoc(me.institute);
-    const ok = check(doc.state);
+    const ok = same(name, () => check(doc.state));
     if (ok === null) return doc;
     // Photos and files go to file storage once (not again on a retry); the data keeps a short link.
     const key = JSON.stringify(ok);
     if (key !== storedFor) [stored, storedFor] = [(await storeInlineFiles(me.institute, ok)) as unknown[], key];
     const known = tops.get(me.institute);
     const top = known?.stamp === doc.stamp && doc.stamp ? known.top : topId(doc.state);
-    const next = runAction(doc.state, name, stored!, base, top);
+    const next = same(name, () => runAction(doc.state, name, stored!, base, top));
     const used = idBase(); // read straight away: the last id this action handed out
     const saved = await saveDoc(me.institute, next, doc.version);
     if (saved === null) {
@@ -354,7 +365,8 @@ export async function publicDocs(by: { slug?: string; batch?: string }) {
   if (by.batch) q = q.filter("state->batches", "cs", JSON.stringify([{ id: by.batch }]));
   if (!one) q = q.filter("state->batches", "cs", JSON.stringify([{ public: true }]));
   // shortcut: at most 200 institutes with public courses; add paging when there are more.
-  const { data, error } = await q.limit(one ? 1 : 200);
+  // By slug: two, so a check can see another institute's page beside this one's; always in the same order, so an address is never shared at random.
+  const { data, error } = await q.order("institute_id").limit(by.slug ? 2 : one ? 1 : 200);
   if (error) throw new Error("load failed");
   return ((data ?? []) as unknown as ({ institute_id: string } & Partial<LmsState>)[]).map(({ institute_id, ...part }) => ({ institute: institute_id, state: { ...blankState(), ...part } }));
 }

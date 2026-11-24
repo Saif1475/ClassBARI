@@ -9,7 +9,7 @@ import { dayKey, toDate } from "./dates";
 import { blankState, idBase, makeActions, monthKey, rollFees, setIdBase, type LmsState } from "./lms-actions";
 import { FEE_DUE_DAY, seed, type Batch, type CalendarEvent, type CourseModule, type ItemKind, type ModuleItem, type Payment, type Staff } from "./mock-data";
 import { masteryLevel, type QuizQuestion } from "./quiz";
-import { afterAnswer, answerWaits, LOCAL_ONLY, pullAfterSend, onceSoon, pullFromVersion, savedView, SERVER_FIRST, shownCopy } from "./data-access";
+import { afterAnswer, answerWaits, claimOutboxes, LOCAL_ONLY, pullAfterSend, onceSoon, pullFromVersion, savedView, SERVER_FIRST, shownCopy } from "./data-access";
 import { monthAttendance } from "./lms-views";
 
 export type * from "./mock-data";
@@ -17,7 +17,8 @@ export { monthKey, type StudentInput } from "./lms-actions";
 
 // v8: students have their own and their guardian's Gmail. Older saved demo data is ignored.
 const STORAGE_KEY = "edunest-lms-state-v8";
-const OUTBOX_KEY = "edunest-outbox-v1";
+const OUTBOX_KEY = "edunest-outbox-v1"; // each tab's queue is under OUTBOX_KEY:<tab id> (see claimOutboxes)
+const TAB_KEY = "edunest-tab"; // this tab's id, in sessionStorage: a reload finds its own queue again
 // Real accounts: what this person's screens last showed, kept on the device so the next visit opens at once (and
 // without a connection) while the fresh copy is fetched. Removed at log-out, at every new sign-in, and whenever the
 // server says they are not signed in. A very big view (the owner of a huge institute) is simply not kept.
@@ -60,12 +61,13 @@ function useLmsState() {
   const busy = useRef(false);
   // Changes not yet on the server are kept in this browser, so closing the tab while offline doesn't lose them.
   const owner = useRef(""); // whose changes they are: never sent from someone else's sign-in on the same browser
-  const tries = useRef(0);
   const waits = useRef(answerWaits()).current; // screens waiting on a change's answer (see saved below)
+  const outboxKey = useRef(""); // this tab's own place for its queue, set once the queues are claimed
   const keep = () => {
+    if (!outboxKey.current) return; // still claiming: written right after
     try {
-      if (outbox.current.length) localStorage.setItem(OUTBOX_KEY, JSON.stringify({ owner: owner.current, items: outbox.current }));
-      else localStorage.removeItem(OUTBOX_KEY);
+      if (outbox.current.length) localStorage.setItem(outboxKey.current, JSON.stringify({ owner: owner.current, items: outbox.current }));
+      else localStorage.removeItem(outboxKey.current);
     } catch {
       /* shortcut: a change with a big file can pass the browser's 5 MB limit and is then kept only while the tab is open; move to IndexedDB if that bites */
     }
@@ -91,24 +93,43 @@ function useLmsState() {
     const d = (await res.json()) as { state: LmsState; version: number; role?: string };
     if (!shown.take(d.version, `${d.role}:${d.state.meId}:${d.state.teacherLogin}:${d.state.instituteName}`)) return true; // a newer save already came back while this was on its way
     version.current = d.version;
-    if (!owner.current) {
-      owner.current = `${d.role}:${d.state.meId}:${d.state.teacherLogin}:${d.state.instituteName}`;
-      try {
-        const saved = JSON.parse(localStorage.getItem(OUTBOX_KEY) ?? "null") as { owner: string; items: Sent[] } | null;
-        if (saved?.owner === owner.current && Array.isArray(saved.items)) outbox.current = [...saved.items, ...outbox.current];
-        else localStorage.removeItem(OUTBOX_KEY);
-      } catch {
-        /* ignore corrupt storage */
-      }
-      if (outbox.current.length) void flush();
+    if (!owner.current) owner.current = `${d.role}:${d.state.meId}:${d.state.teacherLogin}:${d.state.instituteName}`;
+    // Every download also picks up what closed tabs of this sign-in left unsent (the first one, this tab's own after a reload).
+    const got = await claimQueues(owner.current);
+    if (got.length) {
+      outbox.current = busy.current ? [...outbox.current, ...got] : [...got, ...outbox.current]; // a send under way takes outbox[0]: never put anything before it
+      keep();
+      void flush();
     }
     if (!outbox.current.length) adopt(d.state);
     return true;
   };
+  // Each tab holds a lock named after its queue until the browser closes or discards it; a tab takes over only the
+  // queues whose lock nobody holds, one tab at a time, so a change is neither lost with a closed tab nor sent twice.
+  const claimQueues = async (who: string): Promise<Sent[]> => {
+    try {
+      const locks = navigator.locks as LockManager | undefined;
+      // No Web Locks (Safari before 15.4): every other tab counts as live, so only this tab's own queue comes back after a reload.
+      const held = async () => (locks ? new Set(((await locks.query()).held ?? []).flatMap((l) => (l.name ? [l.name] : []))) : new Set(Object.keys(localStorage)));
+      const first = !outboxKey.current; // only the first claim takes this tab's own queue (after a reload); later ones would send it twice
+      if (first) {
+        let id = sessionStorage.getItem(TAB_KEY);
+        if (!id || (locks && (await held()).has(`${OUTBOX_KEY}:${id}`))) id = Math.random().toString(36).slice(2); // a duplicated tab copies sessionStorage: it needs its own id
+        sessionStorage.setItem(TAB_KEY, id);
+        void locks?.request(`${OUTBOX_KEY}:${id}`, () => new Promise(() => {})); // held for as long as this tab lives
+        outboxKey.current = `${OUTBOX_KEY}:${id}`;
+      }
+      const take = async () => claimOutboxes<Sent>(localStorage, OUTBOX_KEY, first ? outboxKey.current : "", who, (await held()).add(outboxKey.current));
+      return await (locks ? locks.request(`${OUTBOX_KEY}:claim`, take) : take()); // one tab at a time takes a closed tab's queue
+    } catch {
+      outboxKey.current ||= `${OUTBOX_KEY}:${Math.random().toString(36).slice(2)}`; // storage blocked: this tab's queue lives only while it is open
+      return [];
+    }
+  };
   const flush = async () => {
     if (busy.current) return;
     busy.current = true;
-    let refused: boolean | "suspended" = false;
+    let refused = false;
     let stale = false;
     let last = 0;
     try {
@@ -116,18 +137,16 @@ function useLmsState() {
         const res = await fetch("/api/data", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(outbox.current[0]) });
         clockFrom(res);
         last = res.status;
-        const what = afterAnswer(res.status, res.status === 401 || res.status === 429 ? 0 : ++tries.current); // only busy answers count towards giving up
+        const what = afterAnswer(res.status);
         // Server busy, unreachable through a proxy, or the login needs renewing: keep the change and try again later.
         if (what === "wait") {
           waits.stop(outbox.current);
-          setSaveError(true);
+          setSaveError(res.status === 423 ? "suspended" : true); // suspended: kept until Instanton Campus lifts it
           break;
         }
-        tries.current = 0;
         waits.settle(outbox.current.shift(), what);
         if (what === "drop") {
-          const why = res.status === 403 ? ((await res.json().catch(() => ({}))) as { error?: string }).error : "";
-          refused = why === "suspended" ? "suspended" : true; // only this one goes; the rest are still sent
+          refused = true; // only this one goes; the rest are still sent
           keep();
           continue;
         }

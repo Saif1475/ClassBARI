@@ -16958,6 +16958,198 @@
   },
   {
    "lang": "en",
+   "key": "centre.removeQ",
+   "args": [
+    0
+   ],
+   "out": "Remove 0? They can no longer sign in as a teacher here. Their past pay and the payments they took stay in the records."
+  },
+  {
+   "lang": "en",
+   "key": "centre.removeQ",
+   "args": [
+    0
+   ],
+   "out": "Remove 0? They can no longer sign in as a teacher here. Their past pay and the payments they took stay in the records."
+  },
+  {
+   "lang": "en",
+   "key": "centre.removeQ",
+   "args": [
+    1
+   ],
+   "out": "Remove 1? They can no longer sign in as a teacher here. Their past pay and the payments they took stay in the records."
+  },
+  {
+   "lang": "en",
+   "key": "centre.removeQ",
+   "args": [
+    1
+   ],
+   "out": "Remove 1? They can no longer sign in as a teacher here. Their past pay and the payments they took stay in the records."
+  },
+  {
+   "lang": "en",
+   "key": "centre.removeQ",
+   "args": [
+    2
+   ],
+   "out": "Remove 2? They can no longer sign in as a teacher here. Their past pay and the payments they took stay in the records."
+  },
+  {
+   "lang": "en",
+   "key": "centre.removeQ",
+   "args": [
+    2
+   ],
+   "out": "Remove 2? They can no longer sign in as a teacher here. Their past pay and the payments they took stay in the records."
+  },
+  {
+   "lang": "en",
+   "key": "centre.removeQ",
+   "args": [
+    12
+   ],
+   "out": "Remove 12? They can no longer sign in as a teacher here. Their past pay and the payments they took stay in the records."
+  },
+  {
+   "lang": "en",
+   "key": "centre.removeQ",
+   "args": [
+    12
+   ],
+   "out": "Remove 12? They can no longer sign in as a teacher here. Their past pay and the payments they took stay in the records."
+  },
+  {
+   "lang": "en",
+   "key": "centre.removeQ",
+   "args": [
+    1234567
+   ],
+   "out": "Remove 1234567? They can no longer sign in as a teacher here. Their past pay and the payments they took stay in the records."
+  },
+  {
+   "lang": "en",
+   "key": "centre.removeQ",
+   "args": [
+    1234567
+   ],
+   "out": "Remove 1234567? They can no longer sign in as a teacher here. Their past pay and the payments they took stay in the records."
+  },
+  {
+   "lang": "en",
+   "key": "centre.removeQ",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Remove Rahim Uddin? They can no longer sign in as a teacher here. Their past pay and the payments they took stay in the records."
+  },
+  {
+   "lang": "en",
+   "key": "centre.removeQ",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Remove Rahim Uddin? They can no longer sign in as a teacher here. Their past pay and the payments they took stay in the records."
+  },
+  {
+   "lang": "en",
+   "key": "centre.stillTeaches",
+   "args": [
+    0
+   ],
+   "out": "0 still teaches a batch. Give those batches to another teacher first, then remove 0."
+  },
+  {
+   "lang": "en",
+   "key": "centre.stillTeaches",
+   "args": [
+    0
+   ],
+   "out": "0 still teaches a batch. Give those batches to another teacher first, then remove 0."
+  },
+  {
+   "lang": "en",
+   "key": "centre.stillTeaches",
+   "args": [
+    1
+   ],
+   "out": "1 still teaches a batch. Give those batches to another teacher first, then remove 1."
+  },
+  {
+   "lang": "en",
+   "key": "centre.stillTeaches",
+   "args": [
+    1
+   ],
+   "out": "1 still teaches a batch. Give those batches to another teacher first, then remove 1."
+  },
+  {
+   "lang": "en",
+   "key": "centre.stillTeaches",
+   "args": [
+    2
+   ],
+   "out": "2 still teaches a batch. Give those batches to another teacher first, then remove 2."
+  },
+  {
+   "lang": "en",
+   "key": "centre.stillTeaches",
+   "args": [
+    2
+   ],
+   "out": "2 still teaches a batch. Give those batches to another teacher first, then remove 2."
+  },
+  {
+   "lang": "en",
+   "key": "centre.stillTeaches",
+   "args": [
+    12
+   ],
+   "out": "12 still teaches a batch. Give those batches to another teacher first, then remove 12."
+  },
+  {
+   "lang": "en",
+   "key": "centre.stillTeaches",
+   "args": [
+    12
+   ],
+   "out": "12 still teaches a batch. Give those batches to another teacher first, then remove 12."
+  },
+  {
+   "lang": "en",
+   "key": "centre.stillTeaches",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 still teaches a batch. Give those batches to another teacher first, then remove 1234567."
+  },
+  {
+   "lang": "en",
+   "key": "centre.stillTeaches",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 still teaches a batch. Give those batches to another teacher first, then remove 1234567."
+  },
+  {
+   "lang": "en",
+   "key": "centre.stillTeaches",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin still teaches a batch. Give those batches to another teacher first, then remove Rahim Uddin."
+  },
+  {
+   "lang": "en",
+   "key": "centre.stillTeaches",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin still teaches a batch. Give those batches to another teacher first, then remove Rahim Uddin."
+  },
+  {
+   "lang": "en",
    "key": "courses.perMonth",
    "args": [
     0
@@ -18047,6 +18239,114 @@
     "Rahim Uddin"
    ],
    "out": "Rahim Uddin enrolled"
+  },
+  {
+   "lang": "en",
+   "key": "shop.taken",
+   "args": [
+    0,
+    3
+   ],
+   "out": "This Gmail is already 0's, a student in 3. One Gmail can be in one batch only: move 0 to this course in Students, or mark the payment not received and refund it."
+  },
+  {
+   "lang": "en",
+   "key": "shop.taken",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "This Gmail is already 0's, a student in Batch A. One Gmail can be in one batch only: move 0 to this course in Students, or mark the payment not received and refund it."
+  },
+  {
+   "lang": "en",
+   "key": "shop.taken",
+   "args": [
+    1,
+    3
+   ],
+   "out": "This Gmail is already 1's, a student in 3. One Gmail can be in one batch only: move 1 to this course in Students, or mark the payment not received and refund it."
+  },
+  {
+   "lang": "en",
+   "key": "shop.taken",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "This Gmail is already 1's, a student in Batch A. One Gmail can be in one batch only: move 1 to this course in Students, or mark the payment not received and refund it."
+  },
+  {
+   "lang": "en",
+   "key": "shop.taken",
+   "args": [
+    2,
+    3
+   ],
+   "out": "This Gmail is already 2's, a student in 3. One Gmail can be in one batch only: move 2 to this course in Students, or mark the payment not received and refund it."
+  },
+  {
+   "lang": "en",
+   "key": "shop.taken",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "This Gmail is already 2's, a student in Batch A. One Gmail can be in one batch only: move 2 to this course in Students, or mark the payment not received and refund it."
+  },
+  {
+   "lang": "en",
+   "key": "shop.taken",
+   "args": [
+    12,
+    3
+   ],
+   "out": "This Gmail is already 12's, a student in 3. One Gmail can be in one batch only: move 12 to this course in Students, or mark the payment not received and refund it."
+  },
+  {
+   "lang": "en",
+   "key": "shop.taken",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "This Gmail is already 12's, a student in Batch A. One Gmail can be in one batch only: move 12 to this course in Students, or mark the payment not received and refund it."
+  },
+  {
+   "lang": "en",
+   "key": "shop.taken",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "This Gmail is already 1234567's, a student in 3. One Gmail can be in one batch only: move 1234567 to this course in Students, or mark the payment not received and refund it."
+  },
+  {
+   "lang": "en",
+   "key": "shop.taken",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "This Gmail is already 1234567's, a student in Batch A. One Gmail can be in one batch only: move 1234567 to this course in Students, or mark the payment not received and refund it."
+  },
+  {
+   "lang": "en",
+   "key": "shop.taken",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "This Gmail is already Rahim Uddin's, a student in 3. One Gmail can be in one batch only: move Rahim Uddin to this course in Students, or mark the payment not received and refund it."
+  },
+  {
+   "lang": "en",
+   "key": "shop.taken",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "This Gmail is already Rahim Uddin's, a student in Batch A. One Gmail can be in one batch only: move Rahim Uddin to this course in Students, or mark the payment not received and refund it."
   },
   {
    "lang": "en",
@@ -41378,6 +41678,198 @@
   },
   {
    "lang": "bn",
+   "key": "centre.removeQ",
+   "args": [
+    0
+   ],
+   "out": "0-কে সরিয়ে দেবেন? তিনি আর এখানে শিক্ষক হিসেবে লগইন করতে পারবেন না। তার আগের বেতন ও তার নেওয়া পেমেন্টের হিসাব থেকে যাবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.removeQ",
+   "args": [
+    0
+   ],
+   "out": "0-কে সরিয়ে দেবেন? তিনি আর এখানে শিক্ষক হিসেবে লগইন করতে পারবেন না। তার আগের বেতন ও তার নেওয়া পেমেন্টের হিসাব থেকে যাবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.removeQ",
+   "args": [
+    1
+   ],
+   "out": "1-কে সরিয়ে দেবেন? তিনি আর এখানে শিক্ষক হিসেবে লগইন করতে পারবেন না। তার আগের বেতন ও তার নেওয়া পেমেন্টের হিসাব থেকে যাবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.removeQ",
+   "args": [
+    1
+   ],
+   "out": "1-কে সরিয়ে দেবেন? তিনি আর এখানে শিক্ষক হিসেবে লগইন করতে পারবেন না। তার আগের বেতন ও তার নেওয়া পেমেন্টের হিসাব থেকে যাবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.removeQ",
+   "args": [
+    2
+   ],
+   "out": "2-কে সরিয়ে দেবেন? তিনি আর এখানে শিক্ষক হিসেবে লগইন করতে পারবেন না। তার আগের বেতন ও তার নেওয়া পেমেন্টের হিসাব থেকে যাবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.removeQ",
+   "args": [
+    2
+   ],
+   "out": "2-কে সরিয়ে দেবেন? তিনি আর এখানে শিক্ষক হিসেবে লগইন করতে পারবেন না। তার আগের বেতন ও তার নেওয়া পেমেন্টের হিসাব থেকে যাবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.removeQ",
+   "args": [
+    12
+   ],
+   "out": "12-কে সরিয়ে দেবেন? তিনি আর এখানে শিক্ষক হিসেবে লগইন করতে পারবেন না। তার আগের বেতন ও তার নেওয়া পেমেন্টের হিসাব থেকে যাবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.removeQ",
+   "args": [
+    12
+   ],
+   "out": "12-কে সরিয়ে দেবেন? তিনি আর এখানে শিক্ষক হিসেবে লগইন করতে পারবেন না। তার আগের বেতন ও তার নেওয়া পেমেন্টের হিসাব থেকে যাবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.removeQ",
+   "args": [
+    1234567
+   ],
+   "out": "1234567-কে সরিয়ে দেবেন? তিনি আর এখানে শিক্ষক হিসেবে লগইন করতে পারবেন না। তার আগের বেতন ও তার নেওয়া পেমেন্টের হিসাব থেকে যাবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.removeQ",
+   "args": [
+    1234567
+   ],
+   "out": "1234567-কে সরিয়ে দেবেন? তিনি আর এখানে শিক্ষক হিসেবে লগইন করতে পারবেন না। তার আগের বেতন ও তার নেওয়া পেমেন্টের হিসাব থেকে যাবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.removeQ",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin-কে সরিয়ে দেবেন? তিনি আর এখানে শিক্ষক হিসেবে লগইন করতে পারবেন না। তার আগের বেতন ও তার নেওয়া পেমেন্টের হিসাব থেকে যাবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.removeQ",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin-কে সরিয়ে দেবেন? তিনি আর এখানে শিক্ষক হিসেবে লগইন করতে পারবেন না। তার আগের বেতন ও তার নেওয়া পেমেন্টের হিসাব থেকে যাবে।"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.stillTeaches",
+   "args": [
+    0
+   ],
+   "out": "0 এখনো একটি ব্যাচ পড়ান। আগে সেই ব্যাচগুলো অন্য শিক্ষককে দিন, তারপর 0-কে সরান।"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.stillTeaches",
+   "args": [
+    0
+   ],
+   "out": "0 এখনো একটি ব্যাচ পড়ান। আগে সেই ব্যাচগুলো অন্য শিক্ষককে দিন, তারপর 0-কে সরান।"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.stillTeaches",
+   "args": [
+    1
+   ],
+   "out": "1 এখনো একটি ব্যাচ পড়ান। আগে সেই ব্যাচগুলো অন্য শিক্ষককে দিন, তারপর 1-কে সরান।"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.stillTeaches",
+   "args": [
+    1
+   ],
+   "out": "1 এখনো একটি ব্যাচ পড়ান। আগে সেই ব্যাচগুলো অন্য শিক্ষককে দিন, তারপর 1-কে সরান।"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.stillTeaches",
+   "args": [
+    2
+   ],
+   "out": "2 এখনো একটি ব্যাচ পড়ান। আগে সেই ব্যাচগুলো অন্য শিক্ষককে দিন, তারপর 2-কে সরান।"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.stillTeaches",
+   "args": [
+    2
+   ],
+   "out": "2 এখনো একটি ব্যাচ পড়ান। আগে সেই ব্যাচগুলো অন্য শিক্ষককে দিন, তারপর 2-কে সরান।"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.stillTeaches",
+   "args": [
+    12
+   ],
+   "out": "12 এখনো একটি ব্যাচ পড়ান। আগে সেই ব্যাচগুলো অন্য শিক্ষককে দিন, তারপর 12-কে সরান।"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.stillTeaches",
+   "args": [
+    12
+   ],
+   "out": "12 এখনো একটি ব্যাচ পড়ান। আগে সেই ব্যাচগুলো অন্য শিক্ষককে দিন, তারপর 12-কে সরান।"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.stillTeaches",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 এখনো একটি ব্যাচ পড়ান। আগে সেই ব্যাচগুলো অন্য শিক্ষককে দিন, তারপর 1234567-কে সরান।"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.stillTeaches",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 এখনো একটি ব্যাচ পড়ান। আগে সেই ব্যাচগুলো অন্য শিক্ষককে দিন, তারপর 1234567-কে সরান।"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.stillTeaches",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin এখনো একটি ব্যাচ পড়ান। আগে সেই ব্যাচগুলো অন্য শিক্ষককে দিন, তারপর Rahim Uddin-কে সরান।"
+  },
+  {
+   "lang": "bn",
+   "key": "centre.stillTeaches",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin এখনো একটি ব্যাচ পড়ান। আগে সেই ব্যাচগুলো অন্য শিক্ষককে দিন, তারপর Rahim Uddin-কে সরান।"
+  },
+  {
+   "lang": "bn",
    "key": "courses.perMonth",
    "args": [
     0
@@ -42467,6 +42959,114 @@
     "Rahim Uddin"
    ],
    "out": "Rahim Uddin ভর্তি হয়েছে"
+  },
+  {
+   "lang": "bn",
+   "key": "shop.taken",
+   "args": [
+    0,
+    3
+   ],
+   "out": "এই জিমেইলটি আগে থেকেই 0-এর, যে 3 ব্যাচের শিক্ষার্থী। একটি জিমেইল শুধু একটি ব্যাচে থাকতে পারে: শিক্ষার্থী তালিকা থেকে 0-কে এই কোর্সে সরান, অথবা পেমেন্ট পাননি চিহ্নিত করে টাকা ফেরত দিন।"
+  },
+  {
+   "lang": "bn",
+   "key": "shop.taken",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "এই জিমেইলটি আগে থেকেই 0-এর, যে Batch A ব্যাচের শিক্ষার্থী। একটি জিমেইল শুধু একটি ব্যাচে থাকতে পারে: শিক্ষার্থী তালিকা থেকে 0-কে এই কোর্সে সরান, অথবা পেমেন্ট পাননি চিহ্নিত করে টাকা ফেরত দিন।"
+  },
+  {
+   "lang": "bn",
+   "key": "shop.taken",
+   "args": [
+    1,
+    3
+   ],
+   "out": "এই জিমেইলটি আগে থেকেই 1-এর, যে 3 ব্যাচের শিক্ষার্থী। একটি জিমেইল শুধু একটি ব্যাচে থাকতে পারে: শিক্ষার্থী তালিকা থেকে 1-কে এই কোর্সে সরান, অথবা পেমেন্ট পাননি চিহ্নিত করে টাকা ফেরত দিন।"
+  },
+  {
+   "lang": "bn",
+   "key": "shop.taken",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "এই জিমেইলটি আগে থেকেই 1-এর, যে Batch A ব্যাচের শিক্ষার্থী। একটি জিমেইল শুধু একটি ব্যাচে থাকতে পারে: শিক্ষার্থী তালিকা থেকে 1-কে এই কোর্সে সরান, অথবা পেমেন্ট পাননি চিহ্নিত করে টাকা ফেরত দিন।"
+  },
+  {
+   "lang": "bn",
+   "key": "shop.taken",
+   "args": [
+    2,
+    3
+   ],
+   "out": "এই জিমেইলটি আগে থেকেই 2-এর, যে 3 ব্যাচের শিক্ষার্থী। একটি জিমেইল শুধু একটি ব্যাচে থাকতে পারে: শিক্ষার্থী তালিকা থেকে 2-কে এই কোর্সে সরান, অথবা পেমেন্ট পাননি চিহ্নিত করে টাকা ফেরত দিন।"
+  },
+  {
+   "lang": "bn",
+   "key": "shop.taken",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "এই জিমেইলটি আগে থেকেই 2-এর, যে Batch A ব্যাচের শিক্ষার্থী। একটি জিমেইল শুধু একটি ব্যাচে থাকতে পারে: শিক্ষার্থী তালিকা থেকে 2-কে এই কোর্সে সরান, অথবা পেমেন্ট পাননি চিহ্নিত করে টাকা ফেরত দিন।"
+  },
+  {
+   "lang": "bn",
+   "key": "shop.taken",
+   "args": [
+    12,
+    3
+   ],
+   "out": "এই জিমেইলটি আগে থেকেই 12-এর, যে 3 ব্যাচের শিক্ষার্থী। একটি জিমেইল শুধু একটি ব্যাচে থাকতে পারে: শিক্ষার্থী তালিকা থেকে 12-কে এই কোর্সে সরান, অথবা পেমেন্ট পাননি চিহ্নিত করে টাকা ফেরত দিন।"
+  },
+  {
+   "lang": "bn",
+   "key": "shop.taken",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "এই জিমেইলটি আগে থেকেই 12-এর, যে Batch A ব্যাচের শিক্ষার্থী। একটি জিমেইল শুধু একটি ব্যাচে থাকতে পারে: শিক্ষার্থী তালিকা থেকে 12-কে এই কোর্সে সরান, অথবা পেমেন্ট পাননি চিহ্নিত করে টাকা ফেরত দিন।"
+  },
+  {
+   "lang": "bn",
+   "key": "shop.taken",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "এই জিমেইলটি আগে থেকেই 1234567-এর, যে 3 ব্যাচের শিক্ষার্থী। একটি জিমেইল শুধু একটি ব্যাচে থাকতে পারে: শিক্ষার্থী তালিকা থেকে 1234567-কে এই কোর্সে সরান, অথবা পেমেন্ট পাননি চিহ্নিত করে টাকা ফেরত দিন।"
+  },
+  {
+   "lang": "bn",
+   "key": "shop.taken",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "এই জিমেইলটি আগে থেকেই 1234567-এর, যে Batch A ব্যাচের শিক্ষার্থী। একটি জিমেইল শুধু একটি ব্যাচে থাকতে পারে: শিক্ষার্থী তালিকা থেকে 1234567-কে এই কোর্সে সরান, অথবা পেমেন্ট পাননি চিহ্নিত করে টাকা ফেরত দিন।"
+  },
+  {
+   "lang": "bn",
+   "key": "shop.taken",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "এই জিমেইলটি আগে থেকেই Rahim Uddin-এর, যে 3 ব্যাচের শিক্ষার্থী। একটি জিমেইল শুধু একটি ব্যাচে থাকতে পারে: শিক্ষার্থী তালিকা থেকে Rahim Uddin-কে এই কোর্সে সরান, অথবা পেমেন্ট পাননি চিহ্নিত করে টাকা ফেরত দিন।"
+  },
+  {
+   "lang": "bn",
+   "key": "shop.taken",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "এই জিমেইলটি আগে থেকেই Rahim Uddin-এর, যে Batch A ব্যাচের শিক্ষার্থী। একটি জিমেইল শুধু একটি ব্যাচে থাকতে পারে: শিক্ষার্থী তালিকা থেকে Rahim Uddin-কে এই কোর্সে সরান, অথবা পেমেন্ট পাননি চিহ্নিত করে টাকা ফেরত দিন।"
   },
   {
    "lang": "bn",

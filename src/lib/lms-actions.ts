@@ -2,7 +2,7 @@
 // feedback; with real accounts the server runs the same code to save them (src/app/api/data/route.ts).
 import { dayKey } from "./dates.ts";
 import { XP } from "./xp.ts";
-import { normEmail, type StudentContact } from "./site.ts";
+import { normEmail, studentWithGmail, type StudentContact } from "./site.ts";
 import {
   FEE_DUE_DAY,
   seed,
@@ -363,9 +363,12 @@ export function makeActions({ set, get, replace, fresh, lastRoll, now }: Store) 
       lastRoll.current = id;
       set((s) => {
         const fee = batchFee(s, input.batch);
-        const st: StudentRecord = { id, ...clean(input), feeDue: fee, chargedDiscount: 0, ch4Score: 0, ch3Score: 0, joined: monthKey(), ...(input.pending ? { pending: true } : {}) };
+        // Added on a phone (offline) in a month the server has since rolled past: the months the roll gave everyone else are owed too.
+        const joined = monthKey(clock()), later = input.pending ? 0 : Math.max(0, monthsBetween(joined, s.feeMonth)) * fee;
+        const st: StudentRecord = { id, ...clean(input), feeDue: fee, chargedDiscount: 0, ch4Score: 0, ch3Score: 0, joined, ...(input.pending ? { pending: true } : {}) };
+        if (later) st.feeDue += later;
         return input.feePaid && fee > 0
-          ? { students: [{ ...st, feeDue: 0 }, ...s.students], payments: [payment(s, st, "cash"), ...s.payments], nextStudentId: id + 1 }
+          ? { students: [{ ...st, feeDue: later }, ...s.students], payments: [payment(s, st, "cash", fee), ...s.payments], nextStudentId: id + 1 } // the fee paid is the joining month's
           : { students: [st, ...s.students], nextStudentId: id + 1 };
       });
       return id;
@@ -373,7 +376,14 @@ export function makeActions({ set, get, replace, fresh, lastRoll, now }: Store) 
     /** Accept someone who joined from a link: from now on they can log in. (Refusing them is removeStudent.) */
     approveStudent: (studentId: number) =>
       // They join from the month they are accepted, owing at most that one month (older data charged requests every month while they waited).
-      set((s) => ({ students: s.students.map((x) => (x.id === studentId && x.pending ? { ...x, pending: undefined, joined: monthKey(clock()), feeDue: Math.min(x.feeDue, Math.max(0, batchFee(s, x.batch) - (x.discount ?? 0))), chargedDiscount: x.discount ?? 0, fineMonth: undefined } : x)) })), // chargedDiscount: this month's charge now takes their discount off
+      // Accepted on a phone (offline) in a month the server has since rolled past: the roll skipped them while they waited, so those months are added.
+      set((s) => ({
+        students: s.students.map((x) => {
+          if (x.id !== studentId || !x.pending) return x;
+          const month = Math.max(0, batchFee(s, x.batch) - (x.discount ?? 0)), joined = monthKey(clock());
+          return { ...x, pending: undefined, joined, feeDue: Math.min(x.feeDue, month) + Math.max(0, monthsBetween(joined, s.feeMonth)) * month, chargedDiscount: x.discount ?? 0, fineMonth: undefined }; // chargedDiscount: this month's charge now takes their discount off
+        }),
+      })),
     /** Edit a student's details (a batch change keeps their fees as they are). */
     updateStudent: (studentId: number, input: StudentInput) =>
       set((s) => ({ students: s.students.map((x) => (x.id === studentId ? { ...x, ...clean(input) } : x)) })),
@@ -514,6 +524,7 @@ export function makeActions({ set, get, replace, fresh, lastRoll, now }: Store) 
     decideOrder: (id: number, ok: boolean) => {
       const o = get().orders.find((x) => x.id === id);
       if (!o || o.status !== "pending") return;
+      if (ok && studentWithGmail(o.student.email, get().students)) return; // already a student here: a second record would split their work (see the order screen)
       const batch = get().batches.find((b) => b.id === o.batchId);
       let roll = 0;
       if (ok && batch) {
@@ -600,6 +611,8 @@ export function makeActions({ set, get, replace, fresh, lastRoll, now }: Store) 
     // Centre (coaching-centre mode) and accounts.
     addStaff: (name: string, phone: string, email?: string) =>
       set((s) => ({ staff: [...s.staff, { name, phone, salary: 0, share: 0, ...(email ? { email: normEmail(email) } : {}) }] })),
+    /** A teacher who has left: off the staff list, so off the teacher sign-in list too. Past pay and payments keep their name. */
+    removeStaff: (name: string) => set((s) => ({ staff: s.staff.filter((x) => x.name !== name) })),
     updateStaff: (name: string, patch: Partial<Pick<Staff, "salary" | "share">>) => set((s) => ({ staff: s.staff.map((x) => (x.name === name ? { ...x, ...patch } : x)) })),
     payStaff: (name: string, amount: number) =>
       set((s) => {

@@ -184,6 +184,22 @@ test("watch time: what a student played shows up for the teacher", async ({ page
   await expect(card.locator("div", { hasText: "Nusrat Jahan" }).last()).toContainText(/[1-9]\d?%/);
 });
 
+test("web address: a hyphen can be typed; the address is tidied and saved when the field is left", async ({ page }) => {
+  await tool(page, "My website");
+  const address = page.getByLabel("Web address");
+  // Typed again if the page was still settling (the tool can redraw once just after it opens).
+  await expect(async () => {
+    await address.fill("");
+    await address.pressSequentially("Physics-Care ");
+    await expect(address).toHaveValue("physics-care ", { timeout: 1000 });
+  }).toPass();
+  await address.blur();
+  await expect(address).toHaveValue("physics-care");
+  await page.getByRole("button", { name: "All tools" }).click();
+  await tool(page, "My website");
+  await expect(page.getByLabel("Web address")).toHaveValue("physics-care"); // saved
+});
+
 test("course shop: coupon + bKash TrxID, teacher confirms, student enrolled", async ({ page }) => {
   await tool(page, "My website");
   await page.getByLabel("Your bKash number for course payments").fill("01711999888");

@@ -23,7 +23,7 @@ List<Json> sent(String name) => store.waiting.where((e) => e['name'] == name).to
 Json sample() => {
   'teacherName': 'Owner Sir',
   'students': [
-    {'id': 1, 'name': 'Rafi', 'batch': 'Batch A', 'feeDue': 0},
+    {'id': 1, 'name': 'Rafi', 'batch': 'Batch A', 'feeDue': 0, 'email': 'rafi@gmail.com'},
   ],
   'batches': [
     {'id': 'a', 'name': 'Batch A', 'teacher': 'Mina Miss', 'fee': 1500, 'public': true},
@@ -45,6 +45,8 @@ Json sample() => {
       'at': DateTime.now().toUtc().toIso8601String(),
       'student': {'name': 'Nila', 'phone': '01711000004'},
     },
+    // Rafi, already a student here, buys a second course with the same Gmail (written another way).
+    {'id': 6, 'batchId': 'a', 'price': 1500, 'trxId': '9A1B2D', 'status': 'pending', 'at': DateTime.now().toUtc().toIso8601String(), 'student': {'name': 'Rafi', 'email': 'Ra.fi+2@gmail.com', 'phone': '01711000005'}},
   ],
   'coupons': [
     {'code': 'EID20', 'percent': 20, 'maxUses': 50, 'used': 3},
@@ -165,6 +167,8 @@ void main() {
     ]);
 
     await show(const ShopScreen());
+    expect(find.textContaining("This Gmail is already Rafi's, a student in Batch A."), findsOneWidget); // no Confirm for it: only "Not received"
+    expect(find.text('Payment received ✓'), findsOneWidget);
     await tester.tap(find.text('Payment received ✓'));
     await tester.pump(const Duration(milliseconds: 300));
     expect(sent('decideOrder').single['args'], [5, true]);

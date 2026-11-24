@@ -6,6 +6,7 @@ import 'dart:io';
 
 import 'package:classbari/api.dart';
 import 'package:classbari/screens/institute.dart';
+import 'package:classbari/screens/institute_more.dart';
 import 'package:classbari/store.dart';
 import 'package:classbari/strings.dart';
 import 'package:classbari/theme.dart';
@@ -93,6 +94,55 @@ void main() {
     expect(sent, [1, 2, 3]);
     expect(store.waiting, isEmpty);
     expect(store.state!['payments'], [3]);
+  });
+
+  test('changes made while the institute is suspended are kept, and sent once it is lifted', () async {
+    store.fake({'payments': []}, 'teacher');
+    var lifted = false;
+    final sent = <int>[];
+    final server = MockClient((r) async {
+      if (r.method == 'GET') return http.Response('', 204);
+      if (!lifted) return http.Response('{"error":"suspended"}', 423);
+      sent.add(((jsonDecode(r.body) as Map)['args'] as List).first as int);
+      return http.Response('{"state":{"payments":[1,2]},"version":4}', 200);
+    });
+    await http.runWithClient(() async {
+      expect(await store.act('recordPayment', [1]), false); // cash taken offline, sent while suspended
+      expect(await store.act('recordPayment', [2]), false);
+      expect(store.waiting.length, 2); // nothing thrown away
+      expect([store.suspended, store.syncFailed], [true, true]); // the banner says why
+      lifted = true;
+      expect(await store.act('recordPayment', [3]), true);
+    }, () => server);
+    expect(sent, [1, 2, 3]);
+    expect([store.waiting.isEmpty, store.suspended], [true, false]);
+  });
+
+  testWidgets('publishing a web address another institute already shows says so, and nothing is sent', (tester) async {
+    store.fake({'site': {'slug': 'tanvir', 'bio': '', 'bkash': '', 'published': false}, 'batches': []}, 'owner');
+    final asked = <String>[];
+    final server = MockClient((r) async {
+      if (r.url.path == '/api/public') {
+        asked.add(r.url.queryParameters['slug']!);
+        return http.Response(r.url.queryParameters['slug'] == 'physics-care' ? '{"site":{"slug":"physics-care","published":true}}' : '{}', 200);
+      }
+      return http.Response('', 204);
+    });
+    await http.runWithClient(() async {
+      await tester.pumpWidget(Live((context) => MaterialApp(theme: classbariTheme(Brightness.light), home: const WebsiteScreen())));
+      await tester.enterText(find.widgetWithText(TextField, t('website.address')), 'Physics Care');
+      await tester.tap(find.byType(Switch));
+      await tester.pump();
+      await tester.runAsync(() async {
+        await tester.tap(find.text(t('settings.save')));
+        await Future<void>.delayed(const Duration(milliseconds: 300));
+      });
+      await tester.pump(const Duration(milliseconds: 300));
+    }, () => server);
+    expect(asked, ['physics-care']);
+    expect(find.text(t('website.taken')), findsOneWidget);
+    expect(store.waiting.where((e) => e['name'] == 'updateSite'), isEmpty);
+    await tester.pumpWidget(const SizedBox());
   });
 
   test('a 401 that goes away with a renewed login does not say "not enrolled"', () async {

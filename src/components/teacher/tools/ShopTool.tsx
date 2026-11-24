@@ -5,6 +5,7 @@ import { fmtDateTime } from "@/lib/dates";
 import { useLang } from "@/lib/i18n/LanguageProvider";
 import { useLms } from "@/lib/lms-store";
 import { taka } from "@/lib/mock-data";
+import { studentWithGmail } from "@/lib/site";
 import type { ToolProps } from "./ToolsPage";
 import { box, card, label, primary } from "./ui";
 
@@ -28,15 +29,17 @@ export function ShopTool({ notify }: ToolProps) {
         {lms.orders.length === 0 && <p className="text-sm text-on-surface-variant">{S.noOrders}</p>}
         {lms.orders.map((o) => {
           const b = lms.batches.find((x) => x.id === o.batchId);
+          const taken = o.status === "pending" ? studentWithGmail(o.student.email, lms.students) : undefined;
           return (
             <div key={o.id} aria-label={o.student.name} className="flex flex-wrap items-center gap-2 rounded-[10px] bg-surface-container px-3 py-2 text-sm">
               <span className="flex flex-1 flex-col">
                 <b>{o.student.name} → {b?.name ?? "—"}</b>
                 <span>{taka(o.price)}{o.coupon && ` (${o.coupon})`} · TrxID <b className="font-mono">{o.trxId}</b> · {o.student.phone} · {fmtDateTime(o.at, lang)}</span>
+                {taken && <span role="status" className="font-semibold text-error">{S.taken(taken.name, taken.batch)}</span>}
               </span>
               {o.status === "pending" ? (
                 <>
-                  <button type="button" onClick={() => { lms.decideOrder(o.id, true); notify(S.confirmed(o.student.name)); }} className="rounded-full bg-primary px-3 py-1.5 font-bold text-on-primary">{S.confirm}</button>
+                  {!taken && <button type="button" onClick={() => { lms.decideOrder(o.id, true); notify(S.confirmed(o.student.name)); }} className="rounded-full bg-primary px-3 py-1.5 font-bold text-on-primary">{S.confirm}</button>}
                   <button type="button" onClick={() => window.confirm(S.rejectQ) && lms.decideOrder(o.id, false)} className="rounded-full bg-white px-3 py-1.5 font-bold text-error">{S.reject}</button>
                 </>
               ) : (

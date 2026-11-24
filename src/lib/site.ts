@@ -13,6 +13,8 @@ export function waLink(phone: string, text?: string) {
 export const isGmail = (email: string) => /^(?!.*\.\.)[a-z0-9](?:[a-z0-9._+-]{0,62}[a-z0-9])?@gmail\.com$/i.test(email.trim()); // no ".." (Gmail refuses it)
 export const normEmail = (email: string) => email.trim().toLowerCase();
 /** The inbox a Gmail address reaches: Gmail ignores dots and anything after "+" (a.b+x@ is ab@). For "already used" checks. */
+/** The student here who already signs in with this Gmail (one Gmail is one student, in one batch), if any. */
+export const studentWithGmail = <T extends { email: string }>(email: string, students: T[]) => (email.trim() ? students.find((x) => inbox(x.email) === inbox(email)) : undefined);
 export const inbox = (email: string) => normEmail(email).replace(/^([^@]+)@gmail\.com$/, (_, local: string) => `${local.split("+")[0].replace(/\./g, "")}@gmail.com`);
 
 /** The name to greet someone by: the first word, skipping a leading "Md."/"Mst." (so "Md. Rahim Uddin" is "Rahim", not "Md."). */

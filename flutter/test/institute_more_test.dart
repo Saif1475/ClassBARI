@@ -136,6 +136,54 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
+  testWidgets('a teacher who has left can be removed, but only once their batches have another teacher', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    store.prefs = await SharedPreferences.getInstance();
+    tester.view.physicalSize = const Size(400, 2600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    store.fake(sample(), 'owner');
+    await tester.pumpWidget(Live((context) => MaterialApp(theme: classbariTheme(Brightness.light), home: const StaffScreen())));
+    await tester.pumpAndSettle();
+    Future<void> removeFrom(String salaryLine) async {
+      await tester.tap(find.textContaining(salaryLine).first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(t('centre.remove')));
+      await tester.pumpAndSettle();
+    }
+    await removeFrom('৳1,000'); // Mina Miss still teaches Batch A
+    expect(find.text(t('centre.stillTeaches', ['Mina Miss'])), findsOneWidget);
+    expect(sent('removeStaff'), isEmpty);
+    tester.state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger)).clearSnackBars();
+    await tester.pumpAndSettle();
+    await removeFrom('${t('payroll.salary')}: ৳0'); // Owner Sir has no batch
+    await tester.tap(find.descendant(of: find.byType(AlertDialog), matching: find.byType(FilledButton)));
+    await tester.pumpAndSettle();
+    expect(sent('removeStaff').single['args'], ['Owner Sir']);
+    await tester.pump(const Duration(seconds: 6));
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('adding a teacher whose name is taken says so (another letter case or spaces too)', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    store.prefs = await SharedPreferences.getInstance();
+    tester.view.physicalSize = const Size(400, 2600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    store.fake(sample(), 'owner');
+    await tester.pumpWidget(Live((context) => MaterialApp(theme: classbariTheme(Brightness.light), home: const StaffScreen())));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.widgetWithText(TextField, t('centre.name')), ' mina miss ');
+    await tester.enterText(find.widgetWithText(TextField, t('centre.phone')), '01711000009');
+    await tester.enterText(find.widgetWithText(TextField, t('auth.email')), 'mina2@gmail.com');
+    await tester.ensureVisible(find.text(t('centre.addTeacher')));
+    await tester.tap(find.text(t('centre.addTeacher')));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text(t('centre.taken')), findsOneWidget);
+    expect(sent('addStaff'), isEmpty);
+    await tester.pumpWidget(const SizedBox());
+  });
+
   testWidgets('students from a file: say which column is which, and only the good rows are added', (tester) async {
     SharedPreferences.setMockInitialValues({});
     store.prefs = await SharedPreferences.getInstance();
