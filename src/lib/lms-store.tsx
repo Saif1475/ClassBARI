@@ -24,6 +24,13 @@ const OUTBOX_KEY = "edunest-outbox-v1";
 export const VIEW_KEY = "edunest-last-view-v1";
 const VIEW_MAX = 1_000_000; // characters: well inside a browser's 5 MB of storage
 /** Is anyone signed in on this browser? (Supabase keeps the login in a cookie; visitors have none.) */
+// The server's clock minus this device's, from each answer's Date header: a quiz countdown follows the server, whatever the device's clock is set to.
+let skew = 0;
+export const serverSkew = () => skew;
+const clockFrom = (res: Response) => {
+  const at = Date.parse(res.headers.get("date") ?? "");
+  if (!Number.isNaN(at)) skew = at - Date.now();
+};
 const hasLogin = () => /(?:^|; )sb-[^=;]*-auth-token/.test(document.cookie);
 export function forgetView() {
   try {
@@ -72,6 +79,7 @@ function useLmsState() {
     const early = version.current === 0 ? window.__firstData : undefined;
     window.__firstData = undefined;
     const res = (await early) || (await fetch(`/api/data?v=${version.current}`, { cache: "no-store" }));
+    clockFrom(res);
     if (res.status === 204) return true;
     if (res.status === 401) {
       forgetView(); // not signed in (any more), or taken off the list: nothing of theirs stays on the device or the screen
@@ -106,6 +114,7 @@ function useLmsState() {
     try {
       while (outbox.current.length) {
         const res = await fetch("/api/data", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(outbox.current[0]) });
+        clockFrom(res);
         last = res.status;
         const what = afterAnswer(res.status, res.status === 401 || res.status === 429 ? 0 : ++tries.current); // only busy answers count towards giving up
         // Server busy, unreachable through a proxy, or the login needs renewing: keep the change and try again later.

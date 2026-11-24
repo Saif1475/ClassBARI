@@ -203,6 +203,56 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
+  testWidgets('quiz: started on another phone or the website, Start here carries on the server\'s countdown, not a fresh one', (tester) async {
+    store.fake({
+      'meId': 5,
+      'students': [{'id': 5, 'name': 'Rahim', 'batch': 'A'}],
+      'modules': [
+        {'id': 1, 'title': 'Ch', 'batch': 'A', 'published': true, 'items': [
+          {'id': 3, 'kind': 'quiz', 'title': 'Quiz', 'timeLimitMin': 10, 'started': {'5': DateTime.now().subtract(const Duration(minutes: 30)).toUtc().toIso8601String()}, 'questions': [{'q': 'Q?', 'options': ['a', 'b'], 'answer': 0}]},
+        ]},
+      ],
+    }, 'student');
+    store.prefs.remove('instanton-quiz-1-3-5'); // never started on this phone
+    await show(tester, const LessonScreen(moduleId: 1, itemId: 3));
+    await tester.tap(find.text(t('quiz.start')));
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+    final args = sent('submitQuiz').single['args'] as List; // time was already up by the server's Start: handed in at once
+    expect(args[7], greaterThanOrEqualTo(30 * 60));
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('quiz: a phone clock set back or running ahead neither restarts nor ends the server\'s countdown', (tester) async {
+    for (final behind in [true, false]) {
+      // Phone 1 hour behind the server, started 30 min ago (time is up); or 1 hour ahead, started 2 min ago (8 min left).
+      store.skew = (behind ? 1 : -1) * 3600 * 1000;
+      final serverNow = DateTime.now().add(Duration(milliseconds: store.skew));
+      store.fake({
+        'meId': 5,
+        'students': [{'id': 5, 'name': 'Rahim', 'batch': 'A'}],
+        'modules': [
+          {'id': 1, 'title': 'Ch', 'batch': 'A', 'published': true, 'items': [
+            {'id': 3, 'kind': 'quiz', 'title': 'Quiz', 'timeLimitMin': 10, 'started': {'5': serverNow.subtract(Duration(minutes: behind ? 30 : 2)).toUtc().toIso8601String()}, 'questions': [{'q': 'Q?', 'options': ['a', 'b'], 'answer': 0}]},
+          ]},
+        ],
+      }, 'student');
+      // Ahead: this phone also saved a Start 3 hours "ago", while its clock was wrong; the server's Start must win.
+      behind ? store.prefs.remove('instanton-quiz-1-3-5') : store.prefs.setInt('instanton-quiz-1-3-5', DateTime.now().millisecondsSinceEpoch - 3 * 3600 * 1000);
+      await show(tester, const LessonScreen(moduleId: 1, itemId: 3));
+      await tester.tap(find.text(t('quiz.start')));
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump(const Duration(seconds: 1));
+      if (behind) {
+        expect((sent('submitQuiz').single['args'] as List)[7], greaterThanOrEqualTo(30 * 60)); // not a fresh 10 minutes
+      } else {
+        expect(sent('submitQuiz'), isEmpty); // not handed in at once
+      }
+      await tester.pumpWidget(const SizedBox());
+    }
+    store.skew = 0;
+  });
+
   testWidgets('offline: publishing a chapter and a free preview show at once', (tester) async {
     store.fake({
       'meId': 1,

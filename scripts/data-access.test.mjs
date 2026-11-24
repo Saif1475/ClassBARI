@@ -366,10 +366,28 @@ test("the server measures how long a quiz really took", async () => {
   assert.equal(overTime(it, it.took[3]), 20); // 20 minutes against a 5-minute limit
   assert.equal(overTime(it, 5 * 60 + 30), null); // inside the minute of grace
   assert.equal(overTime(it, -1), "unknown");
-  // Answered in 4 minutes but sent 16 minutes later (offline): marked "time not known", not "took 20 min".
-  const late = checkAction("submitQuiz", [mod.id, 7100, 3, 99, [], 0, [0, 1], 240], student, started);
+  // Answered in 4 minutes but sent 16 minutes later (offline): the server heard nothing from this login for 16 minutes, so "time not known", not "took 20 min".
+  const { heard } = await import("../src/lib/data-access.ts");
+  const now = Date.now();
+  assert.equal(heard("t:student:3", now - 17 * 60_000), undefined);
+  heard("t:student:3", now - 16 * 60_000); // last word, 4 minutes after Start
+  const quiet = heard("t:student:3", now);
+  assert.deepEqual(quiet, { from: now - 16 * 60_000, to: now });
+  const late = checkAction("submitQuiz", [mod.id, 7100, 3, 99, [], 0, [0, 1], 240], student, started, quiet);
   assert.equal(late[7], -2);
   assert.equal(overTime(it, late[7]), "offline");
+  // The same low count with no silence on the server's side (a clock set back, a fresh countdown on a second phone, a private window): the server's 20 minutes stand.
+  for (const mine of [0, 240]) assert.ok(checkAction("submitQuiz", [mod.id, 7100, 3, 99, [], 0, [0, 1], mine], student, started)[7] >= 1199);
+  heard("t:student:4", now - 60_000);
+  assert.equal(heard("t:student:4", now), undefined); // polled a minute ago: no silence
+  // A silence long ago (not what this submit ended), or one that began before Start: the server's figure stands.
+  assert.ok(checkAction("submitQuiz", [mod.id, 7100, 3, 99, [], 0, [0, 1], 240], student, started, { from: now - 16 * 60_000, to: now - 60_000 })[7] >= 1199);
+  assert.ok(checkAction("submitQuiz", [mod.id, 7100, 3, 99, [], 0, [0, 1], 240], student, started, { from: now - 30 * 60_000, to: now })[7] >= 1199);
+  // Went offline right after pressing Start: the last request heard was Start itself, a few ms before the server stamped it. Still "offline", not "took 20 min".
+  const startedAt = Date.parse(started.modules.flatMap((m) => m.items).find((i) => i.id === 7100).started[3]);
+  assert.equal(checkAction("submitQuiz", [mod.id, 7100, 3, 99, [], 0, [0, 1], 240], student, started, { from: startedAt - 5, to: now })[7], -2);
+  // Went quiet 12 minutes after Start of a 5-minute quiz: at least 12 minutes is certain, so that is kept, not "offline".
+  assert.equal(checkAction("submitQuiz", [mod.id, 7100, 3, 99, [], 0, [0, 1], 240], student, started, { from: now - 8 * 60_000, to: now })[7], 720);
   // The phone's count close to the server's: the server's own figure is kept (a low count can't hide a slow attempt by a few seconds).
   assert.ok(checkAction("submitQuiz", [mod.id, 7100, 3, 99, [], 0, [0, 1], 1150], student, started)[7] >= 1199);
   assert.equal(quizMinutes({ questions: [1, 2, 3] }), 3);

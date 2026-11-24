@@ -3,6 +3,7 @@
 // actions the website sends, and the server checks it and answers with the new data. No rule is repeated in Dart.
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io' show HttpDate;
 
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -36,6 +37,14 @@ class Store extends ChangeNotifier {
   var suspended = false;
   final List<Json> _outbox = [];
   int _version = 0, _lastBase = 0;
+
+  /// The server's clock minus this phone's, from each answer's Date header: a quiz countdown follows the server, whatever the phone's clock is set to.
+  int skew = 0;
+  void clockFrom(String? date) {
+    try {
+      if (date != null) skew = HttpDate.parse(date).millisecondsSinceEpoch - DateTime.now().millisecondsSinceEpoch;
+    } catch (_) {}
+  }
   int _signOuts = 0; // raised on every sign-out: an answer to a request sent before it belongs to the last person
   Timer? _timer;
 

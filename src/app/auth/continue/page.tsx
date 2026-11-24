@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/Brand";
-import { forgetsPickedInstitute, homeFor, needsFirstBatch, needsOwnInstitute } from "@/lib/access";
+import { forgetsPickedInstitute, homeFor, setUpOwnInstitute } from "@/lib/access";
 import { useLang } from "@/lib/i18n/LanguageProvider";
 import { logOut } from "@/lib/logout";
 import { setRole } from "@/lib/role";
@@ -45,37 +45,8 @@ export default function Continue() {
       // All their roles, not only at the picked institute: a teacher at B or a guardian somewhere can still open their own centre.
       // One tab at a time (Web Locks): two tabs opening this page together would each create the institute and its first batch.
       const once = <T,>(fn: () => Promise<T>) => (navigator.locks ? navigator.locks.request("own-institute", fn) : fn());
-      const made = await once(async () => {
-        if (meta.signup_kind !== "institute") return "skip";
-        let all = await access();
-        const created = needsOwnInstitute(all.map((r) => r.role), meta.signup_kind);
-        if (created) {
-          setInstitute(null); // an institute picked earlier (B) would send the first batch there, where they aren't the owner
-          const { error } = await sb.rpc("create_institute", { p_name: meta.institute || meta.full_name || "My institute", p_branch: "Main", p_owner_name: meta.full_name || auth.user!.email });
-          if (error) return "failed";
-          all = await access();
-        }
-        // create_institute hands back an owner's existing centre even when it was switched off (my_access hides it): don't send the batch elsewhere
-        const owned = all.find((r) => r.role === "owner");
-        if (!owned) return "skip";
-        // Asked of their own centre every time, not only right after creating it: a first batch that failed to save once is sent again, one that saved never twice.
-        const own = { "x-classbari-institute": owned.institute_id };
-        const got = await fetch("/api/data", { headers: own, cache: "no-store" });
-        if (!got.ok) return created ? "failed" : "skip"; // an owner who signed up long ago still gets in when this check can't be made
-        if (!needsFirstBatch(meta.signup_kind, await got.json())) return "skip";
-        // Their first batch, from the sign-up form (kept with the account until the email was confirmed). A name of only spaces was kept as "": the email instead, as for create_institute.
-        const res = await fetch("/api/data", {
-          method: "POST",
-          headers: { ...own, "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: "signUpTeacher",
-            base: Date.now(),
-            args: [{ institute: String(meta.institute || ""), name: String(meta.full_name || auth.user!.email || ""), phone: String(meta.phone || ""), batch: String(meta.batch || "Batch 1"), days: String(meta.days || ""), classDays: Array.isArray(meta.classDays) ? meta.classDays : [], subject: String(meta.subject || ""), fee: Number(meta.fee) || 0 }],
-          }),
-        });
-        if (!res.ok) return "failed";
-        return "made";
-      });
+      // No setInstitute(null) here: every request names their own centre, and a deactivated owner (asked again on each login) keeps their B/C pick.
+      const made = await once(() => setUpOwnInstitute(meta, auth.user!.email ?? "", { access, create: async () => sb.rpc("create_institute", { p_name: meta.institute || meta.full_name || "My institute", p_branch: "Main", p_owner_name: meta.full_name || auth.user!.email }), fetch: (u, i) => fetch(u, i) })); // wrapped: a bare window.fetch called as d.fetch throws "Illegal invocation"
       if (made === "failed") return setProblem("failed");
       if (made === "made") {
         mine = (await access()).map((r) => r.role);

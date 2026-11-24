@@ -14,7 +14,7 @@ import { useFlag } from "@/components/Platform";
 import { REAL_AUTH } from "@/lib/auth-mode";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { strongPassword } from "@/components/auth/StepLogin";
-import { emailAlreadyTaken } from "@/lib/access";
+import { emailAlreadyTaken, openOwnCentre, ownsInstitute } from "@/lib/access";
 
 const field = "flex flex-col gap-1.5 text-sm font-semibold text-on-surface-variant";
 const box = "h-12 rounded-xl border border-outline bg-white px-4 text-base text-on-surface";
@@ -63,6 +63,9 @@ export default function SignUp() {
               const data = { signup_kind: "institute", full_name: f.name.trim(), institute: f.institute.trim(), phone: f.phone.trim(), batch: f.batch.trim(), days: f.days, classDays, subject: f.subject, fee: Math.max(0, Number(f.fee) || 0) };
               if (signedIn) {
                 setBusy(true);
+                // Already owns a centre: open it, without overwriting their name and phone or listing a second one in the admin panel
+                const { data: roles } = await supabaseBrowser().rpc("my_access");
+                if (ownsInstitute(roles)) return location.assign(openOwnCentre(sessionStorage));
                 const { error } = await supabaseBrowser().auth.updateUser({ data });
                 setBusy(false);
                 if (error) return setMsg({ ok: false, text: t.auth.signupFailed });

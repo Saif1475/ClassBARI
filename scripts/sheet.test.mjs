@@ -74,6 +74,17 @@ test("CSV keeps every row: a quote inside a name is just a letter, and the separ
   assert.deepEqual(readCsv('"Name;Gmail\nA;a@gmail.com'), [['"Name', "Gmail"], ["A", "a@gmail.com"]]);
   // Proper quoted cells still work, with spaces after the closing quote too.
   assert.deepEqual(readCsv('"a, b" ,"c"\n"",x'), [["a, b", "c"], ["", "x"]]);
+  // The heading and the rows judge a closing quote the same way, however many spaces follow it.
+  assert.deepEqual(readCsv(`"a"${" ".repeat(300)};b\nc;d`), [["a", "b"], ["c", "d"]]);
+});
+
+test("CSV with long runs of quotes is read in linear time", () => {
+  const t = performance.now();
+  assert.equal(readCsv('h\n"' + '""'.repeat(100_000) + "x")[1][0].length, 200_002);
+  assert.equal(readCsv('h\n"' + '""'.repeat(100_000) + '"x')[1][0].length, 200_003);
+  assert.equal(readCsv("h\nx" + '"'.repeat(200_000))[1][0].length, 200_001);
+  assert.equal(readCsv('" '.repeat(100_000))[0][0].length, 199_999);
+  assert.ok(performance.now() - t < 1500, `took ${Math.round(performance.now() - t)} ms`);
 });
 
 test("reads the text of a Word (.docx) file, one paragraph per line", async () => {
@@ -98,6 +109,29 @@ test("stops reading past the row cap: a tiny file with a million rows is refused
   await assert.rejects(readXlsx(xlsx({ "xl/sharedStrings.xml": "<si><t>a</t></si>".repeat(401), "xl/worksheets/sheet1.xml": rows(1) }), 4), /too many rows/);
   assert.throws(() => readCsv("a\n".repeat(5), 4), /too many rows/);
   assert.equal(readCsv("a\n".repeat(4) + "\n".repeat(10), 4).length, 4);
+  // One cell or one row of tiny pieces passes the row caps, so with a row cap the unpacked size is capped too (and answered as too many rows).
+  await assert.rejects(readXlsx(xlsx({ "xl/sharedStrings.xml": `<si>${"<t>a</t>".repeat(10_000)}</si>`, "xl/worksheets/sheet1.xml": rows(1) }), 4), /too many rows/);
+  await assert.rejects(readXlsx(xlsx({ "xl/worksheets/sheet1.xml": `<row>${'<c t="inlineStr"><is><t>a</t></is></c>'.repeat(2_000)}</row>` }), 4), /too many rows/);
+  assert.equal((await readXlsx(xlsx({ "xl/worksheets/sheet1.xml": `<row>${'<c t="inlineStr"><is><t>a</t></is></c>'.repeat(150)}</row>` }))).at(0).length, 100);
+});
+
+test("a few KB file can't hold the server: tags that never close and one long text in every cell", async () => {
+  // Each unclosed tag used to make the regex scan to the end of the file again: 400,000 "<row>"s took minutes.
+  const t = performance.now();
+  assert.deepEqual(await readXlsx(xlsx({ "xl/worksheets/sheet1.xml": "<row>".repeat(400_000) }), 201), []);
+  assert.deepEqual(await readXlsx(xlsx({ "xl/sharedStrings.xml": "<si>".repeat(100_000), "xl/worksheets/sheet1.xml": "<row></row>" }), 201), []);
+  assert.deepEqual(await readXlsx(xlsx({ "xl/worksheets/sheet1.xml": "<row>" + "<c a".repeat(100_000) + "</row>" }), 201), []);
+  assert.deepEqual(await readXlsx(xlsx({ "xl/worksheets/sheet1.xml": '<row><c t="inlineStr"><is>' + "<t>".repeat(100_000) + "</is></c></row>" }), 201), []);
+  assert.deepEqual(await readXlsx(xlsx({ "xl/worksheets/sheet1.xml": '<row><c r="A1">' + "<v>".repeat(200_000) + "</c></row>" }), 201), []);
+  assert.ok(performance.now() - t < 3000, `took ${Math.round(performance.now() - t)} ms`);
+  // One 1.9 MB shared text in 20,000 cells: every cell is cut short, so the import's checks don't read 38 billion letters.
+  const cells = '<c t="s"><v>0</v></c>'.repeat(100);
+  const grid = await readXlsx(xlsx({ "xl/sharedStrings.xml": `<si><t> ${"a".repeat(1_900_000)} </t></si>`, "xl/worksheets/sheet1.xml": `<row>${cells}</row>`.repeat(200) }), 201);
+  assert.equal(grid.length, 200);
+  assert.ok(grid.every((r) => r.every((c) => c.length === 200)));
+  assert.equal((await readXlsx(xlsx({ "xl/worksheets/sheet1.xml": `<row><c t="inlineStr"><is><t>${"q".repeat(500)}</t></is></c></row>` })))[0][0].length, 500); // no row cap: a long question stays whole
+  // Self-closed and attribute-less tags still read as before.
+  assert.deepEqual(await readXlsx(xlsx({ "xl/worksheets/sheet1.xml": '<row r="1"><c r="A1"/><c r="B1" t="inlineStr"><is><t/><t>x</t></is></c><c><v>5</v></c></row>' })), [["", "x", "5"]]);
 });
 
 test("CSV keeps negative marks and +880 phones as numbers, but still stops formulas", () => {

@@ -54,16 +54,15 @@ async function devicesFor(institute: string, note: Note, s: LmsState, actor?: st
   });
 }
 
-/** Send one notification now. A `once` note already sent is skipped (the key is claimed first, so two servers can't both send it). */
+/** Send one notification now. A `once` note already sent is skipped (the key is claimed just before sending, so two servers can't both send it). */
 export async function send(institute: string, note: Note, s: LmsState, actor?: string, round?: { lists: Lists; claimed: true }) {
+  // Devices first: a failed read then leaves no claim behind, so a retry (or a run going at the same time) can still send it.
+  const devices = await devicesFor(institute, note, s, actor, round?.lists);
   if (note.once && !round) {
     const { error } = await admin().from("notify_sent").insert({ key: `${institute}:${note.once}` });
-    if (error) return 0; // already sent (or the table is missing: then nothing is sent twice either)
+    if (error && ["23505", "42P01", "PGRST205"].includes(error.code)) return 0; // already sent (or the table is missing: then nothing is sent twice either)
+    if (error) throw new Error(`notify: claiming failed: ${error.message}`); // a timeout is not "already sent": the waiting row must stay for a retry
   }
-  const devices = await devicesFor(institute, note, s, actor, round?.lists).catch(async (e) => {
-    if (note.once && !round) await admin().from("notify_sent").delete().eq("key", `${institute}:${note.once}`); // let a retry send it: nothing went out
-    throw e;
-  });
   console.info(`notify: ${note.text[0]} → ${devices.length} device(s)`); // counts only, no names
   const gone: string[] = [];
   await Promise.allSettled(

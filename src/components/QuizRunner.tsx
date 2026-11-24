@@ -7,6 +7,7 @@ import type { ModuleItem } from "@/lib/mock-data";
 import { gradeFor, markQuiz, quizOrder, scoreQuiz, sectionResults } from "@/lib/quiz";
 import { myRank } from "@/lib/lms-views";
 import { openDataUrl } from "@/lib/files";
+import { serverSkew } from "@/lib/lms-store";
 
 function useOrder(item: ModuleItem, studentId: number) {
   return useMemo(() => quizOrder(item, studentId), [item, studentId]);
@@ -37,7 +38,7 @@ export function QuizRunner({ item, studentId, onSubmit, onStart }: { item: Modul
   const [sent, setSent] = useState(false);
   const taken = item.scores?.[studentId];
 
-  // Real accounts: the first Start on this device is kept, so leaving and coming back carries on the countdown (and the count the server checks).
+  // Real accounts: the first Start is kept (this device's, or the server's from another phone or browser), so leaving and coming back carries on the countdown (and the count the server checks).
   const begin = () => {
     const key = `instanton-quiz-${item.id}-${studentId}`;
     let first = Date.now();
@@ -46,7 +47,9 @@ export function QuizRunner({ item, studentId, onSubmit, onStart }: { item: Modul
     } catch {
       /* storage blocked: counted from now */
     }
-    startedAt.current = Math.min(first, Date.now());
+    // The server's Start read on this device's clock: a clock set back or running ahead neither restarts nor ends the countdown. NaN: not started anywhere yet.
+    const server = REAL_AUTH ? Date.parse(item.started?.[studentId] ?? "") - serverSkew() : NaN;
+    startedAt.current = Math.min(Date.now(), Number.isNaN(server) ? first : server); // the server's Start, once known, beats this device's saved one (saved while its clock may have been wrong)
     setLeft(Math.max(0, durationMin * 60 - Math.round((Date.now() - startedAt.current) / 1000)));
     setStarted(true);
     onStart?.();

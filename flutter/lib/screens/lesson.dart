@@ -254,10 +254,12 @@ class _QuizBoxState extends State<QuizBox> {
   // Like the website's Start button: only pressing it starts the clock on the server, not just opening the quiz.
   void start() {
     if (store.pending('startQuiz', [widget.moduleId, widget.item['id'], widget.me]) == 0) store.act('startQuiz', [widget.moduleId, widget.item['id'], widget.me]);
-    // The first Start on this phone is kept: leaving and coming back carries on the countdown (and the count the server checks) instead of a fresh one.
+    // The first Start is kept (this phone's, or the server's from another phone or the website): leaving and coming back carries on the countdown (and the count the server checks) instead of a fresh one.
     final key = 'instanton-quiz-${widget.moduleId}-${widget.item['id']}-${widget.me}', now = DateTime.now().millisecondsSinceEpoch, first = store.prefs.getInt(key) ?? now;
     if (first == now) store.prefs.setInt(key, now);
-    before = max(0, (now - first) ~/ 1000);
+    // The server's Start read on this phone's clock (store.skew): a phone clock set back or running ahead neither restarts nor ends the countdown.
+    final server = DateTime.tryParse('${(widget.item['started'] as Map?)?['${widget.me}'] ?? ''}')?.millisecondsSinceEpoch;
+    before = max(0, (now - (server == null ? first : server - store.skew)) ~/ 1000); // the server's Start, once known, beats this phone's saved one (saved while its clock may have been wrong)
     setState(clock.start);
     run();
     // Anti-cheat, as on the website: leaving the app 3 times hands the test in.
@@ -300,7 +302,8 @@ class _QuizBoxState extends State<QuizBox> {
     final saved = await store.act('submitQuiz', [widget.moduleId, widget.item['id'], widget.me, 0, [], switches, picks, used]);
     if (!saved && mounted) {
       if (store.status == Status.offline) toast(context, t('app.sentLater'));
-      if (store.syncFailed) setState(() { sent = false; run(); }); // not handed in: the countdown carries on, so it still hands in at zero
+      // Not handed in: the countdown carries on, so it still hands in at zero; once time is up the Submit button tries again (not every second while the server keeps refusing).
+      if (store.syncFailed && store.pending('submitQuiz', [widget.moduleId, widget.item['id'], widget.me]) == 0) setState(() { sent = false; if (used < seconds) run(); });
     }
   }
 

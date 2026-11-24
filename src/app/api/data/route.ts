@@ -1,5 +1,5 @@
 import { REAL_AUTH } from "@/lib/auth-mode";
-import { checkAction, Refused, SAVES_PER_MINUTE, viewFor } from "@/lib/data-access";
+import { checkAction, heard, Refused, SAVES_PER_MINUTE, viewFor } from "@/lib/data-access";
 import { act, instituteCard, loadChanged, loadDoc, whoIs } from "@/lib/data-server";
 import { afterSaved } from "@/lib/notify-server";
 import { afterAction } from "@/lib/pdf-pipeline";
@@ -10,6 +10,7 @@ import { isSuspended } from "@/lib/platform";
 import { readPlatform } from "@/lib/platform-server";
 import { limited } from "@/lib/rate-limit";
 import { POST_MAX, postLimit, readCapped } from "@/lib/doc-limit";
+import { crossSite } from "@/lib/same-site";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,7 @@ export async function GET(request: Request) {
   if (!REAL_AUTH) return Response.json({ error: "demo mode" }, { status: 404 });
   const me = await whoIs(request);
   if (!me) return Response.json({ error: "sign in" }, { status: 401 });
+  heard(`${me.institute}:${me.who.role}:${me.who.studentIds[0] ?? me.who.email}`); // screens ask every 15–20 s: a quiz hand-in can tell a real offline wait from a device clock set back
   const seen = Number(new URL(request.url).searchParams.get("v"));
   // Staff also get their institute's name and code (to tell families how to find it at login): asked for alongside the data.
   const card = ["owner", "manager", "teacher"].includes(me.who.role) && !seen ? instituteCard(me.institute) : null;
@@ -31,8 +33,10 @@ export async function GET(request: Request) {
 /** One change: { name, args, base }. Checked against who is asking, then saved. */
 export async function POST(request: Request) {
   if (!REAL_AUTH) return Response.json({ error: "demo mode" }, { status: 404 });
+  if (crossSite(request)) return Response.json({ error: "cross-site request" }, { status: 403 }); // src/proxy.ts skips this route
   const me = await whoIs(request);
   if (!me) return Response.json({ error: "sign in" }, { status: 401 });
+  const quiet = heard(`${me.institute}:${me.who.role}:${me.who.studentIds[0] ?? me.who.email}`);
   // Suspended by Instanton Campus (admin panel): everyone there can still look, but nothing is saved.
   if (isSuspended(await readPlatform(), me.institute))
     return Response.json({ error: "suspended", message: "This institute is suspended by Instanton Campus, so changes can't be saved. Please contact Instanton Campus support." }, { status: 403 });
@@ -63,7 +67,7 @@ export async function POST(request: Request) {
     const hold = name === "addCommunityPost" && me.who.role === "student" && (unkind(String(args[1] ?? "")) || (await holdPost(args)));
     let checked: unknown[] = args; // what was really saved: notifications use this, never the raw request
     const doc = await act(me, name, args, base, (s) => {
-      const ok = checkAction(name, args, me.who, s);
+      const ok = checkAction(name, args, me.who, s, quiet);
       if (ok && hold) ok[3] = { ...(ok[3] as object), held: true }; // set here, never taken from the browser
       if (ok) checked = ok;
       return ok;

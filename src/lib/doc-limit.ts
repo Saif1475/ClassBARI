@@ -1,7 +1,7 @@
 // The size limit of one institute's data. No imports, so it can be tested on its own.
 export const DOC_MAX = 20_000_000;
 export const FULL = "institute data is full";
-/** The biggest /api/data post by hand (a few homework photos), and the biggest restore: a backup is the whole institute sent as one escaped text. next.config.ts lets the proxy pass at least BACKUP_MAX. */
+/** The biggest /api/data post by hand (a few homework photos), and the biggest restore: a backup is the whole institute sent as one escaped text. /api/data is outside the proxy (src/proxy.ts), which would cut a body at 10 MiB. */
 export const POST_MAX = 12_000_000;
 // DOC_MAX counts characters but bodies are bytes: escaped again inside JSON, one character is at most 3 bytes (Bangla), plus room for the wrappers.
 export const BACKUP_MAX = DOC_MAX * 3 + 1_000_000;

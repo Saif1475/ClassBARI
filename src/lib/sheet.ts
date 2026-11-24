@@ -20,7 +20,7 @@ async function inflate(data: Uint8Array, limit: number) {
 }
 
 /** Files inside a zip, by name (only the ones we ask for are unpacked). */
-export async function unzip(buf: ArrayBuffer, want: (name: string) => boolean) {
+export async function unzip(buf: ArrayBuffer, want: (name: string) => boolean, limit = MAX_UNZIPPED) {
   const v = new DataView(buf);
   let eocd = buf.byteLength - 22;
   while (eocd >= 0 && v.getUint32(eocd, true) !== 0x06054b50) eocd--;
@@ -29,7 +29,7 @@ export async function unzip(buf: ArrayBuffer, want: (name: string) => boolean) {
   let p = v.getUint32(eocd + 16, true);
   const out = new Map<string, string>();
   const dec = new TextDecoder();
-  let left = MAX_UNZIPPED;
+  let left = limit;
   for (let i = 0; i < count; i++) {
     const method = v.getUint16(p + 10, true);
     const size = v.getUint32(p + 20, true);
@@ -52,17 +52,40 @@ const unescape = (s: string) =>
   s.replace(/&(lt|gt|quot|apos|amp|#\d+|#x[0-9a-f]+);/gi, (_, e: string) =>
     e[0] === "#" ? String.fromCodePoint(e[1] === "x" || e[1] === "X" ? parseInt(e.slice(2), 16) : Number(e.slice(1))) : ({ lt: "<", gt: ">", quot: '"', apos: "'", amp: "&" } as Record<string, string>)[e.toLowerCase()],
   );
-const texts = (xml: string) => [...xml.matchAll(/<t(?:\s[^>]*)?>([\s\S]*?)<\/t>/g)].map((m) => unescape(m[1])).join("");
+/**
+ * Each <name ...>body</name> (or <name .../>) as [attributes, body]; with `body` false, only the opening tags' attributes.
+ * Found with indexOf and stopped at the first tag that never closes: a lazy regex would scan to the end once per such tag (minutes for a 3 KB file).
+ */
+function* elements(xml: string, name: string, body = true): Generator<[string, string]> {
+  const open = new RegExp(`<${name}(?=[\\s/>])`, "g"), close = `</${name}>`;
+  while (open.exec(xml)) {
+    const end = xml.indexOf(">", open.lastIndex);
+    if (end < 0) return;
+    const attrs = xml.slice(open.lastIndex, end);
+    const shut = !body || attrs.endsWith("/") ? end : xml.indexOf(close, end);
+    if (shut < 0) return;
+    yield [attrs.replace(/\/$/, ""), shut === end ? "" : xml.slice(end + 1, shut)];
+    open.lastIndex = shut === end ? end + 1 : shut + close.length;
+  }
+}
+// Joined as it goes: one cell of a million tiny <t>s must not first build a million-item list.
+const texts = (xml: string) => {
+  let s = "";
+  for (const [, t] of elements(xml, "t")) s += unescape(t);
+  return s;
+};
 const colIndex = (ref: string) => [...ref.replace(/\d+/g, "")].reduce((n, ch) => n * 26 + ch.charCodeAt(0) - 64, 0) - 1;
 
 // One formatted empty cell far to the right (XFD5) would make every row 16000 cells wide; no student list needs more columns than this.
 const MAX_COLS = 100;
+// No name, Gmail, phone or address is this long; longer text is cut here (the import's checks take time that grows with the square of a cell's length).
+const MAX_CELL = 200;
 
 /** Path inside the zip of the first tab that is not hidden, found through workbook.xml and its rels (the tab order there, not the file names). */
 function firstSheetPath(workbook = "", rels = "") {
-  const sheet = [...workbook.matchAll(/<sheet\s([^>]*?)\/?>/g)].map((m) => m[1]).find((a) => !/\bstate="(hidden|veryHidden)"/.test(a));
+  const sheet = [...elements(workbook, "sheet", false)].map((m) => m[0]).find((a) => !/\bstate="(hidden|veryHidden)"/.test(a));
   const id = sheet?.match(/\b\w+:id="([^"]+)"/)?.[1];
-  const target = [...rels.matchAll(/<Relationship\s([^>]*?)\/?>/g)].map((m) => m[1]).find((a) => a.match(/\bId="([^"]+)"/)?.[1] === id)?.match(/\bTarget="([^"]+)"/)?.[1];
+  const target = [...elements(rels, "Relationship", false)].map((m) => m[0]).find((a) => a.match(/\bId="([^"]+)"/)?.[1] === id)?.match(/\bTarget="([^"]+)"/)?.[1];
   if (!id || !target) return "xl/worksheets/sheet1.xml";
   return target.startsWith("/") ? target.slice(1) : "xl/" + target.replace(/^\.\//, "");
 }
@@ -71,26 +94,30 @@ function firstSheetPath(workbook = "", rels = "") {
 export const TOO_MANY_ROWS = "too many rows";
 
 export async function readXlsx(buf: ArrayBuffer, maxRows = Infinity): Promise<string[][]> {
-  const meta = await unzip(buf, (n) => n === "xl/workbook.xml" || n === "xl/_rels/workbook.xml.rels" || n === "xl/sharedStrings.xml");
+  // A real row is well under 1 KB of XML; with a row cap, a few MB of cell text or cells in one row is refused before it is read.
+  const limit = Math.min(MAX_UNZIPPED, maxRows * 10_000);
+  // Past that cap the file is too long for the row cap, so it gets the "too many rows" answer, not "unreadable".
+  const open = (want: (name: string) => boolean) => unzip(buf, want, limit).catch((e) => { throw limit < MAX_UNZIPPED && e.message === "too big when unpacked" ? new Error(TOO_MANY_ROWS) : e; });
+  const meta = await open((n) => n === "xl/workbook.xml" || n === "xl/_rels/workbook.xml.rels" || n === "xl/sharedStrings.xml");
   const path = firstSheetPath(meta.get("xl/workbook.xml"), meta.get("xl/_rels/workbook.xml.rels"));
-  const files = await unzip(buf, (n) => n === path || n === "xl/worksheets/sheet1.xml");
+  const files = await open((n) => n === path || n === "xl/worksheets/sheet1.xml");
   // No sheet within the cap can use more distinct texts than it has cells, so a huge sharedStrings.xml stops here too.
   const shared: string[] = [];
-  for (const m of (meta.get("xl/sharedStrings.xml") ?? "").matchAll(/<si>([\s\S]*?)<\/si>/g)) if (shared.push(texts(m[1])) > maxRows * MAX_COLS) throw new Error(TOO_MANY_ROWS);
+  for (const m of elements(meta.get("xl/sharedStrings.xml") ?? "", "si")) if (shared.push(texts(m[1])) > maxRows * MAX_COLS) throw new Error(TOO_MANY_ROWS);
   const sheet = files.get(path) ?? files.get("xl/worksheets/sheet1.xml");
   if (!sheet) throw new Error("no sheet");
   const rows: string[][] = [];
   let filled = 0, blanks = 0;
-  for (const row of sheet.matchAll(/<row[^>]*>([\s\S]*?)<\/row>/g)) {
+  for (const row of elements(sheet, "row")) {
     const cells: string[] = [];
-    for (const c of row[1].matchAll(/<c\s([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g)) {
-      const attrs = c[1], body = c[2] ?? "";
+    for (const [attrs, body] of elements(row[1], "c")) {
       const ref = attrs.match(/r="([A-Z]+\d+)"/)?.[1];
       const type = attrs.match(/t="(\w+)"/)?.[1];
-      const v = body.match(/<v>([\s\S]*?)<\/v>/)?.[1] ?? "";
+      const v = elements(body, "v").next().value?.[1] ?? "";
       const value = type === "s" ? shared[Number(v)] ?? "" : type === "inlineStr" ? texts(body) : unescape(v);
       const col = ref ? colIndex(ref) : cells.length;
-      if (col < MAX_COLS) cells[col] = value.trim();
+      if (col >= MAX_COLS) break; // cells come left to right, so the rest of the row is past the cap too
+      cells[col] = value.trim().slice(0, maxRows < Infinity ? MAX_CELL : undefined); // one long shared text in thousands of cells must not reach the import's checks thousands of times (a question import, with no row cap, keeps long text)
     }
     // Blank rows are kept only when a row with text follows them, and count toward a total cap: millions of empty <row>s must not fill the memory.
     if (!cells.some(Boolean)) { if (rows.length + ++blanks > maxRows * 10) throw new Error(TOO_MANY_ROWS); continue; }
@@ -117,13 +144,14 @@ export function readCsv(text: string, maxRows = Infinity): string[][] {
   // The separator is the one seen more often on the first line that has text, counted outside quotes only: a file can start with an empty line, and a quoted heading can hold a comma or a line break.
   const head = text.trimStart();
   let commas = 0, semis = 0;
+  const closer = /[ \t]*([,;\r\n]|$)/y;
   // A stray opening quote (one that never properly closes, see below) is a letter here too, or a "Name;Gmail heading would be split on commas.
   for (let i = 0, inQuotes = false, blank = true, openAt = -1; ; i++) {
     if (i >= head.length) { if (!inQuotes) break; inQuotes = false; i = openAt; blank = false; continue; }
     const ch = head[i];
     if (inQuotes) {
       if (ch === '"' && head[i + 1] === '"') i++;
-      else if (ch === '"') { inQuotes = false; if (!/^[ \t]*([,;\r\n]|$)/.test(head.slice(i + 1, i + 200))) { i = openAt; blank = false; } }
+      else if (ch === '"') { inQuotes = false; closer.lastIndex = i + 1; if (!closer.test(head)) { i = openAt; blank = false; } }
     } else if (ch === "\n" || ch === "\r") break;
     else if (ch === "," || ch === ";") { if (ch === ",") commas++; else semis++; blank = true; }
     else if (ch === '"' && blank) { inQuotes = true; openAt = i; }
@@ -131,30 +159,30 @@ export function readCsv(text: string, maxRows = Infinity): string[][] {
   }
   const sep = semis > commas ? ";" : ",";
   const rows: string[][] = [];
-  let row: string[] = [], cell = "", quoted = false, filled = 0;
+  let row: string[] = [], cell = "", quoted = false, filled = 0, hasText = false; // hasText is cell.trim() !== "", kept as a flag: trimming the cell at every quote is quadratic on a long run of quotes
   // A quote opens a quoted cell only while the cell is still empty: in the middle (O"Brien, 5") it is just a letter, or the rest of the file would become one cell.
   // A quote that opens a cell but never properly closes is a plain letter: go back to it, or every student after it would merge into one cell. A real closing quote is followed only by spaces and then the separator, a line break or the end ("Babu,b@x then Rina,"r@x or O"Brien is not one).
   // Stays linear: everything between the stray quote and where we stopped holds only "" pairs, and a cell reopened on such a pair stops at the end of its own run of quotes.
   for (let i = 0, openAt = -1, before = ""; ; i++) {
-    if (i >= text.length) { if (!quoted) break; quoted = false; i = openAt; cell = before + '"'; continue; }
+    if (i >= text.length) { if (!quoted) break; quoted = false; i = openAt; cell = before + '"'; hasText = true; continue; }
     const ch = text[i];
     if (quoted) {
-      if (ch === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+      if (ch === '"' && text[i + 1] === '"') { cell += '"'; hasText = true; i++; }
       else if (ch === '"') {
         let k = i + 1;
         while (text[k] === " " || text[k] === "\t") k++;
         quoted = false;
-        if (k < text.length && text[k] !== sep && text[k] !== "\n" && text[k] !== "\r") { i = openAt; cell = before + '"'; }
-      } else cell += ch;
-    } else if (ch === '"' && !cell.trim()) { quoted = true; openAt = i; before = cell; }
-    else if (ch === sep) { row.push(cell.trim()); cell = ""; }
+        if (k < text.length && text[k] !== sep && text[k] !== "\n" && text[k] !== "\r") { i = openAt; cell = before + '"'; hasText = true; }
+      } else { cell += ch; if (ch.trim()) hasText = true; }
+    } else if (ch === '"' && !hasText) { quoted = true; openAt = i; before = cell; }
+    else if (ch === sep) { row.push(cell.trim()); cell = ""; hasText = false; }
     else if (ch === "\n" || ch === "\r") {
       if (ch === "\r" && text[i + 1] === "\n") i++;
       row.push(cell.trim());
       // Blank lines are dropped at the end anyway; keeping them first would let a file of ",\n" fill the memory.
       if (row.some(Boolean)) { rows.push(row); if (++filled > maxRows) throw new Error(TOO_MANY_ROWS); }
-      row = []; cell = "";
-    } else cell += ch;
+      row = []; cell = ""; hasText = false;
+    } else { cell += ch; if (ch.trim()) hasText = true; }
   }
   if (cell || row.length) { row.push(cell.trim()); rows.push(row); }
   return rows.filter((r) => r.some(Boolean));

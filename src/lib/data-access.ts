@@ -3,7 +3,7 @@
 import { canDelete, canEdit, REACTIONS, TEXT_MAX } from "./chat.ts";
 import type { ChatMessage, ChatThread } from "./mock-data.ts";
 import { blankState, makeActions, setIdBase, type LmsState } from "./lms-actions.ts";
-import { markQuiz, scoreQuiz } from "./quiz.ts";
+import { markQuiz, overTime, scoreQuiz } from "./quiz.ts";
 import { aiWindow } from "./ai-chat.ts";
 import { averagePct, leagueRank, myRank } from "./lms-views.ts";
 import { validateStudent, type StudentContact } from "./site.ts";
@@ -23,6 +23,19 @@ export const SERVER_FIRST = new Set(["submitQuiz"]);
 export const afterAnswer = (status: number, tries: number) => (status >= 200 && status < 300 ? "sent" : status === 401 || status === 429 || (status >= 500 && tries < 5) ? "wait" : "drop"); // too fast (429) is about the sender, not this change: it always waits, so a big import never loses a student
 /** How many changes one person may save a minute (the server answers 429 after that). */
 export const SAVES_PER_MINUTE = 240;
+
+/** A silence of over 2 minutes in what the server heard from one login (any GET or POST): `from` its last word before, `to` the first after. */
+export type Quiet = { from: number; to: number };
+// shortcut: one server's memory, empty after a restart (a quiz then keeps the server's own time); move to the database if it runs on several servers.
+const heardAt = new Map<string, { last: number; quiet?: Quiet }>();
+/** Note that this login was heard from now; returns its last silence. Never a device's clock, which can be set to anything. */
+export function heard(key: string, now = Date.now()): Quiet | undefined {
+  const x = heardAt.get(key);
+  if (!x) return heardAt.set(key, { last: now }), undefined;
+  if (now - x.last > 120_000) x.quiet = { from: x.last, to: now };
+  x.last = now;
+  return x.quiet;
+}
 /** After sending the queue: ask the server for the whole view again when a change was refused, came back without data, or the server said "not signed in" (401: that pull forgets the copy kept on the device, as the queue itself is kept under its owner). */
 export const pullAfterSend = (refused: unknown, stale: boolean, lastStatus: number) => !!refused || stale || lastStatus === 401;
 /** Which version that pull asks from: after a refusal, 0 (everything), since asking with the version already saved is answered "nothing new" (204) and the refused change would stay on screen. */
@@ -207,7 +220,7 @@ const today = (list: { at: string }[]) => list.filter((x) => { const t = Date.pa
 // Messages from the student/guardian side of one thread today: a flood from one account must not fill the institute's data (or the teacher's phone).
 const chatToday = (s: LmsState, thread: string) => (today(s.chats.find((c) => c.id === thread)?.messages.filter((m) => m.mine) ?? []) < 200 ? thread : refuse("too many today"));
 
-type Rule = (a: unknown[], me: number, s: LmsState, who: Who) => unknown[] | null; // null: nothing to save
+type Rule = (a: unknown[], me: number, s: LmsState, who: Who, quiet?: Quiet) => unknown[] | null; // null: nothing to save; quiet: see heard()
 
 // Messages: replies, photos, edits, "delete for everyone" and reactions.
 const CHAT_CHANGES = new Set(["editChatMessage", "deleteChatMessage", "reactChatMessage"]);
@@ -241,7 +254,7 @@ const STUDENT: Record<string, Rule> = {
   toggleItemDone: ([m, i], me, s) => (myItem(s, me, m, i), [m, i, me]),
   earnXp: ([, amount], me) => [me, Math.round(num(amount, 0, 50))],
   // The server marks the quiz from the options the student picked; a score sent by the browser is ignored.
-  submitQuiz: ([m, i, , , , tabs, picks, mine], me, s) => {
+  submitQuiz: ([m, i, , , , tabs, picks, mine], me, s, _who, quiet) => {
     const it = myItem(s, me, m, i);
     const qs = it.questions ?? [];
     if (it.kind !== "quiz" || !qs.length) refuse("not a quiz");
@@ -251,9 +264,13 @@ const STUDENT: Record<string, Rule> = {
     // How long it really took, by the server's clock (the countdown on screen can be tampered with).
     const start = it.started?.[me];
     const took = start ? Math.max(0, Math.round((Date.now() - Date.parse(start)) / 1000)) : -1;
-    // The device's own count far below the server's: handed in offline and sent later, so the server can't tell the real time (-2, never a false "too long").
-    const late = took >= 0 && typeof mine === "number" && mine >= 0 && took - mine > 120;
-    return [m, i, me, scoreQuiz(qs, list, it.points ?? qs.length, it.negative), markQuiz(qs, list), Math.round(num(tabs ?? 0, 0, 1000)), undefined, late ? -2 : took];
+    // It may have waited offline only if it came just as this login broke a silence (by the server's own record) that began after Start; the device's clock is never trusted.
+    // Then, with the device's own count far below the server's, the real time can't be told (-2, never a false "too long"); a submit sent as it is made keeps the server's figure.
+    // The silence may begin with the Start request itself, which is heard a few ms before Start is stamped.
+    const away = took >= 0 && quiet && Date.now() - quiet.to < 30_000 && quiet.from > Date.parse(start!) - 10_000 ? Math.max(0, Math.round((quiet.from - Date.parse(start!)) / 1000)) : -1;
+    const late = away >= 0 && typeof mine === "number" && mine >= 0 && took - mine > 120;
+    // Already over time when it went quiet: that much is certain and is kept.
+    return [m, i, me, scoreQuiz(qs, list, it.points ?? qs.length, it.negative), markQuiz(qs, list), Math.round(num(tabs ?? 0, 0, 1000)), undefined, !late ? took : overTime(it, away) === null ? -2 : away];
   },
   startQuiz: ([m, i], me, s) => (myItem(s, me, m, i).kind === "quiz" ? [m, i, me] : refuse("not a quiz")),
   submitAssignment: ([m, i, , sub], me, s) => {
@@ -336,7 +353,7 @@ const GUARDIAN: Record<string, Rule> = {
 };
 
 /** The arguments to run `name` with on the server for this person, null to skip quietly; throws Refused. */
-export function checkAction(name: string, args: unknown[], who: Who, s: LmsState): unknown[] | null {
+export function checkAction(name: string, args: unknown[], who: Who, s: LmsState, quiet?: Quiet): unknown[] | null {
   if (LOCAL_ONLY.has(name) || NEVER.has(name)) refuse("not allowed");
   if (who.role === "owner" || who.role === "manager" || who.role === "teacher") {
     if (who.role === "teacher" && OWNER.has(name)) refuse("owner only");
@@ -354,6 +371,8 @@ export function checkAction(name: string, args: unknown[], who: Who, s: LmsState
     // Students, fees and attendance find their batch by its name: two batches may never share one.
     const sameName = (a: unknown, b: unknown) => String(a ?? "").trim().toLowerCase() === String(b ?? "").trim().toLowerCase();
     if (name === "addBatch" && s.batches.some((b) => sameName(b.name, (args[0] as { name?: unknown })?.name))) refuse("batch name taken");
+    // Only an untouched centre is set up: two devices finishing sign-up at once would each add a first batch.
+    if (name === "signUpTeacher" && (s.teacherName || s.batches.length || s.staff.length)) refuse("already set up");
     // A chapter in a batch that does not exist (e.g. "" before the first batch) is shown to no one and can never be found again.
     if ((name === "addModule" || name === "copyModule") && !s.batches.some((b) => b.name === args[1])) refuse("no such batch");
     if (name === "addCalendarEvent") {
@@ -395,7 +414,7 @@ export function checkAction(name: string, args: unknown[], who: Who, s: LmsState
   // Own keys only: a name like "constructor" must not find something on every object.
   const rules = who.role === "student" ? STUDENT : GUARDIAN;
   const rule = Object.hasOwn(rules, name) ? rules[name] : Object.hasOwn(FAMILY, name) ? FAMILY[name] : refuse("not allowed");
-  return rule(args, who.studentIds[0] ?? 0, s, who);
+  return rule(args, who.studentIds[0] ?? 0, s, who, quiet);
 }
 
 /**

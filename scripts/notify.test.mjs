@@ -144,17 +144,35 @@ test("a waiting absence alert is not lost when one institute can't be read; it s
   assert.equal(queue.length, 0); // still failing a day later: dropped, so it can't block the queue for ever
 });
 
-test("an absence alert whose devices can't be read gives its 'once' claim back, so the next run can still send it", async () => {
+test("an absence alert whose devices can't be read takes no 'once' claim, so the next run can still send it", async () => {
   const { send } = await import("../src/lib/notify-server.ts"); // the fake Supabase from the test above is still hooked in
-  const freed = [];
+  const claimed = [];
   globalThis.__ntDb = { from: (t) => ({
-    insert: () => Promise.resolve({ error: null }),
+    insert: (v) => (claimed.push(`${t}:${v.key}`), Promise.resolve({ error: null })),
     select: () => { throw new Error("network down"); },
-    delete: () => ({ eq: (_c, key) => (freed.push(`${t}:${key}`), Promise.resolve({ error: null })) }),
+    delete: () => ({ eq: () => Promise.resolve({ error: null }) }),
   }) };
   const note = { to: { guardians: [1] }, group: "attendance", text: ["absent", "X", "2026-11-22"], screen: "home", once: "absent:2026-11-22:1" };
   await assert.rejects(send("i1", note, globalThis.__ntState), /network down/);
-  assert.deepEqual(freed, ["notify_sent:i1:absent:2026-11-22:1"]);
+  assert.deepEqual(claimed, []); // nothing to give back, even if the database stays down
+});
+
+test("a waiting alert whose claim fails on a timeout stays queued; one already claimed (unique clash) leaves the queue", async () => {
+  const { runTimed } = await import("../src/lib/notify-server.ts"); // the fake Supabase from the tests above is still hooked in
+  const row = (id) => ({ key: `good:absent:2026-11-22:${id}`, institute_id: "good", what: { note: { to: { guardians: [id] }, group: "attendance", text: ["absent", "X", "2026-11-22"], screen: "home", once: `absent:2026-11-22:${id}` }, afterMin: 15, still: { absent: ["2026-11-22", id] } } });
+  const queue = [row(1), row(2)];
+  const q = (data) => { const p = Promise.resolve({ data, error: null }); return Object.assign(p, { lte: () => q(data), limit: () => q(data), eq: () => q(data), in: () => q(data), select: () => q(data), order: () => q(data), range: () => q(data) }); };
+  globalThis.__ntLoads = [];
+  globalThis.__ntState = { ...s, attendance: { "2026-11-22": [1, 2] } };
+  globalThis.__ntDb = { from: (t) => ({
+    select: () => q(t === "notify_later" ? queue : []),
+    insert: (v) => Promise.resolve({ error: v.key.endsWith(":1") ? { code: "57014", message: "canceling statement due to statement timeout" } : { code: "23505", message: "duplicate key" } }),
+    upsert: () => q([]),
+    update: () => ({ in: () => ({ lte: () => q(null) }) }),
+    delete: () => ({ in: (_k, keys) => (keys.forEach((k) => queue.splice(queue.findIndex((r) => r.key === k), 1)), q(null)), lt: () => q(null) }),
+  }) };
+  await runTimed(new Date("2026-11-22T05:00:00Z"));
+  assert.deepEqual(queue.map((r) => r.key), ["good:absent:2026-11-22:1"]); // the timed-out one waits for a retry instead of being read as "already sent"
 });
 
 test("devices past the API's 1000-row page still get notified: every page of push_devices is read", async () => {

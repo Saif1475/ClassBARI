@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { canOpen } from "@/lib/access";
 import { REAL_AUTH } from "@/lib/auth-mode";
+import { crossSite } from "@/lib/same-site";
 
 // Demo guard: the role chosen at /login is kept in a cookie (anyone can set it — demo only).
 const demoAllowed: Record<string, string[]> = {
@@ -19,22 +20,11 @@ const toLogin = (request: NextRequest, error?: string) => {
   return NextResponse.redirect(login);
 };
 
-const hostOf = (origin: string) => {
-  try {
-    return new URL(origin).host;
-  } catch {
-    return "";
-  }
-};
-
 export async function proxy(request: NextRequest) {
   const area = request.nextUrl.pathname.split("/")[1];
   if (area === "api") {
-    // A change must come from our own pages (the phone apps send no Origin): a second lock on top of the login
-    // cookie's SameSite rule, so another website can never act as a signed-in person.
-    const origin = request.headers.get("origin");
-    const ok = request.method === "GET" || request.method === "HEAD" || !origin || hostOf(origin) === request.headers.get("host");
-    return ok ? NextResponse.next() : NextResponse.json({ error: "cross-site request" }, { status: 403 });
+    // So another website can never act as a signed-in person.
+    return crossSite(request) ? NextResponse.json({ error: "cross-site request" }, { status: 403 }) : NextResponse.next();
   }
   if (!REAL_AUTH) {
     const role = request.cookies.get("edunest-role")?.value ?? "";
@@ -60,6 +50,8 @@ export async function proxy(request: NextRequest) {
   return canOpen(area, roles) ? response : toLogin(request, "no-access");
 }
 
+// /api/data is left out: the proxy holds a whole body in memory (cut at 10 MiB) before any route code runs, and a restore
+// is bigger. The route checks the origin itself and reads with a cap that only owners and managers get past.
 export const config = {
-  matcher: ["/institute/:path*", "/teacher/:path*", "/student/:path*", "/parent/:path*", "/settings", "/api/:path*"],
+  matcher: ["/institute/:path*", "/teacher/:path*", "/student/:path*", "/parent/:path*", "/settings", "/api/((?!data$).*)"],
 };

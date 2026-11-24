@@ -45,7 +45,9 @@ Future<http.Response> api(String path, {Object? body, bool delete = false}) asyn
   final uri = Uri.parse('$kApiUrl$path'), headers = await _headers(), text = jsonEncode(body), client = http.Client();
   final sent = delete ? client.delete(uri, headers: headers, body: text) : (body == null ? client.get(uri, headers: headers) : client.post(uri, headers: headers, body: text));
   // A big change (a PDF lesson as a data: link) gets time to upload at about 20 KB/s; closing the client on a timeout really stops the upload, so the next refresh's retry is not a second copy beside it.
-  return sent.timeout(Duration(seconds: 40 + (body == null ? 0 : text.length ~/ 20000))).whenComplete(client.close);
+  final res = await sent.timeout(Duration(seconds: 40 + (body == null ? 0 : text.length ~/ 20000))).whenComplete(client.close);
+  store.clockFrom(res.headers['date']);
+  return res;
 }
 
 /// The same, with the answer arriving piece by piece (AI chat). The caller closes `client` to stop early.

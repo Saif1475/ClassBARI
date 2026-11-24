@@ -7,6 +7,7 @@ import { canSee, seer } from "../src/lib/community.ts";
 import { topId } from "../src/lib/data-access.ts";
 import { BACKUP_MAX, DOC_MAX, FULL, MAX_FILE_BYTES, POST_MAX, fileTooBig, guardedFetch, postLimit, readCapped } from "../src/lib/doc-limit.ts";
 import nextConfig from "../next.config.ts";
+import { crossSite } from "../src/lib/same-site.ts";
 import { blankState } from "../src/lib/lms-actions.ts";
 import { averagePct, gradedResults, incomeByMonth, myRank, quizBoard } from "../src/lib/lms-views.ts";
 import { meritList } from "../src/lib/quiz.ts";
@@ -161,5 +162,15 @@ test("restore: a backup of a full institute fits through the proxy and the data 
   const ascii = JSON.stringify({ name: "importBackup", args: [JSON.stringify({ app: "instanton", state: quotes })], base: 1 });
   assert.equal((await readCapped(send(ascii), postLimit("owner")))?.length, ascii.length);
   assert.equal(postLimit("teacher"), POST_MAX);
-  assert.ok(Number(nextConfig.experimental?.proxyClientMaxBodySize) >= BACKUP_MAX, "the proxy must not cut a restore short (Next's default is 10 MiB)");
+  // /api/data is outside the proxy instead: a bigger proxy limit would let anyone make every /api route hold 61 MB before it runs.
+  assert.equal(nextConfig.experimental?.proxyClientMaxBodySize, undefined, "keep Next's 10 MiB proxy limit");
+});
+
+test("cross-site: /api/data checks the origin itself, the same way the proxy does for the other /api routes", () => {
+  const req = (method, origin) => new Request("http://campus.test/api/data", { method, headers: { host: "campus.test", ...(origin ? { origin } : {}) } });
+  assert.equal(crossSite(req("POST", "https://evil.test")), true);
+  assert.equal(crossSite(req("POST", "not a url")), true);
+  assert.equal(crossSite(req("POST", "http://campus.test")), false);
+  assert.equal(crossSite(req("POST")), false); // the phone apps send no Origin
+  assert.equal(crossSite(req("GET", "https://evil.test")), false);
 });
