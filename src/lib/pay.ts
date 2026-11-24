@@ -50,3 +50,15 @@ export function packUntil(current: string | undefined, today: string, months: nu
   d.setUTCDate(Math.min(day, new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).getUTCDate()));
   return d.toISOString().slice(0, 10);
 }
+
+/**
+ * The pack a student still has running after today when it is not the level now asked for ({ pack, until }), or null:
+ * buying is fine. A different level can't go on top, because the months are added to the end date and the new level
+ * would count for the months already paid (one ৳1500 month on top of twelve ৳150 months). The same level adds months
+ * as before; premium given without a pack counts as the smallest, as in packPlan. Leave `item` out to ask what is running.
+ */
+export function packClash(st: { premiumUntil?: string; aiPack?: number } | undefined, today: string, item?: number) {
+  if (!st?.premiumUntil || st.premiumUntil <= today) return null; // none, ran out, or its last day: packUntil starts the new one from today
+  const pack = (PACKS as readonly number[]).includes(st.aiPack as number) ? (st.aiPack as number) : PACKS[0];
+  return pack === item ? null : { pack, until: st.premiumUntil };
+}

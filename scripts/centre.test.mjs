@@ -3,6 +3,8 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { applyCoupon, clashes, profitAndLoss } from "../src/lib/centre.ts";
 
+process.env.TZ = "Asia/Dhaka"; // months are counted in local time: the same answer on any machine
+
 const slot = (id, day, start, end, teacher, room, batch) => ({ id, day, start, end, teacher, room, batch });
 
 test("timetable clashes: same teacher, room or batch at overlapping times on the same day", () => {
@@ -27,6 +29,12 @@ test("profit and loss for one month", () => {
   assert.deepEqual(r, { income: 5000, salaries: 2000, byCategory: { Rent: 2000 }, expenses: 4000, profit: 1000 });
 });
 
+test("profit and loss counts a payment in its local month, as payroll does", () => {
+  const paid = [{ amount: 1000, at: "2026-11-30T18:30:00.000Z" }]; // 1 December, 00:30 in Dhaka
+  assert.equal(profitAndLoss("2026-12", paid, [], []).income, 1000);
+  assert.equal(profitAndLoss("2026-11", paid, [], []).income, 0);
+});
+
 test("coupons: percent off, course-only, expiry and use limit", () => {
   const coupons = [{ code: "EID20", percent: 20, maxUses: 2, used: 1 }, { code: "HSC", percent: 50, batchId: "hsc", maxUses: 9, used: 0, expires: "2026-11-30" }, { code: "FULL", percent: 10, maxUses: 1, used: 1 }];
   assert.equal(applyCoupon(1000, " eid20 ", coupons, "ssc", "2026-11-19").price, 800);
@@ -34,4 +42,8 @@ test("coupons: percent off, course-only, expiry and use limit", () => {
   assert.deepEqual(applyCoupon(1000, "HSC", coupons, "hsc", "2026-12-01"), { error: "expired" });
   assert.deepEqual(applyCoupon(1000, "FULL", coupons, "hsc", "2026-11-19"), { error: "usedUp" });
   assert.deepEqual(applyCoupon(1000, "NOPE", coupons, "hsc", "2026-11-19"), { error: "unknown" });
+  // A 1-use coupon already on a waiting order is used up for the next buyer; rejected orders don't count.
+  const one = [{ code: "HALF", percent: 50, maxUses: 1, used: 0 }];
+  assert.deepEqual(applyCoupon(1000, "half", one, "ssc", "2026-11-19", [{ status: "pending", coupon: "HALF" }]), { error: "usedUp" });
+  assert.equal(applyCoupon(1000, "half", one, "ssc", "2026-11-19", [{ status: "rejected", coupon: "HALF" }]).price, 500);
 });

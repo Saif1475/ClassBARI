@@ -1,7 +1,7 @@
 // With real accounts: which actions each person may send to the server, and what they get back.
 // Students and guardians act only as themselves and see only their own slice of the institute.
 import { canDelete, canEdit, REACTIONS, TEXT_MAX } from "./chat.ts";
-import type { ChatMessage } from "./mock-data.ts";
+import type { ChatMessage, ChatThread } from "./mock-data.ts";
 import { blankState, makeActions, setIdBase, type LmsState } from "./lms-actions.ts";
 import { markQuiz, scoreQuiz } from "./quiz.ts";
 import { averagePct, leagueRank, myRank } from "./lms-views.ts";
@@ -18,6 +18,8 @@ const staffName = (s: LmsState, who: Who) => s.staff.find((x) => !!who.email && 
 export const LOCAL_ONLY = new Set(["setViewer", "setMe", "signInWithEmail", "signInTeacher", "exportBackup"]);
 /** Not shown until the server answers: a quiz is marked there, so the browser has nothing right to show first. */
 export const SERVER_FIRST = new Set(["submitQuiz"]);
+/** What the browser's queue does with the server's answer to its first change (after `tries` sends of it): "sent", "wait" (kept, tried again later) or "drop" (refused: only that change goes, the rest are still sent, as the server checks each one by itself). Busy a few times in a row counts as refused, so one bad change can't block the rest. */
+export const afterAnswer = (status: number, tries: number) => (status >= 200 && status < 300 ? "sent" : status === 401 || ((status >= 500 || status === 429) && tries < 5) ? "wait" : "drop");
 /** Sample data never goes into a real institute. */
 const NEVER = new Set(["resetDemoData"]);
 /** Money, staff and institute settings: owner (and branch managers). */
@@ -52,6 +54,14 @@ const privateChatsOf = (s: LmsState, me: string) => {
     const batch = batchOf.get(chatStudent(thread));
     return !!batch && mine.has(batch);
   };
+};
+/** A student's private chat as staff `me` gets it: only the messages that were with them (the student keeps the whole thread). */
+// shortcut: a message saved before `teacher` was recorded goes to whoever teaches the batch now, upgrade by writing `teacher` onto old messages once.
+const seesPrivate = (m: ChatMessage, me: string) => m.teacher === undefined || m.teacher === me;
+const privateFor = (c: ChatThread, me: string): ChatThread => {
+  if (!c.id.startsWith("student-")) return c;
+  const messages = c.messages.filter((m) => seesPrivate(m, me));
+  return messages.length === c.messages.length ? c : { ...c, messages, unread: Math.min(c.unread, messages.filter((m) => m.mine).length) };
 };
 /** The batches each teacher action touches: a teacher works only in the batches the institute gave them. */
 const TEACHER_BATCH: Record<string, (a: A, s: LmsState) => (string | undefined)[]> = {
@@ -120,6 +130,32 @@ const upload = (x: unknown, kind: "image" | "pdf") =>
 /** A homework hand-in: a photo or a PDF, as a file (data URL), never a link or other text. */
 const handIn = (x: unknown) =>
   typeof x === "string" && x.length <= FILE_MAX && /^data:(image\/(png|jpeg|webp|gif)|application\/pdf);base64,[A-Za-z0-9+/=]*$/.test(x) ? x : refuse("bad file");
+const objects = (x: unknown) => (Array.isArray(x) && x.every((v) => v && typeof v === "object") ? (x as Record<string, unknown>[]) : refuse("bad list"));
+const amount = (x: unknown) => num(x, 0, 1_000_000);
+const onOff = (x: unknown) => (typeof x === "boolean" ? x : refuse("bad switch"));
+/** What a new lesson is made of, as the teachers' screens send it, and what each part must be. Anything else (its id, marks, who finished it) is never taken from the sender. */
+const ITEM_FIELDS: Record<string, (x: unknown) => unknown> = {
+  kind: (x) => (["video", "pdf", "quiz", "task", "exam"].includes(x as string) ? x : refuse("bad kind")),
+  title: (x) => str(x, 1000), meta: (x) => str(x, 1000), subject: (x) => str(x, 200), level: (x) => str(x, 200), paperName: (x) => str(x, 300), answerKeyName: (x) => str(x, 300),
+  dueDate: (x) => (/^(\d{4}-\d\d-\d\d)?$/.test(str(x, 10)) ? x : refuse("bad date")),
+  url: (x) => str(x, FILE_MAX), paper: (x) => str(x, FILE_MAX), answerKey: (x) => str(x, FILE_MAX), // a link, or the file itself (data URL)
+  points: amount, negative: amount, timeLimitMin: amount, passPct: amount,
+  shuffle: onOff, antiCheat: onOff, publishToExplore: onOff, free: onOff,
+  questions: (x) =>
+    objects(x).map((q) => {
+      const options = Array.isArray(q.options) ? q.options.map((o) => str(o, 2000)) : refuse("bad options");
+      const answer = Number.isInteger(q.answer) && (q.answer as number) >= 0 && (q.answer as number) < options.length ? q.answer : refuse("bad answer");
+      return { q: str(q.q, 10_000), options, answer, ...(q.topic == null ? {} : { topic: str(q.topic, 200) }), ...(q.section == null ? {} : { section: str(q.section, 200) }) };
+    }),
+  rubric: (x) => objects(x).map((c) => ({ name: str(c.name, 300), max: amount(c.max) })),
+};
+/** A lesson goes to its whole batch: one of the wrong shape (say, questions that are not a list) would stop the app loading for all of them, so it is refused before it is saved. */
+function lessonItem(input: unknown) {
+  const x = (input && typeof input === "object" ? input : refuse("bad lesson")) as Record<string, unknown>;
+  const out: Record<string, unknown> = {};
+  for (const k of Object.keys(ITEM_FIELDS)) if (x[k] !== undefined && x[k] !== null) out[k] = ITEM_FIELDS[k](x[k]);
+  return ["kind", "title", "meta"].every((k) => out[k] !== undefined) ? out : refuse("bad lesson");
+}
 /** A community post this student may see (and so like, reply to, vote on or bookmark). */
 const seenPost = (s: LmsState, me: number, id: unknown) => {
   const p = s.community.find((x) => x.id === id);
@@ -263,6 +299,8 @@ export function checkAction(name: string, args: unknown[], who: Who, s: LmsState
     // A student's or guardian's own actions: staff may not do them in someone's name.
     if (FAMILY_ONLY.has(name)) refuse("students and guardians only");
     if ((name === "addCommunityPost" && args[0] !== "teacher") || (name === "addComment" && args[1] !== "teacher")) refuse("staff post as the teacher");
+    // Staff change or delete only the teacher's own posts; a student's post is moderated by hiding it (moderatePost), never rewritten.
+    if ((name === "editPost" || name === "deletePost") && s.community.find((p) => p.id === args[0])?.author !== "teacher") refuse("not your post");
     if (name === "addNote" && args[2] !== undefined) refuse("not your note");
     if (name === "deleteNote" && s.notes.find((n) => n.id === args[0])?.by !== undefined) refuse("not your note");
     if (who.role === "teacher" && name === "requestLeave" && (args[0] as { name?: unknown })?.name !== staffName(s, who)) refuse("only your own leave");
@@ -296,7 +334,12 @@ export function checkAction(name: string, args: unknown[], who: Who, s: LmsState
       return [args[0], staffName(s, who), chatText(args[2], x), false, x];
     }
     if (name === "markChatRead") return [args[0], "staff", args[2] !== false];
+    if (CHAT_CHANGES.has(name) && String(args[0]).startsWith("student-") && !seesPrivate(msgIn(s, args[0], args[1]), staffName(s, who))) refuse("private chat");
     if (CHAT_CHANGES.has(name)) return chatChange(name, args, s, String(args[0]), "staff", (m) => !m.mine && m.sender === staffName(s, who));
+    // A video put into a chapter becomes a lesson too: its title, length and link are held to the same rules.
+    const video = (name === "addExploreVideo" ? (args[0] ?? {}) : null) as { title?: unknown; length?: unknown; url?: unknown } | null;
+    if (video) lessonItem({ kind: "video", title: video.title, meta: video.length, url: video.url });
+    if (name === "addModuleItem") return [args[0], lessonItem(args[1])];
     return args;
   }
   // Own keys only: a name like "constructor" must not find something on every object.
@@ -337,7 +380,7 @@ function teacherView(s: LmsState, me: string): LmsState {
     admissions: [],
     orders: [],
     coupons: [],
-    chats: s.chats.filter((c) => mine.has(chatStudent(c.id))), // guardians' threads and the students' own chats, for their own batches
+    chats: s.chats.filter((c) => mine.has(chatStudent(c.id))).map((c) => privateFor(c, me)), // guardians' threads and the students' own chats, for their own batches
     doubts: s.doubts.filter((d) => names.has(d.batch)),
     meetings: s.meetings.filter((m) => m.teacher === me || names.has(m.batch)),
     story: s.story.filter((p) => names.has(p.batch)),
@@ -363,7 +406,7 @@ export function viewFor(s: LmsState, who: Who): LmsState {
       teacherLogin: s.teacherName,
       viewer: "all",
       notes: s.notes.filter((n) => n.by === undefined), // students' own notes are private to them, as for teachers
-      chats: s.chats.filter((c) => chatOk(c.id)), // students' private chats only if they teach that batch
+      chats: s.chats.filter((c) => chatOk(c.id)).map((c) => privateFor(c, staffName(s, who))), // students' private chats only if they teach that batch, and only what was with them
       // Even the owner isn't sent who voted for what, or whom each student muted or blocked.
       community: s.community.map((p) => (p.poll ? { ...p, poll: pollFor(p.poll, undefined) } : p)),
       communityProfiles: Object.fromEntries(Object.entries(s.communityProfiles ?? {}).map(([id, pr]) => [id, { bio: pr.bio }])),
@@ -399,9 +442,10 @@ export function viewFor(s: LmsState, who: Who): LmsState {
         items: m.items.map(({ doneBy, answerKey, answerKeyName, ...it }) => ({
           ...it,
           // The right answers arrive only after the quiz is taken (the server marks it); the answer key only after the exam is marked.
-          questions: ids.some((id) => it.scores?.[id] !== undefined) ? it.questions : it.questions?.map((q) => ({ ...q, answer: -1 })),
+          // A lesson already saved in the wrong shape (questions or "done by" that are not lists) counts as having none: it must not stop the whole batch's data loading.
+          questions: !Array.isArray(it.questions) ? undefined : ids.some((id) => it.scores?.[id] !== undefined) ? it.questions : it.questions.map((q) => ({ ...q, answer: -1 })),
           ...(ids.some((id) => it.submissions?.[id]?.grade !== undefined) ? { answerKey, answerKeyName } : {}),
-          done: ids.some((id) => doneBy?.includes(id) || it.scores?.[id] !== undefined || it.submissions?.[id] !== undefined),
+          done: ids.some((id) => (Array.isArray(doneBy) && doneBy.includes(id)) || it.scores?.[id] !== undefined || it.submissions?.[id] !== undefined),
           // Only their own marks, and their position among classmates; never anyone else's marks.
           scores: own(it.scores),
           ranks: Object.fromEntries(
@@ -462,6 +506,23 @@ export function rosterOf(s: LmsState) {
     if (ok(st.guardianEmail)) rows.push({ email: st.guardianEmail.toLowerCase(), role: "guardian", student_id: st.id });
   }
   return rows;
+}
+
+/** Teachers added with an email (kept in the members table); the owner is not one of them. */
+export const teachersOf = (s: LmsState) => s.staff.filter((x) => x.email && x.name !== s.teacherName).map((x) => ({ name: x.name, email: x.email!.toLowerCase() }));
+
+/** With no institute picked, the staff row to open: owner before manager before teacher, then by institute id so equal ranks give the same one every time. */
+export function bestStaffRow<T extends { institute_id: string; role: string }>(rows: T[] | null | undefined): T | undefined {
+  const rank = (r: T) => { const i = ["owner", "manager", "teacher"].indexOf(r.role); return i < 0 ? 9 : i; };
+  return [...(rows ?? [])].sort((a, b) => rank(a) - rank(b) || (a.institute_id < b.institute_id ? -1 : a.institute_id > b.institute_id ? 1 : 0))[0];
+}
+
+/** Which sign-in lists a save must write. `behind`: an earlier write failed, so both are written whatever the difference. */
+export function peopleToSync(before: LmsState, after: LmsState, behind: boolean) {
+  if (behind) return { roster: true, teachers: true };
+  // Most changes don't touch people at all: the very same lists are still in place, so there is nothing to compare.
+  if (before.students === after.students && before.staff === after.staff && before.teacherName === after.teacherName) return { roster: false, teachers: false };
+  return { roster: JSON.stringify(rosterOf(before)) !== JSON.stringify(rosterOf(after)), teachers: JSON.stringify(teachersOf(before)) !== JSON.stringify(teachersOf(after)) };
 }
 
 /** The highest numeric id anywhere in some data. Reads it as text, so for a whole institute this is the slow way. */

@@ -39,7 +39,7 @@ export async function POST(request: Request) {
   if (fast) return fast;
   const release = await takeTurn(key); // one answer at a time per person, so the count read below is never out of date
   try {
-    const a = await allowance(db, key, g.me.institute, plan, ai);
+    const a = await allowance(db, key, g.me.institute, plan, ai, g.until);
     if (a.over) return Response.json({ error: "limit", resetsAt: a.resetsAt }, { status: 429 });
     if ((await aiSpent(`${a.day.slice(0, 7)}-01`)) >= monthlyBudgetUsd(ai)) return Response.json({ error: "paused" }, { status: 503 });
     const record = a.record;

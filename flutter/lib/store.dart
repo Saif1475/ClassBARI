@@ -20,6 +20,11 @@ const _queue = 'classbari-outbox', _child = 'classbari-child', _size = 'classbar
 const _keepMax = 2000000; // a bigger institute's data is not kept on the phone; it loads when the app opens
 const _queueMax = 1000000; // changes waiting for internet survive closing the app, up to this size (a photo does not)
 
+/// What the queue does with the server's answer to its first change: 'sent', 'wait' (kept, tried again later), 'login' (kept, and the login checked) or 'drop'
+/// (refused: only that change goes, the rest are still sent, as the server checks each one by itself).
+@visibleForTesting
+String afterAnswer(int code) => code == 200 ? 'sent' : code == 401 ? 'login' : code == 429 || code >= 500 ? 'wait' : 'drop';
+
 class Store extends ChangeNotifier {
   late SharedPreferences prefs;
   Json? state;
@@ -31,6 +36,7 @@ class Store extends ChangeNotifier {
   var suspended = false;
   final List<Json> _outbox = [];
   int _version = 0, _lastBase = 0;
+  int _signOuts = 0; // raised on every sign-out: an answer to a request sent before it belongs to the last person
   Timer? _timer;
 
   /// Changes not yet confirmed by the server (shown as "saving" or, offline, as waiting).
@@ -160,6 +166,7 @@ class Store extends ChangeNotifier {
   bool active = true;
 
   void _forget() {
+    _signOuts++;
     state = null;
     role = null;
     _version = 0;
@@ -170,8 +177,11 @@ class Store extends ChangeNotifier {
     }
   }
 
-  void _adopt(Json d) {
-    _version = (d['version'] as num?)?.toInt() ?? _version;
+  void _adopt(Json d, int since) {
+    if (since != _signOuts || !signedIn) return; // signed out while it was on its way: the next person must not get it
+    final v = (d['version'] as num?)?.toInt();
+    if (v != null && v < _version) return; // a download that started before a newer save must not undo it (a reload after a refusal starts from 0)
+    _version = v ?? _version;
     final r = d['role'] as String?;
     if (r != null) {
       role = r;
@@ -194,11 +204,13 @@ class Store extends ChangeNotifier {
   Future<void> _pull() async {
     final was = status;
     var changed = false;
+    final since = _signOuts;
     try {
       final res = await api('/api/data?v=$_version');
+      if (since != _signOuts) return; // signed out meanwhile
       if (res.statusCode == 200) {
         // A big institute's data is read on a background thread, so the screen doesn't stutter while it arrives.
-        _adopt((res.body.length > 200000 ? await compute(jsonDecode, res.body) : jsonDecode(res.body)) as Json);
+        _adopt((res.body.length > 200000 ? await compute(jsonDecode, res.body) : jsonDecode(res.body)) as Json, since);
         changed = true;
         status = Status.ready;
       } else if (res.statusCode == 204) {
@@ -250,20 +262,27 @@ class Store extends ChangeNotifier {
 
   Future<void> _send() async {
     var refused = false;
+    final since = _signOuts;
     try {
       while (_outbox.isNotEmpty) {
         final res = await api('/api/data', body: _outbox.first);
-        if (res.statusCode == 200) {
+        if (since != _signOuts) return; // signed out meanwhile: the queue is already forgotten
+        final what = afterAnswer(res.statusCode);
+        if (what == 'sent') {
           suspended = false;
           _outbox.removeAt(0);
-          _adopt(jsonDecode(res.body) as Json);
+          _adopt(jsonDecode(res.body) as Json, since);
           status = Status.ready;
-        } else if (res.statusCode == 401 || res.statusCode == 429 || res.statusCode >= 500) {
-          if (res.statusCode != 401) status = Status.offline; // busy or too fast: kept, and tried again on the next refresh
+        } else if (what == 'login') {
+          // As in _pull: a login ended elsewhere logs out (which forgets the queue); still signed in means removed from every list, so the screen says so, and the changes wait until re-added or signed out.
+          if (await renewLogin()) status = Status.noAccess;
+          break;
+        } else if (what == 'wait') {
+          status = Status.offline; // busy or too fast: kept, and tried again on the next refresh
           break;
         } else {
           suspended = res.statusCode == 403 && res.body.contains('"suspended"');
-          _outbox.clear(); // refused: later changes may depend on it, so show what the server really has
+          _outbox.removeAt(0); // refused: only this one goes; the rest are still sent, and the real data is reloaded at the end
           refused = syncFailed = true;
         }
         _keepQueue();
@@ -281,6 +300,14 @@ class Store extends ChangeNotifier {
 
   /// True while a change with this name and these first arguments is on its way (to show a switch as already flipped).
   int pending(String name, List<Object?> first) => _outbox.where((e) => e['name'] == name && listEquals((e['args'] as List).take(first.length).toList(), first)).length;
+
+  /// Tests only: take a server answer as if it had just arrived.
+  @visibleForTesting
+  void adoptForTest(Json d, [int? since]) => _adopt(d, since ?? _signOuts);
+
+  /// Tests only: how many sign-outs this phone has had.
+  @visibleForTesting
+  int get signOuts => _signOuts;
 
   /// Tests only: show this data as if it had come from the server, with nothing waiting to be sent.
   @visibleForTesting

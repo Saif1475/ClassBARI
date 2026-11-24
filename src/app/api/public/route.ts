@@ -3,6 +3,7 @@ import { applyCoupon } from "@/lib/centre";
 import { publicView } from "@/lib/data-access";
 import { act, loadPart, publicDocs } from "@/lib/data-server";
 import { dayKey } from "@/lib/dates";
+import { readCapped } from "@/lib/doc-limit";
 import { limited } from "@/lib/rate-limit";
 import { PLAN_STUDENT_LIMIT } from "@/lib/seat-billing";
 import { isBdMobile, normEmail, validateStudent, type StudentContact } from "@/lib/site";
@@ -41,8 +42,15 @@ function contact(x: unknown): StudentContact | null {
  */
 export async function POST(request: Request) {
   if (!REAL_AUTH) return Response.json({ error: "demo mode" }, { status: 404 });
-  if (Number(request.headers.get("content-length")) > 20_000) return Response.json({ error: "too large" }, { status: 413 });
-  const body = (await request.json().catch(() => null)) as Record<string, unknown> | null;
+  const raw = await readCapped(request, 20_000).catch(() => "");
+  if (raw === null) return Response.json({ error: "too large" }, { status: 413 });
+  const body = (() => {
+    try {
+      return JSON.parse(raw) as Record<string, unknown> | null;
+    } catch {
+      return null;
+    }
+  })();
   // Coupon guesses, fake joins and fake orders. A whole classroom may join from one Wi-Fi address, so the limit per
   // address is roomy and each batch has its own.
   const over = body?.kind === "coupon" ? limited(request, "coupon", 30, 600_000) : (limited(request, "join", 80, 3600_000) ?? limited(request, "join-batch", 300, 3600_000, String(body?.batchId).slice(0, 200)));
@@ -83,7 +91,7 @@ export async function POST(request: Request) {
       if (!s.site.bkash || !batch.public) return null;
       if (s.orders.filter((o) => o.status === "pending").length >= 300 || s.orders.some((o) => o.trxId === trxId)) return null; // a pile of fake orders, or the same payment twice
       const code = typeof body.coupon === "string" ? body.coupon : "";
-      const r = code ? applyCoupon(batch.fee, code, s.coupons, batchId, dayKey()) : null;
+      const r = code ? applyCoupon(batch.fee, code, s.coupons, batchId, dayKey(), s.orders) : null;
       ok = true;
       // The price is worked out here, never taken from the browser.
       return [{ batchId, student, price: r && !("error" in r) ? r.price : batch.fee, coupon: r && !("error" in r) ? r.coupon.code : undefined, trxId }];

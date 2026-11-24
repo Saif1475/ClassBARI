@@ -6,10 +6,10 @@ import { REAL_AUTH } from "./auth-mode";
 import "./first-data"; // (the type of window.__firstData)
 import { Loading } from "@/components/Loading";
 import { dayKey, toDate } from "./dates";
-import { blankState, idBase, makeActions, monthKey, rollFees, type LmsState } from "./lms-actions";
+import { blankState, idBase, makeActions, monthKey, rollFees, setIdBase, type LmsState } from "./lms-actions";
 import { FEE_DUE_DAY, seed, type Batch, type CalendarEvent, type CourseModule, type ItemKind, type ModuleItem, type Payment, type Staff } from "./mock-data";
 import { masteryLevel, type QuizQuestion } from "./quiz";
-import { LOCAL_ONLY, SERVER_FIRST } from "./data-access";
+import { afterAnswer, LOCAL_ONLY, SERVER_FIRST } from "./data-access";
 import { monthAttendance } from "./lms-views";
 
 export type * from "./mock-data";
@@ -94,29 +94,33 @@ function useLmsState() {
   const flush = async () => {
     if (busy.current) return;
     busy.current = true;
+    let refused: boolean | "suspended" = false;
     try {
       while (outbox.current.length) {
         const res = await fetch("/api/data", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(outbox.current[0]) });
-        // Server busy or unreachable through a proxy: keep the change and try again (a few times, so one bad change can't block the rest).
-        if ((res.status >= 500 || res.status === 429) && ++tries.current < 5) {
+        const what = afterAnswer(res.status, res.status === 401 ? 0 : ++tries.current); // only busy answers count towards giving up
+        // Server busy, unreachable through a proxy, or the login needs renewing: keep the change and try again later.
+        if (what === "wait") {
           setSaveError(true);
           break;
         }
         tries.current = 0;
         outbox.current.shift();
-        if (!res.ok) {
+        if (what === "drop") {
           const why = res.status === 403 ? ((await res.json().catch(() => ({}))) as { error?: string }).error : "";
-          setSaveError(why === "suspended" ? "suspended" : true); // refused or failed: show what the server really has
-          outbox.current = [];
+          refused = why === "suspended" ? "suspended" : true; // only this one goes; the rest are still sent
           keep();
-          await pull();
-          break;
+          continue;
         }
         keep();
         const d = (await res.json()) as { state: LmsState; version: number };
         version.current = d.version;
         setSaveError(false);
         if (!outbox.current.length) adopt(d.state);
+      }
+      if (refused) {
+        setSaveError(refused); // refused or failed: show what the server really has
+        await pull();
       }
     } catch {
       setSaveError(true); // offline: what's left is sent with the next change or refresh
@@ -226,6 +230,7 @@ function useLmsState() {
                 const base = idBase();
                 const out = SERVER_FIRST.has(name) ? undefined : (fn as (...a: unknown[]) => unknown)(...args);
                 outbox.current.push({ name, args, base });
+                if (idBase() === base) setIdBase(base + 1); // made no new id: the next change still gets its own base, or the server takes it for a resend
                 keep();
                 void flush();
                 return out;

@@ -104,7 +104,31 @@ const emptied = (s: LmsState): LmsState => ({
   community: [], communityProfiles: {}, friendships: [], batches: [], students: [], payments: [], attendance: {}, modules: [], announcements: [],
   exploreVideos: [], enrolledCourses: [], calendarEvents: [], chats: [], liveClass: { ...s.liveClass, batch: "", topic: "", link: "" },
   site: { ...s.site, slug: "" },
+  nextStudentId: 0, // not counted yet (a new institute, or data saved before this was kept): nextRoll works it out
 });
+
+/** The highest student id the data still mentions: a removed student's fees, marks, chats and posts stay behind under their number. */
+function topStudentId(s: LmsState) {
+  let top = 0;
+  const see = (ids: unknown) => {
+    for (const x of Array.isArray(ids) ? ids : []) if (Number.isSafeInteger(Number(x)) && Number(x) > top) top = Number(x);
+  };
+  const keys = (...recs: unknown[]) => recs.forEach((r) => r && typeof r === "object" && see(Object.keys(r)));
+  see(s.students.map((x) => x.id));
+  see([...s.payments, ...s.points, ...s.portfolio, ...s.doubts].map((x) => x.studentId));
+  see(s.notes.map((n) => n.by));
+  see(s.meetings.map((m) => m.bookedBy));
+  see(s.friendships.flatMap((f) => [f.from, f.to]));
+  see(s.chats.map((c) => /^(?:parent|student)-(\d+)$/.exec(String(c.id))?.[1]));
+  Object.values(s.attendance).forEach(see);
+  for (const m of s.modules) for (const it of m.items) (see(it.doneBy), keys(it.scores, it.answers, it.submissions, it.tabSwitches, it.started, it.took));
+  for (const p of s.community) (see([p.author, ...(p.comments ?? []).map((c) => c.author)]), see(p.likes), see(p.reports), keys(p.poll?.votes));
+  keys(s.xp, s.reportComments, s.communityProfiles, ...Object.values(s.watch));
+  return top;
+}
+/** The next new student's roll number. Never one used before: whoever got a removed student's number would see that student's chats, fees and marks. */
+export const nextRoll = (s: LmsState) =>
+  Math.max(Number.isSafeInteger(s.nextStudentId) && s.nextStudentId > 0 ? s.nextStudentId : topStudentId(s) + 1, s.students.reduce((top, x) => Math.max(top, x.id), 0) + 1); // no "too many arguments" with a huge list
 
 export type AddItemInput = {
   kind: ItemKind;
@@ -152,7 +176,7 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
 
   return {
     addAnnouncement: (input: { title: string; body: string; batch: string; pinned?: boolean }) =>
-      set((s) => ({ announcements: [{ id: uid(), author: s.teacherName, at: new Date().toISOString(), ...input }, ...s.announcements] })),
+      set((s) => ({ announcements: [{ ...input, id: uid(), author: s.teacherName, at: new Date().toISOString() }, ...s.announcements] })),
     deleteAnnouncement: (id: number) => set((s) => ({ announcements: s.announcements.filter((a) => a.id !== id) })),
 
     /** Returns the new module's id. */
@@ -176,7 +200,7 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
     addModuleItem: (moduleId: number, input: AddItemInput) =>
       set((s) => {
         const { publishToExplore, subject, level, free, ...item } = input;
-        const modules = mapItems(s, moduleId, (items) => [...items, { id: uid(), done: false, ...item }]);
+        const modules = mapItems(s, moduleId, (items) => [...items, { ...item, id: uid(), done: false }]);
         if (input.kind !== "video" || !publishToExplore) return { modules };
         return {
           modules,
@@ -252,7 +276,7 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
       })),
 
     updateLiveClass: (info: LiveClassInfo) => set(() => ({ liveClass: info })),
-    addCalendarEvent: (input: Omit<CalendarEvent, "id">) => set((s) => ({ calendarEvents: [...s.calendarEvents, { id: uid(), ...input }] })),
+    addCalendarEvent: (input: Omit<CalendarEvent, "id">) => set((s) => ({ calendarEvents: [...s.calendarEvents, { ...input, id: uid() }] })),
 
     addBatch: (input: { name: string; days: string; classDays: number[]; subject: string; fee: number; lateFine: number; teacher: string }) =>
       set((s) => {
@@ -268,10 +292,13 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
         const batch = s.batches.find((b) => b.id === batchId);
         return {
           batches: s.batches.map((b) => (b.id === batchId ? { ...b, ...patch } : b)),
-          // A new fee applies to students who still owe exactly one month.
+          // A new fee applies to students who still owe exactly this month's own fee (fee minus their discount); the difference is added.
           students:
             patch.fee !== undefined && batch
-              ? s.students.map((st) => (st.batch === batch.name && st.feeDue === batch.fee ? { ...st, feeDue: patch.fee! } : st))
+              ? s.students.map((st) => {
+                  const own = (fee: number) => Math.max(0, fee - (st.discount ?? 0));
+                  return st.batch === batch.name && st.feeDue > 0 && st.feeDue === own(batch.fee) ? { ...st, feeDue: st.feeDue + own(patch.fee!) - own(batch.fee) } : st;
+                })
               : s.students,
         };
       }),
@@ -308,14 +335,14 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
       set((s) => ({ students: s.students.map((x) => (x.id === studentId ? { ...x, [field]: Math.max(0, Math.min(30, score || 0)) } : x)) })),
     /** Returns the new student's roll number. */
     addStudent: (input: StudentInput & { feePaid: boolean }) => {
-      const id = get().students.reduce((top, x) => Math.max(top, x.id), Math.max(lastRoll.current, 0)) + 1; // no "too many arguments" with a huge list
+      const id = Math.max(nextRoll(get()), lastRoll.current + 1);
       lastRoll.current = id;
       set((s) => {
         const fee = batchFee(s, input.batch);
         const st: StudentRecord = { id, ...clean(input), feeDue: fee, ch4Score: 0, ch3Score: 0, joined: monthKey(), ...(input.pending ? { pending: true } : {}) };
         return input.feePaid && fee > 0
-          ? { students: [{ ...st, feeDue: 0 }, ...s.students], payments: [payment(st, "cash"), ...s.payments] }
-          : { students: [st, ...s.students] };
+          ? { students: [{ ...st, feeDue: 0 }, ...s.students], payments: [payment(st, "cash"), ...s.payments], nextStudentId: id + 1 }
+          : { students: [st, ...s.students], nextStudentId: id + 1 };
       });
       return id;
     },
@@ -352,7 +379,8 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
         ),
       })),
     setStudentPhoto: (studentId: number, photo: string | undefined) => set((s) => ({ students: s.students.map((x) => (x.id === studentId ? { ...x, photo } : x)) })),
-    removeStudent: (studentId: number) => set((s) => ({ students: s.students.filter((x) => x.id !== studentId) })),
+    // Their number stays used: what was kept under it (chats, fees, marks) must never become a newcomer's.
+    removeStudent: (studentId: number) => set((s) => ({ students: s.students.filter((x) => x.id !== studentId), nextStudentId: nextRoll(s) })),
     toggleStudentMode: (studentId: number) =>
       set((s) => ({ students: s.students.map((x) => (x.id === studentId ? { ...x, mode: x.mode === "offline" ? "online" : "offline" } : x)) })),
     /** A student's saved key points (`by` = the student, so each sees only their own with real accounts). */
@@ -463,7 +491,7 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
       const batch = get().batches.find((b) => b.id === o.batchId);
       let roll = 0;
       if (ok && batch) {
-        roll = get().students.reduce((top, x) => Math.max(top, x.id), Math.max(lastRoll.current, 0)) + 1;
+        roll = Math.max(nextRoll(get()), lastRoll.current + 1);
         lastRoll.current = roll;
       }
       set((s) => {
@@ -473,6 +501,7 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
         return {
           orders,
           students: [st, ...s.students],
+          nextStudentId: roll + 1,
           payments: o.price > 0 ? [{ id: uid(), studentId: roll, batch: batch.name, amount: o.price, at: new Date().toISOString(), method: "bkash" as const }, ...s.payments] : s.payments,
           coupons: o.coupon ? s.coupons.map((c) => (c.code === o.coupon ? { ...c, used: c.used + 1 } : c)) : s.coupons,
         };
@@ -486,14 +515,16 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
 
     sendChatMessage: (threadId: string, sender: string, text: string, mine: boolean, extra?: ChatExtra) =>
       set((s) => ({
-        chats: s.chats.map((c): ChatThread => (c.id === threadId ? { ...c, messages: [...c.messages, { id: uid(), sender, text, at: new Date().toISOString(), mine, ...extraOf(extra) }] } : c)),
+        chats: s.chats.map((c): ChatThread => (c.id === threadId ? { ...c, messages: [...c.messages, { id: uid(), sender, text, at: new Date().toISOString(), mine, ...extraOf(extra), ...(!mine && threadId.startsWith("student-") ? { teacher: sender } : {}) }] } : c)),
       })),
     /** Student ↔ teacher thread (private: only the student and their batch teacher see it), created on first message. */
     sendStudentMessage: (studentId: number, text: string, extra?: ChatExtra) =>
       set((s) => {
         const st = s.students.find((x) => x.id === studentId);
         const id = `student-${studentId}`;
-        const msg = { id: uid(), sender: st?.name ?? "", text, at: new Date().toISOString(), mine: true, ...extraOf(extra) };
+        // Who it is with now: a teacher assigned later (or the owner) doesn't get it.
+        const teacher = s.batches.find((b) => b.name === st?.batch)?.teacher ?? "";
+        const msg = { id: uid(), sender: st?.name ?? "", text, at: new Date().toISOString(), mine: true, ...extraOf(extra), teacher };
         const exists = s.chats.some((c) => c.id === id);
         return {
           chats: exists
@@ -524,7 +555,7 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
       })),
     editChatMessage: (threadId: string, msgId: number, text: string) => setChatMessage(threadId, msgId, (m) => (m.deleted ? m : { ...m, text, edited: true })),
     /** "Delete for everyone": the message stays as "This message was deleted". */
-    deleteChatMessage: (threadId: string, msgId: number) => setChatMessage(threadId, msgId, (m) => ({ id: m.id, sender: m.sender, at: m.at, mine: m.mine, text: "", deleted: true })),
+    deleteChatMessage: (threadId: string, msgId: number) => setChatMessage(threadId, msgId, (m) => ({ id: m.id, sender: m.sender, at: m.at, mine: m.mine, text: "", deleted: true, ...(m.teacher === undefined ? {} : { teacher: m.teacher }) })),
     reactChatMessage: (threadId: string, msgId: number, side: "family" | "staff", emoji: string | null) =>
       setChatMessage(threadId, msgId, (m) => {
         const react = { ...m.react, [side]: emoji ?? undefined };
@@ -595,7 +626,9 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
         if (!BACKUP_TAGS.includes(b?.app) || !b.data || !Array.isArray(b.data.students) || !Array.isArray(b.data.batches)) return false;
         // Students' private chats with their teachers are never in a backup (the owner can't see them): keep them as they are.
         const own = get().chats.filter((c) => c.id.startsWith("student-"));
-        replace({ ...fresh(), ...b.data, chats: [...(Array.isArray(b.data.chats) ? b.data.chats : []).filter((c: { id?: unknown }) => !String(c?.id).startsWith("student-")), ...own] });
+        const next: LmsState = { ...fresh(), ...b.data, chats: [...(Array.isArray(b.data.chats) ? b.data.chats : []).filter((c: { id?: unknown }) => !String(c?.id).startsWith("student-")), ...own] };
+        // Roll numbers given out since the backup was made stay used (those students' private chats are still here), so the counter never goes back.
+        replace({ ...next, nextStudentId: Math.max(nextRoll(get()), nextRoll(next)) });
         return true;
       } catch {
         return false;

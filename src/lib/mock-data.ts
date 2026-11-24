@@ -140,6 +140,7 @@ export type ChatMessage = {
   edited?: true;
   deleted?: true; // taken back for everyone: the text and photo are gone
   react?: { family?: string; staff?: string }; // one reaction per side
+  teacher?: string; // a student's private chat: the teacher it was with when sent, so a later teacher or the owner can't read it
 };
 // readFamily / readStaff: when each side last opened the chat (the ticks). Not sent when that side turned read receipts off.
 export type ChatThread = { id: string; name: string; role: string; unread: number; online: boolean; messages: ChatMessage[]; readFamily?: string; readStaff?: string };
@@ -370,6 +371,7 @@ export function seed() {
     teacherLogin: "", // staff name that logged in with their mobile; "" or the owner = whole-institute view
     meId: 1, // the student account this browser is logged in as
     parentChildren: [1, 8], // the parent account's children
+    nextStudentId: students.length + 1, // the next new student's roll number: only ever goes up, so nobody is given a removed student's number (0: not counted yet)
     feeMonth: dayFromToday(0).slice(0, 7), // last month fees were charged (YYYY-MM)
     reportComments: {} as Record<number, string>,
     xp,

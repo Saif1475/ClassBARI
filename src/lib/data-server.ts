@@ -2,10 +2,11 @@
 // data-access.ts has decided what the signed-in person may do. Never import this from the browser.
 import { randomUUID } from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { Refused, rosterOf, runAction, topId, type Who } from "./data-access";
+import { bestStaffRow, peopleToSync, Refused, rosterOf, runAction, teachersOf, topId, type Who } from "./data-access";
 import { blankState, idBase, rollFees, type LmsState } from "./lms-actions";
-import { FULL, guardedFetch } from "./doc-limit";
+import { FULL, guardedFetch, MAX_FILE_BYTES } from "./doc-limit";
 import { REAL_AUTH } from "./auth-mode";
+import { changeKey, ranBefore, ranNow } from "./ran-before";
 import { isStaffRequest } from "./platform-server";
 import { supabaseFromRequest } from "./supabase/server";
 
@@ -61,9 +62,11 @@ async function findWho(request: Request): Promise<Me | null> {
   let rosterQ = db.from("roster").select("institute_id, role, student_id").eq("email", email);
   if (pick) rosterQ = rosterQ.eq("institute_id", pick);
   // Both sign-in lists are asked at the same time: most people are students or guardians, and no longer wait for the staff list first.
-  const [{ data: staff, error }, { data: rows }] = await Promise.all([staffQ.limit(1), rosterQ]);
+  // No pick: read their few staff rows and open the highest rank (an owner of A who teaches at B gets A), not whichever row comes first.
+  const [{ data: staff, error }, { data: rows }] = await Promise.all([staffQ.limit(pick ? 1 : 50), rosterQ]);
   if (error) console.error("data: members lookup failed:", error.message);
-  if (staff?.[0]) return { institute: staff[0].institute_id, who: { role: staff[0].role, name: staff[0].name, studentIds: [], email } };
+  const top = bestStaffRow(staff);
+  if (top) return { institute: top.institute_id, who: { role: top.role, name: top.name, studentIds: [], email } };
   if (!rows?.length) return null;
   // shortcut: someone who is both a student and a guardian, or in two institutes, gets the first; add a switcher if that happens.
   const role = rows.some((r) => r.role === "student") ? "student" : "guardian";
@@ -222,6 +225,9 @@ export function act(me: Me, name: string, args: unknown[], base: number, check: 
 }
 
 async function actNow(me: Me, name: string, args: unknown[], base: number, check: (s: LmsState) => unknown[] | null) {
+  // Sent again because its answer never arrived: it is already in the data, so the answer is the data as it is now (see ran-before.ts).
+  const change = changeKey(me.who, name, args, base);
+  if (ranBefore(me.institute, change)) return loadDoc(me.institute);
   let stored: unknown[] | null = null;
   let storedFor = "";
   for (let attempt = 0; attempt < 5; attempt++) {
@@ -242,6 +248,7 @@ async function actNow(me: Me, name: string, args: unknown[], base: number, check
       latest.delete(me.institute); // someone else saved: read their copy
       continue;
     }
+    ranNow(me.institute, change);
     const version = saved.version;
     remember(me.institute, version, Promise.resolve({ state: next, version, stamp: saved.stamp }));
     // Ids in the new copy: the old ones, the ones just made, any that came in with the action, and new roll numbers.
@@ -249,29 +256,41 @@ async function actNow(me: Me, name: string, args: unknown[], base: number, check
     if (name === "importBackup") tops.delete(me.institute);
     else tops.set(me.institute, { stamp: saved.stamp, top: Math.max(top, used, topId(stored), next.students === doc.state.students ? 0 : maxStudentId(next)) });
     if (tops.size > 10_000) tops.clear();
-    await syncPeople(me.institute, doc.state, next);
-    // "Find your institute" searches the institutes table: keep its name the same as the one the owner set.
-    if (next.instituteName && next.instituteName !== doc.state.instituteName) {
-      const { error } = await admin().from("institutes").update({ name: next.instituteName }).eq("id", me.institute);
-      if (error) console.error("data: institute name update failed:", error.message);
+    // The change is saved: a problem from here on is logged, never answered as an error (the sender would send the change again).
+    try {
+      await syncPeople(me.institute, doc.state, next);
+      // "Find your institute" searches the institutes table: keep its name the same as the one the owner set.
+      if (next.instituteName && next.instituteName !== doc.state.instituteName) {
+        const { error } = await admin().from("institutes").update({ name: next.instituteName }).eq("id", me.institute);
+        if (error) console.error("data: institute name update failed:", error.message);
+      }
+    } catch (e) {
+      console.error("data: saved, but a step after the save failed:", name, e instanceof Error ? e.message : e);
     }
     return { state: next, version, before: doc.state };
   }
   throw new Error("busy");
 }
 
-/** Keep sign-in lists in step: student/guardian Gmails (roster) and teachers added with an email (members). */
+/**
+ * Institutes whose sign-in lists may be out of step because a write failed after the save went through: their next
+ * save writes both lists whatever changed. shortcut: kept in memory, so a restart or another server forgets it; keep a flag in the database if that matters.
+ */
+const peopleBehind = new Set<string>();
+
+/** Keep sign-in lists in step: student/guardian Gmails (roster) and teachers added with an email (members). Throws on any failed write. */
 async function syncPeople(institute: string, before: LmsState, after: LmsState) {
-  // Most changes don't touch people at all: the very same lists are still in place, so there is nothing to compare.
-  if (before.students === after.students && before.staff === after.staff && before.teacherName === after.teacherName) return;
+  const need = peopleToSync(before, after, peopleBehind.has(institute));
+  if (!need.roster && !need.teachers) return;
+  peopleBehind.add(institute); // until both lists are written; a throw below leaves it set so the next save tries again
   const db = admin();
-  const roster = rosterOf(after);
-  if (JSON.stringify(rosterOf(before)) !== JSON.stringify(roster)) {
+  if (need.roster) {
+    const roster = rosterOf(after);
     const key = (r: { email: string; role: string; student_id: number }) => `${r.email}|${r.role}|${r.student_id}`;
     const keep = new Set(roster.map(key));
     if (roster.length) {
       const { error } = await db.from("roster").upsert(roster.map((r) => ({ institute_id: institute, ...r })), { ignoreDuplicates: true });
-      if (error) console.error("data: roster update failed:", error.message);
+      if (error) throw new Error(`roster update failed: ${error.message}`); // a new student could not sign in
     }
     // Remove sign-ins of students who left. The API returns at most 1000 rows at a time, so read every page.
     const old: { email: string; role: string; student_id: number }[] = [];
@@ -286,14 +305,21 @@ async function syncPeople(institute: string, before: LmsState, after: LmsState) 
       if (error) throw new Error(`roster removal failed: ${error.message}`); // someone removed must not keep their sign-in silently
     }
   }
-  const teachers = (s: LmsState) => s.staff.filter((x) => x.email && x.name !== s.teacherName).map((x) => ({ name: x.name, email: x.email!.toLowerCase() }));
-  const now = teachers(after);
-  if (JSON.stringify(teachers(before)) !== JSON.stringify(now)) {
-    if (now.length) await db.from("members").upsert(now.map((x) => ({ institute_id: institute, role: "teacher", ...x })), { onConflict: "institute_id,email", ignoreDuplicates: true });
-    const { data: old } = await db.from("members").select("id, email").eq("institute_id", institute).eq("role", "teacher");
+  if (need.teachers) {
+    const now = teachersOf(after);
+    if (now.length) {
+      const { error } = await db.from("members").upsert(now.map((x) => ({ institute_id: institute, role: "teacher", ...x })), { onConflict: "institute_id,email", ignoreDuplicates: true });
+      if (error) throw new Error(`members update failed: ${error.message}`);
+    }
+    const { data: old, error } = await db.from("members").select("id, email").eq("institute_id", institute).eq("role", "teacher");
+    if (error) throw new Error(`members read failed: ${error.message}`); // a removed teacher must not keep signing in
     const emails = new Set(now.map((x) => x.email));
-    for (const m of (old ?? []).filter((m) => !emails.has(m.email))) await db.from("members").delete().eq("id", m.id);
+    for (const m of (old ?? []).filter((m) => !emails.has(m.email))) {
+      const { error } = await db.from("members").delete().eq("id", m.id);
+      if (error) throw new Error(`members removal failed: ${error.message}`);
+    }
   }
+  peopleBehind.delete(institute);
 }
 
 /** Institutes for the public pages: by website address, by a batch id (join links), or all with public batches. */
@@ -322,8 +348,8 @@ const FILE_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif", "image
 const typeAllowed = (type: string) => FILE_TYPES.some((t) => (t.endsWith("/*") ? type.startsWith(t.slice(0, -1)) : t === type));
 const ensureBucket = () =>
   (bucket ??= admin()
-    .storage.createBucket(BUCKET, { public: false, allowedMimeTypes: FILE_TYPES }) // "already exists" is fine
-    .then(() => admin().storage.updateBucket(BUCKET, { public: false, allowedMimeTypes: FILE_TYPES })) // a bucket made before this rule gets it too
+    .storage.createBucket(BUCKET, { public: false, allowedMimeTypes: FILE_TYPES, fileSizeLimit: MAX_FILE_BYTES }) // "already exists" is fine
+    .then(() => admin().storage.updateBucket(BUCKET, { public: false, allowedMimeTypes: FILE_TYPES, fileSizeLimit: MAX_FILE_BYTES })) // a bucket made before these rules gets them too
     .then(() => undefined)
     .catch(() => void (bucket = null))); // network trouble: try again on the next upload
 export const FILE_PATH = /^[0-9a-f-]{36}\/[0-9a-f-]{36}$/;

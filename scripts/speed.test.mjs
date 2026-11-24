@@ -5,7 +5,7 @@ import { test } from "node:test";
 import { createClient } from "@supabase/supabase-js";
 import { canSee, seer } from "../src/lib/community.ts";
 import { topId } from "../src/lib/data-access.ts";
-import { DOC_MAX, FULL, guardedFetch } from "../src/lib/doc-limit.ts";
+import { DOC_MAX, FULL, guardedFetch, readCapped } from "../src/lib/doc-limit.ts";
 import { blankState } from "../src/lib/lms-actions.ts";
 import { averagePct, gradedResults, incomeByMonth, myRank, quizBoard } from "../src/lib/lms-views.ts";
 import { meritList } from "../src/lib/quiz.ts";
@@ -105,6 +105,13 @@ test("an institute's data over the size limit is refused before it is sent; ever
   } finally {
     globalThis.fetch = real;
   }
+});
+
+test("a request body is read only up to its limit, even when it was sent in chunks with no length", async () => {
+  const chunked = (n) => new Request("http://x/", { method: "POST", body: new ReadableStream({ pull(c) { n-- > 0 ? c.enqueue(new Uint8Array(1000).fill(97)) : c.close(); } }), duplex: "half" });
+  assert.equal(await readCapped(chunked(50), 20_000), null); // 50 kB, no Content-Length
+  assert.equal((await readCapped(chunked(3), 20_000))?.length, 3000);
+  assert.equal(await readCapped(new Request("http://x/", { method: "POST", body: "{}" }), 20_000), "{}");
 });
 
 test("long lists: page sizes, the page you are on, and which page numbers are offered", () => {

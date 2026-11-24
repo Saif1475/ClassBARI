@@ -1,7 +1,7 @@
 import { REAL_AUTH } from "@/lib/auth-mode";
 import { CREDIT_MAX, CREDIT_MIN, PACKS } from "@/lib/ai-chat";
-import { admin, whoIs } from "@/lib/data-server";
-import { checkPayment, payNumbers } from "@/lib/pay";
+import { admin, loadPart, whoIs } from "@/lib/data-server";
+import { checkPayment, packClash, payNumbers } from "@/lib/pay";
 import { readPlatform } from "@/lib/platform-server";
 import { limited } from "@/lib/rate-limit";
 
@@ -12,13 +12,18 @@ const planPrices = async () => {
   return Object.fromEntries(Object.entries(prices).filter(([plan, price]) => plan !== "free" && price > 0));
 };
 
-/** Where to send money, the prices, and this person's own recent payments. Students buy AI packs; owners pay the plan. */
+/** The pack this student still has running that is not `item` (packClash): no other level can be bought on top of it. Dhaka day, as at approval. */
+const clashFor = async (institute: string, studentId: number, item?: number) =>
+  packClash((await loadPart(institute, "students")).students.find((s) => s.id === studentId), new Date(Date.now() + 6 * 3600_000).toISOString().slice(0, 10), item);
+
+/** Where to send money, the prices, this person's own recent payments, and a student's running pack (told before paying). Students buy AI packs; owners pay the plan. */
 export async function GET(request: Request) {
   if (!REAL_AUTH) return Response.json({ error: "demo mode" }, { status: 404 });
   const me = await whoIs(request);
   if (!me?.who.email) return Response.json({ error: "sign in" }, { status: 401 });
   const { data } = await admin().from("pay_requests").select("id, created_at, kind, item, months, amount, method, trx_id, status, reason").eq("payer_email", me.who.email).order("created_at", { ascending: false }).limit(10);
-  return Response.json({ methods: payNumbers(), packs: PACKS, credit: { min: CREDIT_MIN, max: CREDIT_MAX }, plans: me.who.role === "owner" ? await planPrices() : {}, mine: data ?? [] });
+  const running = me.who.role === "student" && me.who.studentIds[0] !== undefined ? await clashFor(me.institute, me.who.studentIds[0]) : null;
+  return Response.json({ methods: payNumbers(), packs: PACKS, credit: { min: CREDIT_MIN, max: CREDIT_MAX }, plans: me.who.role === "owner" ? await planPrices() : {}, mine: data ?? [], running });
 }
 
 /** "I sent the money": { kind, item, months, method, sender, trxId } (+ studentId for a guardian paying for a child). ai_credit: item is the ৳ amount. */
@@ -41,6 +46,8 @@ export async function POST(request: Request) {
     if (me.who.role === "student") studentId = me.who.studentIds[0] ?? null;
     else if (me.who.role === "guardian" && me.who.studentIds.includes(Number(body.studentId))) studentId = Number(body.studentId);
     if (studentId === null) return Response.json({ error: "not allowed" }, { status: 403 });
+    const clash = await clashFor(me.institute, studentId, Number(p.item)); // told before the money is recorded; checked again at approval
+    if (clash) return Response.json({ error: "pack running", ...clash }, { status: 409 });
   }
   const { data, error } = await admin()
     .from("pay_requests")

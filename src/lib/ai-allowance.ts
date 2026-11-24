@@ -1,23 +1,26 @@
 // Server only: one student's AI allowance for today (Dhaka day: tokens and, for packs, money), shared by the AI chat
 // and "Ask AI" on a PDF. Overuse yesterday is taken from today. Past the limits, extra credit (0016) pays for answers.
-import { aiWindow, carried, creditTaka, leftPct, monthStartAfter, packMonthlyUsd, previousWindow, windowCostUsd, windowTokens, type AiSettings } from "./ai-chat.ts";
+import { aiWindow, carried, creditTaka, leftPct, monthStartAfter, packMonthlyUsd, packMonthStart, previousWindow, windowCostUsd, windowTokens, type AiSettings } from "./ai-chat.ts";
 import { changeCredit, creditOf } from "./ai-credit.ts";
 
 /** Answers paid from credit are counted under this key: in the site's monthly budget, but not in the day's or month's allowance. */
 export const creditKey = (key: string) => `${key}#credit`;
+
+/** Least credit (US$) that may pay for an answer: about the dearest normal one (a 6,000-token thinking answer at US$3.5 per million, plus its input), since the cost is only taken afterwards. */
+export const CREDIT_FLOOR_USD = 0.03;
 
 /**
  * Read it only while holding the person's turn (`takeTurn` in ai-chat.ts), so no other answer is counted in between.
  * db: the server's Supabase client (admin() in data-server.ts).
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function allowance(db: any, key: string, institute: string, plan: { daily: number; pack: number } | null, settings: AiSettings = {}) {
+export async function allowance(db: any, key: string, institute: string, plan: { daily: number; pack: number } | null, settings: AiSettings = {}, until?: string) {
   const w = aiWindow();
   const p = previousWindow(w);
   const row = (day: string, slot: number) => db.from("ai_usage").select("questions, cost_usd, tokens").eq("user_key", key).eq("day", day).eq("slot", slot).maybeSingle();
-  // Packs: the month's AI money so far (Dhaka calendar month), against the pack's monthly cap.
+  // Packs: the AI money so far in the pack's own month (from the day-of-month it ends, Dhaka time), against the pack's monthly cap.
   const monthCap = plan?.pack ? packMonthlyUsd(plan.pack, settings) : Infinity;
-  const monthRows = monthCap === Infinity ? null : db.from("ai_usage").select("cost_usd").eq("user_key", key).gte("day", `${w.day.slice(0, 7)}-01`).lte("day", `${w.day.slice(0, 7)}-31`);
+  const monthRows = monthCap === Infinity ? null : db.from("ai_usage").select("cost_usd").eq("user_key", key).gte("day", packMonthStart(w.day, until)).lte("day", w.day);
   const [{ data: mine }, { data: before }, month, credit] = await Promise.all([row(w.day, w.slot), row(p.day, p.slot), monthRows, plan ? creditOf(db, key).catch(() => 0) : 0]);
   const monthCost = ((month?.data ?? []) as { cost_usd: number }[]).reduce((sum, r) => sum + Number(r.cost_usd ?? 0), 0);
   const limit = windowTokens(plan?.daily);
@@ -30,11 +33,11 @@ export async function allowance(db: any, key: string, institute: string, plan: {
   const [spent, cap] = monthCap === Infinity ? [cost, costLimit] : [monthCost, monthCap];
   // Checked before asking, so the last answer of a day can go over a little; that bit comes off the next day.
   const used = tokens >= limit || cost >= costLimit || monthOver;
-  const paying = used && credit > 0; // the daily or monthly limit is used up: extra credit pays
+  const paying = used && credit >= CREDIT_FLOOR_USD; // the daily or monthly limit is used up: extra credit pays, if it covers a whole answer
   return {
     ...w,
-    // The month's cap refills when the month changes, not at midnight.
-    resetsAt: monthOver ? monthStartAfter(w.day) : w.resetsAt,
+    // The month's cap refills when the pack's next month starts, not at midnight.
+    resetsAt: monthOver ? monthStartAfter(w.day, until) : w.resetsAt,
     over: used && !paying,
     paying,
     /** US$ of credit at the start of this answer. */

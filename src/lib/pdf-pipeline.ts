@@ -203,6 +203,6 @@ export async function premiumGate(request: Request, url: string | null) {
   // Only real PDF lessons (for a student: of their own batch), not any file whose address someone knows or makes up.
   const lesson = state.modules.some((m) => (staff || (m.published && m.batch === student?.batch)) && m.items.some((it) => it.kind === "pdf" && it.url === url));
   if (!lesson) return { error: Response.json({ error: "not found" }, { status: 404 }) };
-  return { me, path, staff, pack: student?.aiPack };
+  return { me, path, staff, pack: student?.aiPack, until: student?.premiumUntil };
 }
 

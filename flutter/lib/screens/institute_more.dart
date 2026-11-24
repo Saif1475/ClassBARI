@@ -61,7 +61,7 @@ Map<String, num> incomeByMonth(List<Json> payments, List<String> months, List<St
 /// profitAndLoss: fees collected − staff pay − other costs, for one month.
 ({num income, num salaries, num other, num profit}) profitAndLoss(String month, Json? s) {
   num sum(Iterable<Json> list) => list.fold<num>(0, (n, x) => n + ((x['amount'] as num?) ?? 0));
-  final income = sum(rows(s?['payments']).where((p) => '${p['at']}'.startsWith(month)));
+  final income = sum(rows(s?['payments']).where((p) => p['at'] is String && dayKey(toDate(p['at'] as String)).startsWith(month))); // 'at' is a UTC time: count it in its local month, as payroll does
   final salaries = sum(rows(s?['staffPayments']).where((p) => p['month'] == month));
   final other = sum(rows(s?['expenses']).where((e) => '${e['date']}'.startsWith(month)));
   return (income: income, salaries: salaries, other: other, profit: income - salaries - other);
@@ -1126,6 +1126,7 @@ class _ImportStudentsScreenState extends State<ImportStudentsScreen> {
       problem = !read
           ? t(switch (a['error']) {
               'scan' => 'importer.scan',
+              'tooMany' => 'importer.tooMany',
               'offline' => 'aichat.error',
               _ => 'importer.unreadable',
             })

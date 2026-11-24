@@ -24,7 +24,7 @@ export async function GET(request: Request) {
   if ("error" in g) return g.error;
   // Also how much of today's allowance is left, when it refills, and the extra credit with its history (shown in Chat settings).
   const key = `${g.me.institute}:student:${g.student.id}`;
-  const [a, creditLog] = await Promise.all([allowance(admin(), key, g.me.institute, g.plan, g.ai), creditHistory(admin(), key, g.ai).catch(() => [])]);
+  const [a, creditLog] = await Promise.all([allowance(admin(), key, g.me.institute, g.plan, g.ai, g.student.premiumUntil), creditHistory(admin(), key, g.ai).catch(() => [])]);
   return Response.json({ pack: g.plan.pack, pick: g.models[0] ?? null, left: a.left(), resetsAt: a.resetsAt, credit: a.creditTk(), paying: a.paying, creditLog, models: modelMenu(g.plan.pack, g.ai).map((m) => ({ ...m, soon: !m.locked && !g.models.includes(m.id) })) });
 }
 
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
   const release = await takeTurn(key); // one answer at a time per student, so the count read below is never out of date
   let streaming = false; // an answer on its way lets go itself, once it is counted
   try {
-    const a = await allowance(db, key, me.institute, plan, ai); // tokens and money for today, or extra credit
+    const a = await allowance(db, key, me.institute, plan, ai, student.premiumUntil); // tokens and money for today, or extra credit
     const leftNow = a.left();
 
     // Asked before by someone? Answer from the saved copy: instant, and it uses none of the student's allowance.

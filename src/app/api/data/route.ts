@@ -64,10 +64,16 @@ export async function POST(request: Request) {
       if (ok) checked = ok;
       return ok;
     });
-    void afterAction(me.institute, name, checked).catch(() => {}); // premium: read and highlight a new PDF lesson
-    // Notifications it causes (homework posted, marks, absent, messages…), sent after the answer: never slows the save.
-    if ("before" in doc && doc.before) void afterSaved(me.institute, name, checked, doc.before, doc.state, { email: me.who.email, staff: ["owner", "manager", "teacher"].includes(me.who.role) });
-    return Response.json({ state: viewFor(doc.state, me.who), version: doc.version, role: me.who.role });
+    // The change is saved: nothing from here on may answer with an error, or the sender sends it again.
+    try {
+      void afterAction(me.institute, name, checked).catch(() => {}); // premium: read and highlight a new PDF lesson
+      // Notifications it causes (homework posted, marks, absent, messages…), sent after the answer: never slows the save.
+      if ("before" in doc && doc.before) void afterSaved(me.institute, name, checked, doc.before, doc.state, { email: me.who.email, staff: ["owner", "manager", "teacher"].includes(me.who.role) });
+      return Response.json({ state: viewFor(doc.state, me.who), version: doc.version, role: me.who.role });
+    } catch (e) {
+      console.error("data: saved, but the answer could not be built:", name, e instanceof Error ? e.message : e);
+      return Response.json({ role: me.who.role }); // "saved" without the data or its version: the sender keeps what it shows and asks for the data again
+    }
   } catch (e) {
     if (e instanceof Refused) return Response.json({ error: "not allowed" }, { status: 403 });
     console.error("data action failed:", name, e instanceof Error ? e.message : e);

@@ -847,6 +847,7 @@ class TabItem extends StatelessWidget {
                 tab.label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
+                textScaler: MediaQuery.textScalerOf(context).clamp(maxScaleFactor: 1.5), // the bar is 64 high: bigger phone text times the app's 130% would not fit (the icon and the screen reader still name the tab)
                 style: TextStyle(fontSize: 11.5, fontWeight: on ? FontWeight.w800 : FontWeight.w600, color: on ? c.onSurface : c.onSurfaceVariant),
               ),
             ],

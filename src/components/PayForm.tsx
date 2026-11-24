@@ -18,7 +18,7 @@ const chip = (on: boolean) => `min-h-11 rounded-full px-4 text-sm font-bold ${on
 export function PayForm({ kind, studentId }: { kind: "ai_pack" | "plan" | "ai_credit"; studentId?: number }) {
   const { t } = useLang();
   const P = t.pay;
-  const [info, setInfo] = useState<{ methods: Method[]; packs: number[]; plans: Record<string, number>; credit?: { min: number; max: number }; mine: Mine[] } | null>(null);
+  const [info, setInfo] = useState<{ methods: Method[]; packs: number[]; plans: Record<string, number>; credit?: { min: number; max: number }; mine: Mine[]; running?: { pack: number; until: string } | null } | null>(null);
   const [item, setItem] = useState("");
   const [months, setMonths] = useState(1);
   const [method, setMethod] = useState<Method["method"]>("bkash");
@@ -33,7 +33,7 @@ export function PayForm({ kind, studentId }: { kind: "ai_pack" | "plan" | "ai_cr
         if (!d) return;
         setInfo(d);
         setMethod((m) => (d.methods.some((x: Method) => x.method === m) ? m : d.methods[0]?.method ?? "bkash"));
-        setItem((i) => i || String(kind === "ai_credit" ? d.credit?.min ?? 50 : kind === "ai_pack" ? d.packs[1] ?? d.packs[0] : Object.keys(d.plans)[0] ?? ""));
+        setItem((i) => (kind === "ai_pack" && d.running ? String(d.running.pack) : i) || String(kind === "ai_credit" ? d.credit?.min ?? 50 : kind === "ai_pack" ? d.packs[1] ?? d.packs[0] : Object.keys(d.plans)[0] ?? ""));
       })
       .catch(() => {});
   useEffect(() => void load(), []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -41,7 +41,8 @@ export function PayForm({ kind, studentId }: { kind: "ai_pack" | "plan" | "ai_cr
 
   const credit = kind === "ai_credit";
   const range = info.credit ?? { min: 50, max: 5000 };
-  const options = credit ? [[item, Number(item)] as const] : kind === "ai_pack" ? info.packs.map((p) => [String(p), p] as const) : Object.entries(info.plans);
+  const running = kind === "ai_pack" ? info.running : null; // a pack still on: only more months of the same one, or the new level would count for months already paid
+  const options = credit ? [[item, Number(item)] as const] : kind === "ai_pack" ? info.packs.filter((p) => !running || p === running.pack).map((p) => [String(p), p] as const) : Object.entries(info.plans);
   const monthly = options.find(([k]) => k === item)?.[1] ?? 0;
   const amountOk = /^\d+$/.test(item) && Number(item) >= range.min && Number(item) <= range.max; // the server checks again
   const to = info.methods.find((m) => m.method === method);
@@ -59,7 +60,7 @@ export function PayForm({ kind, studentId }: { kind: "ai_pack" | "plan" | "ai_cr
       setMsg({ ok: true, text: P.sent });
       setTrx("");
       void load();
-    } else setMsg({ ok: false, text: d.error === "used" ? P.used : credit && d.error === "bad item" ? P.creditBad : res?.status === 400 ? P.bad : P.error });
+    } else setMsg({ ok: false, text: d.error === "used" ? P.used : d.error === "pack running" ? P.packRunning(tk(d.pack), d.until) : credit && d.error === "bad item" ? P.creditBad : res?.status === 400 ? P.bad : P.error });
   };
 
   return (
@@ -71,6 +72,7 @@ export function PayForm({ kind, studentId }: { kind: "ai_pack" | "plan" | "ai_cr
           <label className={field}>{P.creditAmount}<input type="number" required min={range.min} max={range.max} step={1} inputMode="numeric" value={item} onChange={(e) => setItem(e.target.value.trim())} className={box} /></label>
         </>
       )}
+      {running && <p className="text-sm text-on-surface-variant">{P.packRunning(tk(running.pack), running.until)}</p>}
       {!credit && <div role="group" aria-label={P.choose} className="flex flex-wrap gap-2">
         {options.map(([k, price]) => (
           <button key={k} type="button" aria-pressed={item === k} onClick={() => setItem(k)} className={chip(item === k)}>

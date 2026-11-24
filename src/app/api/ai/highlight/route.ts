@@ -35,7 +35,7 @@ export async function POST(request: Request) {
 
   const release = await takeTurn(key); // one AI job at a time per student, as the chat
   try {
-    const a = await allowance(admin(), key, me.institute, plan, ai);
+    const a = await allowance(admin(), key, me.institute, plan, ai, student.premiumUntil);
     if (a.over) return Response.json({ error: "limit", resetsAt: a.resetsAt }, { status: 429 });
     // The cheapest Gemini model of the student's plan (only Gemini reads the PDF file itself here).
     const model = g.models.find((id) => MODELS[id]?.provider === "google");

@@ -60,7 +60,7 @@ export function BuyCourse({ batch }: { batch: Batch }) {
               if (r.price === undefined) return setCouponError(B.couponErrors[(r.error as keyof typeof B.couponErrors) in B.couponErrors ? (r.error as keyof typeof B.couponErrors) : "unknown"]);
               return setApplied({ price: r.price, code: r.code ?? code.toUpperCase() });
             }
-            const r = applyCoupon(batch.fee, code, lms.coupons, batch.id, dayKey());
+            const r = applyCoupon(batch.fee, code, lms.coupons, batch.id, dayKey(), lms.orders);
             if ("error" in r) return setCouponError(B.couponErrors[r.error]);
             setApplied({ price: r.price, code: r.coupon.code });
           }}

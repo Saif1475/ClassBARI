@@ -3,7 +3,7 @@
 // is checked with the enrol form's rules before anything is added. Pure (scripts/student-import.test.mjs); used by the
 // website's import and by /api/import-students for the phone app.
 import { IMPORT_COLUMNS, TEMPLATE_HEADER, type ImportField } from "./sheet.ts";
-import { validateStudent, type EnrolError, type StudentContact } from "./site.ts";
+import { inbox, validateStudent, type EnrolError, type StudentContact } from "./site.ts";
 
 /** What a column holds; "" when it isn't used. */
 export type Field = ImportField | "";
@@ -180,18 +180,27 @@ export const columnInfo = (grid: string[][], heads: boolean) =>
 export const gridToRecords = (grid: string[][], fields: Field[], heads: boolean): ImportRecord[] =>
   (heads ? grid.slice(1) : grid).filter((r) => r.some((c) => c?.trim())).map((r) => Object.fromEntries(fields.flatMap((f, i) => (f ? [[f, (r[i] ?? "").trim()]] : []))));
 
+/** The most rows one import checks: a bigger list is refused, to be split into smaller files. */
+export const MAX_ROWS = 2000;
+
 /**
  * Each row checked with the enrol form's rules against the students already there and the rows before it (two rows
  * with one Gmail: the second is flagged). A row without a batch goes into `defaultBatch`. `firstLine`: the number of
  * the first row as the person sees it (2 in a sheet, under its headings).
  */
 export function checkRows(records: ImportRecord[], defaultBatch: string, batchNames: string[], existing: { id: number; email: string; guardianEmail: string }[], firstLine = 2): ImportRow[] {
-  const accepted = [...existing];
+  // Each accepted student by the inbox of their Gmail and of their guardian's, so a row looks up its clashes instead of scanning every row before it.
+  type Taken = { id: number; email: string; guardianEmail: string };
+  const byEmail = new Map<string, Taken>(), byGuardian = new Map<string, Taken>();
+  const accept = (x: Taken) => (byEmail.set(inbox(x.email), x), byGuardian.set(inbox(x.guardianEmail), x));
+  existing.forEach(accept);
   return records.map((r, i) => {
     const input = { name: r.name ?? "", email: r.email ?? "", guardianName: r.guardianName ?? "", guardianEmail: r.guardianEmail ?? "", phone: fixPhone(r.phone), studentPhone: fixPhone(r.studentPhone) || undefined, batch: r.batch && batchNames.includes(r.batch) ? r.batch : defaultBatch, school: r.school, address: r.address };
-    const problems: ImportProblem[] = Object.values(validateStudent(input, accepted)).filter((e) => e !== undefined);
+    // Only these students can clash with the row, so validateStudent gives the same answer as against everyone.
+    const clashes = [byEmail.get(inbox(input.email)), byGuardian.get(inbox(input.email)), byEmail.get(inbox(input.guardianEmail))].filter((x) => x !== undefined);
+    const problems: ImportProblem[] = Object.values(validateStudent(input, clashes)).filter((e) => e !== undefined);
     if (r.batch && !batchNames.includes(r.batch)) problems.push({ unknownBatch: r.batch });
-    if (!problems.length) accepted.push({ id: -1 - i, email: input.email, guardianEmail: input.guardianEmail });
+    if (!problems.length) accept({ id: -1 - i, email: input.email, guardianEmail: input.guardianEmail });
     return { line: i + firstLine, input, problems };
   });
 }

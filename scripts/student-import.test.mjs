@@ -1,7 +1,7 @@
 // Run: npm test — reading a student list for "Import students" (src/lib/student-import.ts).
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { assign, checkRows, columnInfo, fixPhone, gridFromPieces, gridToRecords, guessFields, missingFields, rowsToFix } from "../src/lib/student-import.ts";
+import { assign, checkRows, MAX_ROWS, columnInfo, fixPhone, gridFromPieces, gridToRecords, guessFields, missingFields, rowsToFix } from "../src/lib/student-import.ts";
 
 /** A line of a PDF table: [x, text] pairs at one height (12 high, 6 wide a letter). */
 const line = (page, y, ...cells) => cells.map(([x, str]) => ({ str, x, y, w: str.length * 6, h: 12, page }));
@@ -91,4 +91,24 @@ test("every row is checked like the enrol form: Gmail rules, the same Gmail twic
   assert.equal(fixPhone("01711-23"), "01711-23"); // not a mobile: left as typed, so the check says so
   // The rows to fix, for Excel: the template's headings, then only those rows.
   assert.deepEqual(rowsToFix(rows).map((r) => r[0]), ["Student name", "Two", "Three", "Four"]);
+});
+
+test("a big list is checked fast, with the same answers as the enrol form", async () => {
+  const { validateStudent } = await import("../src/lib/site.ts");
+  const existing = [{ id: 1, email: "ta.ken@gmail.com", guardianEmail: "papa@gmail.com" }];
+  const records = Array.from({ length: MAX_ROWS }, (_, i) => ({ name: `S${i}`, email: `s${i % 250}@gmail.com`, guardianName: "G", guardianEmail: i % 100 ? `g${i}@gmail.com` : "taken+x@gmail.com", phone: "01711000001" }));
+  records.splice(300, 0, { name: "P", email: "PAPA@gmail.com", guardianName: "G", guardianEmail: "s5@gmail.com", phone: "01711000001" });
+  const t0 = performance.now();
+  const rows = checkRows(records, "A", ["A"], existing);
+  assert.ok(performance.now() - t0 < 500, "2000 rows in well under a second");
+  // The old way, row by row against every student accepted before it, on the first 400 rows (a row never depends on later ones): the same problems.
+  const accepted = [...existing];
+  const slow = records.slice(0, 400).map((r, i) => {
+    const p = Object.values(validateStudent({ ...r, studentPhone: undefined }, accepted));
+    if (!p.length) accepted.push({ id: -1 - i, email: r.email, guardianEmail: r.guardianEmail });
+    return p;
+  });
+  assert.deepEqual(rows.slice(0, 400).map((r) => r.problems), slow);
+  assert.ok(slow.some((p) => p.includes("emailTaken")) && slow.some((p) => p.includes("guardianIsStudent")));
+  assert.equal(MAX_ROWS, 2000);
 });

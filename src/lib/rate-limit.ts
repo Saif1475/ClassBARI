@@ -20,10 +20,11 @@ export function tooMany(key: string, max: number, windowMs: number, now = Date.n
 
 /**
  * The visitor's address: Cloudflare's header only when the site really is behind Cloudflare (BEHIND_CLOUDFLARE=1;
- * otherwise anyone could send that header and dodge the limits), else the reverse proxy's.
+ * otherwise anyone could send that header and dodge the limits), else the reverse proxy's: the LAST entry of
+ * X-Forwarded-For, the one our own proxy appended (the entries before it are whatever the sender wrote).
  */
 export const clientIp = (request: Request) =>
-  (process.env.BEHIND_CLOUDFLARE === "1" && request.headers.get("cf-connecting-ip")) || request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "local";
+  (process.env.BEHIND_CLOUDFLARE === "1" && request.headers.get("cf-connecting-ip")) || request.headers.get("x-forwarded-for")?.split(",").pop()?.trim() || "local";
 
 /** A "too many requests" answer when this visitor (or `who`) is over the limit for `name`; null when fine. */
 export function limited(request: Request, name: string, max: number, windowMs: number, who?: string) {

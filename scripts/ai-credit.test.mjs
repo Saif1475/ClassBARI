@@ -158,14 +158,16 @@ test("allowance: past the daily limit only with credit, which pays the real cost
   assert.equal(a.over, true); // no credit: refused
   assert.equal(a.paying, false);
 
-  await changeCredit(db, { key, institute: inst, kind: "admin_add", usd: 0.01, note: "test", by: "admin" });
+  await changeCredit(db, { key, institute: inst, kind: "admin_add", usd: 0.0001, note: "test", by: "admin" });
+  assert.equal((await allowance(db, key, inst, plan)).over, true); // a crumb of credit can't buy a whole answer
+  await changeCredit(db, { key, institute: inst, kind: "admin_add", usd: 0.0399, note: "test", by: "admin" });
   a = await allowance(db, key, inst, plan);
   assert.equal(a.over, false);
   assert.equal(a.paying, true);
   assert.equal(a.left(), 0);
   await a.record(0.004, 3000);
-  assert.ok(Math.abs((await balance(key)) - 0.006) < 1e-9);
-  assert.equal(a.creditTk(0.004), creditTaka(0.006));
+  assert.ok(Math.abs((await balance(key)) - 0.036) < 1e-9);
+  assert.equal(a.creditTk(0.004), creditTaka(0.036));
   // Paid from credit: counted for the site's budget under its own key, not as today's (or tomorrow's) overuse.
   assert.equal(Number((await pg.query("select tokens from ai_usage where user_key = $1 and day = $2", [key, day])).rows[0].tokens), 20000);
   assert.equal(Number((await pg.query("select cost_usd from ai_usage where user_key = $1", [creditKey(key)])).rows[0].cost_usd), 0.004);

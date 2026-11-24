@@ -3,7 +3,7 @@ import { readPieces } from "@/lib/pdf-mark";
 import { limited } from "@/lib/rate-limit";
 import { csvText, readCsv, readXlsx, writeXlsx } from "@/lib/sheet";
 import { studentListPdf } from "@/lib/student-list-pdf";
-import { checkRows, columnInfo, FIELDS, gridFromPieces, gridToRecords, guessFields, missingFields, templateRows, type Field } from "@/lib/student-import";
+import { checkRows, columnInfo, FIELDS, MAX_ROWS, gridFromPieces, gridToRecords, guessFields, missingFields, templateRows, type Field } from "@/lib/student-import";
 
 const MAX_BYTES = 10 * 1024 * 1024;
 const TYPES = { xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", csv: "text/csv; charset=utf-8", pdf: "application/pdf" };
@@ -56,7 +56,9 @@ export async function POST(request: Request) {
     const fields = asked && asked.length === guess.fields.length && asked.every((f) => f === "" || FIELDS.includes(f)) ? asked : guess.fields;
     const missing = missingFields(fields);
     const batch = q.get("batch") ?? "";
-    const rows = missing.length ? [] : checkRows(gridToRecords(grid, fields, guess.heads), names.includes(batch) ? batch : (names[0] ?? ""), names, students, !type.includes("pdf") && guess.heads ? 2 : 1);
+    const records = gridToRecords(grid, fields, guess.heads);
+    if (records.length > MAX_ROWS) return Response.json({ error: "tooMany" }, { status: 413 }); // checking a huge list would hold up the server for everyone
+    const rows = missing.length ? [] : checkRows(records, names.includes(batch) ? batch : (names[0] ?? ""), names, students, !type.includes("pdf") && guess.heads ? 2 : 1);
     return Response.json({ columns: columnInfo(grid, guess.heads), heads: guess.heads, fields, missing, rows });
   } catch {
     return Response.json({ error: "unreadable" }, { status: 422 });

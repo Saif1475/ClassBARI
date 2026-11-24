@@ -2,6 +2,7 @@ import type { Instrumentation } from "next";
 
 /** Server start: anything the code logs as an error is also recorded and alerted (see lib/alerts.ts). */
 export async function register() {
+  process.env.TZ = "Asia/Dhaka"; // days and months (fees, payroll, late fines, AI packs) are counted in Bangladesh time, whatever zone the machine is set to
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
   const { report } = await import("./lib/alerts");
   const log = console.error.bind(console);

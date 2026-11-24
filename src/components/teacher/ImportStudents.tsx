@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useLang } from "@/lib/i18n/LanguageProvider";
 import { downloadCsv } from "@/lib/files";
 import { useLms } from "@/lib/lms-store";
 import { readSheetFile } from "@/lib/sheet";
-import { assign, checkRows, columnInfo, FIELDS, gridFromPieces, gridToRecords, guessFields, missingFields, rowsToFix, type Field, type ImportProblem } from "@/lib/student-import";
+import { assign, checkRows, columnInfo, FIELDS, MAX_ROWS, gridFromPieces, gridToRecords, guessFields, missingFields, rowsToFix, type Field, type ImportProblem } from "@/lib/student-import";
 
 const FORMATS = { xlsx: "Excel", csv: "CSV", pdf: "PDF" }; // the template, made by /api/import-students
 
@@ -41,7 +41,9 @@ export function ImportStudents({ batchNames, notify }: { batchNames: string[]; n
         grid = gridFromPieces(pieces);
       }
       const guess = guessFields(grid, batchNames);
-      if (!gridToRecords(grid, [], guess.heads).length) return setError(I.none); // no row with anything in it
+      const count = gridToRecords(grid, [], guess.heads).length;
+      if (!count) return setError(I.none); // no row with anything in it
+      if (count > MAX_ROWS) return setError(I.tooMany);
       setTable({ grid, sheet, ...guess });
     } catch {
       setError(I.unreadable);
@@ -50,7 +52,9 @@ export function ImportStudents({ batchNames, notify }: { batchNames: string[]; n
     }
   };
   const missing = table ? missingFields(table.fields) : [];
-  const rows = table && !missing.length ? checkRows(gridToRecords(table.grid, table.fields, table.heads), batch, batchNames, lms.students, table.sheet && table.heads ? 2 : 1) : null;
+  // Checked once per change of the table, batch or students, not on every render (batchNames is a new array each render, so it goes by its text).
+  const namesKey = JSON.stringify(batchNames);
+  const rows = useMemo(() => (table && !missing.length ? checkRows(gridToRecords(table.grid, table.fields, table.heads), batch, JSON.parse(namesKey) as string[], lms.students, table.sheet && table.heads ? 2 : 1) : null), [table, missing.length, batch, namesKey, lms.students]);
   const good = rows?.filter((r) => !r.problems.length) ?? [];
   const why = (p: ImportProblem) => (typeof p === "string" ? R.errors[p] : I.unknownBatch(p.unknownBatch));
 

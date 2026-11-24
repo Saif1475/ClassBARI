@@ -2,9 +2,21 @@
 // .xlsx is a zip of XML files; the browser (and Node) can unzip "deflate" data with DecompressionStream.
 // Pure code apart from that stream (also used by scripts/sheet.test.mjs).
 
-async function inflate(data: Uint8Array) {
-  const stream = new Blob([data as BlobPart]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
-  return new Uint8Array(await new Response(stream).arrayBuffer());
+// A small file can unpack to gigabytes (a "zip bomb") and crash the server, so unpacking stops past this many bytes in total.
+const MAX_UNZIPPED = 50 * 1024 * 1024;
+
+async function inflate(data: Uint8Array, limit: number) {
+  const reader = new Blob([data as BlobPart]).stream().pipeThrough(new DecompressionStream("deflate-raw")).getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  for (let r = await reader.read(); !r.done; r = await reader.read()) {
+    total += r.value.length;
+    if (total > limit) { await reader.cancel(); throw new Error("too big when unpacked"); }
+    chunks.push(r.value);
+  }
+  const out = new Uint8Array(total);
+  chunks.reduce((at, x) => (out.set(x, at), at + x.length), 0);
+  return out;
 }
 
 /** Files inside a zip, by name (only the ones we ask for are unpacked). */
@@ -17,6 +29,7 @@ export async function unzip(buf: ArrayBuffer, want: (name: string) => boolean) {
   let p = v.getUint32(eocd + 16, true);
   const out = new Map<string, string>();
   const dec = new TextDecoder();
+  let left = MAX_UNZIPPED;
   for (let i = 0; i < count; i++) {
     const method = v.getUint16(p + 10, true);
     const size = v.getUint32(p + 20, true);
@@ -27,7 +40,10 @@ export async function unzip(buf: ArrayBuffer, want: (name: string) => boolean) {
     if (!want(name)) continue;
     const start = local + 30 + v.getUint16(local + 26, true) + v.getUint16(local + 28, true);
     const raw = new Uint8Array(buf, start, size);
-    out.set(name, dec.decode(method === 8 ? await inflate(raw) : raw));
+    const bytes = method === 8 ? await inflate(raw, left) : raw;
+    left -= bytes.length;
+    if (left < 0) throw new Error("too big when unpacked");
+    out.set(name, dec.decode(bytes));
   }
   return out;
 }
@@ -39,10 +55,24 @@ const unescape = (s: string) =>
 const texts = (xml: string) => [...xml.matchAll(/<t(?:\s[^>]*)?>([\s\S]*?)<\/t>/g)].map((m) => unescape(m[1])).join("");
 const colIndex = (ref: string) => [...ref.replace(/\d+/g, "")].reduce((n, ch) => n * 26 + ch.charCodeAt(0) - 64, 0) - 1;
 
+// One formatted empty cell far to the right (XFD5) would make every row 16000 cells wide; no student list needs more columns than this.
+const MAX_COLS = 100;
+
+/** Path inside the zip of the first tab that is not hidden, found through workbook.xml and its rels (the tab order there, not the file names). */
+function firstSheetPath(workbook = "", rels = "") {
+  const sheet = [...workbook.matchAll(/<sheet\s([^>]*?)\/?>/g)].map((m) => m[1]).find((a) => !/\bstate="(hidden|veryHidden)"/.test(a));
+  const id = sheet?.match(/\b\w+:id="([^"]+)"/)?.[1];
+  const target = [...rels.matchAll(/<Relationship\s([^>]*?)\/?>/g)].map((m) => m[1]).find((a) => a.match(/\bId="([^"]+)"/)?.[1] === id)?.match(/\bTarget="([^"]+)"/)?.[1];
+  if (!id || !target) return "xl/worksheets/sheet1.xml";
+  return target.startsWith("/") ? target.slice(1) : "xl/" + target.replace(/^\.\//, "");
+}
+
 export async function readXlsx(buf: ArrayBuffer): Promise<string[][]> {
-  const files = await unzip(buf, (n) => n === "xl/sharedStrings.xml" || /^xl\/worksheets\/sheet1\.xml$/.test(n));
-  const shared = [...(files.get("xl/sharedStrings.xml") ?? "").matchAll(/<si>([\s\S]*?)<\/si>/g)].map((m) => texts(m[1]));
-  const sheet = files.get("xl/worksheets/sheet1.xml");
+  const meta = await unzip(buf, (n) => n === "xl/workbook.xml" || n === "xl/_rels/workbook.xml.rels" || n === "xl/sharedStrings.xml");
+  const path = firstSheetPath(meta.get("xl/workbook.xml"), meta.get("xl/_rels/workbook.xml.rels"));
+  const files = await unzip(buf, (n) => n === path || n === "xl/worksheets/sheet1.xml");
+  const shared = [...(meta.get("xl/sharedStrings.xml") ?? "").matchAll(/<si>([\s\S]*?)<\/si>/g)].map((m) => texts(m[1]));
+  const sheet = files.get(path) ?? files.get("xl/worksheets/sheet1.xml");
   if (!sheet) throw new Error("no sheet");
   return [...sheet.matchAll(/<row[^>]*>([\s\S]*?)<\/row>/g)].map((row) => {
     const cells: string[] = [];
@@ -52,7 +82,8 @@ export async function readXlsx(buf: ArrayBuffer): Promise<string[][]> {
       const type = attrs.match(/t="(\w+)"/)?.[1];
       const v = body.match(/<v>([\s\S]*?)<\/v>/)?.[1] ?? "";
       const value = type === "s" ? shared[Number(v)] ?? "" : type === "inlineStr" ? texts(body) : unescape(v);
-      cells[ref ? colIndex(ref) : cells.length] = value.trim();
+      const col = ref ? colIndex(ref) : cells.length;
+      if (col < MAX_COLS) cells[col] = value.trim();
     }
     return Array.from(cells, (x) => x ?? "");
   });
@@ -71,16 +102,28 @@ export async function readDocxText(buf: ArrayBuffer) {
 /** CSV with quotes, commas or semicolons, as saved by Excel. */
 export function readCsv(text: string): string[][] {
   text = text.replace(/^﻿/, "");
-  const sep = (text.split("\n")[0].match(/;/g)?.length ?? 0) > (text.split("\n")[0].match(/,/g)?.length ?? 0) ? ";" : ",";
+  // The separator is the one seen more often on the first line that has text, counted outside quotes only: a file can start with an empty line, and a quoted heading can hold a comma or a line break.
+  const head = text.trimStart();
+  let commas = 0, semis = 0;
+  for (let i = 0, inQuotes = false, blank = true; i < head.length; i++) {
+    const ch = head[i];
+    if (inQuotes) { if (ch === '"' && head[i + 1] === '"') i++; else if (ch === '"') inQuotes = false; }
+    else if (ch === "\n" || ch === "\r") break;
+    else if (ch === "," || ch === ";") { if (ch === ",") commas++; else semis++; blank = true; }
+    else if (ch === '"' && blank) inQuotes = true;
+    else if (ch.trim()) blank = false;
+  }
+  const sep = semis > commas ? ";" : ",";
   const rows: string[][] = [];
   let row: string[] = [], cell = "", quoted = false;
+  // A quote opens a quoted cell only while the cell is still empty: in the middle (O"Brien, 5") it is just a letter, or the rest of the file would become one cell.
   for (let i = 0; i < text.length; i++) {
     const ch = text[i];
     if (quoted) {
       if (ch === '"' && text[i + 1] === '"') { cell += '"'; i++; }
       else if (ch === '"') quoted = false;
       else cell += ch;
-    } else if (ch === '"') quoted = true;
+    } else if (ch === '"' && !cell.trim()) quoted = true;
     else if (ch === sep) { row.push(cell.trim()); cell = ""; }
     else if (ch === "\n" || ch === "\r") {
       if (ch === "\r" && text[i + 1] === "\n") i++;

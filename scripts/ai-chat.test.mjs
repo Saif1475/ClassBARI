@@ -204,6 +204,16 @@ test("profit guard: each pack has a monthly AI money cap below its price; overus
   assert.equal(windowCostUsd(150), Infinity); // packs: no daily money cap, the monthly one instead
   assert.equal(monthStartAfter("2026-11-23"), "2026-11-30T18:00:00.000Z"); // 1 December, midnight in Dhaka
   assert.equal(monthStartAfter("2026-12-31"), "2026-12-31T18:00:00.000Z");
+  const { packMonthStart } = await import("../src/lib/ai-chat.ts");
+  assert.equal(packMonthStart("2026-11-25", "2026-12-20"), "2026-11-20"); // bought 20 November: one month from the 20th, not from the 1st
+  assert.equal(packMonthStart("2026-12-05", "2026-12-20"), "2026-11-20"); // 1 December does not start a fresh cap
+  assert.equal(packMonthStart("2026-12-20", "2027-01-20"), "2026-12-20");
+  assert.equal(monthStartAfter("2026-12-05", "2026-12-20"), "2026-12-19T18:00:00.000Z"); // refills 20 December, midnight in Dhaka
+  assert.equal(packMonthStart("2027-02-28", "2027-03-31"), "2027-02-28"); // a pack ending on the 31st: February's month starts on its last day
+  assert.equal(packMonthStart("2027-02-27", "2027-03-31"), "2027-01-31");
+  assert.equal(monthStartAfter("2027-02-28", "2027-03-31"), "2027-03-30T18:00:00.000Z");
+  assert.equal(packMonthStart("2027-01-10", "2027-01-15"), "2026-12-15"); // across the new year
+  assert.equal(packMonthStart("2026-11-23"), "2026-11-01"); // no end date: the calendar month
   assert.deepEqual(previousWindow({ day: "2026-11-21", slot: 0 }), { day: "2026-11-20", slot: 0 }); // yesterday
   assert.deepEqual(previousWindow({ day: "2026-12-01", slot: 0 }), { day: "2026-11-30", slot: 0 });
   assert.deepEqual(previousWindow({ day: "2027-01-01", slot: 0 }), { day: "2026-12-31", slot: 0 });

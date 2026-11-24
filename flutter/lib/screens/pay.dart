@@ -51,6 +51,7 @@ class _PayFormState extends State<PayForm> {
         info = d;
         if (!methods.any((m) => m['method'] == method) && methods.isNotEmpty) method = '${methods.first['method']}';
         if (widget.kind == 'ai_credit' && amount.text.isEmpty) amount.text = '${(d['credit'] as Map?)?['min'] ?? 50}';
+        if (widget.kind == 'ai_pack' && d['running'] is Map) item = '${d['running']['pack']}'; // a pack still on: only more months of the same one
         if (item.isEmpty) item = widget.kind == 'ai_pack' ? '${(d['packs'] as List).length > 1 ? d['packs'][1] : d['packs'][0]}' : (d['plans'] as Map).keys.firstOrNull?.toString() ?? '';
       });
     } catch (_) {
@@ -78,7 +79,7 @@ class _PayFormState extends State<PayForm> {
         setState(() => msg = (true, t('pay.sent')));
         load();
       } else {
-        setState(() => msg = (false, d['error'] == 'used' ? t('pay.used') : (credit && d['error'] == 'bad item' ? t('pay.creditBad') : null) ?? (res.statusCode == 400 ? t('pay.bad') : t('pay.error'))));
+        setState(() => msg = (false, d['error'] == 'used' ? t('pay.used') : (d['error'] == 'pack running' ? t('pay.packRunning', [taka((d['pack'] as num?) ?? 0), d['until']]) : null) ?? (credit && d['error'] == 'bad item' ? t('pay.creditBad') : null) ?? (res.statusCode == 400 ? t('pay.bad') : t('pay.error'))));
       }
     } catch (_) {
       setState(() => msg = (false, t('pay.error')));
@@ -90,7 +91,8 @@ class _PayFormState extends State<PayForm> {
     final d = info;
     if (d == null) return const SizedBox.shrink();
     final methods = rows(d['methods']);
-    final options = widget.kind == 'ai_pack' ? {for (final p in d['packs'] as List) '$p': p as num} : {for (final e in (d['plans'] as Map).entries) '${e.key}': e.value as num};
+    final running = widget.kind == 'ai_pack' && d['running'] is Map ? d['running'] as Map : null; // another level would count for months already paid
+    final options = widget.kind == 'ai_pack' ? {for (final p in d['packs'] as List) if (running == null || p == running['pack']) '$p': p as num} : {for (final e in (d['plans'] as Map).entries) '${e.key}': e.value as num};
     if (methods.isEmpty || (!credit && options.isEmpty)) return Box(children: [Muted(t('pay.none'))]);
     final total = credit ? (creditAmount ?? 0) : (options[item] ?? 0) * months;
     final to = methods.where((m) => m['method'] == method).firstOrNull;
@@ -120,6 +122,7 @@ class _PayFormState extends State<PayForm> {
             ),
           ),
         ],
+        if (running != null) Muted(t('pay.packRunning', [taka((running['pack'] as num?) ?? 0), running['until']])),
         if (!credit)
           Chips(
             value: item,

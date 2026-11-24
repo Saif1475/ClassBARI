@@ -26,4 +26,10 @@ test("redirects stay inside the app", () => {
   assert.equal(safeNext("https://evil.example"), "/auth/continue");
   assert.equal(safeNext("//evil.example"), "/auth/continue");
   assert.equal(safeNext(null), "/auth/continue");
+  assert.equal(safeNext("/student?tab=fees&x=1#top"), "/student?tab=fees&x=1#top"); // a normal path keeps its query and hash
+  // Browsers drop tabs and newlines and read "\" as "/", so each of these is really "//evil.example".
+  for (const bad of ["/\t/evil.example", "/\n/evil.example", "/\r/evil.example", "/\\evil.example", "/\\/evil.example", "/.//evil.example", "/./\\evil.example", "/\t/[", "student", ""]) {
+    assert.equal(safeNext(bad), "/auth/continue", JSON.stringify(bad));
+    assert.equal(new URL(safeNext(bad), "https://app.example").origin, "https://app.example", JSON.stringify(bad)); // what /auth/callback does with it
+  }
 });

@@ -3,7 +3,7 @@ import { creditUsd } from "@/lib/ai-chat";
 import { changeCredit } from "@/lib/ai-credit";
 import { act, admin, loadDoc } from "@/lib/data-server";
 import { send } from "@/lib/notify-server";
-import { packUntil } from "@/lib/pay";
+import { packClash, packUntil } from "@/lib/pay";
 import { isAdmin, readPlatform, updatePlatform } from "@/lib/platform-server";
 import type { Plan } from "@/lib/platform";
 
@@ -25,7 +25,8 @@ export async function GET(request: Request) {
 
 /**
  * Approve or reject after checking the TrxID in the bKash or Nagad app: { id, approve, reason }. Approving an AI pack
- * switches it on (or adds the months to the one running); approving extra AI credit adds it to the student's balance
+ * switches it on (or adds the months to the one running; a different pack while one runs is refused and stays waiting,
+ * see packClash); approving extra AI credit adds it to the student's balance
  * (taka x (1 - margin) / dollar rate, once per payment); approving a plan makes the institute active on that plan.
  * The payer is told either way.
  */
@@ -47,16 +48,25 @@ export async function POST(request: Request) {
 
   const system = { institute: p.institute_id as string, who: { role: "owner" as const, name: "Instanton Campus", studentIds: [] } };
   let until = "";
+  let clash = null as ReturnType<typeof packClash>;
   if (body.approve && p.kind === "ai_pack") {
     const today = new Date(Date.now() + 6 * 3600_000).toISOString().slice(0, 10);
-    await act(system, "setStudentPremium", [], Date.now(), (s) => {
-      const st = s.students.find((x) => x.id === p.student_id);
-      if (!st) return null;
-      until = packUntil(st.premiumUntil, today, p.months);
-      return [st.id, until, Number(p.item)];
-    });
+    try {
+      await act(system, "setStudentPremium", [], Date.now(), (s) => {
+        const st = s.students.find((x) => x.id === p.student_id);
+        clash = packClash(st, today, Number(p.item)); // a different pack is still running: its paid months must keep their level
+        if (!st || clash) return ((until = ""), null); // asked again on a retry: nothing from the try before is kept
+        until = packUntil(st.premiumUntil, today, p.months);
+        return [st.id, until, Number(p.item)];
+      });
+    } catch (e) {
+      console.error(e instanceof Error ? e.message : e);
+      await db.from("pay_requests").update({ status: "pending", decided_at: null }).eq("id", p.id); // the pack was not saved: back in the queue
+      return Response.json({ error: "pack failed, try again" }, { status: 503 });
+    }
     if (!until) {
       await db.from("pay_requests").update({ status: "pending", decided_at: null }).eq("id", p.id); // nothing changed: back in the queue
+      if (clash) return Response.json({ error: `Not approved: this student's ৳${clash.pack} pack runs until ${clash.until}, and a different pack on top would change the level of months already paid. It is still waiting: reject it with a reason and send the money back, or approve it on ${clash.until} or later.` }, { status: 409 });
       return Response.json({ error: "student not found" }, { status: 404 });
     }
   }

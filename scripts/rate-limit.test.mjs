@@ -19,7 +19,7 @@ test("the visitor's address comes from Cloudflare first, but only behind Cloudfl
   process.env.BEHIND_CLOUDFLARE = "1";
   assert.equal(clientIp(req({ "cf-connecting-ip": "1.2.3.4", "x-forwarded-for": "9.9.9.9" })), "1.2.3.4");
   delete process.env.BEHIND_CLOUDFLARE;
-  assert.equal(clientIp(req({ "x-forwarded-for": "5.6.7.8, 10.0.0.1" })), "5.6.7.8");
+  for (const made of ["1.1.1.1", "2.2.2.2, 3.3.3.3"]) assert.equal(clientIp(req({ "x-forwarded-for": `${made}, 5.6.7.8` })), "5.6.7.8"); // only the last entry is our proxy's: a made-up first one must not give a fresh limit
   assert.equal(clientIp(req({})), "local");
 });
 

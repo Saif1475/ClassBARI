@@ -15,3 +15,23 @@ export const guardedFetch: typeof fetch = (input, init) => {
   }
   return fetch(input, init);
 };
+
+/** The biggest file a teacher may upload (videos, PDFs). The storage bucket refuses anything bigger. */
+export const MAX_FILE_BYTES = 300 * 1024 * 1024; // 300 MB
+
+/** A request's body as text, or null when it is bigger than `max` bytes: stops reading there, even when no length was sent. */
+export async function readCapped(request: Request, max: number): Promise<string | null> {
+  if (Number(request.headers.get("content-length")) > max) return null;
+  const reader = request.body?.getReader();
+  if (!reader) return "";
+  const parts: Uint8Array[] = [];
+  let size = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > max) return void reader.cancel().catch(() => {}), null;
+    parts.push(value);
+  }
+  return Buffer.concat(parts).toString("utf8");
+}

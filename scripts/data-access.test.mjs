@@ -1,7 +1,7 @@
 // Run: npm test — who may do what with real accounts, and what students/guardians get to see.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { checkAction, Refused, rosterOf, runAction, viewFor } from "../src/lib/data-access.ts";
+import { afterAnswer, bestStaffRow, checkAction, peopleToSync, Refused, rosterOf, runAction, viewFor } from "../src/lib/data-access.ts";
 import { seed } from "../src/lib/mock-data.ts";
 
 const s = seed();
@@ -369,6 +369,18 @@ test("a student's chat with their teacher is private: not the owner, not guardia
   refused(() => checkAction("sendChatMessage", ["student-3", otherTeacher.name, "hi", false], otherTeacher, next));
   refused(() => checkAction("sendChatMessage", ["student-3", "Owner", "hi", false], owner, next));
   refused(() => checkAction("sendChatMessage", ["parent-3", otherTeacher.name, "hi", false], otherTeacher, next)); // nor another batch's guardians
+  // The owner making themselves the batch's teacher gets the thread from then on, not the messages with the teacher before.
+  const batchId = s.batches.find((b) => b.name === mineBatch).id;
+  const taken = runAction(next, "updateBatch", [batchId, { teacher: owner.name }], Date.now());
+  const old = taken.chats.find((c) => c.id === "student-3").messages.at(-1);
+  assert.equal(viewFor(taken, owner).chats.find((c) => c.id === "student-3")?.messages.length ?? 0, 0);
+  assert.equal(viewFor(taken, owner).chats.find((c) => c.id === "student-3")?.unread ?? 0, 0);
+  refused(() => checkAction("reactChatMessage", ["student-3", old.id, "staff", "👍"], owner, taken));
+  const later = runAction(taken, "sendStudentMessage", [3, "Sir, another"], Date.now());
+  assert.deepEqual(viewFor(later, owner).chats.find((c) => c.id === "student-3").messages.map((m) => m.text), ["Sir, another"]);
+  assert.equal(viewFor(later, student).chats.find((c) => c.id === "student-3").messages.length, 2); // the student keeps the whole thread
+  const reply = runAction(later, "sendChatMessage", checkAction("sendChatMessage", ["student-3", "", "Yes?", false], owner, later), Date.now());
+  assert.equal(viewFor(reply, owner).chats.find((c) => c.id === "student-3").messages.length, 2);
 });
 
 test("edge cases found in the audit stay closed", async () => {
@@ -387,6 +399,12 @@ test("edge cases found in the audit stay closed", async () => {
   refused(() => checkAction("submitQuiz", [otherModule.id, otherModule.items[0]?.id, otherStudent.id, 999, [], 0], teacher, s));
   refused(() => checkAction("addCommunityPost", [otherStudent.id, "hi"], teacher, s));
   assert.ok(checkAction("addCommunityPost", ["teacher", "hi"], teacher, s));
+  // Staff can't rewrite or delete a student's post (hiding it stays allowed), only the teacher's own.
+  const posts = { ...s, community: [{ id: 901, author: otherStudent.id, text: "mine", at: "", likes: [], comments: [], reports: [] }, { id: 902, author: "teacher", text: "notice", at: "", likes: [], comments: [], reports: [] }] };
+  for (const who of [teacher, owner]) refused(() => checkAction("editPost", [901, "new words"], who, posts)), refused(() => checkAction("deletePost", [901], who, posts));
+  assert.ok(checkAction("editPost", [902, "updated notice"], teacher, posts));
+  assert.ok(checkAction("deletePost", [902], owner, posts));
+  assert.ok(checkAction("moderatePost", [901, { hidden: true }], owner, posts));
   refused(() => checkAction("requestLeave", [{ name: other.teacher, from: "2026-01-01", to: "2026-01-02", reason: "x" }], teacher, s));
   // Money and dates.
   refused(() => checkAction("payFee", [3, "cash", "abc"], owner, s));
@@ -466,4 +484,120 @@ test("messages: replies, photos, edits, delete for everyone, reactions and read 
   assert.equal(st.chats.find((c) => c.id === "student-3").messages.find((m) => m.id === q.id).react, undefined);
   // A guardian can't touch the student's private chat.
   refused(() => checkAction("reactChatMessage", ["student-3", q.id, "family", "👍"], { ...guardian, studentIds: [3] }, st));
+});
+
+test("a removed student's roll number is never given to a newcomer, who would see what that student left behind", async () => {
+  const { blankState } = await import("../src/lib/lms-actions.ts");
+  const owner = { role: "owner", name: "", studentIds: [] };
+  const input = (n) => ({ name: `New ${n}`, email: `new.${n}@gmail.com`, guardianName: "G", guardianEmail: `g.new.${n}@gmail.com`, phone: "01711000044", mode: "offline", batch: s.batches[0].name, feePaid: false });
+  const add = (st, n) => runAction(st, "addStudent", [input(n)], Date.now());
+  const idOf = (st, n) => st.students.find((x) => x.name === `New ${n}`).id;
+  const top = Math.max(...s.students.map((x) => x.id));
+  assert.ok(s.payments.some((p) => p.studentId === top)); // the newest student has paid, so something of theirs stays behind
+
+  // The newest student writes privately to their teacher and is removed; the next student gets a new number and none of it.
+  let st = runAction(s, "sendStudentMessage", [top, "Sir, a private question"], Date.now());
+  st = add(runAction(st, "removeStudent", [top], Date.now()), 1);
+  assert.equal(idOf(st, 1), top + 1);
+  const seen = viewFor(st, { role: "student", name: "", studentIds: [idOf(st, 1)] });
+  assert.deepEqual([seen.chats, seen.payments], [[], []]);
+  assert.equal(st.nextStudentId, top + 2);
+  // Staff are sent the counter (the owner's backup file is made from what they are sent).
+  assert.deepEqual([viewFor(st, owner).nextStudentId, viewFor(st, teacher).nextStudentId], [top + 2, top + 2]);
+
+  // Data saved before the counter was kept, the newest student already gone: counted from what they left behind.
+  const old = { ...s, nextStudentId: undefined, students: s.students.filter((x) => x.id !== top) };
+  assert.equal(idOf(add(old, 2), 2), top + 1);
+
+  // An order confirmed after a removal makes its student the same way.
+  st = runAction(st, "placeOrder", [{ batchId: s.batches[0].id, student: input(3), price: 0, trxId: "TRX123" }], Date.now());
+  st = runAction(runAction(st, "removeStudent", [idOf(st, 1)], Date.now()), "decideOrder", [st.orders[0].id, true], Date.now());
+  assert.equal(idOf(st, 3), top + 2);
+
+  // Restoring an older backup doesn't take the counter back; a backup from before the counter is counted afresh.
+  const backup = (data) => JSON.stringify({ app: "Instanton Campus", version: 1, data });
+  st = add(runAction(st, "importBackup", [backup(viewFor(s, owner))], Date.now()), 4);
+  assert.equal(idOf(st, 4), top + 3);
+  assert.equal(idOf(add(runAction(blankState(), "importBackup", [backup(viewFor(old, owner))], Date.now()), 5), 5), top + 1);
+
+  // A new institute starts at 1 and never goes back.
+  st = add(blankState(), 6);
+  assert.equal(idOf(st, 6), 1);
+  assert.equal(idOf(add(runAction(st, "removeStudent", [1], Date.now()), 7), 7), 2);
+});
+
+test("a lesson of the wrong shape is refused; one already saved doesn't stop its batch's data loading", () => {
+  const owner = { role: "owner", name: "", studentIds: [] };
+  const mod = viewFor(s, student).modules[0]; // a published chapter of student 3's batch
+  const add = (item) => checkAction("addModuleItem", [mod.id, item], owner, s);
+  // What the teachers' screens send is kept as it is.
+  const quiz = { kind: "quiz", title: "Waves", meta: "", points: 50, dueDate: "2026-12-01", questions: [{ q: "v = ?", topic: "Speed", options: ["f/λ", "fλ"], answer: 1 }], negative: 0.25, shuffle: true, timeLimitMin: 10, passPct: 40, antiCheat: true, rubric: [{ name: "Method", max: 5 }], paper: "data:application/pdf;base64,AAAA", paperName: "p.pdf", publishToExplore: false, free: true };
+  assert.deepEqual(add(quiz), [mod.id, quiz]);
+  const notes = { kind: "pdf", title: "Notes", meta: "2 pages", url: "https://example.com/a.pdf" };
+  assert.deepEqual(add(notes), [mod.id, notes]);
+  // Its id, marks and who finished it are the server's, never the sender's.
+  assert.deepEqual(add({ kind: "task", title: "t", meta: "", id: 104, doneBy: 5, scores: { 3: 99 } })[1], { kind: "task", title: "t", meta: "" });
+  const q = (x) => ({ questions: [{ q: "q", options: ["a", "b"], answer: 0, ...x }] });
+  for (const bad of [{ questions: {} }, { questions: [null] }, q({ options: "ab" }), q({ answer: 2 }), q({ answer: 0.5 }), q({ options: ["a", 1] }), q({ q: 1 }), q({ topic: {} }), { title: 5 }, { title: "x".repeat(1001) }, { meta: undefined }, { kind: "virus" }, { points: "30" }, { dueDate: "soon" }, { url: {} }, { rubric: "x" }, { shuffle: "yes" }])
+    refused(() => add({ kind: "quiz", title: "x", meta: "", ...bad }));
+  refused(() => add(null));
+  // A video put into a chapter becomes a lesson: the same rules.
+  const video = { title: "v", subject: "Physics", level: "HSC", length: "45:00", free: true, moduleId: mod.id };
+  assert.deepEqual(checkAction("addExploreVideo", [video], owner, s), [video]);
+  refused(() => checkAction("addExploreVideo", [{ ...video, length: {} }], owner, s));
+  // One saved before this was checked: the batch's students and guardians still get their data, that lesson without questions.
+  const broken = { ...s, modules: s.modules.map((m) => (m.id === mod.id ? { ...m, items: [...m.items, { id: 7900, kind: "quiz", title: "x", meta: "", done: false, questions: {}, doneBy: 5 }] } : m)) };
+  for (const who of [student, { ...guardian, studentIds: [3] }]) {
+    const it = viewFor(broken, who).modules.flatMap((m) => m.items).find((x) => x.id === 7900);
+    assert.equal(it.questions, undefined);
+    assert.equal(it.done, false);
+  }
+  // A good one still goes all the way: saved, and sent to the student without the right answers.
+  const next = runAction(s, "addModuleItem", add(quiz), Date.now());
+  assert.deepEqual(viewFor(next, student).modules.flatMap((m) => m.items).find((x) => x.title === "Waves").questions, [{ ...quiz.questions[0], answer: -1 }]);
+});
+
+test("the server's own values (id, author, time) can't be chosen by the sender", () => {
+  const sent = { batch: "SSC Higher Math", title: "Hi", body: "x", author: "Someone Else", id: 3, at: "2000-01-01T00:00:00.000Z" };
+  const batch = s.batches.find((b) => b.teacher === teacher.name).name;
+  const next = runAction(s, "addAnnouncement", checkAction("addAnnouncement", [{ ...sent, batch }], teacher, s), Date.now());
+  const a = next.announcements[0];
+  assert.equal(a.title, "Hi");
+  assert.equal(a.author, s.teacherName);
+  assert.notEqual(a.id, 3);
+  assert.notEqual(a.at, sent.at);
+  const ev = runAction(s, "addCalendarEvent", [{ title: "Exam", start: "2026-12-01T10:00", id: 3 }], Date.now()).calendarEvents.at(-1);
+  assert.notEqual(ev.id, 3);
+});
+
+test("a refused change drops only itself; a change not sent yet stays queued", () => {
+  assert.deepEqual([200, 400, 403, 413, 401, 429, 500].map((c) => afterAnswer(c, 1)), ["sent", "drop", "drop", "drop", "wait", "wait", "wait"]);
+  assert.equal(afterAnswer(503, 5), "drop"); // busy five times in a row: given up, so the rest can still go
+});
+
+test("a new batch fee reaches students with a discount, and leaves two months' arrears alone", () => {
+  const b = { ...s.batches[0], fee: 500 };
+  const st = (id, feeDue, discount) => ({ ...s.students[0], id, batch: b.name, feeDue, discount });
+  const start = { ...s, batches: [b, ...s.batches.slice(1)], students: [st(1, 400, 100), st(2, 500, 250), st(3, 500), st(4, 200)] };
+  const next = runAction(start, "updateBatch", [b.id, { fee: 600 }], Date.now());
+  assert.deepEqual(next.students.map((x) => x.feeDue), [500, 500, 600, 200]);
+});
+
+test("sign-in lists: no work when nothing changed, a removed teacher is noticed, and a failed earlier write is retried", () => {
+  const none = { roster: false, teachers: false };
+  assert.deepEqual(peopleToSync(s, s, false), none);
+  const t = s.staff.find((x) => x.name !== s.teacherName);
+  const withMail = { ...s, staff: s.staff.map((x) => (x === t ? { ...x, email: "t@example.com" } : x)) };
+  const removed = { ...withMail, staff: withMail.staff.filter((x) => x.name !== t.name) };
+  assert.deepEqual(peopleToSync(withMail, removed, false), { roster: false, teachers: true });
+  // The removal's write failed: the next save (which changes nobody) must still write both lists.
+  assert.deepEqual(peopleToSync(removed, removed, true), { roster: true, teachers: true });
+});
+
+test("with no institute picked, the owner's institute opens before one they teach at", () => {
+  const b = { institute_id: "b", role: "teacher" }, a = { institute_id: "a", role: "owner" }, m = { institute_id: "c", role: "manager" };
+  assert.equal(bestStaffRow([b, m, a]), a);
+  assert.equal(bestStaffRow([b, m]), m);
+  assert.equal(bestStaffRow([{ institute_id: "z", role: "teacher" }, b]), b); // equal ranks: the same one every time
+  assert.equal(bestStaffRow([]), undefined);
 });

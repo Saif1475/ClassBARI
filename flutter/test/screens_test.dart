@@ -219,6 +219,14 @@ void main() {
     });
   }
 
+  testWidgets('the bottom bar fits Bangla tab names on a phone set to large text (2.0) with the app at 130%', (tester) async {
+    for (final (app, role) in [(const StudentApp(), 'student'), (const GuardianApp(), 'guardian'), (const TeacherApp(), 'teacher'), (const InstituteApp(), 'owner')]) {
+      await open(tester, app, code: 'bn', role: role, letters: 2.6);
+      await tester.pumpAndSettle();
+      expect(drawingError(tester), isNull, reason: role); // the first tab: the bar is the same on every screen
+    }
+  });
+
   testWidgets('screens are usable: big enough tap targets, every button has a name, readable contrast', (tester) async {
     final handle = tester.ensureSemantics();
     for (final (app, role) in [(const StudentApp(), 'student'), (const TeacherApp(), 'teacher'), (const InstituteApp(), 'owner')]) {
@@ -718,6 +726,29 @@ void main() {
     await tester.pumpAndSettle();
     expect((paid as Map)['kind'], 'ai_credit');
     expect((paid as Map)['item'], '50');
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Buying a pack while one runs: told before paying, and only more months of the same pack are offered', (tester) async {
+    payApi = (path, {body, delete = false}) async => http.Response(
+      jsonEncode({
+        'methods': [
+          {'method': 'bkash', 'number': '01712345678'},
+        ],
+        'packs': [150, 400, 800, 1500],
+        'plans': {},
+        'mine': [],
+        'running': {'pack': 150, 'until': '2099-12-31'},
+      }),
+      200,
+    );
+    addTearDown(() => payApi = api);
+    await open(tester, const Screen(children: [PayForm()]));
+    await tester.pumpAndSettle();
+    expect(find.text('Your ৳150 pack runs until 2099-12-31. You can add months to it now; a different pack can be bought once it ends.'), findsOneWidget);
+    expect(find.text('৳150/month'), findsOneWidget);
+    expect(find.text('৳1,500/month'), findsNothing); // another level would count for the months already paid
+    expect(find.textContaining('Send Money ৳150 to 01712345678'), findsOneWidget); // the running pack is the one chosen
     expect(tester.takeException(), isNull);
   });
 

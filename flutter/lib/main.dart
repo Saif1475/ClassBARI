@@ -81,7 +81,10 @@ class _ClassbariAppState extends State<ClassbariApp> {
   /// Logged out (or the login ended) while a lesson or chat was open on top: back to the first screen.
   /// Logged in with the data loaded: this phone can get notifications now.
   void leftScreens() {
-    if (wasIn && !store.signedIn) nav.currentState?.popUntil((r) => r.isFirst);
+    if (wasIn && !store.signedIn) {
+      forgetPush(); // a login ended elsewhere skips signOut: the next person on this phone must not get this one's notifications
+      nav.currentState?.popUntil((r) => r.isFirst);
+    }
     wasIn = store.signedIn;
     if (store.signedIn && store.role != null) registerPush();
   }

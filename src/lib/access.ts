@@ -28,4 +28,16 @@ export function homeFor(roles: string[], wanted?: string): { path: string; uiRol
 }
 
 /** Only allow redirects back into our own app (never to another site). */
-export const safeNext = (next: string | null | undefined) => (next && next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/\\") ? next : "/auth/continue");
+export function safeNext(next: string | null | undefined): string {
+  const here = "http://app.invalid"; // a made-up address, only to see where a browser would really go
+  if (!next || !next.startsWith("/")) return "/auth/continue";
+  try {
+    // Read it the way a browser does (tabs and newlines dropped, "\" taken as "/"): "/\t/evil.com" is really "//evil.com", another site.
+    const u = new URL(next, here);
+    const path = u.pathname + u.search + u.hash;
+    if (u.origin === here && !path.startsWith("//")) return path; // "/.//evil.com" stays on our site but its path is "//evil.com": not that either
+  } catch {
+    // not an address at all
+  }
+  return "/auth/continue";
+}

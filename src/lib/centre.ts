@@ -1,5 +1,6 @@
 // Coaching-centre rules with no UI: timetable clashes, monthly profit & loss, coupon prices.
 // Pure functions (also loaded by scripts/centre.test.mjs).
+import { dayKey, toDate } from "./dates.ts";
 
 export type Slot = { id: number; day: number; start: string; end: string; batch: string; teacher: string; room: string }; // day 0 = Sunday, times "HH:MM"
 export type Expense = { id: number; date: string; category: string; amount: number; note: string };
@@ -22,7 +23,7 @@ export function clashes(slots: Slot[]) {
 
 /** One month (YYYY-MM): fees collected, staff paid, other expenses and what's left. */
 export function profitAndLoss(month: string, payments: { amount: number; at: string }[], staffPayments: { month: string; amount: number }[], expenses: Expense[]) {
-  const income = payments.filter((p) => p.at.startsWith(month)).reduce((s, p) => s + p.amount, 0);
+  const income = payments.filter((p) => dayKey(toDate(p.at)).startsWith(month)).reduce((s, p) => s + p.amount, 0); // p.at is a UTC time: count it in its local month, as payroll and invoices do (expense dates are local days already)
   const salaries = staffPayments.filter((p) => p.month === month).reduce((s, p) => s + p.amount, 0);
   const byCategory: Record<string, number> = {};
   for (const e of expenses.filter((e) => e.date.startsWith(month))) byCategory[e.category] = (byCategory[e.category] ?? 0) + e.amount;
@@ -31,11 +32,12 @@ export function profitAndLoss(month: string, payments: { amount: number; at: str
 }
 
 /** Price after a coupon, or why the coupon can't be used. */
-export function applyCoupon(price: number, code: string, coupons: Coupon[], batchId: string, today: string): { price: number; coupon: Coupon } | { error: "unknown" | "otherCourse" | "expired" | "usedUp" } {
+export function applyCoupon(price: number, code: string, coupons: Coupon[], batchId: string, today: string, orders: { status: string; coupon?: string }[] = []): { price: number; coupon: Coupon } | { error: "unknown" | "otherCourse" | "expired" | "usedUp" } {
   const c = coupons.find((x) => x.code.toUpperCase() === code.trim().toUpperCase());
   if (!c) return { error: "unknown" };
   if (c.batchId && c.batchId !== batchId) return { error: "otherCourse" };
   if (c.expires && c.expires < today) return { error: "expired" };
-  if (c.used >= c.maxUses) return { error: "usedUp" };
+  // used only goes up when an order is confirmed, so orders still waiting with this code count too
+  if (c.used + orders.filter((o) => o.status === "pending" && o.coupon === c.code).length >= c.maxUses) return { error: "usedUp" };
   return { price: Math.max(0, Math.round(price * (1 - c.percent / 100))), coupon: c };
 }

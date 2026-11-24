@@ -8,7 +8,7 @@ import { safeBlob } from "./files";
 import { supabaseLater } from "./supabase/later";
 
 export const LOCAL_PREFIX = "local:";
-export const MAX_FILE_BYTES = 300 * 1024 * 1024; // 300 MB
+export { MAX_FILE_BYTES } from "./doc-limit"; // the server and the storage bucket use the same limit
 const DB = "edunest-files";
 const STORE = "files";
 
@@ -34,7 +34,7 @@ const run = <T,>(mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBRequest
 export async function saveFile(file: Blob): Promise<string> {
   if (REAL_AUTH) {
     // Real accounts: straight to the institute's file storage, so every device can open it.
-    const res = await fetch("/api/files", { method: "POST" });
+    const res = await fetch("/api/files", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ size: file.size }) });
     if (!res.ok) throw new Error("upload refused");
     const { path, token, url } = (await res.json()) as { path: string; token: string; url: string };
     const { error } = await (await supabaseLater()).storage.from("files").uploadToSignedUrl(path, token, file, { contentType: file.type || undefined });

@@ -62,6 +62,17 @@ void main() {
     expect([pl.income, pl.salaries, pl.other, pl.profit], [2000, 300, 500, 1200]);
   });
 
+  test('profit and loss counts a payment in its local month, as payroll does', () {
+    // Local times either side of midnight on 1 December: saved as UTC, one of them lands in the other month (on any machine not on UTC itself).
+    final Json s = {
+      'payments': [
+        {'batch': 'Batch A', 'amount': 1000, 'at': DateTime(2026, 12, 1, 0, 30).toUtc().toIso8601String()},
+        {'batch': 'Batch A', 'amount': 10, 'at': DateTime(2026, 11, 30, 23, 30).toUtc().toIso8601String()},
+      ],
+    };
+    expect([profitAndLoss('2026-12', s).income, profitAndLoss('2026-11', s).income], [1000, 10]);
+  });
+
   testWidgets('owner pages draw; an expense is sent as the website sends it', (tester) async {
     SharedPreferences.setMockInitialValues({});
     store.prefs = await SharedPreferences.getInstance();

@@ -113,8 +113,19 @@ export const aiDefaults = (s: AiSettings = {}) => ({
 export const packMonthlyUsd = (pack: number, s: AiSettings = {}) => s.packMonthlyUsd?.[pack] ?? ((PACKS as readonly number[]).includes(pack) ? packCapUsd(pack, s) : 0);
 /** The free plan's money backstop per day (packs have a monthly cap instead). */
 export const windowCostUsd = (pack: number, s: AiSettings = {}) => (pack ? Infinity : (s.freeWindowUsd ?? FREE_WINDOW_USD));
-/** When the next calendar month starts in Dhaka (UTC+6), as a time: when a pack's monthly AI cap refills. */
-export const monthStartAfter = (day: string) => new Date(Date.UTC(Number(day.slice(0, 4)), Number(day.slice(5, 7)), 1) - 6 * 3600_000).toISOString();
+/** Day d of a month (UTC date of a Dhaka day), moved to the month's last day when it is shorter (a pack ending on the 31st). */
+const onDay = (y: number, m: number, d: number) => new Date(Date.UTC(y, m, Math.min(d, new Date(Date.UTC(y, m + 1, 0)).getUTCDate())));
+/** The first day (YYYY-MM-DD) of the pack's own month: the latest day not after today on the day-of-month the pack ends (premiumUntil); the 1st without one. */
+export function packMonthStart(day: string, until?: string) {
+  const [y, m, d] = [Number(day.slice(0, 4)), Number(day.slice(5, 7)) - 1, Number(until?.slice(8, 10)) || 1];
+  const here = onDay(y, m, d).toISOString().slice(0, 10);
+  return here <= day ? here : onDay(y, m - 1, d).toISOString().slice(0, 10);
+}
+/** When the pack's next month starts, midnight in Dhaka (UTC+6), as a time: when its monthly AI cap refills. */
+export function monthStartAfter(day: string, until?: string) {
+  const s = packMonthStart(day, until);
+  return new Date(onDay(Number(s.slice(0, 4)), Number(s.slice(5, 7)), Number(until?.slice(8, 10)) || 1).getTime() - 6 * 3600_000).toISOString();
+}
 /** The day before this one (overuse in it is taken from this one). */
 export function previousWindow(w: { day: string; slot?: number }) {
   const d = new Date(`${w.day}T00:00:00Z`);

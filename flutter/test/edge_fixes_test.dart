@@ -156,4 +156,30 @@ void main() {
     expect(tester.widget<FilterChip>(find.byType(FilterChip)).selected, isTrue);
     await tester.pumpWidget(const SizedBox());
   });
+
+  test('an older download arriving after a newer save does not undo it', () {
+    store.adoptForTest({'version': 1000001, 'state': {'present': true}});
+    store.adoptForTest({'version': 1000000, 'state': {'present': false}}); // the 20-second refresh that started first
+    expect(store.state, {'present': true});
+    store.adoptForTest({'version': 1000002, 'state': {'present': false}});
+    expect(store.state, {'present': false});
+  });
+
+  test('an answer that arrives after a sign-out is not kept for the next person', () async {
+    store.fake({'meId': 1}, 'teacher');
+    final since = store.signOuts; // a download starts
+    try {
+      await store.signOut();
+    } catch (_) {
+      // no Supabase in tests: the forgetting before it is what counts
+    }
+    store.adoptForTest({'version': 1000003, 'role': 'teacher', 'state': {'meId': 1}}, since); // its answer arrives
+    expect(store.state, isNull);
+    expect(store.role, isNull);
+    expect(store.prefs.getString('classbari-data'), isNull);
+  });
+
+  test('a refused change drops only itself; not sent yet stays queued', () {
+    expect([200, 400, 403, 413, 401, 429, 500, 503].map(afterAnswer), ['sent', 'drop', 'drop', 'drop', 'login', 'wait', 'wait', 'wait']);
+  });
 }
