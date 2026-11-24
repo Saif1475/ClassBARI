@@ -350,14 +350,15 @@ class _AttendanceState extends State<Attendance> {
                 items: kids,
                 resetKey: batch,
                 row: (k) {
-                  // A tap shows at once, also without internet: what the server has, flipped once for each tap still on its way.
-                  final out = absent.contains(k['id']) != store.pending('toggleAttendance', [k['id'], today]).isOdd;
+                  // A tap shows at once, also without internet: the last tap still on its way wins (it sets, not flips); an older queued tap without a value flips.
+                  final last = store.waiting.where((e) => e['name'] == 'toggleAttendance' && (e['args'] as List)[0] == k['id'] && (e['args'] as List)[1] == today).lastOrNull?['args'] as List?;
+                  final out = last != null && last.length > 2 && last[2] is bool ? last[2] as bool : absent.contains(k['id']) != store.pending('toggleAttendance', [k['id'], today]).isOdd;
                   return Semantics(
                     toggled: !out,
                     child: Item(
                       leading: SizedBox(width: 30, child: Muted('${k['id']}')),
                       title: '${k['name']}',
-                      onTap: () => store.act('toggleAttendance', [k['id'], today]),
+                      onTap: () => store.act('toggleAttendance', [k['id'], today, !out]), // the state tapped to, so a late sync cannot undo someone else's mark
                       trailing: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(color: out ? c.error : c.primary, borderRadius: BorderRadius.circular(10)),

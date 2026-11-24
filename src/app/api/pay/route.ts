@@ -40,14 +40,14 @@ export async function POST(request: Request) {
   if (!payNumbers().some((n) => n.method === p.method)) return Response.json({ error: "method off" }, { status: 400 });
   // Who it is for: a student their own pack, a guardian one of their children's, an owner the institute's plan.
   let studentId: number | null = null;
+  let clash = null as Awaited<ReturnType<typeof clashFor>>;
   if (p.kind === "ai_credit") studentId = me.who.studentIds[0] ?? null; // a student's own extra credit
   if (p.kind === "ai_credit" && studentId === null) return Response.json({ error: "not allowed" }, { status: 403 });
   if (p.kind === "ai_pack") {
     if (me.who.role === "student") studentId = me.who.studentIds[0] ?? null;
     else if (me.who.role === "guardian" && me.who.studentIds.includes(Number(body.studentId))) studentId = Number(body.studentId);
     if (studentId === null) return Response.json({ error: "not allowed" }, { status: 403 });
-    const clash = await clashFor(me.institute, studentId, Number(p.item)); // told before the money is recorded; checked again at approval
-    if (clash) return Response.json({ error: "pack running", ...clash }, { status: 409 });
+    clash = await clashFor(me.institute, studentId, Number(p.item)); // the money is already sent, so it is still recorded (approval refuses the clash and keeps it waiting); the payer is told
   }
   const { data, error } = await admin()
     .from("pay_requests")
@@ -55,5 +55,5 @@ export async function POST(request: Request) {
     .select("id, created_at, kind, item, months, amount, method, trx_id, status")
     .single();
   if (error) return Response.json({ error: error.code === "23505" ? "used" : "try again" }, { status: error.code === "23505" ? 409 : 503 }); // 23505: that TrxID was sent before
-  return Response.json(data);
+  return Response.json(clash ? { ...data, clash } : data);
 }

@@ -3,7 +3,7 @@ import { creditUsd } from "@/lib/ai-chat";
 import { changeCredit } from "@/lib/ai-credit";
 import { act, admin, loadDoc } from "@/lib/data-server";
 import { send } from "@/lib/notify-server";
-import { packClash, packUntil } from "@/lib/pay";
+import { packClash, packGrant, packUntil } from "@/lib/pay";
 import { isAdmin, readPlatform, updatePlatform } from "@/lib/platform-server";
 import type { Plan } from "@/lib/platform";
 
@@ -47,25 +47,28 @@ export async function POST(request: Request) {
   if (!p) return Response.json({ error: "already decided" }, { status: 409 });
 
   const system = { institute: p.institute_id as string, who: { role: "owner" as const, name: "Instanton Campus", studentIds: [] } };
+  // Not decided after all: back in the queue. If that fails too it stays "approved" with nothing given, so say so loudly.
+  const backToQueue = async () => {
+    const { error } = await db.from("pay_requests").update({ status: "pending", decided_at: null }).eq("id", p.id);
+    if (error) console.error(`payments: ${p.id} is marked approved but nothing was given, and putting it back in the queue failed (set it to pending by hand):`, error.message);
+  };
   let until = "";
   let clash = null as ReturnType<typeof packClash>;
   if (body.approve && p.kind === "ai_pack") {
     const today = new Date(Date.now() + 6 * 3600_000).toISOString().slice(0, 10);
     try {
       await act(system, "setStudentPremium", [], Date.now(), (s) => {
-        const st = s.students.find((x) => x.id === p.student_id);
-        clash = packClash(st, today, Number(p.item)); // a different pack is still running: its paid months must keep their level
-        if (!st || clash) return ((until = ""), null); // asked again on a retry: nothing from the try before is kept
-        until = packUntil(st.premiumUntil, today, p.months);
-        return [st.id, until, Number(p.item)];
+        const g = packGrant(s.students.find((x) => x.id === p.student_id), today, Number(p.item), p.months, p.id); // asked again on a retry: nothing from the try before is kept
+        [until, clash] = [g.until, g.clash];
+        return g.args;
       });
     } catch (e) {
       console.error(e instanceof Error ? e.message : e);
-      await db.from("pay_requests").update({ status: "pending", decided_at: null }).eq("id", p.id); // the pack was not saved: back in the queue
+      await backToQueue(); // maybe not saved (or saved and the answer lost: packGrant then adds nothing the next time)
       return Response.json({ error: "pack failed, try again" }, { status: 503 });
     }
     if (!until) {
-      await db.from("pay_requests").update({ status: "pending", decided_at: null }).eq("id", p.id); // nothing changed: back in the queue
+      await backToQueue(); // nothing changed
       if (clash) return Response.json({ error: `Not approved: this student's ৳${clash.pack} pack runs until ${clash.until}, and a different pack on top would change the level of months already paid. It is still waiting: reject it with a reason and send the money back, or approve it on ${clash.until} or later.` }, { status: 409 });
       return Response.json({ error: "student not found" }, { status: 404 });
     }
@@ -77,7 +80,7 @@ export async function POST(request: Request) {
       await updatePlatform((pl) => void pl.audit.unshift({ at: new Date().toISOString(), action: "AI credit", detail: `purchase ${p.payer_email} ৳${p.amount} = US$${r.usd} (balance US$${r.balance}) ${p.method} ${p.trx_id}` }));
     } catch (e) {
       console.error(e instanceof Error ? e.message : e);
-      await db.from("pay_requests").update({ status: "pending", decided_at: null }).eq("id", p.id); // nothing changed: back in the queue
+      await backToQueue(); // nothing changed (changeCredit adds a payment once)
       return Response.json({ error: "credit failed" }, { status: 503 });
     }
   }

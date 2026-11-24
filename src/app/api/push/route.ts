@@ -1,7 +1,7 @@
 import { REAL_AUTH } from "@/lib/auth-mode";
 import { loadPart, STAFF_ROLES, whoIs } from "@/lib/data-server";
 import { forgetDevice, saveDevice } from "@/lib/notify-server";
-import { addPushSub } from "@/lib/platform";
+import { addPushSub, pushSubOk } from "@/lib/platform";
 import { jsonBody, updatePlatform } from "@/lib/platform-server";
 import { limited } from "@/lib/rate-limit";
 
@@ -22,8 +22,8 @@ export async function POST(request: Request) {
     const me = await whoIs(request);
     const sub = body.subscription as { endpoint?: unknown; keys?: { p256dh?: unknown; auth?: unknown } } | undefined;
     if (!me) return Response.json({ error: "sign in" }, { status: 401 });
-    if (typeof sub?.endpoint !== "string" || !sub.endpoint.startsWith("https://") || typeof sub.keys?.p256dh !== "string" || typeof sub.keys?.auth !== "string")
-      return Response.json({ error: "bad subscription" }, { status: 400 });
+    // Same allow-list as the demo path: the server POSTs to this address, so only real browser push services.
+    if (!pushSubOk(sub)) return Response.json({ error: "bad subscription" }, { status: 400 });
     const saved = await saveDevice(me.institute, me.who, { kind: "web", token: sub.endpoint, sub: { endpoint: sub.endpoint, keys: { p256dh: sub.keys.p256dh, auth: sub.keys.auth } }, lang: body.lang });
     return saved ? Response.json({ ok: true }) : Response.json({ error: "try again" }, { status: 503 });
   }

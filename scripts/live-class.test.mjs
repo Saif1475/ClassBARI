@@ -76,3 +76,26 @@ test("everyone gets the same secret room from the session; made-up room names ar
   const fresh = "Instanton-" + "c".repeat(32); // rooms made after the rename (ROOM is one made before it)
   assert.equal(viewOf(startSession({ batch: "A", room: fresh }, 0), stu(A), 0, 1).room, fresh);
 });
+
+test("a signed-in student can only join, chat and ask as themselves, never mark a classmate present", () => {
+  const s = startSession({ batch: "A", room: ROOM }, 0);
+  const me = { voter: "aaaaaaaa1", staff: false, own: [{ id: 3, name: "Student 3" }] };
+  act(s, { action: "join", name: "Student 7", studentId: 7 }, me, 1);
+  assert.deepEqual(Object.values(s.joined).map((j) => [j.name, j.studentId]), [["Student 3", 3]]);
+  act(s, { action: "chat", name: "Teacher", text: "hi" }, me, 5000);
+  assert.equal(s.chat[0].name, "Student 3");
+  // A guardian (no students of their own to be) can't join or post at all.
+  assert.deepEqual(act(s, { action: "join", name: "Student 7", studentId: 7 }, { voter: "bbbbbbbb1", staff: false, own: [] }, 3), { error: "bad join" });
+});
+
+test("made-up device ids can't beat the chat slow-down or flood hands, questions and attendance", () => {
+  const s = startSession({ batch: "A", room: ROOM }, 0);
+  const me = (n) => ({ voter: `fakedev-${n}`, staff: false, own: [{ id: 3, name: "Student 3" }] });
+  assert.deepEqual(act(s, { action: "chat", text: "hi" }, me(1), 5000), { ok: true });
+  assert.deepEqual(act(s, { action: "chat", text: "spam" }, me(2), 5001), { error: "too fast" }); // a new device id is still the same student
+  for (let n = 3; n < 20; n++) act(s, { action: "hand", up: true }, me(n), 6000);
+  assert.equal(Object.keys(s.joined).length, 5);
+  assert.equal(s.hands.length, 3); // devices 3-5; devices 1 and 2 joined by chatting
+  assert.deepEqual(act(s, { action: "join" }, me(99), 7000), { error: "too many" });
+  assert.deepEqual(act(s, { action: "join" }, me(1), 7000), { ok: true }); // a device already in still works
+});

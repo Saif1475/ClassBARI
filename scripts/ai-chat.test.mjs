@@ -208,6 +208,7 @@ test("profit guard: each pack has a monthly AI money cap below its price; overus
   assert.equal(packMonthStart("2026-11-25", "2026-12-20"), "2026-11-20"); // bought 20 November: one month from the 20th, not from the 1st
   assert.equal(packMonthStart("2026-12-05", "2026-12-20"), "2026-11-20"); // 1 December does not start a fresh cap
   assert.equal(packMonthStart("2026-12-20", "2027-01-20"), "2026-12-20");
+  assert.equal(packMonthStart("2026-12-20", "2026-12-20"), "2026-11-20"); // the pack's last day is still in its last month, not a fresh cap
   assert.equal(monthStartAfter("2026-12-05", "2026-12-20"), "2026-12-19T18:00:00.000Z"); // refills 20 December, midnight in Dhaka
   assert.equal(packMonthStart("2027-02-28", "2027-03-31"), "2027-02-28"); // a pack ending on the 31st: February's month starts on its last day
   assert.equal(packMonthStart("2027-02-27", "2027-03-31"), "2027-01-31");
@@ -264,4 +265,31 @@ test("OpenRouter models: the 5.5% fee counts in their cost; text-only ones are m
   assert.equal(costUsd("gemini-2.5-flash-lite", u), 0.5); // direct: no fee
   assert.equal(MODELS["deepseek/deepseek-v4.1-flash"].textOnly, true);
   assert.equal(MODELS["qwen/qwen3-vl-235b-a22b-instruct"].textOnly, undefined); // reads photos
+});
+
+test("an answer that breaks off partway still throws with what it used, so it can be counted", async () => {
+  const { streamChat } = await import("../src/lib/ai-providers.ts");
+  const realFetch = globalThis.fetch;
+  process.env.DASHSCOPE_API_KEY ||= "test";
+  // The provider streams part of the answer, then the connection drops (or the timer runs out).
+  globalThis.fetch = async () => new Response(new ReadableStream({ start(c) { c.enqueue(new TextEncoder().encode('data: {"choices":[{"delta":{"content":"abcdefghij"}}]}\n\n')); setTimeout(() => c.error(new Error("dropped")), 5); } }));
+  try {
+    let text = "";
+    const err = await streamChat({ model: "qwen3.7-flash", system: [{ text: "rules" }], messages: [{ role: "user", content: "hi" }], maxTokens: 100 }, (t) => (text += t)).catch((e) => e);
+    assert.equal(text, "abcdefghij");
+    assert.equal(err.message, "dropped");
+    assert.equal(err.usage.output_tokens, 5);
+    assert.ok(err.usage.input_tokens > 0);
+    // Think deeper: the model thinks (billed) and drops before any visible text; the lesson in the instructions counts as input too.
+    globalThis.fetch = async () => new Response(new ReadableStream({ start(c) { c.enqueue(new TextEncoder().encode('data: {"choices":[{"delta":{"reasoning":"' + "t".repeat(600) + '"}}]}\n\ndata: {"choices":[{"delta":{"reasoning_content":"' + "t".repeat(400) + '"}}]}\n\n')); setTimeout(() => c.error(new Error("dropped")), 5); } }));
+    const deep = await streamChat({ model: "qwen3.7-flash", system: [{ text: "r".repeat(100) }, { text: "L".repeat(4000), cache: true }], messages: [{ role: "user", content: "hi" }], maxTokens: 100, think: true }, () => {}).catch((e) => e);
+    assert.equal(deep.usage.output_tokens, 500);
+    assert.ok(deep.usage.input_tokens >= 50);
+    assert.equal(deep.usage.cache_read_input_tokens, 2000);
+    // Nothing written yet (the provider refused): nothing to count.
+    globalThis.fetch = async () => new Response("no", { status: 500 });
+    assert.equal((await streamChat({ model: "qwen3.7-flash", system: [], messages: [{ role: "user", content: "hi" }], maxTokens: 100 }, () => {}).catch((e) => e)).usage, undefined);
+  } finally {
+    globalThis.fetch = realFetch;
+  }
 });

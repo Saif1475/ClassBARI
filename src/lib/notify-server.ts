@@ -17,15 +17,26 @@ const HOME: Record<string, string> = { student: "/student", guardian: "/parent",
 const PARENT: Partial<Record<Screen, string>> = { notices: "/parent/notices", results: "/parent/results", messages: "/parent/messages" };
 const page = (role: string, screen: Screen) => (role === "guardian" && PARENT[screen]) || (HOME[role] ?? "/") + (screen === "home" ? "" : `?go=${screen}`);
 
+/** Every row of a query: the API returns at most 1000 rows at a time, so read every page (like admin-server's every()). */
+async function every<T>(page: (from: number, to: number) => PromiseLike<{ data: unknown[] | null; error: { message: string } | null }>) {
+  const out: T[] = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await page(from, from + 999);
+    if (error) throw new Error(error.message);
+    out.push(...((data ?? []) as T[]));
+    if ((data?.length ?? 0) < 1000) return out;
+  }
+}
+
 type Lists = { devices: Device[]; prefs: { email: string; off: string[] }[] };
 /** An institute's devices and notification switches (read once for a whole round of timed notes). */
 async function listsOf(institute: string): Promise<Lists> {
   const db = admin();
-  const [{ data: devices }, { data: prefs }] = await Promise.all([
-    db.from("push_devices").select("token, kind, sub, email, role, student_ids, lang").eq("institute_id", institute),
-    db.from("notify_prefs").select("email, off").eq("institute_id", institute),
+  const [devices, prefs] = await Promise.all([
+    every<Device>((a, b) => db.from("push_devices").select("token, kind, sub, email, role, student_ids, lang").eq("institute_id", institute).order("token").range(a, b)),
+    every<Lists["prefs"][number]>((a, b) => db.from("notify_prefs").select("email, off").eq("institute_id", institute).order("email").range(a, b)),
   ]);
-  return { devices: (devices ?? []) as Device[], prefs: (prefs ?? []) as Lists["prefs"] };
+  return { devices, prefs };
 }
 
 /** The devices of everyone in `note.to`, less those who switched its group off and the person who did the action. */
@@ -49,7 +60,10 @@ export async function send(institute: string, note: Note, s: LmsState, actor?: s
     const { error } = await admin().from("notify_sent").insert({ key: `${institute}:${note.once}` });
     if (error) return 0; // already sent (or the table is missing: then nothing is sent twice either)
   }
-  const devices = await devicesFor(institute, note, s, actor, round?.lists);
+  const devices = await devicesFor(institute, note, s, actor, round?.lists).catch(async (e) => {
+    if (note.once && !round) await admin().from("notify_sent").delete().eq("key", `${institute}:${note.once}`); // let a retry send it: nothing went out
+    throw e;
+  });
   console.info(`notify: ${note.text[0]} → ${devices.length} device(s)`); // counts only, no names
   const gone: string[] = [];
   await Promise.allSettled(
@@ -88,21 +102,32 @@ async function fileLater(institute: string, later: Later[]) {
 export async function runTimed(now = new Date()) {
   const db = admin();
   let sent = 0;
-  const docs = new Map<string, LmsState>();
-  const state = async (inst: string) => docs.get(inst) ?? docs.set(inst, (await loadDoc(inst)).state).get(inst)!;
+  const docs = new Map<string, Promise<LmsState>>(); // a failed load is kept too, so a bad institute is read once per run, not once per row
+  const state = (inst: string) => docs.get(inst) ?? docs.set(inst, loadDoc(inst).then((d) => d.state)).get(inst)!;
   const { data: due } = await db.from("notify_later").select("key, institute_id, what").lte("due_at", now.toISOString()).limit(500);
-  if (due?.length) await db.from("notify_later").delete().in("key", due.map((r) => r.key)); // taken off the list at once, not one by one
+  const done: string[] = [], failed = new Set<string>();
   for (const row of due ?? []) {
+    // Each row on its own: one institute that can't be read must not lose the others' alerts (send's "once" claim stops a repeat).
     const l = row.what as Later;
-    const s = await state(row.institute_id);
     const [day, id] = l.still.absent;
-    if (s.attendance[day]?.includes(id)) sent += await send(row.institute_id, l.note, s);
+    try {
+      const s = await state(row.institute_id);
+      if (s.attendance[day]?.includes(id)) sent += await send(row.institute_id, l.note, s);
+      done.push(row.key);
+    } catch (e) {
+      if (!failed.has(row.institute_id)) console.error(`notify: waiting notes failed for ${row.institute_id}`, e instanceof Error ? e.message : e); // once per institute, not once per row
+      failed.add(row.institute_id);
+      if (Date.parse(`${day}T00:00:00+06:00`) < now.getTime() - 2 * 86400_000) done.push(row.key); // still failing a day after the absence day (Dhaka): too late to matter, drop it
+    }
   }
+  if (done.length) await db.from("notify_later").delete().in("key", done); // only what was handled; a failed one waits for a later run
+  // A failed institute's due rows move 15 minutes on, so they can't fill every run's batch and hold back the other institutes' alerts.
+  if (failed.size) await db.from("notify_later").update({ due_at: new Date(now.getTime() + 15 * 60_000).toISOString() }).in("institute_id", [...failed]).lte("due_at", now.toISOString());
   // shortcut: reads every institute with a device each run; fine for hundreds, move to a per-institute queue for thousands.
-  const { data: insts } = await db.from("push_devices").select("institute_id");
-  for (const inst of new Set((insts ?? []).map((r) => r.institute_id as string))) {
-    const s = await state(inst);
-    const notes = timedNotes(s, now);
+  const insts = await every<{ institute_id: string }>((a, b) => db.from("push_devices").select("institute_id").order("token").range(a, b));
+  for (const inst of new Set(insts.map((r) => r.institute_id))) {
+    let s: LmsState, notes: ReturnType<typeof timedNotes>;
+    try { s = await state(inst); notes = timedNotes(s, now); } catch (e) { console.error(`notify: timed notes failed for ${inst}`, e); continue; } // one bad institute must not stop the others' reminders
     if (!notes.length) continue;
     // Each "once" note is claimed in one call for the whole institute; only the ones not sent before come back.
     const keys = notes.flatMap((n) => (n.once ? [`${inst}:${n.once}`] : []));
@@ -114,7 +139,8 @@ export async function runTimed(now = new Date()) {
     }
     const todo = notes.filter((n) => !n.once || fresh.has(`${inst}:${n.once}`));
     if (!todo.length) continue;
-    const lists = await listsOf(inst);
+    let lists: Lists;
+    try { lists = await listsOf(inst); } catch (e) { console.error(`notify: devices unreadable for ${inst}`, e instanceof Error ? e.message : e); continue; } // one institute's failed read must not stop the others' reminders
     for (const n of todo) sent += await send(inst, n, s, undefined, { lists, claimed: true });
   }
   await db.from("notify_sent").delete().lt("at", new Date(now.getTime() - 60 * 86400_000).toISOString()); // old marks

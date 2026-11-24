@@ -20,3 +20,9 @@ test("only the last 200 changes of an institute are kept", () => {
   assert.equal(ranBefore("i3", changeKey(teacher, "x", [], 1)), true);
   assert.equal(ranBefore("i3", changeKey(teacher, "x", [], 200)), true);
 });
+
+test("the server acting for the institute (no email) is never taken for a resend", () => {
+  const server = { role: "owner", studentIds: [] };
+  ranNow("i4", changeKey(server, "addStudent", [], 5000)); // the first join
+  assert.equal(ranBefore("i4", changeKey(server, "addStudent", [], 5000)), false); // a second join in the same millisecond still runs
+});

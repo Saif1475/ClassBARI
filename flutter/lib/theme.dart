@@ -55,7 +55,12 @@ class PaperPageTransitions extends PageTransitionsBuilder {
 /// Instanton Campus's colours, "Paper & Prism" (design/02-visual-system.md, the website's globals.css): a warm paper
 /// page, crisp white cards with hairline borders, Forest Chalk green or Sky Blossom (sky blue with pink), each with a
 /// dark "Night Study Ink" version. Colour is kept for what matters.
-ThemeData classbariTheme(Brightness brightness, {bool sky = false, double glass = 0}) {
+ThemeData classbariTheme(Brightness brightness, {bool sky = false, double glass = 0}) =>
+    // The same object for the same settings: a new Tone never equals the old one, so MaterialApp would restart its theme animation on every store change.
+    _themes['$brightness $sky $glass'] ??= _buildTheme(brightness, sky: sky, glass: glass);
+final _themes = <String, ThemeData>{};
+
+ThemeData _buildTheme(Brightness brightness, {required bool sky, required double glass}) {
   final dark = brightness == Brightness.dark;
   Color pick(int green, int greenDark, int blue, int blueDark) => Color(sky ? (dark ? blueDark : blue) : (dark ? greenDark : green));
   final primary = pick(0xFF146C43, 0xFF3EC786, 0xFF1769AA, 0xFF5BB2F5);

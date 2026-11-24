@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useLang } from "@/lib/i18n/LanguageProvider";
-import { uploadData } from "@/lib/files";
+import { isPhoto, uploadData } from "@/lib/files";
 import { useLms } from "@/lib/lms-store";
 
 /** Student portfolio: photos of work the student shares; parents and teachers can see them. */
@@ -45,7 +45,7 @@ export function Portfolio({ studentIds, canAdd, title }: { studentIds: number[];
                 const f = e.target.files?.[0];
                 if (!f) return setImage(undefined);
                 const data = await uploadData(f);
-                if (!data) return setError(t.sub.tooBig);
+                if (!data) return setError(isPhoto(f) ? t.sub.badPhoto : t.sub.tooBig);
                 setError("");
                 setImage(data);
               }}

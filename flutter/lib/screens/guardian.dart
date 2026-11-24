@@ -37,7 +37,7 @@ class ChildChips extends StatelessWidget {
   Widget build(BuildContext context) {
     final kids = store.children;
     if (kids.length < 2) return const SizedBox.shrink();
-    return Chips(value: '${store.child?['id']}', options: [for (final k in kids) '${k['id']}'], labels: {for (final k in kids) '${k['id']}': '${k['name']}'.split(' ').first}, onChanged: (id) => store.pickedChild = int.parse(id));
+    return Chips(value: '${store.child?['id']}', options: [for (final k in kids) '${k['id']}'], labels: {for (final k in kids) '${k['id']}': '${k['name']}'}, onChanged: (id) => store.pickedChild = int.parse(id));
   }
 }
 

@@ -1,7 +1,7 @@
 // Run: npm test
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { applyCoupon, clashes, profitAndLoss } from "../src/lib/centre.ts";
+import { applyCoupon, clashes, orderPrice, profitAndLoss } from "../src/lib/centre.ts";
 
 process.env.TZ = "Asia/Dhaka"; // months are counted in local time: the same answer on any machine
 
@@ -17,6 +17,15 @@ test("timetable clashes: same teacher, room or batch at overlapping times on the
   ];
   const c = clashes(s).map((x) => [x.a.id, x.b.id, x.why]);
   assert.deepEqual(c, [[1, 2, ["teacher"]], [3, 5, ["room", "batch"]]]);
+});
+
+test("a teacher's clash check counts a colleague's slot in the same room, but not clashes among colleagues only", () => {
+  const s = [
+    slot(1, 6, "16:00", "17:30", "Rahim", "Room 1", "HSC Physics"), // a colleague's batch
+    slot(2, 6, "16:30", "18:00", "Karim", "Room 1", "SSC Chem"), // mine: same room, overlaps
+    slot(3, 6, "16:00", "17:00", "Rahim", "Room 2", "HSC Bio"), // colleague vs colleague: not my warning
+  ];
+  assert.deepEqual(clashes(s, ["SSC Chem"]).map((x) => [x.a.id, x.b.id, x.why]), [[1, 2, ["room"]]]);
 });
 
 test("profit and loss for one month", () => {
@@ -46,4 +55,45 @@ test("coupons: percent off, course-only, expiry and use limit", () => {
   const one = [{ code: "HALF", percent: 50, maxUses: 1, used: 0 }];
   assert.deepEqual(applyCoupon(1000, "half", one, "ssc", "2026-11-19", [{ status: "pending", coupon: "HALF" }]), { error: "usedUp" });
   assert.equal(applyCoupon(1000, "half", one, "ssc", "2026-11-19", [{ status: "rejected", coupon: "HALF" }]).price, 500);
+});
+
+test("an order with a refused coupon is refused, never saved at full price", () => {
+  const one = [{ code: "HALF", percent: 50, maxUses: 1, used: 0 }];
+  assert.deepEqual(orderPrice(1000, "half", one, "ssc", "2026-11-19", [{ status: "pending", coupon: "HALF" }]), { error: "usedUp" });
+  assert.deepEqual(orderPrice(1000, "half", one, "ssc", "2026-11-19", []), { price: 500, coupon: "HALF" });
+  assert.deepEqual(orderPrice(1000, "", one, "ssc", "2026-11-19", []), { price: 1000 });
+});
+
+test("payroll: fees paid before a batch moves to another teacher stay with the teacher who taught it then", async () => {
+  const { runAction } = await import("../src/lib/data-access.ts");
+  const { blankState } = await import("../src/lib/lms-actions.ts");
+  const { payroll } = await import("../src/lib/lms-views.ts");
+  const { dayKey } = await import("../src/lib/dates.ts");
+  let s = { ...blankState(), staff: [{ name: "A", salary: 0, share: 40 }, { name: "B", salary: 0, share: 40 }], batches: [{ id: "p", name: "Physics", teacher: "A", fee: 10000 }], students: [{ id: 1, name: "R", batch: "Physics", feeDue: 10000 }] };
+  s = runAction(s, "payFee", [1, "cash"], Date.now());
+  s = runAction(s, "updateBatch", ["p", { teacher: "B" }], Date.now()); // the owner hands the batch to B
+  s = runAction(s, "updateStaffProfile", ["A", "A2", ""], Date.now()); // a rename still finds A's payments
+  const [a, b] = payroll(s, dayKey().slice(0, 7));
+  assert.deepEqual([a.name, a.collected, a.payable, b.collected], ["A2", 10000, 4000, 0]);
+});
+
+test("payroll: a fee taken offline before the batch moved, synced after, still pays the teacher who taught it then", async () => {
+  const { runAction } = await import("../src/lib/data-access.ts");
+  const { blankState } = await import("../src/lib/lms-actions.ts");
+  const { payroll } = await import("../src/lib/lms-views.ts");
+  const { dayKey } = await import("../src/lib/dates.ts");
+  let s = { ...blankState(), staff: [{ name: "A", salary: 0, share: 40 }, { name: "B", salary: 0, share: 40 }], batches: [{ id: "p", name: "Physics", teacher: "A", fee: 10000 }], students: [{ id: 1, name: "R", batch: "Physics", feeDue: 10000 }] };
+  const now = Date.now();
+  s = runAction(s, "updateBatch", ["p", { teacher: "B" }], now - 60_000); // the owner moves the batch online a minute ago
+  s = runAction(s, "payFee", [1, "cash"], now - 120_000); // A's phone took the fee two minutes ago, offline, and syncs now
+  s = runAction(s, "updateStaffProfile", ["A", "A2", ""], now);
+  assert.equal(s.payments[0].teacher, "A2");
+  const [a, b] = payroll(s, dayKey(new Date(now - 120_000)).slice(0, 7));
+  assert.deepEqual([a.name, a.collected, b.collected], ["A2", 10000, 0]);
+});
+
+test("backup file is named with the local day, not the UTC day", async () => {
+  const { backupFileName } = await import("../src/lib/dates.ts");
+  // 01:00 on 25 Nov in Dhaka is still 24 Nov in UTC
+  assert.equal(backupFileName(new Date("2026-11-24T19:00:00Z")), "instanton-backup-2026-11-25.json");
 });

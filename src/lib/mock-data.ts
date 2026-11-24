@@ -85,6 +85,7 @@ export type Batch = {
   public?: boolean; // listed on /courses with an enrol form
   hideLeague?: boolean; // teacher can switch off the weekly XP league
   about?: string;
+  pastTeachers?: { name: string; until: string }[]; // who taught it before, oldest first, and when they stopped (for payroll of late-synced fees)
 };
 export type StudentRecord = {
   id: number;
@@ -105,13 +106,15 @@ export type StudentRecord = {
   ch4Score: number;
   ch3Score: number;
   discount?: number; // monthly discount / scholarship (৳)
+  chargedDiscount?: number; // the discount this month's fee was charged with (missing in data saved before it was kept)
   photo?: string; // small JPEG data URL for the ID card
   fineMonth?: string; // YYYY-MM a late fine was last added
   joined?: string; // YYYY-MM the student was added: no "late" and no late fine in that month
   premiumUntil?: string; // YYYY-MM-DD: premium (highlighted PDFs, AI help) until this day; set by the institute
   aiPack?: number; // which AI pack (৳150 / 400 / 800 / 1500) the premium is; none: the smallest
+  packPays?: string[]; // the last pay_requests ids whose months were added: an approval sent again after a lost answer adds nothing
 };
-export type Payment = { id: number; studentId: number; batch: string; amount: number; at: string; method: "bkash" | "cash" };
+export type Payment = { id: number; studentId: number; batch: string; teacher?: string; amount: number; at: string; method: "bkash" | "cash" };
 export type Announcement = { id: number; title: string; body: string; author: string; batch: string; at: string; pinned?: boolean };
 export type ExploreVideo = {
   id: number;

@@ -1,5 +1,5 @@
 import { REAL_AUTH } from "@/lib/auth-mode";
-import { checkAction, Refused, viewFor } from "@/lib/data-access";
+import { checkAction, Refused, SAVES_PER_MINUTE, viewFor } from "@/lib/data-access";
 import { act, instituteCard, loadChanged, loadDoc, whoIs } from "@/lib/data-server";
 import { afterSaved } from "@/lib/notify-server";
 import { afterAction } from "@/lib/pdf-pipeline";
@@ -9,6 +9,7 @@ import { MAX_IMAGES } from "@/lib/community";
 import { isSuspended } from "@/lib/platform";
 import { readPlatform } from "@/lib/platform-server";
 import { limited } from "@/lib/rate-limit";
+import { POST_MAX, postLimit, readCapped } from "@/lib/doc-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -36,12 +37,14 @@ export async function POST(request: Request) {
   if (isSuspended(await readPlatform(), me.institute))
     return Response.json({ error: "suspended", message: "This institute is suspended by Instanton Campus, so changes can't be saved. Please contact Instanton Campus support." }, { status: 403 });
   // A homework photo is a few MB; nothing a person does by hand needs more than this, or more often.
-  if (Number(request.headers.get("content-length")) > 12_000_000) return Response.json({ error: "too large" }, { status: 413 });
-  const over = limited(request, "data", 240, 60_000, `${me.institute}:${me.who.role}:${me.who.studentIds[0] ?? me.who.email}`);
+  // Only a restore may be bigger: it carries the whole institute (up to DOC_MAX), so the owner can restore any backup the server made.
+  const max = postLimit(me.who.role);
+  if (Number(request.headers.get("content-length")) > max) return Response.json({ error: "too large" }, { status: 413 });
+  const over = limited(request, "data", SAVES_PER_MINUTE, 60_000, `${me.institute}:${me.who.role}:${me.who.studentIds[0] ?? me.who.email}`);
   if (over) return over;
   // Read with a limit even when the sender gave no length.
-  const text = await request.text().catch(() => "");
-  if (text.length > 12_000_000) return Response.json({ error: "too large" }, { status: 413 });
+  const text = await readCapped(request, max).catch(() => "");
+  if (text === null) return Response.json({ error: "too large" }, { status: 413 });
   const body = (() => {
     try {
       return JSON.parse(text) as { name?: unknown; args?: unknown; base?: unknown } | null;
@@ -49,6 +52,7 @@ export async function POST(request: Request) {
       return null;
     }
   })();
+  if (Buffer.byteLength(text) > POST_MAX && body?.name !== "importBackup") return Response.json({ error: "too large" }, { status: 413 });
   if (!body || typeof body.name !== "string" || !Array.isArray(body.args) || !Number.isSafeInteger(body.base))
     return Response.json({ error: "bad request" }, { status: 400 });
   const { name, args, base } = body as { name: string; args: unknown[]; base: number };

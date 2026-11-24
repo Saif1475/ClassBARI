@@ -60,7 +60,7 @@ export function MeritTool({ batchNames }: ToolProps) {
               {!!sel.it.tabSwitches?.[r.id] && <span className="text-xs font-bold text-error">⚠ {M.tabSwitches(sel.it.tabSwitches[r.id])}</span>}
               {(() => {
                 const late = overTime(sel.it, sel.it.took?.[r.id]); // measured by the server's clock
-                return late === null ? null : <span className="text-xs font-bold text-error">⏱ {late === "unknown" ? M.noStart : M.tookLong(late, quizMinutes(sel.it))}</span>;
+                return late === null ? null : <span className="text-xs font-bold text-error">⏱ {late === "unknown" ? M.noStart : late === "offline" ? M.offline : M.tookLong(late, quizMinutes(sel.it))}</span>;
               })()}
             </span>
             <span className="text-lg font-extrabold">{r.score} / {total}</span>

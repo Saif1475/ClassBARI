@@ -69,9 +69,12 @@ Map<String, num> incomeByMonth(List<Json> payments, List<String> months, List<St
 
 /// payroll: what each teacher is owed this month (salary + their share of their batches' fees) and what is left to pay.
 List<({String name, num salary, num share, num collected, num payable, num paid, num balance})> payroll(Json? s, String month) {
-  final byBatch = <Object?, num>{}, paidTo = <Object?, num>{};
+  // A payment counts for the teacher saved on it (who taught the batch then); older payments without one use the batch's teacher now.
+  final teacherOf = {for (final b in rows(s?['batches'])) b['name']: b['teacher']};
+  final byTeacher = <Object?, num>{}, paidTo = <Object?, num>{};
   for (final p in rows(s?['payments'])) {
-    if (p['at'] is String && dayKey(toDate(p['at'] as String)).startsWith(month)) byBatch[p['batch']] = (byBatch[p['batch']] ?? 0) + ((p['amount'] as num?) ?? 0);
+    final who = p['teacher'] ?? teacherOf[p['batch']];
+    if (who != null && p['at'] is String && dayKey(toDate(p['at'] as String)).startsWith(month)) byTeacher[who] = (byTeacher[who] ?? 0) + ((p['amount'] as num?) ?? 0);
   }
   for (final p in rows(s?['staffPayments'])) {
     if (p['month'] == month) paidTo[p['name']] = (paidTo[p['name']] ?? 0) + ((p['amount'] as num?) ?? 0);
@@ -79,7 +82,7 @@ List<({String name, num salary, num share, num collected, num payable, num paid,
   return [
     for (final st in rows(s?['staff']))
       () {
-        final collected = rows(s?['batches']).where((b) => b['teacher'] == st['name']).fold<num>(0, (n, b) => n + (byBatch[b['name']] ?? 0));
+        final collected = byTeacher[st['name']] ?? 0;
         final salary = (st['salary'] as num?) ?? 0, share = (st['share'] as num?) ?? 0;
         final payable = salary + jsRound(collected * share / 100), paid = paidTo[st['name']] ?? 0;
         return (name: '${st['name']}', salary: salary, share: share, collected: collected, payable: payable, paid: paid, balance: payable - paid > 0 ? payable - paid : 0);
@@ -531,7 +534,8 @@ class _StaffScreenState extends State<StaffScreen> {
                 title: r.name,
                 subtitle: '${t('payroll.salary')}: ${taka(r.salary)} · ${t('payroll.share')}: ${show(r.share)}\n${t('payroll.collected')}: ${taka(r.collected)} · ${t('payroll.payable')}: ${taka(r.payable)} · ${t('payroll.paid')}: ${taka(r.paid)}',
                 onTap: () => edit(r),
-                below: r.balance > 0
+                // Hidden while a payment waits to send (offline): store.state still shows the old balance, so a second tap would pay twice.
+                below: r.balance > 0 && store.pending('payStaff', [r.name]) == 0
                     ? Align(
                         alignment: AlignmentDirectional.centerStart,
                         child: Doing(
@@ -702,11 +706,11 @@ class _AdmissionsScreenState extends State<AdmissionsScreen> {
 
 int _mins(Object? hm) => (int.tryParse('$hm'.padRight(5).substring(0, 2)) ?? 0) * 60 + (int.tryParse('$hm'.padRight(5).substring(3, 5)) ?? 0);
 
-/// clashes (src/lib/centre.ts): slots that overlap in time on the same day AND share a teacher, room or batch.
-List<({Json a, Json b, List<String> why})> clashes(List<Json> slots) => [
+/// clashes (src/lib/centre.ts): slots that overlap in time on the same day AND share a teacher, room or batch; with [mine], only pairs where at least one slot is in those batches.
+List<({Json a, Json b, List<String> why})> clashes(List<Json> slots, [List<String>? mine]) => [
   for (final (i, a) in slots.indexed)
     for (final b in slots.skip(i + 1))
-      if (a['day'] == b['day'] && _mins(a['start']) < _mins(b['end']) && _mins(b['start']) < _mins(a['end']))
+      if (a['day'] == b['day'] && _mins(a['start']) < _mins(b['end']) && _mins(b['start']) < _mins(a['end']) && (mine == null || mine.contains(a['batch']) || mine.contains(b['batch'])))
         if ([
               for (final k in const ['teacher', 'room', 'batch'])
                 if ('${a[k] ?? ''}'.isNotEmpty && '${a[k]}'.trim().toLowerCase() == '${b[k] ?? ''}'.trim().toLowerCase()) k,
@@ -749,7 +753,7 @@ class _RoutineScreenState extends State<RoutineScreen> {
     final weekdays = lang.list('att.weekdays');
     final names = [for (final b in store.batches) '${b['name']}'];
     final slots = rows(store.state?['routine']).where((s) => names.contains(s['batch'])).toList();
-    final problems = clashes(slots);
+    final problems = clashes(rows(store.state?['routine']), names); // the whole routine, so a room or teacher double-booked with a colleague's batch is caught too
     String w(Object? d) => d is int && d < weekdays.length ? weekdays[d] : '$d';
     return Screen(
       title: lang.list('tools.names.routine').first,

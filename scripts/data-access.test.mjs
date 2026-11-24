@@ -1,7 +1,7 @@
 // Run: npm test — who may do what with real accounts, and what students/guardians get to see.
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { afterAnswer, bestStaffRow, checkAction, peopleToSync, Refused, rosterOf, runAction, viewFor } from "../src/lib/data-access.ts";
+import { afterAnswer, answerWaits, onceSoon, bestStaffRow, pullAfterSend, shownCopy, pullFromVersion, checkAction, peopleToSync, Refused, rosterOf, runAction, savedView, viewFor } from "../src/lib/data-access.ts";
 import { seed } from "../src/lib/mock-data.ts";
 
 const s = seed();
@@ -129,6 +129,15 @@ test("staff changes to the student list are checked on the server too", () => {
   refused(() => checkAction("addStudent", [{ ...ok, email: "not-a-gmail@yahoo.com" }], owner, s));
   refused(() => checkAction("addStudent", [{ ...ok, email: s.students[0].email }], owner, s)); // already someone's Gmail
   refused(() => checkAction("addStudent", [null], owner, s));
+  refused(() => checkAction("addStudent", [{ ...ok, batch: "" }], owner, s)); // an enquiry saved before any batch existed
+  refused(() => checkAction("updateStudent", [s.students[0].id, { ...ok, batch: "No Such Batch" }], owner, s));
+});
+
+test("a chapter can't be saved to a batch that doesn't exist (an institute with no batch yet)", () => {
+  const owner = { role: "owner", name: "", studentIds: [] };
+  assert.ok(checkAction("addModule", ["Ch 1", s.batches[0].name], owner, s));
+  refused(() => checkAction("addModule", ["General", ""], owner, { ...s, batches: [] }));
+  refused(() => checkAction("copyModule", [s.modules[0].id, "No Such Batch"], owner, s));
 });
 
 test("a teacher is found by their email, even after renaming themselves", () => {
@@ -164,6 +173,18 @@ test("a student who joins after the due day is not fined that month, but is from
   assert.equal(rollFees(added, day20).students[0].feeDue, 1000); // joined this month: no fine
   const nextMonth20 = new Date(d.getFullYear(), d.getMonth() + 1, 20);
   assert.equal(rollFees(added, nextMonth20).students[0].feeDue, 2100); // next month: the new fee and the fine
+});
+
+test("a join request waiting for approval is not charged or fined; once accepted it owes one month from now", async () => {
+  const { rollFees, monthKey } = await import("../src/lib/lms-actions.ts");
+  const batch = { ...s.batches[0], fee: 1200, lateFine: 100 };
+  const input = { name: "Waiting Joiner", email: "wait.joiner@gmail.com", guardianName: "G", guardianEmail: "g.wait@gmail.com", phone: "01711000044", mode: "online", batch: batch.name, feePaid: false, pending: true };
+  const added = runAction({ ...s, batches: [batch], students: [], feeMonth: monthKey() }, "addStudent", [input], Date.now());
+  const d = new Date();
+  assert.equal(rollFees(added, new Date(d.getFullYear(), d.getMonth() + 2, 20)).students[0].feeDue, 1200); // two months later, still one month's fee
+  const old = { ...added, students: [{ ...added.students[0], feeDue: 2500, joined: "2020-01", fineMonth: "2020-02" }] }; // data from before this fix
+  const ok = runAction(old, "approveStudent", [old.students[0].id], Date.now()).students[0];
+  assert.deepEqual([ok.pending, ok.feeDue, ok.joined, ok.fineMonth], [undefined, 1200, monthKey(), undefined]);
 });
 
 test("a student gets only their own batch's notices and live-class link", () => {
@@ -345,11 +366,32 @@ test("the server measures how long a quiz really took", async () => {
   assert.equal(overTime(it, it.took[3]), 20); // 20 minutes against a 5-minute limit
   assert.equal(overTime(it, 5 * 60 + 30), null); // inside the minute of grace
   assert.equal(overTime(it, -1), "unknown");
+  // Answered in 4 minutes but sent 16 minutes later (offline): marked "time not known", not "took 20 min".
+  const late = checkAction("submitQuiz", [mod.id, 7100, 3, 99, [], 0, [0, 1], 240], student, started);
+  assert.equal(late[7], -2);
+  assert.equal(overTime(it, late[7]), "offline");
+  // The phone's count close to the server's: the server's own figure is kept (a low count can't hide a slow attempt by a few seconds).
+  assert.ok(checkAction("submitQuiz", [mod.id, 7100, 3, 99, [], 0, [0, 1], 1150], student, started)[7] >= 1199);
   assert.equal(quizMinutes({ questions: [1, 2, 3] }), 3);
   // Pressing Start twice doesn't reset the clock; a student can't start someone else's.
   const again = runAction(started, "startQuiz", checkAction("startQuiz", [mod.id, 7100, 99], student, started), Date.now());
   assert.equal(again.modules.flatMap((m) => m.items).find((i) => i.id === 7100).started[3], started.modules.flatMap((m) => m.items).find((i) => i.id === 7100).started[3]);
   assert.deepEqual(Object.keys(viewFor(done, student).modules.flatMap((m) => m.items).find((i) => i.id === 7100).took), ["3"]);
+});
+
+test("a teacher who renames themselves keeps their private chats and can still change their own replies", () => {
+  const batch = s.batches.find((b) => b.name === s.students.find((x) => x.id === 3).batch);
+  let x = { ...s, staff: s.staff.some((y) => y.name === batch.teacher) ? s.staff : [...s.staff, { name: batch.teacher, phone: "", salary: 0, share: 0 }] };
+  x = runAction(x, "sendStudentMessage", [3, "Sir, a question"], Date.now());
+  x = runAction(x, "sendChatMessage", ["student-3", batch.teacher, "Yes?", false], Date.now());
+  const before = viewFor(x, { role: "teacher", name: batch.teacher, studentIds: [] }).chats.find((c) => c.id === "student-3").messages.length;
+  x = runAction(x, "updateStaffProfile", [batch.teacher, batch.teacher + " Sir", ""], Date.now());
+  const renamed = { role: "teacher", name: batch.teacher + " Sir", studentIds: [] };
+  const msgs = viewFor(x, renamed).chats.find((c) => c.id === "student-3").messages;
+  assert.equal(msgs.length, before);
+  assert.ok(before >= 2);
+  const reply = msgs.find((m) => !m.mine);
+  assert.ok(checkAction("deleteChatMessage", ["student-3", reply.id], renamed, x)); // not refused as "private chat" or someone else's message
 });
 
 test("a student's chat with their teacher is private: not the owner, not guardians, not other teachers", () => {
@@ -462,7 +504,22 @@ test("messages: replies, photos, edits, delete for everyone, reactions and read 
   assert.equal(unreadFor(t, "family"), 0);
   assert.equal(t.unread, 1);
   assert.equal(checkAction("markChatRead", ["student-3", "family", false], student, st), null); // read receipts off: nothing sent
+  // ...so with receipts off the badge counts from this device's own last-opened time instead.
+  const off = { ...t, readFamily: undefined, messages: [...t.messages, { ...a, id: 9e9, at: "2030-01-01T00:00:00.000Z" }] };
+  assert.equal(unreadFor(off, "family"), 2);
+  assert.equal(unreadFor(off, "family", "2030-01-01T00:00:00.000Z"), 0);
+  assert.equal(unreadFor({ ...off, readFamily: a.at }, "family", ""), 1); // the newer of the two wins
   refused(() => checkAction("markChatRead", ["student-4", "family", true], student, st));
+  // A read queued offline syncs late: only what was seen counts as read, not messages that came in meanwhile.
+  {
+    const later = (x) => ({ ...x, chats: x.chats.map((c) => (c.id !== "student-3" ? c : { ...c, readFamily: undefined, unread: 1, messages: [...c.messages, { ...a, id: 9e9, at: "2999-01-01T11:00:00.000Z" }, { ...q, id: 9e9 + 1, at: "2999-01-01T11:30:00.000Z" }] })) });
+    const f = run(later(st), student, "markChatRead", ["student-3", "family", true, a.at]).chats.find((c) => c.id === "student-3");
+    assert.equal(f.readFamily, a.at);
+    assert.equal(unreadFor(f, "family"), 1); // the 11:00 reply is still unread
+    const g = run(later(st), myTeacher, "markChatRead", ["student-3", "staff", true, "2999-01-01T11:00:00.000Z"]).chats.find((c) => c.id === "student-3");
+    assert.equal(g.unread, 1); // the 11:30 student message is still unread for the teacher (and a future "seen" time is cut to now)
+    assert.equal(checkAction("markChatRead", ["student-3", "family", true, "<script>"], student, st)[3], undefined); // not a time: ignored
+  }
 
   // Edit and delete: only your own messages, within the time limits.
   st = run(st, student, "editChatMessage", ["student-3", q.id, "Sir, question 6?"]);
@@ -573,6 +630,15 @@ test("the server's own values (id, author, time) can't be chosen by the sender",
 test("a refused change drops only itself; a change not sent yet stays queued", () => {
   assert.deepEqual([200, 400, 403, 413, 401, 429, 500].map((c) => afterAnswer(c, 1)), ["sent", "drop", "drop", "drop", "wait", "wait", "wait"]);
   assert.equal(afterAnswer(503, 5), "drop"); // busy five times in a row: given up, so the rest can still go
+  assert.equal(afterAnswer(429, 50), "wait"); // too fast is never given up: a big import keeps every student, it only waits for the next minute
+});
+
+test("a 401 while sending keeps the change but still pulls, so the kept copy of the view is forgotten", () => {
+  assert.equal(pullAfterSend(false, false, 401), true); // removed or signed out: the pull's 401 runs forgetView
+  assert.equal(pullAfterSend(false, false, 503), false); // only busy: wait, no extra request
+  assert.equal(pullAfterSend(false, false, 200), false);
+  assert.equal(pullAfterSend(true, false, 200), true);
+  assert.equal(pullAfterSend(false, true, 200), true);
 });
 
 test("a new batch fee reaches students with a discount, and leaves two months' arrears alone", () => {
@@ -581,6 +647,17 @@ test("a new batch fee reaches students with a discount, and leaves two months' a
   const start = { ...s, batches: [b, ...s.batches.slice(1)], students: [st(1, 400, 100), st(2, 500, 250), st(3, 500), st(4, 200)] };
   const next = runAction(start, "updateBatch", [b.id, { fee: 600 }], Date.now());
   assert.deepEqual(next.students.map((x) => x.feeDue), [500, 500, 600, 200]);
+  // A discount given after this month's full charge: the student still owes the full old fee, so the new fee reaches them.
+  const late = runAction({ ...start, students: [{ ...st(5, 500, 200), chargedDiscount: 0 }] }, "updateBatch", [b.id, { fee: 600 }], Date.now());
+  assert.equal(late.students[0].feeDue, 600);
+});
+
+test("a join request given a discount, then accepted, still gets a new batch fee", () => {
+  const b = { ...s.batches[0], fee: 1200 };
+  let x = runAction({ ...s, batches: [b, ...s.batches.slice(1)], students: [] }, "addStudent", [{ ...s.students[0], batch: b.name, pending: true, feePaid: false }], Date.now());
+  const id = x.students[0].id;
+  for (const [name, args] of [["setDiscount", [id, 200]], ["approveStudent", [id]], ["updateBatch", [b.id, { fee: 1400 }]]]) x = runAction(x, name, args, Date.now());
+  assert.equal(x.students[0].feeDue, 1200); // accepted owing 1000 (1200 less 200): the new fee makes it 1400 less 200
 });
 
 test("sign-in lists: no work when nothing changed, a removed teacher is noticed, and a failed earlier write is retried", () => {
@@ -600,4 +677,248 @@ test("with no institute picked, the owner's institute opens before one they teac
   assert.equal(bestStaffRow([b, m]), m);
   assert.equal(bestStaffRow([{ institute_id: "z", role: "teacher" }, b]), b); // equal ranks: the same one every time
   assert.equal(bestStaffRow([]), undefined);
+});
+
+test("a 'saved' answer without data (only { role }) gives nothing to show, so the website keeps its screen", () => {
+  assert.equal(savedView({ role: "owner" }), null);
+  assert.equal(savedView({ state: { viewer: "all" } }), null); // no version: cannot be counted from
+  const d = { state: { viewer: "all" }, version: 7, role: "owner" };
+  assert.equal(savedView(d), d);
+});
+
+test("a paid Explore video's link reaches only its teacher's batches, and goes when the lesson is deleted", () => {
+  const mine = s.batches.find((b) => b.name === s.students.find((x) => x.id === 3).batch);
+  const url = "/api/files/11111111-1111-1111-1111-111111111111/22222222-2222-2222-2222-222222222222";
+  const paid = (teacher) => ({ ...s, exploreVideos: [{ id: 1, title: "t", thumb: "t", subject: "Physics", level: "HSC", teacher, views: 0, postedAt: "", length: "", free: false, url }] });
+  assert.equal(viewFor(paid("Someone Else"), student).exploreVideos[0].url, undefined);
+  assert.equal(viewFor(paid(mine.teacher), student).exploreVideos[0].url, url);
+  const m = s.modules[0];
+  let x = runAction(s, "addModuleItem", [m.id, { kind: "video", title: "v", meta: "", url, publishToExplore: true, free: false }], Date.now());
+  assert.ok(x.exploreVideos.some((v) => v.url === url));
+  const it = x.modules.find((y) => y.id === m.id).items.find((y) => y.url === url);
+  x = runAction(x, "deleteModuleItem", [m.id, it.id], Date.now());
+  assert.ok(!x.exploreVideos.some((v) => v.url === url));
+  x = runAction(runAction(s, "addModuleItem", [m.id, { kind: "video", title: "v", meta: "", url, publishToExplore: true, free: false }], Date.now()), "deleteModule", [m.id], Date.now());
+  assert.ok(!x.exploreVideos.some((v) => v.url === url));
+});
+
+test("a payment taken offline is dated when it was made, not when it syncs (no late fine, right month)", async (t) => {
+  const { rollFees, monthKey } = await import("../src/lib/lms-actions.ts");
+  t.mock.timers.enable({ apis: ["Date"], now: new Date(2026, 11, 11, 10) }); // server: 11 Dec, past the due day (local time, so any time zone)
+  const batch = { ...s.batches[0], fee: 1200, lateFine: 100 };
+  const st = { ...s.students[0], batch: batch.name, feeDue: 1200, fineMonth: undefined, joined: "2026-10" };
+  const loaded = rollFees({ ...s, batches: [batch], students: [st], payments: [], staffPayments: [], feeMonth: "2026-12" });
+  assert.equal(loaded.students[0].feeDue, 1300); // the sync day's roll adds the fine
+  const paid = runAction(loaded, "payFee", [st.id, "cash", 1200], new Date(2026, 11, 10, 20).getTime()); // taken on the 10th, offline
+  assert.equal(paid.students[0].feeDue, 0);
+  assert.equal(monthKey(new Date(paid.payments[0].at)), "2026-12");
+  assert.equal(new Date(paid.payments[0].at).getDate(), 10);
+  const salary = runAction(loaded, "payStaff", ["Rumana Ma'am", 5000], new Date(2026, 10, 30, 18).getTime()); // paid on 30 Nov, synced in Dec
+  assert.equal(salary.staffPayments[0].month, "2026-11");
+});
+
+test("a salary is never paid twice: a second payStaff for the same balance records nothing", () => {
+  const at = new Date(2026, 10, 15, 12).getTime();
+  const start = { ...s, staff: [{ name: "Rumana Ma'am", phone: "", salary: 600, share: 0 }], payments: [], staffPayments: [] };
+  const once = runAction(start, "payStaff", ["Rumana Ma'am", 600], at);
+  const twice = runAction(once, "payStaff", ["Rumana Ma'am", 600], at); // queued offline a second time
+  assert.deepEqual(twice.staffPayments.map((p) => p.amount), [600]);
+  const over = runAction(start, "payStaff", ["Rumana Ma'am", 1000], at);
+  assert.deepEqual(over.staffPayments.map((p) => p.amount), [600]); // capped at what is owed
+});
+
+test("a rubric grade is the clamped criterion marks, never above the item's marks", () => {
+  const m = s.modules.find((x) => x.items.some((it) => it.id === 106));
+  const it = (st) => st.modules.find((x) => x.id === m.id).items.find((x) => x.id === 106); // rubric 10 + 10 + 5, worth 25
+  const sub = (st) => it(st).submissions[2];
+  const typo = runAction(s, "gradeSubmission", [m.id, 106, 2, 40, "", [15, 10, -5]], Date.now());
+  assert.deepEqual(sub(typo).rubricScores, [10, 10, 0]);
+  assert.equal(sub(typo).grade, 20);
+  const plain = runAction(s, "gradeSubmission", [m.id, 106, 2, 99, ""], Date.now());
+  assert.equal(sub(plain).grade, 25);
+});
+
+test("the invoice shows the discount the month was charged with, and earlier dues, so its lines add up", async () => {
+  const { rollFees } = await import("../src/lib/lms-actions.ts");
+  const { invoice } = await import("../src/lib/lms-views.ts");
+  const batch = { ...s.batches[0], fee: 1200, lateFine: 0 };
+  const st = { ...s.students[0], batch: batch.name, feeDue: 0, discount: undefined, chargedDiscount: undefined, fineMonth: undefined, joined: "2026-10" };
+  const dec = rollFees({ ...s, batches: [batch], students: [st], payments: [], feeMonth: "2026-11" }, new Date(2026, 11, 1, 10)); // 1 Dec: ৳1200 charged
+  const later = runAction(dec, "setDiscount", [st.id, 200], new Date(2026, 11, 5, 10).getTime()); // 5 Dec: scholarship from next month
+  const inv = invoice(later.students[0], batch, [], "2026-12");
+  assert.equal(inv.discount, 0);
+  assert.equal(inv.balance, 1200);
+  assert.equal(inv.carried + inv.fee - inv.discount + inv.fine - inv.paid, inv.balance);
+  const jan = rollFees({ ...later, students: [{ ...later.students[0], feeDue: 1200 }] }, new Date(2027, 0, 1, 10)); // December unpaid
+  const next = invoice(jan.students[0], batch, [], "2027-01");
+  assert.deepEqual([next.carried, next.fee, next.discount, next.balance], [1200, 1200, 200, 2200]);
+});
+
+test("a restore waits for the server's answer: a refused (403) or too-big (413) restore is not reported as restored", async () => {
+  const w = answerWaits();
+  const restore = { name: "importBackup", args: ["{}"], base: 1 }, other = { name: "addTodo", args: [], base: 2 };
+  const answer = w.wait(restore);
+  w.settle(other, "sent"); // another change's answer is not the restore's
+  w.settle(restore, afterAnswer(403, 1));
+  assert.equal(await answer, "drop");
+  const offline = w.wait(other);
+  w.settle(other, "wait");
+  assert.equal(await offline, "wait");
+  assert.equal(await w.wait(undefined), "sent"); // nothing queued (demo): nothing to wait for
+});
+
+test("when sending stops on an older queued change (offline or server busy), a restore queued behind it still gets its answer", async () => {
+  const w = answerWaits();
+  const older = { name: "addTodo", args: [], base: 1 }, restore = { name: "importBackup", args: ["{}"], base: 1 };
+  const answer = w.wait(restore);
+  w.stop([older, restore]); // what flush does when outbox[0] answers "wait" or the fetch throws
+  assert.equal(await Promise.race([answer, new Promise((r) => setTimeout(r, 50, "no answer"))]), "wait");
+});
+
+test("the institute name still reaches 'Find your institute' when a sign-in list write fails, and a failed name write is tried again", async () => {
+  // data-server.ts with a fake Supabase: roster writes fail, and the first institutes.name write fails too.
+  const stub = (code) => "data:text/javascript," + encodeURIComponent(code);
+  const lib = (f) => new URL(`../src/lib/${f}.ts`, import.meta.url).href;
+  const map = { "./data-access": lib("data-access"), "./lms-actions": lib("lms-actions"), "./doc-limit": lib("doc-limit"), "./ran-before": lib("ran-before"), "./auth-mode": stub("export const REAL_AUTH = true;"), "./platform-server": stub("export const isStaffRequest = () => false;"), "./supabase/server": stub("export const supabaseFromRequest = () => null;"), "@supabase/supabase-js": stub("export const createClient = () => globalThis.__dsDb;") };
+  (await import("node:module")).register(stub(`const map = ${JSON.stringify(map)}; export async function resolve(s, c, next) { return map[s] && c.parentURL?.endsWith("/data-server.ts") ? { url: map[s], shortCircuit: true } : next(s, c); }`));
+  let row = { state: seed(), version: 1, updated_at: "2026-11-24T00:00:00Z" };
+  const names = [];
+  let nameFails = 1;
+  const q = (res) => { const p = Promise.resolve(res); return Object.assign(p, { eq: () => q(res), order: () => q(res), range: () => q(res), match: () => q(res), select: () => q(res), maybeSingle: () => q(res) }); };
+  globalThis.__dsDb = { from: (t) => ({
+    select: () => q({ data: t === "institute_data" ? row : [], error: null }),
+    update: (v) => {
+      if (t === "institute_data") { row = { ...row, ...v }; return q({ data: [{ version: v.version }], error: null }); }
+      names.push(v.name);
+      return q({ data: null, error: t === "institutes" && nameFails-- > 0 ? { message: "down" } : null });
+    },
+    upsert: () => q({ data: null, error: t === "roster" ? { message: "down" } : null }),
+    delete: () => q({ data: null, error: null }),
+  }) };
+  const { act } = await import("../src/lib/data-server.ts");
+  const me = { institute: "i1", who: { role: "owner" } };
+  const run = (name, args) => act(me, name, args, 0, () => args);
+  await run("removeStudent", [row.state.students[0].id]); // roster write fails: the sign-in lists are now behind
+  await run("setInstituteName", ["New Name"]); // roster fails again; the name write is still tried (and fails once)
+  assert.deepEqual(names, ["New Name"]);
+  await run("removeStudent", [row.state.students[0].id]); // the name is unchanged in this save, but the failed write is tried again
+  assert.deepEqual(names, ["New Name", "New Name"]);
+  await run("removeStudent", [row.state.students[0].id]);
+  assert.equal(names.length, 2); // written once it went through
+});
+
+test("a finished live class of another teacher does not block scheduling yours", () => {
+  const mine = s.batches.find((b) => b.teacher === teacher.name).name;
+  const other = s.batches.find((b) => b.teacher !== teacher.name).name;
+  const info = { batch: mine, topic: "t", start: new Date(Date.now() + 3600000).toISOString(), link: "" };
+  const at = (ms) => ({ ...s, liveClass: { batch: other, topic: "x", start: new Date(Date.now() + ms).toISOString(), link: "" } });
+  refused(() => checkAction("updateLiveClass", [info], teacher, at(-3600000))); // still running: not yours to replace
+  assert.ok(checkAction("updateLiveClass", [info], teacher, at(-2 * 86400000))); // two days old: the slot is free
+});
+
+test("after a refused change the website asks for the whole view, not the saved version (that answer is 204 and the refused change stays on screen)", () => {
+  assert.equal(pullFromVersion(true, 7), 0);
+  assert.equal(pullFromVersion("suspended", 7), 0);
+  assert.equal(pullFromVersion(false, 7), 7); // nothing refused: keep asking only for what changed
+});
+
+test("a slow download older than the copy on screen is ignored, but another sign-in's copy is always taken", () => {
+  const shown = shownCopy();
+  assert.equal(shown.take(8, "owner:A"), true); // the save's answer
+  assert.equal(shown.take(7, "owner:A"), false); // the poll's answer lands after it: dropped
+  assert.equal(shown.take(8, "owner:A"), true);
+  assert.equal(shown.take(500, "owner:A"), true);
+  assert.equal(shown.take(20, "owner:B"), true); // another tab signed in to institute B (lower versions): taken, not stuck on A
+  assert.equal(shown.take(21, "owner:B"), true); // and B's next save shows too
+  shown.forget(); // 401: signed out
+  assert.equal(shown.take(3, "owner:B"), true); // whatever comes next is taken
+  assert.equal(shown.take(2, "owner:B"), false); // a refusal asks from 0 but keeps the floor: an old answer still on its way is dropped
+});
+
+test("chat messages from a student or guardian are capped each day, so one account cannot fill the institute's data", () => {
+  const now = new Date().toISOString();
+  const flood = (id) => ({ ...s, chats: [...s.chats.filter((c) => c.id !== id), { id, name: "", role: "", unread: 0, online: false, messages: Array.from({ length: 200 }, (_, i) => ({ id: `m${i}`, sender: "", text: "x", at: now, mine: true })) }] });
+  refused(() => checkAction("sendStudentMessage", [3, "one more"], student, flood("student-3")));
+  refused(() => checkAction("sendParentMessage", [8, "one more"], guardian, flood("parent-8")));
+  const old = flood("student-3"); old.chats.at(-1).messages.forEach((m) => (m.at = "2020-01-01T00:00:00.000Z")); // yesterday's don't count
+  assert.ok(checkAction("sendStudentMessage", [3, "one more"], student, old));
+});
+
+test("a teacher who is also a guardian at the same centre opens as the guardian when they pick the guardian side", async () => {
+  const stub = (code) => "data:text/javascript," + encodeURIComponent(code);
+  const lib = (f) => new URL(`../src/lib/${f}.ts`, import.meta.url).href;
+  const map = { "./data-access": lib("data-access"), "./lms-actions": lib("lms-actions"), "./doc-limit": lib("doc-limit"), "./ran-before": lib("ran-before"), "./auth-mode": stub("export const REAL_AUTH = true;"), "./platform-server": stub("export const isStaffRequest = () => false;"), "./supabase/server": stub("export const supabaseFromRequest = () => null;"), "@supabase/supabase-js": stub("export const createClient = () => globalThis.__dsDb;") };
+  (await import("node:module")).register(stub(`const map = ${JSON.stringify(map)}; export async function resolve(s, c, next) { return map[s] && c.parentURL?.endsWith("/data-server.ts") ? { url: map[s], shortCircuit: true } : next(s, c); }`));
+  globalThis.__dsDb ??= {};
+  const { admin, whoIs } = await import("../src/lib/data-server.ts");
+  const q = (res) => { const p = Promise.resolve(res); return Object.assign(p, { eq: () => q(res), limit: () => q(res) }); };
+  const tables = { members: [{ institute_id: "a", role: "teacher", name: "Rahim" }], roster: [{ institute_id: "a", role: "guardian", student_id: 7 }] };
+  Object.assign(admin(), { auth: { getUser: async () => ({ data: { user: { email: "rahim@x.com" } } }) }, from: (t) => ({ select: () => q({ data: tables[t], error: null }) }) });
+  const ask = (headers) => whoIs(new Request("http://x/api/data", { headers: { authorization: "Bearer t1", ...headers } }));
+  assert.equal((await ask({})).who.role, "teacher"); // nothing picked: the staff side, as before
+  const g = await ask({ "x-classbari-role": "guardian" }); // the Guardian app
+  assert.deepEqual([g.who.role, g.who.studentIds], ["guardian", [7]]);
+  const web = await whoIs(new Request("http://x/api/data", { headers: { authorization: "Bearer t2", cookie: "edunest-role=parent" } })); // the website's Guardian panel
+  assert.equal(web.who.role, "guardian");
+  tables.roster = [];
+  assert.equal((await ask({ "x-classbari-role": "guardian", authorization: "Bearer t3" })).who.role, "teacher"); // not a guardian here: unchanged
+});
+
+test("a teacher can open or end only the live class and poll of a batch they teach; the owner still reaches every batch", async () => {
+  const stub = (code) => "data:text/javascript," + encodeURIComponent(code);
+  const lib = (f) => new URL(`../src/lib/${f}.ts`, import.meta.url).href;
+  const map = { "./data-access": lib("data-access"), "./lms-actions": lib("lms-actions"), "./doc-limit": lib("doc-limit"), "./ran-before": lib("ran-before"), "./auth-mode": stub("export const REAL_AUTH = true;"), "./platform-server": stub("export const isStaffRequest = () => false;"), "./supabase/server": stub("export const supabaseFromRequest = () => null;"), "@supabase/supabase-js": stub("export const createClient = () => globalThis.__dsDb;") };
+  (await import("node:module")).register(stub(`const map = ${JSON.stringify(map)}; export async function resolve(s, c, next) { return map[s] && c.parentURL?.endsWith("/data-server.ts") ? { url: map[s], shortCircuit: true } : next(s, c); }`));
+  globalThis.__dsDb ??= {};
+  const { admin, liveScope } = await import("../src/lib/data-server.ts");
+  const q = (res) => { const p = Promise.resolve(res); return Object.assign(p, { eq: () => q(res), limit: () => q(res), maybeSingle: () => q(res) }); };
+  const members = { "Bearer k": [{ institute_id: "a", role: "teacher", name: "Karim" }], "Bearer o": [{ institute_id: "a", role: "owner", name: "Boss" }] };
+  let token = "";
+  const doc = { batches: [{ name: "SSC Math", teacher: "Karim" }, { name: "HSC Physics", teacher: "Rahim" }], staff: [] };
+  Object.assign(admin(), { auth: { getUser: async () => ({ data: { user: { email: "x@x.com" } } }) }, from: (t) => ({ select: () => q({ data: t === "members" ? members[token] : t === "institute_data" ? doc : [], error: null }) }) });
+  const ask = (t, batch) => { token = t; return liveScope(new Request("http://x/api/class", { headers: { authorization: t } }), batch); };
+  assert.deepEqual(await ask("Bearer k", "SSC Math"), { key: "a:SSC Math", staff: true, person: "x@x.com", own: undefined });
+  assert.equal(await ask("Bearer k", "HSC Physics"), null); // Rahim's class: not Karim's to see, end or take over
+  assert.equal((await ask("Bearer o", "HSC Physics")).key, "a:HSC Physics"); // the owner: every batch, as before
+});
+
+test("restoring the owner's backup keeps students' notes, poll votes and profiles, and polls still count", () => {
+  const owner = { role: "owner", name: s.teacherName, studentIds: [] };
+  let st = { ...s, notes: [...s.notes, { id: 999, title: "mine", text: "x", at: "2026-01-01T00:00:00.000Z", by: 3 }], communityProfiles: { 3: { bio: "hi", muted: [2], blocked: [5], saved: [4] } } };
+  st = runAction(st, "importBackup", [JSON.stringify({ app: "Instanton Campus", version: 1, data: viewFor(st, owner) })], Date.now());
+  assert.equal(st.notes.find((n) => n.id === 999)?.by, 3);
+  assert.deepEqual(st.communityProfiles[3], { bio: "hi", muted: [2], blocked: [5], saved: [4] });
+  const poll = st.community.find((p) => p.id === 4).poll;
+  assert.deepEqual(poll.votes, { 2: 0, 3: 2 });
+  assert.equal(poll.counts, undefined);
+});
+
+test("many changes in one click write the queue to the browser once, after the click", async () => {
+  let writes = 0;
+  const keep = onceSoon(() => writes++);
+  for (let i = 0; i < 2000; i++) keep();
+  assert.equal(writes, 0);
+  await Promise.resolve();
+  assert.equal(writes, 1);
+  keep();
+  await Promise.resolve();
+  assert.equal(writes, 2); // a later change is written again
+});
+
+test("a teacher replies to doubts and opens meeting slots only as themselves, never already booked", () => {
+  const batch = s.batches.find((b) => b.teacher);
+  const me = { role: "teacher", name: batch.teacher, studentIds: [] };
+  const st = { ...s, doubts: [{ id: 777, studentId: 3, batch: batch.name, text: "?", at: "2026-01-01T00:00:00.000Z", solved: false, replies: [] }] };
+  const [, reply] = checkAction("replyDoubt", [777, { by: "The Owner", text: "hi" }, false], me, st);
+  assert.deepEqual(reply, { by: batch.teacher, text: "hi" });
+  const [[slot]] = checkAction("addMeetingSlots", [[{ start: "2026-01-02T12:00:00.000Z", minutes: 15, teacher: "Other Teacher", batch: batch.name, bookedBy: 3 }]], me, st);
+  assert.equal(slot.teacher, batch.teacher);
+  assert.equal(slot.bookedBy, undefined);
+});
+
+test("copying a chapter to another batch leaves the old batch's quiz work behind", () => {
+  const m = s.modules[0];
+  const worked = { ...m, items: m.items.map((it) => ({ ...it, scores: { 5: 2 }, answers: { 5: [true, true] }, started: { 5: "2026-01-01T00:00:00.000Z" }, took: { 5: 60 }, tabSwitches: { 5: 2 }, doneBy: [5], ranks: { 5: { pos: 1, of: 3 } }, meritPublished: true })) };
+  const next = runAction({ ...s, modules: [worked, ...s.modules.slice(1)] }, "copyModule", [m.id, s.batches[1].name], Date.now());
+  for (const it of next.modules[0].items) for (const k of ["scores", "answers", "started", "took", "tabSwitches", "doneBy", "ranks", "meritPublished"]) assert.equal(it[k], undefined, k);
 });

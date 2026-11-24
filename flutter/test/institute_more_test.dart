@@ -62,6 +62,17 @@ void main() {
     expect([pl.income, pl.salaries, pl.other, pl.profit], [2000, 300, 500, 1200]);
   });
 
+  test('payroll: a payment stays with the teacher saved on it after the batch moves to another teacher', () {
+    final at = DateTime.now().toUtc().toIso8601String();
+    final Json s = {
+      'staff': [{'name': 'A', 'salary': 0, 'share': 40}, {'name': 'B', 'salary': 0, 'share': 40}],
+      'batches': [{'name': 'Physics', 'teacher': 'B'}],
+      'payments': [{'batch': 'Physics', 'teacher': 'A', 'amount': 10000, 'at': at}, {'batch': 'Physics', 'amount': 500, 'at': at}], // the second is an older payment with no teacher saved
+    };
+    final r = payroll(s, dayKey().substring(0, 7));
+    expect([r[0].collected, r[0].payable, r[1].collected], [10000, 4000, 500]);
+  });
+
   test('profit and loss counts a payment in its local month, as payroll does', () {
     // Local times either side of midnight on 1 December: saved as UTC, one of them lands in the other month (on any machine not on UTC itself).
     final Json s = {
@@ -101,6 +112,27 @@ void main() {
       {'date': dayKey(), 'category': 'electricity', 'amount': 750, 'note': 'Bulbs'},
     ]);
     await tester.pump(const Duration(seconds: 6)); // the "will be sent later" note goes away
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('payroll: the Pay button goes away while a salary payment waits to send, so it is never paid twice', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    store.prefs = await SharedPreferences.getInstance();
+    tester.view.physicalSize = const Size(400, 2600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    store.fake(sample(), 'owner');
+    await tester.pumpWidget(Live((context) => MaterialApp(theme: classbariTheme(Brightness.light), home: const StaffScreen())));
+    await tester.pumpAndSettle();
+    final pay = find.text('Mark paid ৳900');
+    await tester.scrollUntilVisible(pay, 150, scrollable: find.byType(Scrollable).first);
+    await tester.tap(pay);
+    await tester.pump(const Duration(milliseconds: 500)); // the dialog opens (the busy spinner never settles)
+    await tester.tap(find.descendant(of: find.byType(AlertDialog), matching: find.byType(FilledButton)));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(sent('payStaff').single['args'], ['Mina Miss', 900]);
+    expect(pay, findsNothing); // offline: store.state still says ৳900 owed, but the payment is already queued
+    await tester.pump(const Duration(seconds: 6));
     await tester.pumpWidget(const SizedBox());
   });
 

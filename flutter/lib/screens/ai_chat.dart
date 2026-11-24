@@ -83,7 +83,10 @@ class _AiChatAppState extends State<AiChatApp> {
     final c = chat;
     if (c == null || pdfBusy) return;
     setState(() => pdfBusy = true);
-    final turns = at < 0 ? msgs : msgs.sublist(at > 0 ? at - 1 : 0, at + 1);
+    var turns = at < 0 ? msgs.sublist(msgs.length > 200 ? msgs.length - 200 : 0) : msgs.sublist(at > 0 ? at - 1 : 0, at + 1);
+    while (turns.length > 1 && turns.fold<int>(0, (n, m) => n + '${m['content'] ?? ''}'.length) > 300000) {
+      turns = turns.sublist(1); // a long chat prints its newest turns: the server's limits (lib/chat-pdf.ts), and the request stays under its size cap
+    }
     final heading = at < 0 ? null : RegExp(r'^#\s+(.+)', multiLine: true).firstMatch('${msgs[at]['content']}')?[1]?.replaceAll(RegExp(r'[*=`]'), '').trim();
     final title = at < 0 ? '${c['title'] ?? ''}' : (heading == null || heading.isEmpty ? '${turns.first['content']}' : heading);
     try {
@@ -627,7 +630,7 @@ class _AiChatAppState extends State<AiChatApp> {
 
   /// A new chat: a greeting in the middle, the student's topic folders, and a few things to ask.
   List<Widget> _welcome(BuildContext context) {
-    final name = '${store.me?['name'] ?? ''}'.split(' ').first;
+    final name = firstName('${store.me?['name'] ?? ''}');
     final mine = [for (final topic in topics.all) (topic, chats.where((x) => (x['topic'] ?? 'other') == topic).length)].where((x) => x.$2 > 0).toList();
     return [
       const SizedBox(height: 28),

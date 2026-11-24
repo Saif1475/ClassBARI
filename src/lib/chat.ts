@@ -19,9 +19,12 @@ export const seen = (t: ChatThread, m: ChatMessage) => {
   const read = sideOf(m) === "family" ? t.readStaff : t.readFamily;
   return !!read && read >= m.at;
 };
-/** Messages from the other side that this side hasn't opened yet. */
-export const unreadFor = (t: ChatThread, side: Side) =>
-  side === "staff" ? t.unread : t.messages.filter((m) => sideOf(m) === "staff" && !m.deleted && (!t.readFamily || m.at > t.readFamily)).length;
+/** Messages from the other side that this side hasn't opened yet. `opened`: this device's own last-opened time (kept even with read receipts off, when readFamily never moves). */
+export const unreadFor = (t: ChatThread, side: Side, opened = "") => {
+  if (side === "staff") return t.unread;
+  const since = (t.readFamily ?? "") > opened ? (t.readFamily ?? "") : opened;
+  return t.messages.filter((m) => sideOf(m) === "staff" && !m.deleted && (!since || m.at > since)).length;
+};
 
 /** A short line for the chat list and a reply's quote. */
 export const preview = (m: ChatMessage | undefined, words: { photo: string; deleted: string }) =>

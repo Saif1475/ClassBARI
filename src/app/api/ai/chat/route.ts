@@ -1,6 +1,6 @@
 import { answerIn, basicAnswer, cleanHistory, costUsd, modelOn, MODELS, monthlyBudgetUsd, packPlan, takeTurn, usedTokens } from "@/lib/ai-chat";
 import { allowance } from "@/lib/ai-allowance";
-import { modelReady, streamChat } from "@/lib/ai-providers";
+import { modelReady, streamChat, type Answered } from "@/lib/ai-providers";
 import { REAL_AUTH } from "@/lib/auth-mode";
 import { admin, aiSpent } from "@/lib/data-server";
 import type { PdfPage } from "@/lib/pdf-insights";
@@ -65,6 +65,9 @@ export async function POST(request: Request) {
       return Response.json({ answer: answer.trim(), source: "ai", left: left(tokens, cost), credit: a.paying ? a.creditTk(cost) : undefined });
     } catch (e) {
       console.error("ai chat:", e instanceof Error ? e.message : e);
+      // Broke off partway: the provider still bills what it wrote, so it is counted like any answer.
+      const u = (e as { usage?: Answered["usage"] }).usage;
+      if (u) await record(costUsd(model, u), usedTokens(u)).catch(() => {});
       return Response.json({ error: "try again" }, { status: 503 });
     }
   } finally {

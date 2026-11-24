@@ -25,6 +25,15 @@ num feeDueOf(Json s) => s['feeDue'] is num ? s['feeDue'] as num : num.tryParse('
 
 List<Json> rows(Object? list) => ((list as List?) ?? const []).cast<Json>();
 
+/// One student's invoice for a month (lms-views.ts invoice): its lines add up to the balance; what was owed before is "carried".
+({num fee, num discount, num fine, num paid, num carried, num balance}) invoiceOf(Json s, Json? batch, Object? payments, String month) {
+  final num fee = (batch?['fee'] as num?) ?? 0, balance = feeDueOf(s);
+  final num off = (s['chargedDiscount'] as num?) ?? (s['discount'] as num?) ?? 0, discount = off < fee ? off : fee; // the discount this month's charge took off; older data: the one set now
+  final num fine = s['fineMonth'] == month ? (batch?['lateFine'] as num?) ?? 0 : 0;
+  final paid = rows(payments).where((p) => p['studentId'] == s['id'] && p['at'] is String && dayKey(toDate(p['at'] as String)).startsWith(month)).fold<num>(0, (n, p) => n + ((p['amount'] as num?) ?? 0));
+  return (fee: fee, discount: discount, fine: fine, paid: paid, carried: balance - (fee - discount + fine - paid), balance: balance);
+}
+
 // ---- XP -----------------------------------------------------------------------------------------------------------
 num _xpOn(Map log, DateTime d) => (log[dayKey(d)] as num?) ?? 0;
 

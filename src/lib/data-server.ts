@@ -2,7 +2,7 @@
 // data-access.ts has decided what the signed-in person may do. Never import this from the browser.
 import { randomUUID } from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { bestStaffRow, peopleToSync, Refused, rosterOf, runAction, teachersOf, topId, type Who } from "./data-access";
+import { bestStaffRow, peopleToSync, Refused, rosterOf, runAction, staffName, teachersOf, topId, type Who } from "./data-access";
 import { blankState, idBase, rollFees, type LmsState } from "./lms-actions";
 import { FULL, guardedFetch, MAX_FILE_BYTES } from "./doc-limit";
 import { REAL_AUTH } from "./auth-mode";
@@ -26,6 +26,9 @@ export function chosenInstitute(request: Request) {
   return UUID.test(id) ? id : null;
 }
 
+/** The guardian side was picked: the Guardian app sends a header, the website keeps its panel in the edunest-role cookie. Only chooses among the person's real roles. */
+export const wantsGuardian = (request: Request) => request.headers.get("x-classbari-role") === "guardian" || /(?:^|;\s*)edunest-role=parent(?:;|$)/.test(request.headers.get("cookie") ?? "");
+
 /**
  * Who is asking, remembered for 30 s per login: every open screen asks every 15 s, and each answer took three calls
  * to Supabase. shortcut: someone removed keeps access for up to 30 s; check the members table on writes if that matters.
@@ -34,7 +37,7 @@ const whoCache = new Map<string, { me: Promise<Me | null>; until: number }>();
 export function whoIs(request: Request): Promise<Me | null> {
   const login = sessionKey(request);
   if (!login) return findWho(request);
-  const key = `${login}|${request.headers.get("x-classbari-institute") ?? ""}`;
+  const key = `${login}|${request.headers.get("x-classbari-institute") ?? ""}|${wantsGuardian(request)}`;
   const hit = whoCache.get(key);
   if (hit && hit.until > Date.now()) return hit.me;
   const me = findWho(request);
@@ -65,11 +68,13 @@ async function findWho(request: Request): Promise<Me | null> {
   // No pick: read their few staff rows and open the highest rank (an owner of A who teaches at B gets A), not whichever row comes first.
   const [{ data: staff, error }, { data: rows }] = await Promise.all([staffQ.limit(pick ? 1 : 50), rosterQ]);
   if (error) console.error("data: members lookup failed:", error.message);
-  const top = bestStaffRow(staff);
+  // Picked the guardian side (Guardian app, or "Guardian" on the website) and is a guardian here: a teacher whose own child studies at their centre.
+  const asGuardian = wantsGuardian(request) && !!rows?.some((r) => r.role === "guardian");
+  const top = asGuardian ? undefined : bestStaffRow(staff);
   if (top) return { institute: top.institute_id, who: { role: top.role, name: top.name, studentIds: [], email } };
   if (!rows?.length) return null;
   // shortcut: someone who is both a student and a guardian, or in two institutes, gets the first; add a switcher if that happens.
-  const role = rows.some((r) => r.role === "student") ? "student" : "guardian";
+  const role = !asGuardian && rows.some((r) => r.role === "student") ? "student" : "guardian";
   const first = rows.find((r) => r.role === role)!;
   const ids = rows.filter((r) => r.role === role && r.institute_id === first.institute_id).map((r) => r.student_id as number);
   return { institute: first.institute_id, who: { role, name: "", studentIds: ids, email } }; // email: notification devices and switches are kept per person
@@ -84,9 +89,11 @@ export const STAFF_ROLES = ["owner", "manager", "teacher"];
  */
 /** What identifies a login in a request (its token or login cookies, and the institute picked): the key for short-lived memory. */
 export const sessionKey = (request: Request) =>
-  request.headers.get("authorization") || (request.headers.get("cookie") ?? "").split("; ").filter((c) => c.startsWith("sb-") || c.startsWith("classbari-institute=")).join("; ");
-const liveCache = new Map<string, { who: { institute: string; staff: boolean; batches: Set<string> | null } | null; until: number }>();
-export async function liveScope(request: Request, batch: string): Promise<{ key: string; staff: boolean } | null> {
+  request.headers.get("authorization")?.concat(wantsGuardian(request) ? "|guardian" : "") || (request.headers.get("cookie") ?? "").split("; ").filter((c) => c.startsWith("sb-") || c.startsWith("classbari-institute=") || c.startsWith("edunest-role=")).join("; ");
+const liveCache = new Map<string, { who: { institute: string; staff: boolean; batches: Set<string> | null; person: string; own: { id: number; name: string; batch: string }[] } | null; until: number }>();
+/** `person` (real accounts only): the signed-in email, so one person gets one vote whatever voter id their device sends. */
+/** `own` (real accounts, non-staff): the students this login is in this batch (none for guardians), so a live class never takes a name or student id from the device. */
+export async function liveScope(request: Request, batch: string): Promise<{ key: string; staff: boolean; person?: string; own?: { id: number; name: string }[] } | null> {
   if (!REAL_AUTH) return { key: batch, staff: await isStaffRequest(request) };
   const session = sessionKey(request);
   if (!session) return null;
@@ -94,14 +101,17 @@ export async function liveScope(request: Request, batch: string): Promise<{ key:
   if (!hit || hit.until <= Date.now()) {
     const me = await whoIs(request);
     const staff = !!me && STAFF_ROLES.includes(me.who.role);
-    // Students and guardians: only their own batches. Staff: every batch of their institute (null).
-    const batches = !me || staff ? null : new Set((await loadPart(me.institute, "students")).students.filter((s) => me.who.studentIds.includes(s.id)).map((s) => s.batch));
-    hit = { who: me && { institute: me.institute, staff, batches }, until: Date.now() + 30_000 };
+    // Students and guardians: only their own batches. Teachers: the batches they teach (as /api/data allows). Owner and manager: every batch (null).
+    const mine = !me || staff ? [] : (await loadPart(me.institute, "students")).students.filter((s) => me.who.studentIds.includes(s.id));
+    const taught = me?.who.role === "teacher" ? await loadPart(me.institute, "batches", "staff") : null;
+    const batches = taught ? new Set(taught.batches.filter((b) => b.teacher === staffName(taught, me!.who)).map((b) => b.name)) : !me || staff ? null : new Set(mine.map((s) => s.batch));
+    const own = me?.who.role === "student" ? mine.map((s) => ({ id: s.id, name: s.name, batch: s.batch })) : [];
+    hit = { who: me && { institute: me.institute, staff, batches, person: me.who.email ?? "", own }, until: Date.now() + 30_000 };
     if (liveCache.size > 5000) liveCache.clear();
     liveCache.set(session, hit);
   }
   const who = hit.who;
-  return who && (!who.batches || who.batches.has(batch)) ? { key: `${who.institute}:${batch}`, staff: who.staff } : null;
+  return who && (!who.batches || who.batches.has(batch)) ? { key: `${who.institute}:${batch}`, staff: who.staff, person: who.person || undefined, own: who.staff ? undefined : who.own.filter((s) => s.batch === batch).map(({ id, name }) => ({ id, name })) } : null;
 }
 
 /** What "Ask AI" and PDF highlighting cost since a date (US$), added up in the database so no row limit can hide spending. */
@@ -257,15 +267,13 @@ async function actNow(me: Me, name: string, args: unknown[], base: number, check
     else tops.set(me.institute, { stamp: saved.stamp, top: Math.max(top, used, topId(stored), next.students === doc.state.students ? 0 : maxStudentId(next)) });
     if (tops.size > 10_000) tops.clear();
     // The change is saved: a problem from here on is logged, never answered as an error (the sender would send the change again).
-    try {
-      await syncPeople(me.institute, doc.state, next);
-      // "Find your institute" searches the institutes table: keep its name the same as the one the owner set.
-      if (next.instituteName && next.instituteName !== doc.state.instituteName) {
-        const { error } = await admin().from("institutes").update({ name: next.instituteName }).eq("id", me.institute);
-        if (error) console.error("data: institute name update failed:", error.message);
+    // Each step on its own: a failed sign-in list write must not skip the name.
+    for (const step of [syncPeople, syncName]) {
+      try {
+        await step(me.institute, doc.state, next);
+      } catch (e) {
+        console.error("data: saved, but a step after the save failed:", name, e instanceof Error ? e.message : e);
       }
-    } catch (e) {
-      console.error("data: saved, but a step after the save failed:", name, e instanceof Error ? e.message : e);
     }
     return { state: next, version, before: doc.state };
   }
@@ -277,6 +285,18 @@ async function actNow(me: Me, name: string, args: unknown[], base: number, check
  * save writes both lists whatever changed. shortcut: kept in memory, so a restart or another server forgets it; keep a flag in the database if that matters.
  */
 const peopleBehind = new Set<string>();
+
+/** Institutes whose name in the institutes table could not be written: their next save writes it again. shortcut: in memory, like peopleBehind. */
+const nameBehind = new Set<string>();
+
+/** "Find your institute" searches the institutes table: keep its name the same as the one the owner set. Throws on a failed write. */
+async function syncName(institute: string, before: LmsState, after: LmsState) {
+  if (!after.instituteName || (after.instituteName === before.instituteName && !nameBehind.has(institute))) return;
+  nameBehind.add(institute); // until the write goes through
+  const { error } = await admin().from("institutes").update({ name: after.instituteName }).eq("id", institute);
+  if (error) throw new Error(`institute name update failed: ${error.message}`);
+  nameBehind.delete(institute);
+}
 
 /** Keep sign-in lists in step: student/guardian Gmails (roster) and teachers added with an email (members). Throws on any failed write. */
 async function syncPeople(institute: string, before: LmsState, after: LmsState) {

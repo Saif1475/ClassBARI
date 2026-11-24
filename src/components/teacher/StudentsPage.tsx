@@ -22,7 +22,7 @@ const plusMonth = (from?: string) => {
 };
 
 /** Teacher's student directory: enrol with student + guardian Gmail, search, edit, remove. */
-export function StudentsPage({ batchNames, notify }: { batchNames: string[]; notify: (msg: string) => void }) {
+export function StudentsPage({ batchNames, notify, showLost }: { batchNames: string[]; notify: (msg: string) => void; showLost?: boolean }) {
   const { t } = useLang();
   const R = t.roster;
   const lms = useLms();
@@ -35,7 +35,7 @@ export function StudentsPage({ batchNames, notify }: { batchNames: string[]; not
   const waiting = lms.waiting.filter((s) => batchNames.includes(s.batch)); // joined from a link, not accepted yet
   const list = lms.students.filter(
     (s) =>
-      batchNames.includes(s.batch) &&
+      (batchNames.includes(s.batch) || (showLost && batch === "all" && !lms.batches.some((b) => b.name === s.batch))) && // the owner also sees students left with no batch (none yet, or deleted) so they can be moved to one
       (batch === "all" || s.batch === batch) &&
       (!query || `${s.name} ${s.email} ${s.guardianName} ${s.guardianEmail} ${s.phone} ${s.studentPhone ?? ""}`.toLowerCase().includes(query)),
   );
@@ -157,7 +157,7 @@ export function StudentsPage({ batchNames, notify }: { batchNames: string[]; not
             </div>
             <StudentForm
               initial={student}
-              batches={batchNames.includes(student.batch) ? batchNames : [student.batch, ...batchNames]}
+              batches={batchNames}
               submitLabel={R.save}
               onSubmit={(input) => {
                 lms.updateStudent(student.id, input);

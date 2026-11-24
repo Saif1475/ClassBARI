@@ -1694,6 +1694,102 @@
   },
   {
    "lang": "en",
+   "key": "app.logOutWaiting",
+   "args": [
+    0
+   ],
+   "out": "0 change(s) not sent yet. Logging out now deletes them from this phone. Log out anyway?"
+  },
+  {
+   "lang": "en",
+   "key": "app.logOutWaiting",
+   "args": [
+    0
+   ],
+   "out": "0 change(s) not sent yet. Logging out now deletes them from this phone. Log out anyway?"
+  },
+  {
+   "lang": "en",
+   "key": "app.logOutWaiting",
+   "args": [
+    1
+   ],
+   "out": "1 change(s) not sent yet. Logging out now deletes them from this phone. Log out anyway?"
+  },
+  {
+   "lang": "en",
+   "key": "app.logOutWaiting",
+   "args": [
+    1
+   ],
+   "out": "1 change(s) not sent yet. Logging out now deletes them from this phone. Log out anyway?"
+  },
+  {
+   "lang": "en",
+   "key": "app.logOutWaiting",
+   "args": [
+    2
+   ],
+   "out": "2 change(s) not sent yet. Logging out now deletes them from this phone. Log out anyway?"
+  },
+  {
+   "lang": "en",
+   "key": "app.logOutWaiting",
+   "args": [
+    2
+   ],
+   "out": "2 change(s) not sent yet. Logging out now deletes them from this phone. Log out anyway?"
+  },
+  {
+   "lang": "en",
+   "key": "app.logOutWaiting",
+   "args": [
+    12
+   ],
+   "out": "12 change(s) not sent yet. Logging out now deletes them from this phone. Log out anyway?"
+  },
+  {
+   "lang": "en",
+   "key": "app.logOutWaiting",
+   "args": [
+    12
+   ],
+   "out": "12 change(s) not sent yet. Logging out now deletes them from this phone. Log out anyway?"
+  },
+  {
+   "lang": "en",
+   "key": "app.logOutWaiting",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 change(s) not sent yet. Logging out now deletes them from this phone. Log out anyway?"
+  },
+  {
+   "lang": "en",
+   "key": "app.logOutWaiting",
+   "args": [
+    1234567
+   ],
+   "out": "1234567 change(s) not sent yet. Logging out now deletes them from this phone. Log out anyway?"
+  },
+  {
+   "lang": "en",
+   "key": "app.logOutWaiting",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin change(s) not sent yet. Logging out now deletes them from this phone. Log out anyway?"
+  },
+  {
+   "lang": "en",
+   "key": "app.logOutWaiting",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddin change(s) not sent yet. Logging out now deletes them from this phone. Log out anyway?"
+  },
+  {
+   "lang": "en",
    "key": "app.pts",
    "args": [
     0
@@ -7031,6 +7127,114 @@
     "৳1,500"
    ],
    "out": "Open ৳1,500 and Send Money Rahim Uddin to Batch A."
+  },
+  {
+   "lang": "en",
+   "key": "pay.sentWaiting",
+   "args": [
+    0,
+    3
+   ],
+   "out": "Sent ✓ Your 0 pack still runs until 3, so this one waits: we start it once that ends, or send the money back."
+  },
+  {
+   "lang": "en",
+   "key": "pay.sentWaiting",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "Sent ✓ Your 0 pack still runs until Batch A, so this one waits: we start it once that ends, or send the money back."
+  },
+  {
+   "lang": "en",
+   "key": "pay.sentWaiting",
+   "args": [
+    1,
+    3
+   ],
+   "out": "Sent ✓ Your 1 pack still runs until 3, so this one waits: we start it once that ends, or send the money back."
+  },
+  {
+   "lang": "en",
+   "key": "pay.sentWaiting",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "Sent ✓ Your 1 pack still runs until Batch A, so this one waits: we start it once that ends, or send the money back."
+  },
+  {
+   "lang": "en",
+   "key": "pay.sentWaiting",
+   "args": [
+    2,
+    3
+   ],
+   "out": "Sent ✓ Your 2 pack still runs until 3, so this one waits: we start it once that ends, or send the money back."
+  },
+  {
+   "lang": "en",
+   "key": "pay.sentWaiting",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "Sent ✓ Your 2 pack still runs until Batch A, so this one waits: we start it once that ends, or send the money back."
+  },
+  {
+   "lang": "en",
+   "key": "pay.sentWaiting",
+   "args": [
+    12,
+    3
+   ],
+   "out": "Sent ✓ Your 12 pack still runs until 3, so this one waits: we start it once that ends, or send the money back."
+  },
+  {
+   "lang": "en",
+   "key": "pay.sentWaiting",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "Sent ✓ Your 12 pack still runs until Batch A, so this one waits: we start it once that ends, or send the money back."
+  },
+  {
+   "lang": "en",
+   "key": "pay.sentWaiting",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "Sent ✓ Your 1234567 pack still runs until 3, so this one waits: we start it once that ends, or send the money back."
+  },
+  {
+   "lang": "en",
+   "key": "pay.sentWaiting",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "Sent ✓ Your 1234567 pack still runs until Batch A, so this one waits: we start it once that ends, or send the money back."
+  },
+  {
+   "lang": "en",
+   "key": "pay.sentWaiting",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "Sent ✓ Your Rahim Uddin pack still runs until 3, so this one waits: we start it once that ends, or send the money back."
+  },
+  {
+   "lang": "en",
+   "key": "pay.sentWaiting",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "Sent ✓ Your Rahim Uddin pack still runs until Batch A, so this one waits: we start it once that ends, or send the money back."
   },
   {
    "lang": "en",
@@ -15431,6 +15635,102 @@
     "Batch A"
    ],
    "out": "Done · Rahim Uddin/Batch A"
+  },
+  {
+   "lang": "en",
+   "key": "rubric.tooMany",
+   "args": [
+    0
+   ],
+   "out": "The criteria add up to more than the item’s 0 marks."
+  },
+  {
+   "lang": "en",
+   "key": "rubric.tooMany",
+   "args": [
+    0
+   ],
+   "out": "The criteria add up to more than the item’s 0 marks."
+  },
+  {
+   "lang": "en",
+   "key": "rubric.tooMany",
+   "args": [
+    1
+   ],
+   "out": "The criteria add up to more than the item’s 1 marks."
+  },
+  {
+   "lang": "en",
+   "key": "rubric.tooMany",
+   "args": [
+    1
+   ],
+   "out": "The criteria add up to more than the item’s 1 marks."
+  },
+  {
+   "lang": "en",
+   "key": "rubric.tooMany",
+   "args": [
+    2
+   ],
+   "out": "The criteria add up to more than the item’s 2 marks."
+  },
+  {
+   "lang": "en",
+   "key": "rubric.tooMany",
+   "args": [
+    2
+   ],
+   "out": "The criteria add up to more than the item’s 2 marks."
+  },
+  {
+   "lang": "en",
+   "key": "rubric.tooMany",
+   "args": [
+    12
+   ],
+   "out": "The criteria add up to more than the item’s 12 marks."
+  },
+  {
+   "lang": "en",
+   "key": "rubric.tooMany",
+   "args": [
+    12
+   ],
+   "out": "The criteria add up to more than the item’s 12 marks."
+  },
+  {
+   "lang": "en",
+   "key": "rubric.tooMany",
+   "args": [
+    1234567
+   ],
+   "out": "The criteria add up to more than the item’s 1234567 marks."
+  },
+  {
+   "lang": "en",
+   "key": "rubric.tooMany",
+   "args": [
+    1234567
+   ],
+   "out": "The criteria add up to more than the item’s 1234567 marks."
+  },
+  {
+   "lang": "en",
+   "key": "rubric.tooMany",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "The criteria add up to more than the item’s Rahim Uddin marks."
+  },
+  {
+   "lang": "en",
+   "key": "rubric.tooMany",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "The criteria add up to more than the item’s Rahim Uddin marks."
   },
   {
    "lang": "en",
@@ -23929,6 +24229,198 @@
    "out": "Delete the announcement “Rahim Uddin”?"
   },
   {
+   "lang": "en",
+   "key": "exam2.negativeNote",
+   "args": [
+    0
+   ],
+   "out": "Negative marking: −0 for each wrong answer. Leave a question blank if you are not sure."
+  },
+  {
+   "lang": "en",
+   "key": "exam2.negativeNote",
+   "args": [
+    0
+   ],
+   "out": "Negative marking: −0 for each wrong answer. Leave a question blank if you are not sure."
+  },
+  {
+   "lang": "en",
+   "key": "exam2.negativeNote",
+   "args": [
+    1
+   ],
+   "out": "Negative marking: −1 for each wrong answer. Leave a question blank if you are not sure."
+  },
+  {
+   "lang": "en",
+   "key": "exam2.negativeNote",
+   "args": [
+    1
+   ],
+   "out": "Negative marking: −1 for each wrong answer. Leave a question blank if you are not sure."
+  },
+  {
+   "lang": "en",
+   "key": "exam2.negativeNote",
+   "args": [
+    2
+   ],
+   "out": "Negative marking: −2 for each wrong answer. Leave a question blank if you are not sure."
+  },
+  {
+   "lang": "en",
+   "key": "exam2.negativeNote",
+   "args": [
+    2
+   ],
+   "out": "Negative marking: −2 for each wrong answer. Leave a question blank if you are not sure."
+  },
+  {
+   "lang": "en",
+   "key": "exam2.negativeNote",
+   "args": [
+    12
+   ],
+   "out": "Negative marking: −12 for each wrong answer. Leave a question blank if you are not sure."
+  },
+  {
+   "lang": "en",
+   "key": "exam2.negativeNote",
+   "args": [
+    12
+   ],
+   "out": "Negative marking: −12 for each wrong answer. Leave a question blank if you are not sure."
+  },
+  {
+   "lang": "en",
+   "key": "exam2.negativeNote",
+   "args": [
+    1234567
+   ],
+   "out": "Negative marking: −1234567 for each wrong answer. Leave a question blank if you are not sure."
+  },
+  {
+   "lang": "en",
+   "key": "exam2.negativeNote",
+   "args": [
+    1234567
+   ],
+   "out": "Negative marking: −1234567 for each wrong answer. Leave a question blank if you are not sure."
+  },
+  {
+   "lang": "en",
+   "key": "exam2.negativeNote",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Negative marking: −Rahim Uddin for each wrong answer. Leave a question blank if you are not sure."
+  },
+  {
+   "lang": "en",
+   "key": "exam2.negativeNote",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Negative marking: −Rahim Uddin for each wrong answer. Leave a question blank if you are not sure."
+  },
+  {
+   "lang": "en",
+   "key": "exam2.tabSwitches",
+   "args": [
+    0
+   ],
+   "out": "Left the test: 0/3"
+  },
+  {
+   "lang": "en",
+   "key": "exam2.tabSwitches",
+   "args": [
+    0
+   ],
+   "out": "Left the test: 0/3"
+  },
+  {
+   "lang": "en",
+   "key": "exam2.tabSwitches",
+   "args": [
+    1
+   ],
+   "out": "Left the test: 1/3"
+  },
+  {
+   "lang": "en",
+   "key": "exam2.tabSwitches",
+   "args": [
+    1
+   ],
+   "out": "Left the test: 1/3"
+  },
+  {
+   "lang": "en",
+   "key": "exam2.tabSwitches",
+   "args": [
+    2
+   ],
+   "out": "Left the test: 2/3"
+  },
+  {
+   "lang": "en",
+   "key": "exam2.tabSwitches",
+   "args": [
+    2
+   ],
+   "out": "Left the test: 2/3"
+  },
+  {
+   "lang": "en",
+   "key": "exam2.tabSwitches",
+   "args": [
+    12
+   ],
+   "out": "Left the test: 12/3"
+  },
+  {
+   "lang": "en",
+   "key": "exam2.tabSwitches",
+   "args": [
+    12
+   ],
+   "out": "Left the test: 12/3"
+  },
+  {
+   "lang": "en",
+   "key": "exam2.tabSwitches",
+   "args": [
+    1234567
+   ],
+   "out": "Left the test: 1234567/3"
+  },
+  {
+   "lang": "en",
+   "key": "exam2.tabSwitches",
+   "args": [
+    1234567
+   ],
+   "out": "Left the test: 1234567/3"
+  },
+  {
+   "lang": "en",
+   "key": "exam2.tabSwitches",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Left the test: Rahim Uddin/3"
+  },
+  {
+   "lang": "en",
+   "key": "exam2.tabSwitches",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Left the test: Rahim Uddin/3"
+  },
+  {
    "lang": "bn",
    "key": "app.hello",
    "args": [
@@ -25619,6 +26111,102 @@
     "Rahim Uddin"
    ],
    "out": "Rahim Uddinটি পরিবর্তন ইন্টারনেটের অপেক্ষায়"
+  },
+  {
+   "lang": "bn",
+   "key": "app.logOutWaiting",
+   "args": [
+    0
+   ],
+   "out": "০টি পরিবর্তন এখনো পাঠানো হয়নি। এখন লগ আউট করলে এগুলো এই ফোন থেকে মুছে যাবে। তবুও লগ আউট করবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "app.logOutWaiting",
+   "args": [
+    0
+   ],
+   "out": "০টি পরিবর্তন এখনো পাঠানো হয়নি। এখন লগ আউট করলে এগুলো এই ফোন থেকে মুছে যাবে। তবুও লগ আউট করবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "app.logOutWaiting",
+   "args": [
+    1
+   ],
+   "out": "১টি পরিবর্তন এখনো পাঠানো হয়নি। এখন লগ আউট করলে এগুলো এই ফোন থেকে মুছে যাবে। তবুও লগ আউট করবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "app.logOutWaiting",
+   "args": [
+    1
+   ],
+   "out": "১টি পরিবর্তন এখনো পাঠানো হয়নি। এখন লগ আউট করলে এগুলো এই ফোন থেকে মুছে যাবে। তবুও লগ আউট করবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "app.logOutWaiting",
+   "args": [
+    2
+   ],
+   "out": "২টি পরিবর্তন এখনো পাঠানো হয়নি। এখন লগ আউট করলে এগুলো এই ফোন থেকে মুছে যাবে। তবুও লগ আউট করবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "app.logOutWaiting",
+   "args": [
+    2
+   ],
+   "out": "২টি পরিবর্তন এখনো পাঠানো হয়নি। এখন লগ আউট করলে এগুলো এই ফোন থেকে মুছে যাবে। তবুও লগ আউট করবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "app.logOutWaiting",
+   "args": [
+    12
+   ],
+   "out": "১২টি পরিবর্তন এখনো পাঠানো হয়নি। এখন লগ আউট করলে এগুলো এই ফোন থেকে মুছে যাবে। তবুও লগ আউট করবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "app.logOutWaiting",
+   "args": [
+    12
+   ],
+   "out": "১২টি পরিবর্তন এখনো পাঠানো হয়নি। এখন লগ আউট করলে এগুলো এই ফোন থেকে মুছে যাবে। তবুও লগ আউট করবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "app.logOutWaiting",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭টি পরিবর্তন এখনো পাঠানো হয়নি। এখন লগ আউট করলে এগুলো এই ফোন থেকে মুছে যাবে। তবুও লগ আউট করবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "app.logOutWaiting",
+   "args": [
+    1234567
+   ],
+   "out": "১২,৩৪,৫৬৭টি পরিবর্তন এখনো পাঠানো হয়নি। এখন লগ আউট করলে এগুলো এই ফোন থেকে মুছে যাবে। তবুও লগ আউট করবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "app.logOutWaiting",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddinটি পরিবর্তন এখনো পাঠানো হয়নি। এখন লগ আউট করলে এগুলো এই ফোন থেকে মুছে যাবে। তবুও লগ আউট করবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "app.logOutWaiting",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "Rahim Uddinটি পরিবর্তন এখনো পাঠানো হয়নি। এখন লগ আউট করলে এগুলো এই ফোন থেকে মুছে যাবে। তবুও লগ আউট করবেন?"
   },
   {
    "lang": "bn",
@@ -30959,6 +31547,114 @@
     "৳1,500"
    ],
    "out": "৳1,500 খুলে Batch A নম্বরে Rahim Uddin Send Money করুন।"
+  },
+  {
+   "lang": "bn",
+   "key": "pay.sentWaiting",
+   "args": [
+    0,
+    3
+   ],
+   "out": "পাঠানো হয়েছে ✓ আপনার 0 প্যাক 3 পর্যন্ত চলবে, তাই এটি অপেক্ষায় থাকবে: সেটি শেষ হলে আমরা এটি চালু করব, অথবা টাকা ফেরত পাঠাব।"
+  },
+  {
+   "lang": "bn",
+   "key": "pay.sentWaiting",
+   "args": [
+    0,
+    "Batch A"
+   ],
+   "out": "পাঠানো হয়েছে ✓ আপনার 0 প্যাক Batch A পর্যন্ত চলবে, তাই এটি অপেক্ষায় থাকবে: সেটি শেষ হলে আমরা এটি চালু করব, অথবা টাকা ফেরত পাঠাব।"
+  },
+  {
+   "lang": "bn",
+   "key": "pay.sentWaiting",
+   "args": [
+    1,
+    3
+   ],
+   "out": "পাঠানো হয়েছে ✓ আপনার 1 প্যাক 3 পর্যন্ত চলবে, তাই এটি অপেক্ষায় থাকবে: সেটি শেষ হলে আমরা এটি চালু করব, অথবা টাকা ফেরত পাঠাব।"
+  },
+  {
+   "lang": "bn",
+   "key": "pay.sentWaiting",
+   "args": [
+    1,
+    "Batch A"
+   ],
+   "out": "পাঠানো হয়েছে ✓ আপনার 1 প্যাক Batch A পর্যন্ত চলবে, তাই এটি অপেক্ষায় থাকবে: সেটি শেষ হলে আমরা এটি চালু করব, অথবা টাকা ফেরত পাঠাব।"
+  },
+  {
+   "lang": "bn",
+   "key": "pay.sentWaiting",
+   "args": [
+    2,
+    3
+   ],
+   "out": "পাঠানো হয়েছে ✓ আপনার 2 প্যাক 3 পর্যন্ত চলবে, তাই এটি অপেক্ষায় থাকবে: সেটি শেষ হলে আমরা এটি চালু করব, অথবা টাকা ফেরত পাঠাব।"
+  },
+  {
+   "lang": "bn",
+   "key": "pay.sentWaiting",
+   "args": [
+    2,
+    "Batch A"
+   ],
+   "out": "পাঠানো হয়েছে ✓ আপনার 2 প্যাক Batch A পর্যন্ত চলবে, তাই এটি অপেক্ষায় থাকবে: সেটি শেষ হলে আমরা এটি চালু করব, অথবা টাকা ফেরত পাঠাব।"
+  },
+  {
+   "lang": "bn",
+   "key": "pay.sentWaiting",
+   "args": [
+    12,
+    3
+   ],
+   "out": "পাঠানো হয়েছে ✓ আপনার 12 প্যাক 3 পর্যন্ত চলবে, তাই এটি অপেক্ষায় থাকবে: সেটি শেষ হলে আমরা এটি চালু করব, অথবা টাকা ফেরত পাঠাব।"
+  },
+  {
+   "lang": "bn",
+   "key": "pay.sentWaiting",
+   "args": [
+    12,
+    "Batch A"
+   ],
+   "out": "পাঠানো হয়েছে ✓ আপনার 12 প্যাক Batch A পর্যন্ত চলবে, তাই এটি অপেক্ষায় থাকবে: সেটি শেষ হলে আমরা এটি চালু করব, অথবা টাকা ফেরত পাঠাব।"
+  },
+  {
+   "lang": "bn",
+   "key": "pay.sentWaiting",
+   "args": [
+    1234567,
+    3
+   ],
+   "out": "পাঠানো হয়েছে ✓ আপনার 1234567 প্যাক 3 পর্যন্ত চলবে, তাই এটি অপেক্ষায় থাকবে: সেটি শেষ হলে আমরা এটি চালু করব, অথবা টাকা ফেরত পাঠাব।"
+  },
+  {
+   "lang": "bn",
+   "key": "pay.sentWaiting",
+   "args": [
+    1234567,
+    "Batch A"
+   ],
+   "out": "পাঠানো হয়েছে ✓ আপনার 1234567 প্যাক Batch A পর্যন্ত চলবে, তাই এটি অপেক্ষায় থাকবে: সেটি শেষ হলে আমরা এটি চালু করব, অথবা টাকা ফেরত পাঠাব।"
+  },
+  {
+   "lang": "bn",
+   "key": "pay.sentWaiting",
+   "args": [
+    "Rahim Uddin",
+    3
+   ],
+   "out": "পাঠানো হয়েছে ✓ আপনার Rahim Uddin প্যাক 3 পর্যন্ত চলবে, তাই এটি অপেক্ষায় থাকবে: সেটি শেষ হলে আমরা এটি চালু করব, অথবা টাকা ফেরত পাঠাব।"
+  },
+  {
+   "lang": "bn",
+   "key": "pay.sentWaiting",
+   "args": [
+    "Rahim Uddin",
+    "Batch A"
+   ],
+   "out": "পাঠানো হয়েছে ✓ আপনার Rahim Uddin প্যাক Batch A পর্যন্ত চলবে, তাই এটি অপেক্ষায় থাকবে: সেটি শেষ হলে আমরা এটি চালু করব, অথবা টাকা ফেরত পাঠাব।"
   },
   {
    "lang": "bn",
@@ -39359,6 +40055,102 @@
     "Batch A"
    ],
    "out": "শেষ · Rahim Uddin/Batch A"
+  },
+  {
+   "lang": "bn",
+   "key": "rubric.tooMany",
+   "args": [
+    0
+   ],
+   "out": "মানদণ্ডগুলোর মোট নম্বর এই কাজের ০ নম্বরের বেশি।"
+  },
+  {
+   "lang": "bn",
+   "key": "rubric.tooMany",
+   "args": [
+    0
+   ],
+   "out": "মানদণ্ডগুলোর মোট নম্বর এই কাজের ০ নম্বরের বেশি।"
+  },
+  {
+   "lang": "bn",
+   "key": "rubric.tooMany",
+   "args": [
+    1
+   ],
+   "out": "মানদণ্ডগুলোর মোট নম্বর এই কাজের ১ নম্বরের বেশি।"
+  },
+  {
+   "lang": "bn",
+   "key": "rubric.tooMany",
+   "args": [
+    1
+   ],
+   "out": "মানদণ্ডগুলোর মোট নম্বর এই কাজের ১ নম্বরের বেশি।"
+  },
+  {
+   "lang": "bn",
+   "key": "rubric.tooMany",
+   "args": [
+    2
+   ],
+   "out": "মানদণ্ডগুলোর মোট নম্বর এই কাজের ২ নম্বরের বেশি।"
+  },
+  {
+   "lang": "bn",
+   "key": "rubric.tooMany",
+   "args": [
+    2
+   ],
+   "out": "মানদণ্ডগুলোর মোট নম্বর এই কাজের ২ নম্বরের বেশি।"
+  },
+  {
+   "lang": "bn",
+   "key": "rubric.tooMany",
+   "args": [
+    12
+   ],
+   "out": "মানদণ্ডগুলোর মোট নম্বর এই কাজের ১২ নম্বরের বেশি।"
+  },
+  {
+   "lang": "bn",
+   "key": "rubric.tooMany",
+   "args": [
+    12
+   ],
+   "out": "মানদণ্ডগুলোর মোট নম্বর এই কাজের ১২ নম্বরের বেশি।"
+  },
+  {
+   "lang": "bn",
+   "key": "rubric.tooMany",
+   "args": [
+    1234567
+   ],
+   "out": "মানদণ্ডগুলোর মোট নম্বর এই কাজের ১২,৩৪,৫৬৭ নম্বরের বেশি।"
+  },
+  {
+   "lang": "bn",
+   "key": "rubric.tooMany",
+   "args": [
+    1234567
+   ],
+   "out": "মানদণ্ডগুলোর মোট নম্বর এই কাজের ১২,৩৪,৫৬৭ নম্বরের বেশি।"
+  },
+  {
+   "lang": "bn",
+   "key": "rubric.tooMany",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "মানদণ্ডগুলোর মোট নম্বর এই কাজের Rahim Uddin নম্বরের বেশি।"
+  },
+  {
+   "lang": "bn",
+   "key": "rubric.tooMany",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "মানদণ্ডগুলোর মোট নম্বর এই কাজের Rahim Uddin নম্বরের বেশি।"
   },
   {
    "lang": "bn",
@@ -47855,6 +48647,198 @@
     "Rahim Uddin"
    ],
    "out": "“Rahim Uddin” ঘোষণাটি মুছে ফেলবেন?"
+  },
+  {
+   "lang": "bn",
+   "key": "exam2.negativeNote",
+   "args": [
+    0
+   ],
+   "out": "নেগেটিভ মার্কিং: প্রতিটি ভুল উত্তরে −0। নিশ্চিত না হলে প্রশ্নটি ফাঁকা রাখুন।"
+  },
+  {
+   "lang": "bn",
+   "key": "exam2.negativeNote",
+   "args": [
+    0
+   ],
+   "out": "নেগেটিভ মার্কিং: প্রতিটি ভুল উত্তরে −0। নিশ্চিত না হলে প্রশ্নটি ফাঁকা রাখুন।"
+  },
+  {
+   "lang": "bn",
+   "key": "exam2.negativeNote",
+   "args": [
+    1
+   ],
+   "out": "নেগেটিভ মার্কিং: প্রতিটি ভুল উত্তরে −1। নিশ্চিত না হলে প্রশ্নটি ফাঁকা রাখুন।"
+  },
+  {
+   "lang": "bn",
+   "key": "exam2.negativeNote",
+   "args": [
+    1
+   ],
+   "out": "নেগেটিভ মার্কিং: প্রতিটি ভুল উত্তরে −1। নিশ্চিত না হলে প্রশ্নটি ফাঁকা রাখুন।"
+  },
+  {
+   "lang": "bn",
+   "key": "exam2.negativeNote",
+   "args": [
+    2
+   ],
+   "out": "নেগেটিভ মার্কিং: প্রতিটি ভুল উত্তরে −2। নিশ্চিত না হলে প্রশ্নটি ফাঁকা রাখুন।"
+  },
+  {
+   "lang": "bn",
+   "key": "exam2.negativeNote",
+   "args": [
+    2
+   ],
+   "out": "নেগেটিভ মার্কিং: প্রতিটি ভুল উত্তরে −2। নিশ্চিত না হলে প্রশ্নটি ফাঁকা রাখুন।"
+  },
+  {
+   "lang": "bn",
+   "key": "exam2.negativeNote",
+   "args": [
+    12
+   ],
+   "out": "নেগেটিভ মার্কিং: প্রতিটি ভুল উত্তরে −12। নিশ্চিত না হলে প্রশ্নটি ফাঁকা রাখুন।"
+  },
+  {
+   "lang": "bn",
+   "key": "exam2.negativeNote",
+   "args": [
+    12
+   ],
+   "out": "নেগেটিভ মার্কিং: প্রতিটি ভুল উত্তরে −12। নিশ্চিত না হলে প্রশ্নটি ফাঁকা রাখুন।"
+  },
+  {
+   "lang": "bn",
+   "key": "exam2.negativeNote",
+   "args": [
+    1234567
+   ],
+   "out": "নেগেটিভ মার্কিং: প্রতিটি ভুল উত্তরে −1234567। নিশ্চিত না হলে প্রশ্নটি ফাঁকা রাখুন।"
+  },
+  {
+   "lang": "bn",
+   "key": "exam2.negativeNote",
+   "args": [
+    1234567
+   ],
+   "out": "নেগেটিভ মার্কিং: প্রতিটি ভুল উত্তরে −1234567। নিশ্চিত না হলে প্রশ্নটি ফাঁকা রাখুন।"
+  },
+  {
+   "lang": "bn",
+   "key": "exam2.negativeNote",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "নেগেটিভ মার্কিং: প্রতিটি ভুল উত্তরে −Rahim Uddin। নিশ্চিত না হলে প্রশ্নটি ফাঁকা রাখুন।"
+  },
+  {
+   "lang": "bn",
+   "key": "exam2.negativeNote",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "নেগেটিভ মার্কিং: প্রতিটি ভুল উত্তরে −Rahim Uddin। নিশ্চিত না হলে প্রশ্নটি ফাঁকা রাখুন।"
+  },
+  {
+   "lang": "bn",
+   "key": "exam2.tabSwitches",
+   "args": [
+    0
+   ],
+   "out": "পরীক্ষা থেকে বের হয়েছ: 0/৩"
+  },
+  {
+   "lang": "bn",
+   "key": "exam2.tabSwitches",
+   "args": [
+    0
+   ],
+   "out": "পরীক্ষা থেকে বের হয়েছ: 0/৩"
+  },
+  {
+   "lang": "bn",
+   "key": "exam2.tabSwitches",
+   "args": [
+    1
+   ],
+   "out": "পরীক্ষা থেকে বের হয়েছ: 1/৩"
+  },
+  {
+   "lang": "bn",
+   "key": "exam2.tabSwitches",
+   "args": [
+    1
+   ],
+   "out": "পরীক্ষা থেকে বের হয়েছ: 1/৩"
+  },
+  {
+   "lang": "bn",
+   "key": "exam2.tabSwitches",
+   "args": [
+    2
+   ],
+   "out": "পরীক্ষা থেকে বের হয়েছ: 2/৩"
+  },
+  {
+   "lang": "bn",
+   "key": "exam2.tabSwitches",
+   "args": [
+    2
+   ],
+   "out": "পরীক্ষা থেকে বের হয়েছ: 2/৩"
+  },
+  {
+   "lang": "bn",
+   "key": "exam2.tabSwitches",
+   "args": [
+    12
+   ],
+   "out": "পরীক্ষা থেকে বের হয়েছ: 12/৩"
+  },
+  {
+   "lang": "bn",
+   "key": "exam2.tabSwitches",
+   "args": [
+    12
+   ],
+   "out": "পরীক্ষা থেকে বের হয়েছ: 12/৩"
+  },
+  {
+   "lang": "bn",
+   "key": "exam2.tabSwitches",
+   "args": [
+    1234567
+   ],
+   "out": "পরীক্ষা থেকে বের হয়েছ: 1234567/৩"
+  },
+  {
+   "lang": "bn",
+   "key": "exam2.tabSwitches",
+   "args": [
+    1234567
+   ],
+   "out": "পরীক্ষা থেকে বের হয়েছ: 1234567/৩"
+  },
+  {
+   "lang": "bn",
+   "key": "exam2.tabSwitches",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "পরীক্ষা থেকে বের হয়েছ: Rahim Uddin/৩"
+  },
+  {
+   "lang": "bn",
+   "key": "exam2.tabSwitches",
+   "args": [
+    "Rahim Uddin"
+   ],
+   "out": "পরীক্ষা থেকে বের হয়েছ: Rahim Uddin/৩"
   }
  ],
  "now": "2026-11-22T10:30",

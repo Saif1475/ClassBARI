@@ -64,7 +64,7 @@ export type Ask = {
 export type Answered = { usage: { input_tokens: number; output_tokens: number; cache_read_input_tokens?: number | null; cache_creation_input_tokens?: number | null }; declined: boolean; cut: boolean };
 
 /** Pull the text pieces and the token count out of an OpenAI-style event stream. Exported for the unit test. */
-export async function readSse(body: ReadableStream<Uint8Array>, onText: (t: string) => void) {
+export async function readSse(body: ReadableStream<Uint8Array>, onText: (t: string) => void, onThink: (t: string) => void = () => {}) {
   const out = { input: 0, output: 0, cached: 0, finish: "" };
   const dec = new TextDecoder();
   let buf = "";
@@ -77,7 +77,7 @@ export async function readSse(body: ReadableStream<Uint8Array>, onText: (t: stri
     for (const line of lines) {
       const data = line.startsWith("data:") ? line.slice(5).trim() : "";
       if (!data || data === "[DONE]") continue;
-      let ev: { choices?: { delta?: { content?: unknown }; finish_reason?: string | null }[]; usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number; prompt_tokens_details?: { cached_tokens?: number } | null; prompt_cache_hit_tokens?: number } | null };
+      let ev: { choices?: { delta?: { content?: unknown; reasoning?: unknown; reasoning_content?: unknown }; finish_reason?: string | null }[]; usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number; prompt_tokens_details?: { cached_tokens?: number } | null; prompt_cache_hit_tokens?: number } | null };
       try {
         ev = JSON.parse(data);
       } catch {
@@ -85,6 +85,9 @@ export async function readSse(body: ReadableStream<Uint8Array>, onText: (t: stri
       }
       const c = ev.choices?.[0];
       if (typeof c?.delta?.content === "string" && c.delta.content) onText(c.delta.content);
+      // The hidden thinking (OpenRouter: reasoning, Qwen: reasoning_content) is billed too, so a broken answer still counts it.
+      const th = c?.delta?.reasoning ?? c?.delta?.reasoning_content;
+      if (typeof th === "string" && th) onThink(th);
       if (c?.finish_reason) out.finish = c.finish_reason;
       if (ev.usage) {
         out.input = ev.usage.prompt_tokens ?? 0;
@@ -102,8 +105,22 @@ export async function readSse(body: ReadableStream<Uint8Array>, onText: (t: stri
 /** Models that refused the thinking setting (HTTP 400) since the server started. */
 const noThink = new Set<string>();
 
-/** Ask the model; `onText` gets the answer piece by piece. Throws when the provider can't be reached or refuses the request. */
+/** Ask the model; `onText` gets the answer piece by piece. Throws when the provider can't be reached or refuses the request.
+ * An answer that breaks off partway throws with `usage` (an estimate) on the error: the provider bills what it wrote, so the routes still count it. */
 export async function streamChat(ask: Ask, onText: (t: string) => void): Promise<Answered> {
+  let chars = 0; // the answer and the hidden thinking so far: both are billed as answer
+  try {
+    return await askModel(ask, (t) => ((chars += t.length), onText(t)), (t) => (chars += t.length));
+  } catch (e) {
+    // shortcut: charged by length like a provider that sends no count (about 2 characters a token for Bangla); the instructions and
+    // lesson count too (the provider read them), a cached block at its cheap cached price. Upgrade if a provider reports usage on errors.
+    const sys = (c: boolean) => Math.ceil(ask.system.filter((b) => !!b.cache === c).reduce((n, b) => n + b.text.length, 0) / 2);
+    if (chars) throw Object.assign(e instanceof Error ? e : new Error(String(e)), { usage: { input_tokens: Math.ceil(JSON.stringify(ask.messages).length / 2) + sys(false), cache_read_input_tokens: sys(true), output_tokens: Math.ceil(chars / 2) } });
+    throw e;
+  }
+}
+
+async function askModel(ask: Ask, onText: (t: string) => void, onThink: (t: string) => void): Promise<Answered> {
   const last = ask.messages.length - 1;
   if (providerOf(ask.model) === "anthropic") {
     const stream = new Anthropic().beta.messages.stream({
@@ -121,7 +138,11 @@ export async function streamChat(ask: Ask, onText: (t: string) => void): Promise
             : m,
       ),
     });
-    for await (const ev of stream) if (ev.type === "content_block_delta" && ev.delta.type === "text_delta") onText(ev.delta.text);
+    for await (const ev of stream) {
+      if (ev.type !== "content_block_delta") continue;
+      if (ev.delta.type === "text_delta") onText(ev.delta.text);
+      else if (ev.delta.type === "thinking_delta") onThink(ev.delta.thinking); // billed too: counted if the answer breaks off
+    }
     const final = await stream.finalMessage();
     return { usage: final.usage, declined: final.stop_reason === "refusal", cut: final.stop_reason === "max_tokens" };
   }
@@ -129,7 +150,8 @@ export async function streamChat(ask: Ask, onText: (t: string) => void): Promise
   const send = (think: boolean) => fetch(`${url}/chat/completions`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env[key]}` },
-    signal: AbortSignal.timeout(120_000),
+    // The timer also covers reading the streamed answer, so it allows the longest answer at a slow 25 tokens a second.
+    signal: AbortSignal.timeout(Math.max(120_000, ask.maxTokens * 2 * 40)),
     body: JSON.stringify({
       // Little hidden thinking: it is billed as answer and counts against the student, while chat questions rarely need much.
       ...(think ? thinkFor(ask.model, ask.think) : {}),
@@ -154,7 +176,7 @@ export async function streamChat(ask: Ask, onText: (t: string) => void): Promise
   if (res.status === 400 && !noThink.has(ask.model)) (noThink.add(ask.model), await res.body?.cancel(), (res = await send(false)));
   if (!res.ok || !res.body) throw new Error(`${ask.model}: HTTP ${res.status}`);
   let chars = 0;
-  const r = await readSse(res.body, (t) => ((chars += t.length), onText(t)));
+  const r = await readSse(res.body, (t) => ((chars += t.length), onText(t)), onThink);
   // shortcut: a provider that sends no token count is charged by length (about 2 characters a token for Bangla) plus the question.
   const usage = r.input || r.output ? { input_tokens: r.input - r.cached, cache_read_input_tokens: r.cached, output_tokens: r.output } : { input_tokens: Math.ceil(JSON.stringify(ask.messages).length / 2), output_tokens: Math.ceil(chars / 2) };
   return { usage, declined: r.finish === "content_filter", cut: r.finish === "length" };

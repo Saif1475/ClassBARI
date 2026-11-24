@@ -15,6 +15,8 @@ export const normEmail = (email: string) => email.trim().toLowerCase();
 /** The inbox a Gmail address reaches: Gmail ignores dots and anything after "+" (a.b+x@ is ab@). For "already used" checks. */
 export const inbox = (email: string) => normEmail(email).replace(/^([^@]+)@gmail\.com$/, (_, local: string) => `${local.split("+")[0].replace(/\./g, "")}@gmail.com`);
 
+/** The name to greet someone by: the first word, skipping a leading "Md."/"Mst." (so "Md. Rahim Uddin" is "Rahim", not "Md."). */
+export const firstName = (name: string) => { const w = name.trim().split(/\s+/); return (w.length > 1 && /^(md|mst)\.?$/i.test(w[0]) ? w[1] : w[0]) ?? ""; };
 /** Valid BD mobile: 01[3-9] + 8 digits, optional +88 / 88 prefix. */
 export const isBdMobile = (phone: string) => /^(?:\+?88)?01[3-9]\d{8}$/.test(phone.replace(/[\s-]/g, ""));
 

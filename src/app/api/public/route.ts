@@ -1,5 +1,5 @@
 import { REAL_AUTH } from "@/lib/auth-mode";
-import { applyCoupon } from "@/lib/centre";
+import { applyCoupon, orderPrice } from "@/lib/centre";
 import { publicView } from "@/lib/data-access";
 import { act, loadPart, publicDocs } from "@/lib/data-server";
 import { dayKey } from "@/lib/dates";
@@ -63,7 +63,8 @@ export async function POST(request: Request) {
   const me = { institute: doc.institute, who: { role: "owner" as const, name: "", studentIds: [] } }; // acting for the institute, after the checks here
 
   if (body.kind === "coupon") {
-    const r = applyCoupon(batch.fee, String(body.code ?? ""), (await loadPart(doc.institute, "coupons")).coupons, batchId, dayKey());
+    const part = await loadPart(doc.institute, "coupons", "orders"); // count waiting orders too, the same rule the order below uses
+    const r = applyCoupon(batch.fee, String(body.code ?? ""), part.coupons, batchId, dayKey(), part.orders);
     return Response.json("error" in r ? { error: r.error } : { price: r.price, code: r.coupon.code });
   }
 
@@ -87,15 +88,19 @@ export async function POST(request: Request) {
     const trxId = String(body.trxId ?? "").trim().toUpperCase();
     if (!/^[A-Z0-9]{6,20}$/.test(trxId)) return Response.json({ error: "bad trxId" }, { status: 400 });
     let ok = false;
+    let couponError = "";
     await act(me, "placeOrder", [], Date.now(), (s) => {
+      ok = false; couponError = ""; // act may run this again after a clash: only the last run counts
       if (!s.site.bkash || !batch.public) return null;
       if (s.orders.filter((o) => o.status === "pending").length >= 300 || s.orders.some((o) => o.trxId === trxId)) return null; // a pile of fake orders, or the same payment twice
       const code = typeof body.coupon === "string" ? body.coupon : "";
-      const r = code ? applyCoupon(batch.fee, code, s.coupons, batchId, dayKey(), s.orders) : null;
-      ok = true;
       // The price is worked out here, never taken from the browser.
-      return [{ batchId, student, price: r && !("error" in r) ? r.price : batch.fee, coupon: r && !("error" in r) ? r.coupon.code : undefined, trxId }];
+      const r = orderPrice(batch.fee, code, s.coupons, batchId, dayKey(), s.orders);
+      if ("error" in r) return ((couponError = r.error), null); // e.g. another order took the last use since Apply: say so, don't save it at full price
+      ok = true;
+      return [{ batchId, student, price: r.price, coupon: r.coupon, trxId }];
     });
+    if (couponError) return Response.json({ error: couponError }, { status: 409 });
     return ok ? Response.json({ ok: true }) : Response.json({ error: "no bKash" }, { status: 400 });
   }
   return Response.json({ error: "bad request" }, { status: 400 });

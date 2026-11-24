@@ -13,7 +13,7 @@ export function RoutineTool({ batchNames }: ToolProps) {
   const R = t.routine;
   const lms = useLms();
   const slots = lms.routine.filter((s) => batchNames.includes(s.batch));
-  const problems = clashes(slots);
+  const problems = clashes(lms.routine, batchNames); // the whole routine, so a room or teacher double-booked with a colleague's batch is caught too
   const [f, setF] = useState({ day: "6", start: "16:00", end: "17:30", batch: batchNames[0] ?? "", teacher: lms.staff[0]?.name ?? "", room: "Room 1" });
   const up = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setF({ ...f, [k]: e.target.value });
 

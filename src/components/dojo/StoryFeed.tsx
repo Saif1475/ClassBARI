@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Icon } from "@/components/Icon";
 import { useLang } from "@/lib/i18n/LanguageProvider";
 import { fmtWhen } from "@/lib/dates";
-import { uploadData } from "@/lib/files";
+import { isPhoto, uploadData } from "@/lib/files";
 import { useLms } from "@/lib/lms-store";
 
 /** Class story: the teacher posts updates (text + optional photo); students and parents of the batch see them. */
@@ -45,7 +45,7 @@ export function StoryFeed({ batch, canPost, onPosted }: { batch: string; canPost
                 const f = e.target.files?.[0];
                 if (!f) return setImage(undefined);
                 const data = await uploadData(f);
-                if (!data) return setError(t.sub.tooBig);
+                if (!data) return setError(isPhoto(f) ? t.sub.badPhoto : t.sub.tooBig);
                 setError("");
                 setImage(data);
               }}

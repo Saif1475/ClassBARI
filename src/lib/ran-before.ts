@@ -14,11 +14,13 @@ const ran = new Map<string, Set<string>>();
  * opened before it did that (there, changes that made no new id shared a base).
  */
 export const changeKey = (who: { role: string; email?: string; studentIds: number[] }, name: string, args: unknown[], base: number) =>
-  createHash("sha256").update(JSON.stringify([who.role, who.email ?? "", who.studentIds, base, name, args])).digest("base64");
+  // No email: the server acting for the institute (joins, orders, admin approvals), whose details are not in args, so two in one millisecond look alike; never a resend.
+  who.email ? createHash("sha256").update(JSON.stringify([who.role, who.email, who.studentIds, base, name, args])).digest("base64") : null;
 
-export const ranBefore = (institute: string, change: string) => !!ran.get(institute)?.has(change);
+export const ranBefore = (institute: string, change: string | null) => !!change && !!ran.get(institute)?.has(change);
 
-export function ranNow(institute: string, change: string) {
+export function ranNow(institute: string, change: string | null) {
+  if (!change) return;
   const mine = ran.get(institute) ?? new Set<string>();
   ran.delete(institute); // the newest last, so the institute quiet the longest goes first when the memory is full
   ran.set(institute, mine);

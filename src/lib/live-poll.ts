@@ -1,6 +1,8 @@
 // Live class poll: one active poll per batch, one vote per student device. Pure rules (scripts/live-poll.test.mjs);
 // the server keeps polls in memory (src/app/api/poll/route.ts), like the live quiz game.
 
+import { createHash } from "node:crypto";
+
 export type Poll = { id: string; batch: string; question: string; options: string[]; correct: number; votes: Record<string, number>; at: number };
 
 const str = (v: unknown, max: number) => (typeof v === "string" && v.trim() && v.length <= max ? v.trim() : null);
@@ -22,6 +24,9 @@ export function vote(p: Poll, pollId: unknown, voter: unknown, option: unknown):
   p.votes[voter] = option as number;
   return { ok: true };
 }
+
+/** The key a vote is kept under: the signed-in person when known (a made-up device id can't vote twice or peek at the answer), else the device id sent. */
+export const voterOf = (person: string | undefined, sent: unknown) => (person ? `p-${createHash("sha256").update(person).digest("hex").slice(0, 40)}` : sent);
 
 /** What a viewer may see: counts always; the right answer only for staff or after this device has voted. */
 export function pollView(p: Poll, viewer: { staff: boolean; voter?: string }) {

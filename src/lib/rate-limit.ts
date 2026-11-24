@@ -2,16 +2,22 @@
 // No imports: also loaded by scripts/rate-limit.test.mjs.
 // shortcut: counted in this server's memory, so it resets on restart and isn't shared between servers; move to Redis if we run several.
 type Hit = { n: number; reset: number };
+let lastSweep = -Infinity;
 const hits = ((globalThis as { __classbariHits?: Map<string, Hit> }).__classbariHits ??= new Map<string, Hit>());
+const guards = ((globalThis as { __classbariGuards?: Map<string, Hit> }).__classbariGuards ??= new Map<string, Hit>()); // the admin-guess lockout lives apart, so a flood of other keys can never push it out
 
 /** Counts one more use of `key` (or `add = 0` to only look) and says whether it is over `max` for the current window. */
 export function tooMany(key: string, max: number, windowMs: number, now = Date.now(), add = 1) {
-  const h = hits.get(key);
+  const map = key.startsWith("admin-fail:") ? guards : hits;
+  const h = map.get(key);
   if (!h || h.reset <= now) {
+    if ((hits.size > 20_000 || guards.size > 20_000) && Math.abs(now - lastSweep) > 1000) { lastSweep = now; for (const m of [hits, guards]) for (const [k, v] of m) if (v.reset <= now) m.delete(k); } // at most once a second: a scan per request would be slow under a flood
+    if (!h && map.size >= 50_000) {
+      if (map === guards) return true; // full of admin guesses from many addresses: refuse (a look too) rather than let a new address guess uncounted
+      if (add) hits.delete(hits.keys().next().value as string); // full under a flood: forget the oldest counter, so the site keeps working for everyone else
+    }
     if (!add) return false;
-    if (hits.size > 20_000) for (const [k, v] of hits) if (v.reset <= now) hits.delete(k);
-    if (hits.size > 50_000) hits.clear(); // under a flood from many addresses: forget rather than run out of memory
-    hits.set(key, { n: add, reset: now + windowMs });
+    map.set(key, { n: add, reset: now + windowMs });
     return add > max;
   }
   h.n += add;
@@ -24,7 +30,16 @@ export function tooMany(key: string, max: number, windowMs: number, now = Date.n
  * X-Forwarded-For, the one our own proxy appended (the entries before it are whatever the sender wrote).
  */
 export const clientIp = (request: Request) =>
-  (process.env.BEHIND_CLOUDFLARE === "1" && request.headers.get("cf-connecting-ip")) || request.headers.get("x-forwarded-for")?.split(",").pop()?.trim() || "local";
+  per64((process.env.BEHIND_CLOUDFLARE === "1" && request.headers.get("cf-connecting-ip")) || request.headers.get("x-forwarded-for")?.split(",").pop()?.trim() || "local");
+
+/** An IPv6 address cut to its /64: one home or VM owns the whole /64, so each of its 2^64 addresses must share one limit. */
+function per64(ip: string) {
+  if (!ip.includes(":") || ip.includes(".")) return ip; // IPv4 (and IPv4-mapped IPv6) stays as it is
+  const [head, tail] = ip.toLowerCase().split("%")[0].split("::");
+  const a = head ? head.split(":") : [], b = tail ? tail.split(":") : [];
+  const groups = tail === undefined ? a : [...a, ...Array(Math.max(0, 8 - a.length - b.length)).fill("0"), ...b]; // fill in the "::" gap to 8 groups
+  return groups.slice(0, 4).map((g) => g.replace(/^0+(?=.)/, "")).join(":") + "::/64";
+}
 
 /** A "too many requests" answer when this visitor (or `who`) is over the limit for `name`; null when fine. */
 export function limited(request: Request, name: string, max: number, windowMs: number, who?: string) {

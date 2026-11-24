@@ -8,17 +8,18 @@ export type PdfTurn = { role: "user" | "assistant"; content: string; photo?: boo
 export const PDF_TURNS_MAX = 200;
 export const PDF_TEXT_MAX = 300_000;
 
-/** The turns as sent, checked: at most 200, at most 300,000 letters in all; null when not usable. */
+/** The turns as sent, checked; a long chat keeps its newest turns that fit (at most 200, 300,000 letters); null when not usable. */
 export function pdfTurns(raw: unknown): PdfTurn[] | null {
-  if (!Array.isArray(raw) || !raw.length || raw.length > PDF_TURNS_MAX) return null;
+  if (!Array.isArray(raw) || !raw.length) return null;
   let total = 0;
   const out: PdfTurn[] = [];
-  for (const t of raw) {
-    if (!t || (t.role !== "user" && t.role !== "assistant") || typeof t.content !== "string") return null;
-    total += t.content.length;
-    out.push({ role: t.role, content: t.content, ...(t.photo === true ? { photo: true } : {}) });
+  for (const t of raw) if (!t || (t.role !== "user" && t.role !== "assistant") || typeof t.content !== "string") return null;
+  for (let i = raw.length - 1; i >= 0 && out.length < PDF_TURNS_MAX; i--) {
+    const t = raw[i];
+    if ((total += t.content.length) > PDF_TEXT_MAX) break;
+    out.unshift({ role: t.role, content: t.content, ...(t.photo === true ? { photo: true } : {}) });
   }
-  return total <= PDF_TEXT_MAX ? out : null;
+  return out.length ? out : null;
 }
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");

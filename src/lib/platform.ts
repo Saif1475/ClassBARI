@@ -1,7 +1,7 @@
 // Instanton Campus platform data run by our own staff (admin panel): institutes, support tickets,
 // announcements, feature switches, plan prices and an activity log. Pure functions only
 // (also loaded by scripts/platform.test.mjs); saving happens in src/lib/platform-server.ts.
-import { MODELS, PACKS, PROVIDERS, type AiSettings } from "./ai-chat.ts";
+import { aiWindow, MODELS, PACKS, PROVIDERS, type AiSettings } from "./ai-chat.ts";
 
 export type Plan = "free" | "basic" | "pro";
 export type InstituteStatus = "trial" | "active" | "suspended";
@@ -304,11 +304,12 @@ export function checkSms(p: Platform, to: unknown, text: unknown, now: Date, ins
   if (!Array.isArray(to) || to.length === 0 || to.length > SMS_MAX_PER_REQUEST) return { error: "bad recipients" };
   const numbers = [...new Set(to.map((x) => (typeof x === "string" ? bdMobile(x) : null)))];
   if (numbers.includes(null)) return { error: "bad number" };
-  const today = now.toISOString().slice(0, 10);
-  const used = p.smsLog.filter((e) => e.at.startsWith(today) && e.status !== "failed").length;
+  // Days are Dhaka days (midnight to midnight UTC+6), whatever zone the server runs in.
+  const today = aiWindow(now).day, isToday = (at: string) => aiWindow(new Date(at)).day === today;
+  const used = p.smsLog.filter((e) => isToday(e.at) && e.status !== "failed").length;
   if (used + numbers.length > p.smsDailyLimit) return { error: "daily limit reached" };
   // One institute can't use up the whole site's SMS for the day.
-  const mine = inst ? p.smsLog.filter((e) => e.inst === inst && e.at.startsWith(today) && e.status !== "failed").length : 0;
+  const mine = inst ? p.smsLog.filter((e) => e.inst === inst && isToday(e.at) && e.status !== "failed").length : 0;
   if (inst && mine + numbers.length > SMS_PER_INSTITUTE_DAILY) return { error: "daily limit reached" };
   return { numbers: numbers as string[], text: text.trim() };
 }
@@ -323,12 +324,17 @@ export const PUSH_DAILY_LIMIT = 2000; // notifications per day for the whole sit
 // Only the real push services of browsers: our server sends to this address, so it must not be anything else.
 const PUSH_HOST = /^https:\/\/(fcm\.googleapis\.com|updates\.push\.services\.mozilla\.com|web\.push\.apple\.com|[a-z0-9-]+\.notify\.windows\.com)\//;
 
+/** A browser push subscription we may send to: a real push service address and sane key sizes (used by the demo path and real accounts). */
+export function pushSubOk(sub: { endpoint?: unknown; keys?: { p256dh?: unknown; auth?: unknown } } | undefined): sub is { endpoint: string; keys: { p256dh: string; auth: string } } {
+  const endpoint = sub?.endpoint, p256dh = sub?.keys?.p256dh, auth = sub?.keys?.auth;
+  return typeof endpoint === "string" && PUSH_HOST.test(endpoint) && endpoint.length <= 1000 && typeof p256dh === "string" && typeof auth === "string" && p256dh.length <= 200 && auth.length <= 100;
+}
+
 /** Save (or refresh) a browser's push subscription. */
 export function addPushSub(p: Platform, input: Record<string, unknown>, now: Date): { ok: true } | { error: string } {
   const sub = input.subscription as { endpoint?: unknown; keys?: { p256dh?: unknown; auth?: unknown } } | undefined;
-  const endpoint = sub?.endpoint, p256dh = sub?.keys?.p256dh, auth = sub?.keys?.auth;
-  if (typeof endpoint !== "string" || !PUSH_HOST.test(endpoint) || endpoint.length > 1000) return { error: "bad subscription" };
-  if (typeof p256dh !== "string" || typeof auth !== "string" || p256dh.length > 200 || auth.length > 100) return { error: "bad subscription" };
+  if (!pushSubOk(sub)) return { error: "bad subscription" };
+  const { endpoint, keys: { p256dh, auth } } = sub;
   if (input.role !== "student" && input.role !== "parent") return { error: "bad role" };
   const batches = Array.isArray(input.batches) ? input.batches.filter((b): b is string => typeof b === "string" && b.length <= 120).slice(0, 10) : [];
   if (!batches.length) return { error: "no batch" };
@@ -340,7 +346,7 @@ export function addPushSub(p: Platform, input: Record<string, unknown>, now: Dat
 /** Who gets a batch notification, within the daily limit. Counts them as sent. */
 export function pushTargets(p: Platform, batch: unknown, now: Date): PushSub[] | { error: string } {
   if (typeof batch !== "string") return { error: "bad batch" };
-  const day = now.toISOString().slice(0, 10);
+  const day = aiWindow(now).day; // Dhaka day
   if (p.pushSent.day !== day) p.pushSent = { day, count: 0 };
   const targets = p.push.filter((x) => x.batches.includes(batch));
   if (p.pushSent.count + targets.length > PUSH_DAILY_LIMIT) return { error: "daily limit reached" };

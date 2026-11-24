@@ -11,6 +11,7 @@ import { REAL_AUTH } from "@/lib/auth-mode";
 import { useLang } from "@/lib/i18n/LanguageProvider";
 import { shrinkImage } from "@/lib/image";
 import { taka } from "@/lib/mock-data";
+import { firstName } from "@/lib/site";
 
 type Msg = { role: "user" | "assistant"; content: string; photo?: boolean; pdf?: true; hl?: { name: string; at: number } }; // pdf: made with Create PDF; hl: a highlighted PDF (its file is kept in memory by `at`)
 type Doc = { name: string; text: string };
@@ -311,7 +312,8 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
     if (!chat || pdf === "busy") return;
     setPdf("busy");
     setPdfAt(at);
-    const turns = at < 0 ? chat.msgs : chat.msgs.slice(Math.max(0, at - 1), at + 1);
+    let turns = at < 0 ? chat.msgs.slice(-200) : chat.msgs.slice(Math.max(0, at - 1), at + 1);
+    while (turns.length > 1 && turns.reduce((n, m) => n + m.content.length, 0) > 300_000) turns = turns.slice(1); // a long chat prints its newest turns: the server's limits (lib/chat-pdf.ts), and the request stays under its size cap
     const title = at < 0 ? chat.title : (chat.msgs[at].content.match(/^#\s+(.+)/m)?.[1].replace(/[*=`]/g, "").trim() || turns[0].content).slice(0, 120);
     const res = await fetch("/api/ai/pdf", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ title, lang, messages: turns.map(({ role, content, photo }) => ({ role, content, ...(photo ? { photo } : {}) })) }) }).catch(() => null);
     if (!res?.ok) return setPdf("failed");
@@ -474,7 +476,7 @@ export function AiChat({ meId, name, email }: { meId: number; name: string; emai
           <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-4">
             {!msgs.length && (
               <div className="my-auto flex flex-col gap-4 py-6">
-                <h1 className="text-2xl font-bold md:text-3xl">✨ {A.hello(name.split(" ")[0])}</h1>
+                <h1 className="text-2xl font-bold md:text-3xl">✨ {A.hello(firstName(name))}</h1>
                 <div className="grid gap-2 sm:grid-cols-2">
                   {A.ideas.map((idea) => (
                     <button key={idea} type="button" onClick={() => setQ(idea)} className="min-h-11 rounded-xl border border-outline-variant bg-white px-4 py-3 text-left text-sm">{idea}</button>

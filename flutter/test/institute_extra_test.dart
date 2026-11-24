@@ -104,6 +104,14 @@ void main() {
     );
   });
 
+  test('a teacher\'s clash check counts a colleague\'s slot in the same room, but not clashes among colleagues only', () {
+    Json slot(int id, String start, String end, String teacher, String room, String batch) => {'id': id, 'day': 6, 'start': start, 'end': end, 'teacher': teacher, 'room': room, 'batch': batch};
+    final s = [slot(1, '16:00', '17:30', 'Rahim', 'Room 1', 'HSC Physics'), slot(2, '16:30', '18:00', 'Karim', 'Room 1', 'SSC Chem'), slot(3, '16:00', '17:00', 'Rahim', 'Room 2', 'HSC Bio')];
+    expect([for (final p in clashes(s, ['SSC Chem'])) [p.a['id'], p.b['id'], p.why]], [
+      [1, 2, ['room']],
+    ]);
+  });
+
   test('a backup has the website\'s wrapper, and only such a file is restored', () {
     final text = backupText(sample(), DateTime.utc(2026, 1, 2));
     final b = jsonDecode(text) as Json;

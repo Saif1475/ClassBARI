@@ -90,7 +90,7 @@ class _ChatRoomState extends State<ChatRoom> {
     final needsTick = chatReceipts && other.isNotEmpty && (readAt == null || readAt.compareTo(other) < 0);
     if ((needsCount || needsTick) && lastRead != '${widget.threadId}|$other') {
       lastRead = '${widget.threadId}|$other'; // once per new message, while the save is on its way
-      Future.microtask(() => store.act('markChatRead', [widget.threadId, side, chatReceipts]));
+      Future.microtask(() => store.act('markChatRead', [widget.threadId, side, chatReceipts, if (other.isNotEmpty) other]));
     }
   }
 

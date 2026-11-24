@@ -5,7 +5,8 @@ import { test } from "node:test";
 import { createClient } from "@supabase/supabase-js";
 import { canSee, seer } from "../src/lib/community.ts";
 import { topId } from "../src/lib/data-access.ts";
-import { DOC_MAX, FULL, guardedFetch, readCapped } from "../src/lib/doc-limit.ts";
+import { BACKUP_MAX, DOC_MAX, FULL, MAX_FILE_BYTES, POST_MAX, fileTooBig, guardedFetch, postLimit, readCapped } from "../src/lib/doc-limit.ts";
+import nextConfig from "../next.config.ts";
 import { blankState } from "../src/lib/lms-actions.ts";
 import { averagePct, gradedResults, incomeByMonth, myRank, quizBoard } from "../src/lib/lms-views.ts";
 import { meritList } from "../src/lib/quiz.ts";
@@ -134,4 +135,31 @@ test("long lists: page sizes, the page you are on, and which page numbers are of
     for (let p = 1; p <= pageAt(rows.length, size, 1).pages; p++) seen.push(...rows.slice((p - 1) * size, p * size));
     assert.deepEqual(seen, rows);
   }
+});
+
+test("upload slot: only a sent size that is too big is refused; old tabs that send no body still upload", () => {
+  assert.equal(fileTooBig(""), false); // old file-store.ts: POST with no body
+  assert.equal(fileTooBig("{}"), false);
+  assert.equal(fileTooBig(JSON.stringify({ size: 5 })), false);
+  assert.equal(fileTooBig(JSON.stringify({ size: MAX_FILE_BYTES + 1 })), true);
+  assert.equal(fileTooBig(null), true); // body over the read cap
+});
+
+test("restore: a backup of a full institute fits through the proxy and the data route", async () => {
+  // A full institute that is all Bangla, at DOC_MAX characters: the worst case in bytes (3 per character, escaping adds nothing).
+  const state = { ...blankState(), instituteName: "অ".repeat(DOC_MAX - 2000) };
+  assert.ok(JSON.stringify(state).length <= DOC_MAX);
+  const post = JSON.stringify({ name: "importBackup", args: [JSON.stringify({ app: "instanton", state })], base: 1 });
+  const send = (body) => new Request("http://x/", { method: "POST", body, headers: { "content-length": String(Buffer.byteLength(body)) } });
+  assert.ok(Buffer.byteLength(post) > POST_MAX * 4);
+  assert.equal((await readCapped(send(post), postLimit("owner")))?.length, post.length, "the owner's restore is read whole");
+  assert.equal((await readCapped(send(post), postLimit("manager")))?.length, post.length);
+  for (const role of ["teacher", "student", "guardian"]) assert.equal(await readCapped(send(post), postLimit(role)), null, `${role}: only owners and managers may send a restore`);
+  // A full institute of quotes, the worst ASCII case (each is 2 characters stored, 4 bytes once escaped again), also fits.
+  const quotes = { ...s, instituteName: '"'.repeat(Math.floor((DOC_MAX - JSON.stringify(s).length) / 2) - 1000) };
+  assert.ok(JSON.stringify(quotes).length <= DOC_MAX);
+  const ascii = JSON.stringify({ name: "importBackup", args: [JSON.stringify({ app: "instanton", state: quotes })], base: 1 });
+  assert.equal((await readCapped(send(ascii), postLimit("owner")))?.length, ascii.length);
+  assert.equal(postLimit("teacher"), POST_MAX);
+  assert.ok(Number(nextConfig.experimental?.proxyClientMaxBodySize) >= BACKUP_MAX, "the proxy must not cut a restore short (Next's default is 10 MiB)");
 });

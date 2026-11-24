@@ -49,6 +49,6 @@ export async function POST(request: Request) {
   const s = live(scope.key);
   if (!s) return json({ error: "not live" }, 409);
   if (STAFF_ONLY.has(String(b.action)) && !staff) return json({ error: "teachers only" }, 403);
-  const r = act(s, b, { voter: typeof b.voter === "string" ? b.voter : undefined, staff }, Date.now());
+  const r = act(s, b, { voter: typeof b.voter === "string" ? b.voter : undefined, staff, own: scope.own }, Date.now());
   return json(r, "error" in r ? (r.error === "too fast" || r.error === "too many" ? 429 : 400) : 200);
 }

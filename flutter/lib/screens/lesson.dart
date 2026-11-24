@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
@@ -240,22 +242,65 @@ class _QuizBoxState extends State<QuizBox> {
   late final picks = List<int?>.filled(qs.length, null);
   var sent = false;
   num? get taken => (widget.item['scores'] as Map?)?['${widget.me}'] as num?;
+  // Same as the website: the teacher's limit, or one minute per question.
+  late final seconds = (((widget.item['timeLimitMin'] as num?) ?? 0) > 0 ? (widget.item['timeLimitMin'] as num).round() : qs.length) * 60;
+  final clock = Stopwatch(); // keeps counting while the app is in the background
+  Timer? timer;
+  AppLifecycleListener? life;
+  var ticks = 0, switches = 0, before = 0, asking = false;
+  int get used => before + max(ticks, clock.elapsed.inSeconds);
+  bool get started => clock.isRunning;
+
+  // Like the website's Start button: only pressing it starts the clock on the server, not just opening the quiz.
+  void start() {
+    if (store.pending('startQuiz', [widget.moduleId, widget.item['id'], widget.me]) == 0) store.act('startQuiz', [widget.moduleId, widget.item['id'], widget.me]);
+    // The first Start on this phone is kept: leaving and coming back carries on the countdown (and the count the server checks) instead of a fresh one.
+    final key = 'instanton-quiz-${widget.moduleId}-${widget.item['id']}-${widget.me}', now = DateTime.now().millisecondsSinceEpoch, first = store.prefs.getInt(key) ?? now;
+    if (first == now) store.prefs.setInt(key, now);
+    before = max(0, (now - first) ~/ 1000);
+    setState(clock.start);
+    run();
+    // Anti-cheat, as on the website: leaving the app 3 times hands the test in.
+    if (widget.item['antiCheat'] == true) {
+      life = AppLifecycleListener(onHide: () {
+        if (sent) return;
+        setState(() => switches++);
+        if (switches >= 3) hand();
+      });
+    }
+  }
+
+  void run() => timer = Timer.periodic(const Duration(seconds: 1), (_) {
+    if (!mounted || sent) return;
+    setState(() => ticks++);
+    if (used >= seconds) hand(); // time is up: handed in as it is
+  });
 
   @override
-  void initState() {
-    super.initState();
-    // Opening the quiz starts the clock on the server (the teacher sees if it took much longer than allowed).
-    if (taken == null && store.pending('startQuiz', [widget.moduleId, widget.item['id'], widget.me]) == 0) Future.microtask(() => store.act('startQuiz', [widget.moduleId, widget.item['id'], widget.me])); // after this screen is drawn
+  void dispose() {
+    timer?.cancel();
+    life?.dispose();
+    super.dispose();
   }
 
   Future<void> submit() async {
     final left = picks.where((p) => p == null).length;
-    if (!await confirm(context, t('app.submitQuiz'), t('app.confirmSubmit', [left]))) return;
+    asking = true;
+    final yes = await confirm(context, t('app.submitQuiz'), t('app.confirmSubmit', [left]));
+    asking = false;
+    if (yes) await hand();
+  }
+
+  Future<void> hand() async {
+    if (sent || !mounted) return; // the timer, anti-cheat and the button can race: hand in once
+    if (asking) Navigator.of(context, rootNavigator: true).pop(false); // time ran out while "Submit?" was open: close it, the quiz is handed in anyway
     setState(() => sent = true);
-    final saved = await store.act('submitQuiz', [widget.moduleId, widget.item['id'], widget.me, 0, [], 0, picks]);
+    timer?.cancel();
+    // The phone's own seconds: if this waits offline, the server knows the late arrival isn't the student's time.
+    final saved = await store.act('submitQuiz', [widget.moduleId, widget.item['id'], widget.me, 0, [], switches, picks, used]);
     if (!saved && mounted) {
       if (store.status == Status.offline) toast(context, t('app.sentLater'));
-      if (store.syncFailed) setState(() => sent = false);
+      if (store.syncFailed) setState(() { sent = false; run(); }); // not handed in: the countdown carries on, so it still hands in at zero
     }
   }
 
@@ -282,11 +327,24 @@ class _QuizBoxState extends State<QuizBox> {
         ],
       );
     }
-    final c = context.colors;
+    if (!started) {
+      final negative = (widget.item['negative'] as num?) ?? 0;
+      return Box(
+        children: [
+          Muted(t('quiz.intro', [qs.length, seconds ~/ 60, points])),
+          if (negative > 0) Strong(t('exam2.negativeNote', [negative])),
+          if (widget.item['antiCheat'] == true) Strong(t('exam2.antiCheatOn')),
+          Doing(label: t('quiz.start'), onPressed: () async => start()),
+        ],
+      );
+    }
+    final c = context.colors, left = max(0, seconds - used);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 12,
       children: [
+        Strong('${t('quiz.timeLeft')} ${localNumber(left ~/ 60, lang.code)}:${localNumber(left % 60, lang.code).padLeft(2, lang.code == 'bn' ? '০' : '0')}', color: left < 30 ? c.error : null),
+        if (switches > 0) Strong(t('exam2.tabSwitches', [switches]), color: c.error),
         for (final (n, qi) in order.questions.indexed)
           Box(
             children: [

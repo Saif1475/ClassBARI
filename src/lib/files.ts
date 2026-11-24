@@ -13,11 +13,19 @@ export const readAsDataUrl = (file: File) =>
     r.readAsDataURL(file);
   });
 
-/** A chosen file as a data URL. A photo over the limit is made smaller (phone photos are several MB); any other file over it: null. */
+/** A photo type the server takes as it is (data-access.ts handIn/upload); HEIC, AVIF, BMP and friends are turned into JPEG first. */
+export const SENDABLE_PHOTO = /^image\/(png|jpeg|webp|gif)$/;
+/** A photo, also when the browser gives no type for it (desktop Chrome does that for .heic). */
+export const isPhoto = (file: File) => file.type.startsWith("image/") || (!file.type && /\.(heic|heif|avif|bmp)$/i.test(file.name));
+
+/** A chosen file as a data URL. A photo over the limit, or of a type the server refuses, is made into a smaller JPEG (phone photos are several MB); any other file over it, or a photo the browser can't read: null. */
 export async function uploadData(file: File): Promise<string | null> {
-  if (file.size <= MAX_UPLOAD_BYTES) return readAsDataUrl(file);
-  return file.type.startsWith("image/") ? shrinkImage(file, 1600, 0.8).catch(() => null) : null;
+  if (file.size <= MAX_UPLOAD_BYTES && (SENDABLE_PHOTO.test(file.type) || !isPhoto(file))) return readAsDataUrl(file);
+  return isPhoto(file) ? shrinkImage(file, 1600, 0.8).catch(() => null) : null;
 }
+
+/** A teacher's paper or answer key: the server keeps it as plain text, so a small photo the browser can't read (HEIC in desktop Chrome) still goes as it is. */
+export const uploadPaper = async (file: File) => (await uploadData(file)) ?? (file.size <= MAX_UPLOAD_BYTES ? readAsDataUrl(file) : null);
 
 /**
  * Files other people uploaded may only open as pictures, PDFs, video or sound. A web page (HTML, SVG) opened from

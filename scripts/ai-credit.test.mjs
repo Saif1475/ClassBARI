@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { before, test } from "node:test";
 import { PGlite } from "@electric-sql/pglite";
-import { allowance, creditKey } from "../src/lib/ai-allowance.ts";
+import { allowance, answerMaxUsd, creditKey } from "../src/lib/ai-allowance.ts";
 import { budgetPaused, creditTaka, creditUsd, aiWindow } from "../src/lib/ai-chat.ts";
 import { changeCredit, creditHistory } from "../src/lib/ai-credit.ts";
 import { checkPayment } from "../src/lib/pay.ts";
@@ -182,4 +182,16 @@ test("allowance: past the daily limit only with credit, which pays the real cost
   assert.equal(budgetPaused(24, { budgetUsd: 30 }, 0), true); // free: stops at 80%
   assert.equal(budgetPaused(24, { budgetUsd: 30 }, 150), false);
   assert.equal(budgetPaused(30, { budgetUsd: 30 }, 150), true);
+});
+
+test("allowance: credit must cover the dearest answer of the chosen model, not just US$0.03", async () => {
+  const plan = { pack: 1500, daily: 200_000 };
+  const key = `${inst}:student:6`;
+  const { day, slot } = aiWindow();
+  await pg.query("insert into ai_usage (user_key, day, slot, institute_id, questions, cost_usd, tokens) values ($1, $2, $3, $4, 9, 0.01, 200000)", [key, day, slot, inst]); // today's tokens used up
+  await changeCredit(db, { key, institute: inst, kind: "admin_add", usd: 0.04, note: "test", by: "admin" });
+  const max = answerMaxUsd("qwen3.8-max", 6000, 60_000); // a thinking answer with a 30,000-letter file: 12,000 output tokens at US$6/M and more
+  assert.ok(max > 0.08);
+  assert.equal((await allowance(db, key, inst, plan, {}, undefined, max)).over, true); // US$0.04 can't pay for it
+  assert.equal((await allowance(db, key, inst, plan, {}, undefined, answerMaxUsd("qwen3.7-flash", 6000, 60_000))).paying, true); // a cheap model still can
 });

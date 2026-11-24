@@ -42,6 +42,16 @@ export function useChatPrefs() {
   return [prefs, change] as const;
 }
 
+const OPENED = "classbari-chat-opened";
+/** The newest teacher message this device has opened, per chat: the family side's unread badge, private (never sent, so it works with read receipts off). */
+export function chatOpened(): Record<string, string> {
+  try {
+    return JSON.parse(localStorage.getItem(OPENED) ?? "{}") as Record<string, string>;
+  } catch {
+    return {};
+  }
+}
+
 export function ChatRoom({ thread, side, title, subtitle, placeholder, empty, onSend, dock = "sticky bottom-18 md:static" }: {
   thread: ChatThread | undefined;
   side: Side;
@@ -79,7 +89,13 @@ export function ChatRoom({ thread, side, title, subtitle, placeholder, empty, on
     const readAt = side === "staff" ? thread.readStaff : thread.readFamily;
     const needsCount = side === "staff" && thread.unread > 0;
     const needsTick = prefs.receipts && !!lastOther && (!readAt || readAt < lastOther);
-    if (needsCount || needsTick) lms.markChatRead(thread.id, side, prefs.receipts);
+    if (needsCount || needsTick) lms.markChatRead(thread.id, side, prefs.receipts, lastOther || undefined);
+    if (side === "family" && lastOther)
+      try {
+        localStorage.setItem(OPENED, JSON.stringify({ ...chatOpened(), [thread.id]: lastOther }));
+      } catch {
+        /* not kept: the badge counts from readFamily only */
+      }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only when the chat or its newest message changes
   }, [thread?.id, lastOther, prefs.receipts]);
   useEffect(() => {

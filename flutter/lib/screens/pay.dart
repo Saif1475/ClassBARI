@@ -76,7 +76,8 @@ class _PayFormState extends State<PayForm> {
       final d = jsonDecode(res.body) as Json;
       if (res.statusCode == 200) {
         trx.clear();
-        setState(() => msg = (true, t('pay.sent')));
+        final clash = d['clash'] as Json?; // recorded, but it waits until the running pack ends
+        setState(() => msg = (true, clash != null ? t('pay.sentWaiting', [taka((clash['pack'] as num?) ?? 0), clash['until']]) : t('pay.sent')));
         load();
       } else {
         setState(() => msg = (false, d['error'] == 'used' ? t('pay.used') : (d['error'] == 'pack running' ? t('pay.packRunning', [taka((d['pack'] as num?) ?? 0), d['until']]) : null) ?? (credit && d['error'] == 'bad item' ? t('pay.creditBad') : null) ?? (res.statusCode == 400 ? t('pay.bad') : t('pay.error'))));

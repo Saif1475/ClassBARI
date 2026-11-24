@@ -91,9 +91,9 @@ export function seededOrder(n: number, seed: number) {
  */
 /** Minutes a quiz allows: the teacher's limit, or one minute per question. */
 export const quizMinutes = (item: { timeLimitMin?: number; questions?: unknown[] }) => (item.timeLimitMin && item.timeLimitMin > 0 ? item.timeLimitMin : (item.questions?.length ?? 0));
-/** Went over time? `took` is the server-measured seconds (-1: never pressed Start). A minute's grace for slow internet. */
+/** Went over time? `took` is the server-measured seconds (-1: never pressed Start; -2: handed in offline, time not known). A minute's grace for slow internet. */
 export const overTime = (item: { timeLimitMin?: number; questions?: unknown[] }, took: number | undefined) =>
-  took === undefined ? null : took < 0 ? ("unknown" as const) : took > quizMinutes(item) * 60 + 60 ? Math.round(took / 60) : null;
+  took === undefined ? null : took === -2 ? ("offline" as const) : took < 0 ? ("unknown" as const) : took > quizMinutes(item) * 60 + 60 ? Math.round(took / 60) : null;
 
 export function meritList(scores: Record<number, number>) {
   const rows = Object.entries(scores).map(([id, score]) => ({ id: Number(id), score })).sort((a, b) => b.score - a.score);
@@ -138,7 +138,8 @@ export function gradeFor(score: number, points: number, scale: GradeBand[] = DEF
 /** Rubric text, one "Criterion: max marks" per line. Returns null if any line is malformed. */
 export function parseRubric(text: string): { name: string; max: number }[] | null {
   const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
-  const out = lines.map((l) => l.match(/^(.{1,60}?)\s*[:：]\s*(\d{1,3})$/)).map((m) => (m ? { name: m[1].trim(), max: Number(m[2]) } : null));
+  // Marks may be Bangla digits (the Bangla hint's own example is "পদ্ধতি: ১০"); the criterion name is kept as typed.
+  const out = lines.map((l) => l.match(/^(.{1,60}?)\s*[:：]\s*([0-9০-৯]{1,3})$/)).map((m) => (m ? { name: m[1].trim(), max: Number(m[2].replace(/[০-৯]/g, (d) => String(d.charCodeAt(0) - 0x09e6))) } : null));
   return out.every((c) => c && c.max > 0) ? (out as { name: string; max: number }[]) : null;
 }
 

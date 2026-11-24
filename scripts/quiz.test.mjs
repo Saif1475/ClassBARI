@@ -49,6 +49,7 @@ test("rubric lines parse; bad lines reject the whole rubric", async () => {
   assert.deepEqual(parseRubric(""), []);
   assert.equal(parseRubric("Method 10"), null);
   assert.equal(parseRubric("Method: 0"), null);
+  assert.deepEqual(parseRubric("পদ্ধতি: ১০\nপ্রশ্ন ২: ৫"), [{ name: "পদ্ধতি", max: 10 }, { name: "প্রশ্ন ২", max: 5 }]);
 });
 
 test("sections: a '## Name' heading applies to the questions after it", () => {

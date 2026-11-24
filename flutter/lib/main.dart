@@ -142,7 +142,7 @@ class Root extends StatelessWidget {
         ),
       ),
     );
-    if (problem != null) return notice(problem, Doing(label: t('auth.tryOther'), onPressed: store.signOut));
+    if (problem != null) return notice(problem, Doing(label: t('auth.tryOther'), onPressed: () => store.signOut(ask: (n) => confirm(context, t('app.logOut'), t('app.logOutWaiting', [n]), yes: t('app.logOut')))));
     if (store.state == null || store.role == null) {
       // No data yet: loading, or no internet on the very first opening.
       return store.status == Status.offline ? notice(t('aichat.error'), Doing(label: t('app.tryAgain'), soft: true, onPressed: store.refresh)) : const Loading();

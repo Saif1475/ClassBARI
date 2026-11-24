@@ -85,19 +85,30 @@ export function leagueRank(students: { id: number; batch: string }[], xp: Record
 /** Payroll for one month: fixed salary + share of fees collected from the teacher's batches, minus payouts. */
 export function payroll(state: { staff: Staff[]; batches: Batch[]; payments: Payment[]; staffPayments: { name: string; month: string; amount: number }[] }, month: string) {
   // One pass over the payments and one over the payouts, then each teacher just looks their totals up.
-  const byBatch = new Map<string, number>();
-  for (const p of state.payments) if (dayKey(toDate(p.at)).startsWith(month)) byBatch.set(p.batch, (byBatch.get(p.batch) ?? 0) + p.amount);
+  // A payment counts for the teacher saved on it (who taught the batch then); older payments without one use the batch's teacher now.
+  const teacherOf = new Map(state.batches.map((b) => [b.name, b.teacher]));
+  const byTeacher = new Map<string, number>();
+  for (const p of state.payments) {
+    const who = p.teacher ?? teacherOf.get(p.batch);
+    if (who !== undefined && dayKey(toDate(p.at)).startsWith(month)) byTeacher.set(who, (byTeacher.get(who) ?? 0) + p.amount);
+  }
   const paidTo = new Map<string, number>();
   for (const p of state.staffPayments) if (p.month === month) paidTo.set(p.name, (paidTo.get(p.name) ?? 0) + p.amount);
-  const batchesOf = new Map<string, Set<string>>();
-  for (const b of state.batches) batchesOf.set(b.teacher, (batchesOf.get(b.teacher) ?? new Set()).add(b.name));
   return state.staff.map((st) => {
-    let collected = 0;
-    for (const name of batchesOf.get(st.name) ?? []) collected += byBatch.get(name) ?? 0;
+    const collected = byTeacher.get(st.name) ?? 0;
     const payable = st.salary + Math.round((collected * st.share) / 100);
     const paid = paidTo.get(st.name) ?? 0;
     return { ...st, collected, payable, paid, balance: Math.max(0, payable - paid) };
   });
+}
+
+/** One student's invoice for a month. Its lines add up to the balance: whatever was owed from before (or changed since the charge) is "carried". */
+export function invoice(st: { id: number; feeDue: number; discount?: number; chargedDiscount?: number; fineMonth?: string }, batch: { fee: number; lateFine?: number } | undefined, payments: Payment[], month: string) {
+  const fee = batch?.fee ?? 0;
+  const discount = Math.min(fee, st.chargedDiscount ?? st.discount ?? 0); // the discount this month's charge took off; data saved before it was kept: the one set now
+  const fine = st.fineMonth === month ? batch?.lateFine ?? 0 : 0;
+  const paid = payments.filter((p) => p.studentId === st.id && dayKey(toDate(p.at)).startsWith(month)).reduce((sum, p) => sum + p.amount, 0);
+  return { fee, discount, fine, paid, carried: st.feeDue - (fee - discount + fine - paid), balance: st.feeDue };
 }
 
 /**

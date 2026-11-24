@@ -256,7 +256,7 @@ class _NewStudentState extends State<NewStudent> {
   var errors = <String, String>{};
   var noGender = false;
   late var gender = '${from['gender'] ?? ''}';
-  late var batch = '${from['batch'] ?? ''}'.isEmpty ? '${store.batches.firstOrNull?['name'] ?? ''}' : '${from['batch']}';
+  late var batch = store.batches.any((b) => b['name'] == from['batch']) ? '${from['batch']}' : '${store.batches.firstOrNull?['name'] ?? ''}'; // no batch yet, or one since deleted: start on a real one
 
   @override
   void dispose() {
@@ -283,7 +283,7 @@ class _NewStudentState extends State<NewStudent> {
         : await store.act('addStudent', [
             {...input, 'gender': gender, 'batch': batch, 'mode': 'offline', 'feePaid': false},
           ]);
-    if (widget.admission case final a? when s == null) await store.act('updateAdmission', [a['id'], {'stage': 'admitted'}]);
+    if (widget.admission case final a? when s == null && (saved || store.status == Status.offline)) await store.act('updateAdmission', [a['id'], {'stage': 'admitted'}]); // a refused student (batch deleted meanwhile) keeps the enquiry open
     if (!mounted) return;
     if (saved) {
       toast(context, s != null ? t('roster.updated') : t('roster.added', [input['name'].toString().trim()]));

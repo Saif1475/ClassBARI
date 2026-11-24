@@ -1,7 +1,7 @@
 import { loadPart, STAFF_ROLES, whoIs } from "@/lib/data-server";
 import { readPieces } from "@/lib/pdf-mark";
 import { limited } from "@/lib/rate-limit";
-import { csvText, readCsv, readXlsx, writeXlsx } from "@/lib/sheet";
+import { csvText, readCsv, readXlsx, TOO_MANY_ROWS, writeXlsx } from "@/lib/sheet";
 import { studentListPdf } from "@/lib/student-list-pdf";
 import { checkRows, columnInfo, FIELDS, MAX_ROWS, gridFromPieces, gridToRecords, guessFields, missingFields, templateRows, type Field } from "@/lib/student-import";
 
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
       const pieces = await readPieces(new Uint8Array(buf));
       if (pieces.map((p) => p.str).join("").replace(/\s/g, "").length < 30) return Response.json({ error: "scan" }, { status: 422 });
       grid = gridFromPieces(pieces);
-    } else grid = type.includes("csv") ? readCsv(new TextDecoder().decode(buf)) : await readXlsx(buf);
+    } else grid = type.includes("csv") ? readCsv(new TextDecoder().decode(buf), MAX_ROWS + 1) : await readXlsx(buf, MAX_ROWS + 1); // + 1 for the heading row
     const guess = guessFields(grid, names, q.has("heads") ? q.get("heads") === "1" : undefined);
     const asked = q.get("fields")?.split(",") as Field[] | undefined;
     const fields = asked && asked.length === guess.fields.length && asked.every((f) => f === "" || FIELDS.includes(f)) ? asked : guess.fields;
@@ -60,7 +60,8 @@ export async function POST(request: Request) {
     if (records.length > MAX_ROWS) return Response.json({ error: "tooMany" }, { status: 413 }); // checking a huge list would hold up the server for everyone
     const rows = missing.length ? [] : checkRows(records, names.includes(batch) ? batch : (names[0] ?? ""), names, students, !type.includes("pdf") && guess.heads ? 2 : 1);
     return Response.json({ columns: columnInfo(grid, guess.heads), heads: guess.heads, fields, missing, rows });
-  } catch {
+  } catch (e) {
+    if (e instanceof Error && e.message === TOO_MANY_ROWS) return Response.json({ error: "tooMany" }, { status: 413 });
     return Response.json({ error: "unreadable" }, { status: 422 });
   }
 }

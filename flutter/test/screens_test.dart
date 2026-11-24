@@ -275,7 +275,10 @@ void main() {
     await tester.tap(find.text('Quiz 1'));
     await tester.pumpAndSettle();
     expect(find.text('Not submitted'), findsOneWidget);
-    expect(sent('startQuiz').single['args'], [1, 13, 5]); // opening it starts the clock
+    expect(sent('startQuiz'), isEmpty); // just opening it doesn't start the clock
+    await press(tester, find.text(t('quiz.start')));
+    await tester.pump();
+    expect(sent('startQuiz').single['args'], [1, 13, 5]); // pressing Start does
     final item = rows(rows(sample()['modules'])[0]['items'])[2];
     final order = quizOrder(item, 5);
     final first = order.questions.first;
@@ -310,7 +313,10 @@ void main() {
     await tester.tap(find.text('Student 1'));
     await tester.pump();
     expect(find.text('Absent'), findsNWidgets(3)); // flipped before any answer from the server
-    expect(sent('toggleAttendance').single['args'], [1, today]);
+    expect(sent('toggleAttendance').single['args'], [1, today, true]); // the state tapped to, not a flip
+    store.adoptForTest({'version': 1 << 40, 'state': sample()..['attendance'] = {today: [1, 6, 9]}}); // someone else marked Student 1 absent too before this tap reached the server
+    await tester.pump();
+    expect(find.text('Absent'), findsNWidgets(3)); // still absent: the queued tap sets absent, it does not flip the new value
     await press(tester, find.bySemanticsLabel('Page 2'));
     await tester.pumpAndSettle();
     expect(find.text('21–40 of 40'), findsOneWidget);

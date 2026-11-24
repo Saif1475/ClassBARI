@@ -37,14 +37,15 @@ Future<bool> _ended() async {
 Future<Map<String, String>> _headers() async {
   final token = await _token();
   final inst = store.picksInstitute ? store.institute : null; // owners: whichever institute they own
-  return {'Content-Type': 'application/json', if (token != null) 'Authorization': 'Bearer $token', if (inst != null) 'X-ClassBARI-Institute': '${inst['id']}'};
+  return {'Content-Type': 'application/json', if (token != null) 'Authorization': 'Bearer $token', if (inst != null) 'X-ClassBARI-Institute': '${inst['id']}', if (kApp == 'guardian') 'X-ClassBARI-Role': 'guardian'}; // a teacher whose child studies at their centre opens as the guardian here
 }
 
 /// A request to the Instanton Campus server as the signed-in person.
 Future<http.Response> api(String path, {Object? body, bool delete = false}) async {
-  final uri = Uri.parse('$kApiUrl$path'), headers = await _headers();
-  final sent = delete ? http.delete(uri, headers: headers, body: jsonEncode(body)) : (body == null ? http.get(uri, headers: headers) : http.post(uri, headers: headers, body: jsonEncode(body)));
-  return sent.timeout(const Duration(seconds: 40));
+  final uri = Uri.parse('$kApiUrl$path'), headers = await _headers(), text = jsonEncode(body), client = http.Client();
+  final sent = delete ? client.delete(uri, headers: headers, body: text) : (body == null ? client.get(uri, headers: headers) : client.post(uri, headers: headers, body: text));
+  // A big change (a PDF lesson as a data: link) gets time to upload at about 20 KB/s; closing the client on a timeout really stops the upload, so the next refresh's retry is not a second copy beside it.
+  return sent.timeout(Duration(seconds: 40 + (body == null ? 0 : text.length ~/ 20000))).whenComplete(client.close);
 }
 
 /// The same, with the answer arriving piece by piece (AI chat). The caller closes `client` to stop early.
@@ -57,8 +58,8 @@ Future<http.StreamedResponse> apiStream(http.Client client, String path, Object 
 
 /// A file's bytes sent as they are, with its type (a student list to import: Excel, CSV or PDF).
 Future<http.Response> apiFile(String path, List<int> bytes, String type, {int seconds = 60}) async {
-  final headers = {...await _headers(), 'Content-Type': type};
-  return http.post(Uri.parse('$kApiUrl$path'), headers: headers, body: bytes).timeout(Duration(seconds: seconds));
+  final headers = {...await _headers(), 'Content-Type': type}, client = http.Client();
+  return client.post(Uri.parse('$kApiUrl$path'), headers: headers, body: bytes).timeout(Duration(seconds: seconds + bytes.length ~/ 20000)).whenComplete(client.close); // as in api(): time for the upload, and a timeout stops it
 }
 
 /// A PDF file's bytes sent as they are (AI chat → Highlight); the answer is a PDF too. The AI may read for up to 2 minutes.

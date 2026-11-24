@@ -4,6 +4,7 @@ import { canDelete, canEdit, REACTIONS, TEXT_MAX } from "./chat.ts";
 import type { ChatMessage, ChatThread } from "./mock-data.ts";
 import { blankState, makeActions, setIdBase, type LmsState } from "./lms-actions.ts";
 import { markQuiz, scoreQuiz } from "./quiz.ts";
+import { aiWindow } from "./ai-chat.ts";
 import { averagePct, leagueRank, myRank } from "./lms-views.ts";
 import { validateStudent, type StudentContact } from "./site.ts";
 import { unkind } from "./word-filter.ts";
@@ -12,14 +13,49 @@ import { AUDIENCES, BIO_MAX, canRequest, canSee, COMMENT_MAX, MAX_IMAGES, POLL_O
 export type Who = { role: "owner" | "manager" | "teacher" | "student" | "guardian"; name: string; studentIds: number[]; email?: string };
 
 /** A teacher's name as the institute's data has it now (they may have renamed themselves since they were added). */
-const staffName = (s: LmsState, who: Who) => s.staff.find((x) => !!who.email && x.email?.toLowerCase() === who.email)?.name ?? who.name;
+export const staffName = (s: Pick<LmsState, "staff">, who: Who) => s.staff.find((x) => !!who.email && x.email?.toLowerCase() === who.email)?.name ?? who.name;
 
 /** Screen-only actions (who's looking, demo sign-in, downloading a backup): never sent to the server. */
 export const LOCAL_ONLY = new Set(["setViewer", "setMe", "signInWithEmail", "signInTeacher", "exportBackup"]);
 /** Not shown until the server answers: a quiz is marked there, so the browser has nothing right to show first. */
 export const SERVER_FIRST = new Set(["submitQuiz"]);
 /** What the browser's queue does with the server's answer to its first change (after `tries` sends of it): "sent", "wait" (kept, tried again later) or "drop" (refused: only that change goes, the rest are still sent, as the server checks each one by itself). Busy a few times in a row counts as refused, so one bad change can't block the rest. */
-export const afterAnswer = (status: number, tries: number) => (status >= 200 && status < 300 ? "sent" : status === 401 || ((status >= 500 || status === 429) && tries < 5) ? "wait" : "drop");
+export const afterAnswer = (status: number, tries: number) => (status >= 200 && status < 300 ? "sent" : status === 401 || status === 429 || (status >= 500 && tries < 5) ? "wait" : "drop"); // too fast (429) is about the sender, not this change: it always waits, so a big import never loses a student
+/** How many changes one person may save a minute (the server answers 429 after that). */
+export const SAVES_PER_MINUTE = 240;
+/** After sending the queue: ask the server for the whole view again when a change was refused, came back without data, or the server said "not signed in" (401: that pull forgets the copy kept on the device, as the queue itself is kept under its owner). */
+export const pullAfterSend = (refused: unknown, stale: boolean, lastStatus: number) => !!refused || stale || lastStatus === 401;
+/** Which version that pull asks from: after a refusal, 0 (everything), since asking with the version already saved is answered "nothing new" (204) and the refused change would stay on screen. */
+export const pullFromVersion = (refused: unknown, version: number) => (refused ? 0 : version);
+/** The copy on screen: an answer older than it (a slow download landing after a newer save) must not take the screen back. Versions only go up within one sign-in's institute, so an answer for another sign-in is always taken, and a refusal (which asks from 0) keeps the floor, so an old answer still on its way is dropped there too. */
+export function shownCopy() {
+  let floor = 0;
+  let who = "";
+  return {
+    take: (version: number, owner: string) => (owner === who && version < floor ? false : ((floor = version), (who = owner), true)),
+    forget: () => ((floor = 0), (who = "")), // not signed in (any more): whatever comes next is someone's first copy
+  };
+}
+/** Runs fn once after the current task, however often it is asked to before then: importing 2,000 students writes the queue to the browser once, not 2,000 times. */
+export function onceSoon(fn: () => void) {
+  let due = false;
+  return () => {
+    if (due) return;
+    due = true;
+    queueMicrotask(() => ((due = false), fn()));
+  };
+}
+/** Lets a screen wait for one queued change's answer ("sent", "wait" or "drop"), so a restore says "Restored" only once the server has saved it. */
+export function answerWaits() {
+  const w = new Map<object, (what: string) => void>();
+  return {
+    wait: (sent?: object) => new Promise<string>((r) => (sent ? w.set(sent, r) : r("sent"))), // nothing queued (demo, or already sent): nothing to wait for
+    settle: (sent: object | undefined, what: string) => sent && (w.get(sent)?.(what), w.delete(sent)),
+    stop: (queued: object[]) => queued.forEach((x) => (w.get(x)?.("wait"), w.delete(x))), // sending stopped at the first change: every change behind it waits too, not only that one
+  };
+}
+// A "saved" answer may come without the data or its version ({ role } only, when the answer could not be built): then there is nothing to show yet.
+export const savedView = <S,>(d: { state?: S; version?: number } | null) => (d?.state && typeof d.version === "number" ? (d as { state: S; version: number }) : null);
 /** Sample data never goes into a real institute. */
 const NEVER = new Set(["resetDemoData"]);
 /** Money, staff and institute settings: owner (and branch managers). */
@@ -82,8 +118,8 @@ const TEACHER_BATCH: Record<string, (a: A, s: LmsState) => (string | undefined)[
   addMeetingSlots: ([slots], s) => (Array.isArray(slots) ? slots.map((m) => (m as { batch?: string })?.batch) : [undefined]),
   removeMeeting: ([id], s) => [s.meetings.find((m) => m.id === id)?.batch],
   addSlot: inInput, removeSlot: ([id], s) => [s.routine.find((x) => x.id === id)?.batch],
-  // The institute has one live class at a time: a teacher may replace only their own (or none).
-  updateLiveClass: ([x], s) => [(x as { batch?: string })?.batch, ...(s.liveClass.batch ? [s.liveClass.batch] : [])],
+  // The institute has one live class at a time: a teacher may replace only their own (or none); one that started over 3 hours ago is over and frees the slot.
+  updateLiveClass: ([x], s) => [(x as { batch?: string })?.batch, ...(s.liveClass.batch && Date.parse(s.liveClass.start) > Date.now() - 3 * 3600000 ? [s.liveClass.batch] : [])],
   replyDoubt: ([id], s) => [s.doubts.find((d) => d.id === id)?.batch], setDoubtSolved: ([id], s) => [s.doubts.find((d) => d.id === id)?.batch],
 };
 function ownBatches(name: string, args: A, who: Who, s: LmsState) {
@@ -118,6 +154,8 @@ function myItem(s: LmsState, me: number, moduleId: unknown, itemId: unknown) {
 
 const badStudent = (input: unknown, s: LmsState, exceptId?: unknown) => {
   try {
+    // A batch that doesn't exist would leave a student no screen lists, so nobody could edit or remove them.
+    if (!s.batches.some((b) => b.name === (input as { batch?: unknown }).batch)) return true;
     return Object.keys(validateStudent(input as StudentContact, s.students, exceptId as number | undefined)).length > 0;
   } catch {
     return true; // not even the right shape
@@ -165,7 +203,9 @@ const ids = (x: unknown, s: LmsState) =>
   x === undefined ? undefined : Array.isArray(x) && x.length <= 300 && x.every((v) => s.students.some((st) => st.id === v)) ? (x as number[]) : refuse("bad list");
 
 /** How many of these were made today (a flood from one account must not fill the institute's data). */
-const today = (list: { at: string }[]) => list.filter((x) => x.at.slice(0, 10) === new Date().toISOString().slice(0, 10)).length;
+const today = (list: { at: string }[]) => list.filter((x) => { const t = Date.parse(x.at); return !isNaN(t) && aiWindow(new Date(t)).day === aiWindow().day; }).length; // Dhaka days, not UTC
+// Messages from the student/guardian side of one thread today: a flood from one account must not fill the institute's data (or the teacher's phone).
+const chatToday = (s: LmsState, thread: string) => (today(s.chats.find((c) => c.id === thread)?.messages.filter((m) => m.mine) ?? []) < 200 ? thread : refuse("too many today"));
 
 type Rule = (a: unknown[], me: number, s: LmsState, who: Who) => unknown[] | null; // null: nothing to save
 
@@ -201,7 +241,7 @@ const STUDENT: Record<string, Rule> = {
   toggleItemDone: ([m, i], me, s) => (myItem(s, me, m, i), [m, i, me]),
   earnXp: ([, amount], me) => [me, Math.round(num(amount, 0, 50))],
   // The server marks the quiz from the options the student picked; a score sent by the browser is ignored.
-  submitQuiz: ([m, i, , , , tabs, picks], me, s) => {
+  submitQuiz: ([m, i, , , , tabs, picks, mine], me, s) => {
     const it = myItem(s, me, m, i);
     const qs = it.questions ?? [];
     if (it.kind !== "quiz" || !qs.length) refuse("not a quiz");
@@ -211,7 +251,9 @@ const STUDENT: Record<string, Rule> = {
     // How long it really took, by the server's clock (the countdown on screen can be tampered with).
     const start = it.started?.[me];
     const took = start ? Math.max(0, Math.round((Date.now() - Date.parse(start)) / 1000)) : -1;
-    return [m, i, me, scoreQuiz(qs, list, it.points ?? qs.length, it.negative), markQuiz(qs, list), Math.round(num(tabs ?? 0, 0, 1000)), undefined, took];
+    // The device's own count far below the server's: handed in offline and sent later, so the server can't tell the real time (-2, never a false "too long").
+    const late = took >= 0 && typeof mine === "number" && mine >= 0 && took - mine > 120;
+    return [m, i, me, scoreQuiz(qs, list, it.points ?? qs.length, it.negative), markQuiz(qs, list), Math.round(num(tabs ?? 0, 0, 1000)), undefined, late ? -2 : took];
   },
   startQuiz: ([m, i], me, s) => (myItem(s, me, m, i).kind === "quiz" ? [m, i, me] : refuse("not a quiz")),
   submitAssignment: ([m, i, , sub], me, s) => {
@@ -267,15 +309,17 @@ const STUDENT: Record<string, Rule> = {
   answerFriend: ([, other, accept], me) => [me, int(other), accept === true],
   ensureLiveRoom: ([batch], me, s) => (batch === batchOf(s, me) ? [batch] : refuse("not your class")),
   sendStudentMessage: ([, text, extra], me, s) => {
-    const x = chatExtra(extra, s, `student-${me}`);
+    const x = chatExtra(extra, s, chatToday(s, `student-${me}`));
     return [me, chatText(text, x), x];
   },
 };
+/** markChatRead's "read up to": the newest message time the person saw, kept only if it is a real ISO time. */
+const readUpTo = (v: unknown) => (typeof v === "string" && v.length <= 40 && !Number.isNaN(Date.parse(v)) ? v : undefined);
 const FAMILY: Record<string, Rule> = {
   addPortfolio: ([id, title, image], _me, s, who) =>
     who.studentIds.includes(id as number) && s.portfolio.filter((p) => p.studentId === id).length < 100 ? [id, str(title, 200), upload(image, "image")] : refuse("not your child"),
   // Opening the chat: only this side's read time (the blue ticks); the teacher's unread count is theirs.
-  markChatRead: ([thread, , receipt], me, _s, who) => (receipt === false ? null : [familyThread(who, me, thread), "family", true]),
+  markChatRead: ([thread, , receipt, upTo], me, _s, who) => (receipt === false ? null : [familyThread(who, me, thread), "family", true, readUpTo(upTo)]),
   editChatMessage: (a, me, s, who) => chatChange("editChatMessage", a, s, familyThread(who, me, a[0]), "family", (m) => !!m.mine),
   deleteChatMessage: (a, me, s, who) => chatChange("deleteChatMessage", a, s, familyThread(who, me, a[0]), "family", (m) => !!m.mine),
   reactChatMessage: (a, me, s, who) => chatChange("reactChatMessage", a, s, familyThread(who, me, a[0]), "family", () => false),
@@ -286,7 +330,7 @@ const GUARDIAN: Record<string, Rule> = {
   cancelMeeting: ([id], _me, s, who) => (who.studentIds.includes(s.meetings.find((m) => m.id === id)?.bookedBy ?? -1) ? [id] : refuse("not your booking")),
   sendParentMessage: ([child, text, extra], _me, s, who) => {
     if (!who.studentIds.includes(child as number)) refuse("not your child");
-    const x = chatExtra(extra, s, `parent-${child}`);
+    const x = chatExtra(extra, s, chatToday(s, `parent-${child}`));
     return [child, chatText(text, x), x];
   },
 };
@@ -302,6 +346,7 @@ export function checkAction(name: string, args: unknown[], who: Who, s: LmsState
     // Staff change or delete only the teacher's own posts; a student's post is moderated by hiding it (moderatePost), never rewritten.
     if ((name === "editPost" || name === "deletePost") && s.community.find((p) => p.id === args[0])?.author !== "teacher") refuse("not your post");
     if (name === "addNote" && args[2] !== undefined) refuse("not your note");
+    if (name === "setStudentPremium" && args[3] !== undefined) refuse("only an approved payment marks itself"); // the payment id is the server's (admin payments)
     if (name === "deleteNote" && s.notes.find((n) => n.id === args[0])?.by !== undefined) refuse("not your note");
     if (who.role === "teacher" && name === "requestLeave" && (args[0] as { name?: unknown })?.name !== staffName(s, who)) refuse("only your own leave");
     if (name === "payFee" && args[2] !== undefined && !(typeof args[2] === "number" && Number.isFinite(args[2]) && args[2] > 0)) refuse("bad amount");
@@ -309,6 +354,8 @@ export function checkAction(name: string, args: unknown[], who: Who, s: LmsState
     // Students, fees and attendance find their batch by its name: two batches may never share one.
     const sameName = (a: unknown, b: unknown) => String(a ?? "").trim().toLowerCase() === String(b ?? "").trim().toLowerCase();
     if (name === "addBatch" && s.batches.some((b) => sameName(b.name, (args[0] as { name?: unknown })?.name))) refuse("batch name taken");
+    // A chapter in a batch that does not exist (e.g. "" before the first batch) is shown to no one and can never be found again.
+    if ((name === "addModule" || name === "copyModule") && !s.batches.some((b) => b.name === args[1])) refuse("no such batch");
     if (name === "addCalendarEvent") {
       const e = args[0] as { start?: unknown; end?: unknown };
       if (typeof e?.end === "string" && e.end && typeof e.start === "string" && e.end <= e.start) refuse("ends before it starts");
@@ -333,7 +380,10 @@ export function checkAction(name: string, args: unknown[], who: Who, s: LmsState
       const x = chatExtra(args[4], s, String(args[0]));
       return [args[0], staffName(s, who), chatText(args[2], x), false, x];
     }
-    if (name === "markChatRead") return [args[0], "staff", args[2] !== false];
+    if (name === "markChatRead") return [args[0], "staff", args[2] !== false, readUpTo(args[3])];
+    // A teacher answers doubts and opens meeting slots as themselves; owner and manager may act for a teacher. A new slot is never already booked.
+    if (name === "replyDoubt" && who.role === "teacher") return [args[0], { ...(args[1] as object), by: staffName(s, who) }, args[2]];
+    if (name === "addMeetingSlots" && Array.isArray(args[0])) return [args[0].map((m) => ({ ...(m as object), ...(who.role === "teacher" ? { teacher: staffName(s, who) } : {}), bookedBy: undefined }))];
     if (CHAT_CHANGES.has(name) && String(args[0]).startsWith("student-") && !seesPrivate(msgIn(s, args[0], args[1]), staffName(s, who))) refuse("private chat");
     if (CHAT_CHANGES.has(name)) return chatChange(name, args, s, String(args[0]), "staff", (m) => !m.mine && m.sender === staffName(s, who));
     // A video put into a chapter becomes a lesson too: its title, length and link are held to the same rules.
@@ -462,7 +512,8 @@ export function viewFor(s: LmsState, who: Who): LmsState {
         })),
       })),
     announcements: s.announcements.filter((a) => !a.batch || a.batch === "all" || batches.has(a.batch)), // not other (paid) batches' notices
-    exploreVideos: s.exploreVideos,
+    // A paid video's link only for families whose batch that teacher teaches (the watch screen's lock), so the file can't be opened by anyone else.
+    exploreVideos: s.exploreVideos.map((v) => (v.free !== false || s.batches.some((b) => b.teacher === v.teacher && batches.has(b.name)) ? v : { ...v, url: undefined })),
     enrolledCourses: s.enrolledCourses,
     calendarEvents: s.calendarEvents.filter((e) => !e.batch || batches.has(e.batch)), // older events have no batch: everyone's
     liveClass: batches.has(s.liveClass.batch) ? s.liveClass : { ...s.liveClass, batch: "", topic: "", link: "" }, // the class link is for its own batch only
@@ -540,7 +591,10 @@ export function runAction(state: LmsState, name: string, args: unknown[], base: 
   let s = state;
   // The browser's counter is its clock; one set far in the future would push every later id out of the safe number range.
   setIdBase(Math.min(Math.max(Math.min(base, Date.now() + 86_400_000), top), Number.MAX_SAFE_INTEGER - 1_000_000));
-  const acts = makeActions({ set: (fn) => void (s = { ...s, ...fn(s) }), get: () => s, replace: (x) => void (s = x), fresh: blankState, lastRoll: { current: 0 } });
+  // The sender's clock is when the change was made (a phone may sync days later); one over 35 days old counts as now, and none is later than now.
+  const now = Date.now();
+  const at = base >= now - 35 * 86_400_000 ? new Date(Math.min(base, now)) : undefined;
+  const acts = makeActions({ set: (fn) => void (s = { ...s, ...fn(s) }), get: () => s, replace: (x) => void (s = x), fresh: blankState, lastRoll: { current: 0 }, now: at });
   const fn = Object.hasOwn(acts, name) ? (acts as unknown as Record<string, unknown>)[name] : undefined;
   if (typeof fn !== "function") throw new Refused("unknown action");
   fn(...args);

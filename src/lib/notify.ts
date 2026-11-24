@@ -172,7 +172,7 @@ export function timedNotes(s: LmsState, now: Date): Note[] {
     const tomorrow = dhaka(now, 1).day;
     for (const m of s.modules.filter((x) => x.published))
       for (const it of m.items.filter((i) => HOMEWORK.has(i.kind) && i.dueDate === tomorrow))
-        for (const id of inBatch(s, m.batch).filter((x) => !it.submissions?.[x] && !it.doneBy?.includes(x) && it.scores?.[x] === undefined))
+        for (const id of inBatch(s, m.batch).filter((x) => !it.submissions?.[x] && !(Array.isArray(it.doneBy) && it.doneBy.includes(x)) && it.scores?.[x] === undefined))
           out.push({ to: { students: [id] }, group: "classwork", text: ["dueTomorrow", it.title], screen: "todo", once: `due:${it.id}:${id}` });
   }
   if (today.hour >= 10) {

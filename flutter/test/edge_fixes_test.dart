@@ -2,6 +2,9 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:classbari/main.dart' show Root;
+import 'package:classbari/push.dart';
+import 'package:classbari/screens/guardian.dart';
 import 'package:classbari/screens/guardian_more.dart';
 import 'package:classbari/screens/institute.dart';
 import 'package:classbari/screens/lesson.dart';
@@ -104,6 +107,15 @@ void main() {
     await tester.pumpWidget(const SizedBox());
   });
 
+  testWidgets('guardian child chips show full names, so two "Md." children differ; greetings skip "Md."', (tester) async {
+    store.fake({'parentChildren': [5, 6], 'students': [{'id': 5, 'name': 'Md. Rahim Uddin'}, {'id': 6, 'name': 'Md. Karim Uddin'}]}, 'guardian');
+    await show(tester, const Scaffold(body: ChildChips()));
+    expect(find.text('Md. Rahim Uddin'), findsOneWidget);
+    expect(find.text('Md. Karim Uddin'), findsOneWidget);
+    expect([firstName('Md. Rahim Uddin'), firstName('Mst Ayesha'), firstName('Rahim Uddin'), firstName('')], ['Rahim', 'Ayesha', 'Rahim', '']);
+    await tester.pumpWidget(const SizedBox());
+  });
+
   testWidgets('institute fees: a fee due sent as text does not crash', (tester) async {
     store.fake({'students': [{'id': 5, 'name': 'Rahim', 'batch': 'A', 'feeDue': '500'}, {'id': 6, 'name': 'Karim', 'batch': 'A', 'feeDue': 300}]}, 'owner');
     await show(tester, const Fees());
@@ -134,9 +146,61 @@ void main() {
     expect(find.text(t('app.markNotDone')), findsOneWidget); // still waiting to be sent, but shown flipped
     for (var i = 0; i < 2; i++) {
       await show(tester, const LessonScreen(moduleId: 1, itemId: 3));
+      await tester.tap(find.text(t('quiz.start')));
+      await tester.pump();
       await tester.pumpWidget(const SizedBox());
     }
     expect(sent('startQuiz').length, 1);
+  });
+
+  testWidgets('quiz: opening it does not start the clock; Start counts down and hands it in with the phone\'s own seconds', (tester) async {
+    store.fake({
+      'meId': 5,
+      'students': [{'id': 5, 'name': 'Rahim', 'batch': 'A'}],
+      'modules': [
+        {'id': 1, 'title': 'Ch', 'batch': 'A', 'published': true, 'items': [
+          {'id': 3, 'kind': 'quiz', 'title': 'Quiz', 'timeLimitMin': 1, 'questions': [{'q': 'Q?', 'options': ['a', 'b'], 'answer': 0}]},
+        ]},
+      ],
+    }, 'student');
+    await show(tester, const LessonScreen(moduleId: 1, itemId: 3));
+    await tester.pump(const Duration(seconds: 5));
+    expect(sent('startQuiz'), isEmpty); // looking at it on Monday doesn't count against Tuesday's attempt
+    await tester.tap(find.text(t('quiz.start')));
+    await tester.pump();
+    expect(sent('startQuiz').length, 1);
+    expect(find.textContaining(t('quiz.timeLeft')), findsOneWidget);
+    for (var i = 0; i < 61; i++) {
+      await tester.pump(const Duration(seconds: 1));
+    }
+    final args = sent('submitQuiz').single['args'] as List; // handed in by itself when time ran out, no question asked
+    expect(args[7], greaterThanOrEqualTo(60));
+    await tester.pumpWidget(const SizedBox());
+  });
+
+  testWidgets('quiz: coming back after leaving carries on the first countdown, so the server sees the real time, not "offline"', (tester) async {
+    store.fake({
+      'meId': 5,
+      'students': [{'id': 5, 'name': 'Rahim', 'batch': 'A'}],
+      'modules': [
+        {'id': 1, 'title': 'Ch', 'batch': 'A', 'published': true, 'items': [
+          {'id': 3, 'kind': 'quiz', 'title': 'Quiz', 'timeLimitMin': 10, 'questions': [{'q': 'Q?', 'options': ['a', 'b'], 'answer': 0}]},
+        ]},
+      ],
+    }, 'student');
+    await show(tester, const LessonScreen(moduleId: 1, itemId: 3));
+    await tester.tap(find.text(t('quiz.start')));
+    await tester.pump();
+    await tester.pumpWidget(const SizedBox()); // backs out of the lesson
+    // 30 minutes pass (the test clock doesn't move DateTime.now, so the saved first Start is moved back instead)
+    store.prefs.setInt('instanton-quiz-1-3-5', DateTime.now().millisecondsSinceEpoch - 30 * 60 * 1000);
+    await show(tester, const LessonScreen(moduleId: 1, itemId: 3));
+    await tester.tap(find.text(t('quiz.start')));
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+    final args = sent('submitQuiz').single['args'] as List; // no fresh 10:00: time was already up, handed in at once
+    expect(args[7], greaterThanOrEqualTo(30 * 60));
+    await tester.pumpWidget(const SizedBox());
   });
 
   testWidgets('offline: publishing a chapter and a free preview show at once', (tester) async {
@@ -179,7 +243,89 @@ void main() {
     expect(store.prefs.getString('classbari-data'), isNull);
   });
 
+  test('logging out with changes still not sent asks first, and "no" keeps them', () async {
+    store.fake({'meId': 1}, 'teacher');
+    await store.act('toggleAttendance', [5, '2026-11-23']); // no internet (no server in tests): it waits
+    int? asked;
+    await store.signOut(ask: (n) async {
+      asked = n;
+      return false;
+    });
+    expect(asked, 1);
+    expect(store.waiting.length, 1);
+    expect(store.prefs.getString('classbari-outbox'), contains('toggleAttendance'));
+    try {
+      await store.signOut(ask: (_) async => true);
+    } catch (_) {
+      // no Supabase in tests: the forgetting before it is what counts
+    }
+    expect(store.waiting, isEmpty);
+  });
+
+  testWidgets('"Use another account" also asks before throwing away changes still not sent', (tester) async {
+    store.fake({'meId': 1}, 'teacher');
+    await store.act('toggleAttendance', [5, '2026-11-23']); // marked offline; then the institute removed this teacher
+    store.status = Status.noAccess;
+    await show(tester, const Root());
+    await tester.tap(find.text(t('auth.tryOther')));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text(t('app.logOutWaiting', [1])), findsOneWidget);
+    await tester.tap(find.text(t('app.cancel')).last);
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(store.waiting.length, 1);
+    await tester.pumpWidget(const SizedBox());
+  });
+
   test('a refused change drops only itself; not sent yet stays queued', () {
     expect([200, 400, 403, 413, 401, 429, 500, 503].map(afterAnswer), ['sent', 'drop', 'drop', 'drop', 'login', 'wait', 'wait', 'wait']);
+  });
+
+  test('the invoice shows the discount the month was charged with, and earlier dues, so its lines add up', () {
+    final batch = <String, dynamic>{'fee': 1200, 'lateFine': 0};
+    final dec = invoiceOf({'id': 1, 'feeDue': 1200, 'discount': 200, 'chargedDiscount': 0}, batch, const [], '2026-12'); // scholarship set after the charge
+    expect([dec.carried, dec.fee, dec.discount, dec.balance], [0, 1200, 0, 1200]);
+    final jan = invoiceOf({'id': 1, 'feeDue': 2200, 'discount': 200, 'chargedDiscount': 200}, batch, const [], '2027-01'); // December still unpaid
+    expect([jan.carried, jan.fee, jan.discount, jan.balance], [1200, 1200, 200, 2200]);
+  });
+
+  testWidgets('logging out offline still makes Google forget the token, and tries again until it works', (tester) async {
+    var calls = 0, online = false;
+    deleteFcmToken = () async {
+      calls++;
+      if (!online) throw Exception('SERVICE_NOT_AVAILABLE');
+    };
+    pushReadyForTest = true;
+    pushTokenForTest = 'fcm-token-of-the-last-guardian';
+    await forgetPush(); // the server DELETE fails here too (no login in tests), as it does offline
+    expect(calls, 1); // used to be skipped whenever the DELETE failed
+    expect(store.prefs.getBool('instanton-push-forget'), isTrue); // kept for the next app start
+    online = true;
+    await tester.pump(const Duration(minutes: 1));
+    expect(calls, 2);
+    expect(store.prefs.getBool('instanton-push-forget'), isNull);
+    pushReadyForTest = false;
+  });
+
+  testWidgets('offline from app start to logout: Google still forgets the token, and a stale retry does nothing', (tester) async {
+    var calls = 0;
+    deleteFcmToken = () async {
+      calls++;
+      throw Exception('SERVICE_NOT_AVAILABLE');
+    };
+    pushReadyForTest = true;
+    await registerPush(); // registered on an earlier day; this run's register fails (no Firebase here, as offline), so no token is known
+    await forgetPush();
+    expect(calls, 1); // used to stop at "no token" and never ask Google
+    expect(store.prefs.getBool('instanton-push-forget'), isTrue);
+    await store.prefs.remove('instanton-push-forget'); // another try worked meanwhile and the next person registered
+    await tester.pump(const Duration(minutes: 1));
+    expect(calls, 1); // the stale retry must not delete the next person's token
+    await forgetPush(); // the second call after a logout (leftScreens) has nothing left to forget
+    expect(calls, 1);
+    pushReadyForTest = false;
+  });
+  test('the same settings give an equal theme, so a store change does not restart the app-wide theme animation', () {
+    expect(classbariTheme(Brightness.light, sky: true, glass: 0.5) == classbariTheme(Brightness.light, sky: true, glass: 0.5), isTrue);
+    expect(classbariTheme(Brightness.dark) == classbariTheme(Brightness.light), isFalse);
   });
 }

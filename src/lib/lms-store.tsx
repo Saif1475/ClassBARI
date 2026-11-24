@@ -9,7 +9,7 @@ import { dayKey, toDate } from "./dates";
 import { blankState, idBase, makeActions, monthKey, rollFees, setIdBase, type LmsState } from "./lms-actions";
 import { FEE_DUE_DAY, seed, type Batch, type CalendarEvent, type CourseModule, type ItemKind, type ModuleItem, type Payment, type Staff } from "./mock-data";
 import { masteryLevel, type QuizQuestion } from "./quiz";
-import { afterAnswer, LOCAL_ONLY, SERVER_FIRST } from "./data-access";
+import { afterAnswer, answerWaits, LOCAL_ONLY, pullAfterSend, onceSoon, pullFromVersion, savedView, SERVER_FIRST, shownCopy } from "./data-access";
 import { monthAttendance } from "./lms-views";
 
 export type * from "./mock-data";
@@ -47,12 +47,14 @@ function useLmsState() {
   const [saveError, setSaveError] = useState<boolean | "suspended">(false); // "suspended": Instanton Campus suspended the institute
 
   // ---- Real accounts: the institute's data lives on the server; each action is sent there and checked.
-  const version = useRef(0);
+  const version = useRef(0); // what the next download asks from
+  const shown = useRef(shownCopy()).current; // which copy the screen shows (see shownCopy)
   const outbox = useRef<Sent[]>([]);
   const busy = useRef(false);
   // Changes not yet on the server are kept in this browser, so closing the tab while offline doesn't lose them.
   const owner = useRef(""); // whose changes they are: never sent from someone else's sign-in on the same browser
   const tries = useRef(0);
+  const waits = useRef(answerWaits()).current; // screens waiting on a change's answer (see saved below)
   const keep = () => {
     try {
       if (outbox.current.length) localStorage.setItem(OUTBOX_KEY, JSON.stringify({ owner: owner.current, items: outbox.current }));
@@ -61,6 +63,7 @@ function useLmsState() {
       /* shortcut: a change with a big file can pass the browser's 5 MB limit and is then kept only while the tab is open; move to IndexedDB if that bites */
     }
   };
+  const keepSoon = useRef(onceSoon(() => keep())).current; // many changes in one click (an import) write the queue once; microtasks still run before the tab can close
   // The viewer (whose batches the owner is looking at) is this screen's choice, not saved data.
   const adopt = (server: LmsState) => setState((prev) => ({ ...blankState(), ...server, viewer: prev.viewer === "all" ? server.viewer : prev.viewer }));
   const cached = useRef(false); // showing the copy kept on this device, until the server's answer replaces it
@@ -73,9 +76,12 @@ function useLmsState() {
     if (res.status === 401) {
       forgetView(); // not signed in (any more), or taken off the list: nothing of theirs stays on the device or the screen
       cached.current = false;
+      version.current = 0; // the next sign-in may be another institute, whose versions are lower
+      shown.forget();
     }
     if (!res.ok) return false;
     const d = (await res.json()) as { state: LmsState; version: number; role?: string };
+    if (!shown.take(d.version, `${d.role}:${d.state.meId}:${d.state.teacherLogin}:${d.state.instituteName}`)) return true; // a newer save already came back while this was on its way
     version.current = d.version;
     if (!owner.current) {
       owner.current = `${d.role}:${d.state.meId}:${d.state.teacherLogin}:${d.state.instituteName}`;
@@ -95,17 +101,21 @@ function useLmsState() {
     if (busy.current) return;
     busy.current = true;
     let refused: boolean | "suspended" = false;
+    let stale = false;
+    let last = 0;
     try {
       while (outbox.current.length) {
         const res = await fetch("/api/data", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(outbox.current[0]) });
-        const what = afterAnswer(res.status, res.status === 401 ? 0 : ++tries.current); // only busy answers count towards giving up
+        last = res.status;
+        const what = afterAnswer(res.status, res.status === 401 || res.status === 429 ? 0 : ++tries.current); // only busy answers count towards giving up
         // Server busy, unreachable through a proxy, or the login needs renewing: keep the change and try again later.
         if (what === "wait") {
+          waits.stop(outbox.current);
           setSaveError(true);
           break;
         }
         tries.current = 0;
-        outbox.current.shift();
+        waits.settle(outbox.current.shift(), what);
         if (what === "drop") {
           const why = res.status === 403 ? ((await res.json().catch(() => ({}))) as { error?: string }).error : "";
           refused = why === "suspended" ? "suspended" : true; // only this one goes; the rest are still sent
@@ -113,16 +123,22 @@ function useLmsState() {
           continue;
         }
         keep();
-        const d = (await res.json()) as { state: LmsState; version: number };
-        version.current = d.version;
+        const d = savedView<LmsState>(await res.json());
         setSaveError(false);
+        if (!d) {
+          version.current = 0; // saved, but no data came back: keep the screen and ask for all of it
+          stale = true;
+          continue;
+        }
+        if (!shown.take(d.version, `${(d as { role?: string }).role}:${d.state.meId}:${d.state.teacherLogin}:${d.state.instituteName}`)) continue; // a download of a newer copy already landed
+        version.current = d.version;
         if (!outbox.current.length) adopt(d.state);
       }
-      if (refused) {
-        setSaveError(refused); // refused or failed: show what the server really has
-        await pull();
-      }
+      if (refused) setSaveError(refused); // refused or failed: show what the server really has
+      version.current = pullFromVersion(refused, version.current); // refused: ask for all of it, or the answer is 204 and the refused change stays on screen
+      if (pullAfterSend(refused, stale, last)) await pull();
     } catch {
+      waits.stop(outbox.current);
       setSaveError(true); // offline: what's left is sent with the next change or refresh
     } finally {
       busy.current = false;
@@ -227,11 +243,12 @@ function useLmsState() {
           LOCAL_ONLY.has(name)
             ? fn
             : (...args: unknown[]) => {
-                const base = idBase();
+                const base = Math.max(idBase(), Date.now()); // the server reads it as when the change was made, so it follows the clock (as the apps' does)
+                setIdBase(base);
                 const out = SERVER_FIRST.has(name) ? undefined : (fn as (...a: unknown[]) => unknown)(...args);
                 outbox.current.push({ name, args, base });
                 if (idBase() === base) setIdBase(base + 1); // made no new id: the next change still gets its own base, or the server takes it for a resend
-                keep();
+                keepSoon();
                 void flush();
                 return out;
               },
@@ -296,7 +313,9 @@ function useLmsState() {
     return { students, studentById, waiting, todos, calendar, attendanceOf };
   }, [state, today]);
 
-  return { ...state, ...derived, ...actions, ready, saveError };
+  // The server's answer to the last change made: "sent", "wait" (offline, kept for later) or "drop" (refused). Without real accounts nothing is queued: "sent".
+  const saved = () => waits.wait(outbox.current.at(-1));
+  return { ...state, ...derived, ...actions, ready, saveError, saved };
 }
 
 type LmsContextType = ReturnType<typeof useLmsState>;

@@ -1,6 +1,6 @@
 import { REAL_AUTH } from "@/lib/auth-mode";
 import { STAFF_ROLES, uploadSlot, whoIs } from "@/lib/data-server";
-import { MAX_FILE_BYTES, readCapped } from "@/lib/doc-limit";
+import { fileTooBig, readCapped } from "@/lib/doc-limit";
 import { limited } from "@/lib/rate-limit";
 
 /** A signed-in person asks for a slot to upload one file (video, PDF) straight to storage. */
@@ -12,8 +12,7 @@ export async function POST(request: Request) {
   const over = limited(request, "upload", 120, 3600_000, me.institute); // shortcut: 120 uploads an hour per institute; storage limits per plan come with billing
   if (over) return over;
   // The bucket refuses a bigger file anyway; saying so here saves a teacher a long upload that fails at the end.
-  const size = Number(/"size"\s*:\s*(\d+)/.exec((await readCapped(request, 1000).catch(() => null)) ?? "")?.[1] ?? NaN);
-  if (!(size >= 0 && size <= MAX_FILE_BYTES)) return Response.json({ error: "too large" }, { status: 413 });
+  if (fileTooBig(await readCapped(request, 1000).catch(() => null))) return Response.json({ error: "too large" }, { status: 413 });
   try {
     return Response.json(await uploadSlot(me.institute));
   } catch (e) {

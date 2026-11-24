@@ -1,6 +1,6 @@
 "use client";
 
-import { ChatRoom } from "@/components/chat/ChatRoom";
+import { ChatRoom, chatOpened } from "@/components/chat/ChatRoom";
 import { preview, unreadFor } from "@/lib/chat";
 import { BottomBar } from "@/components/BottomBar";
 import { defaultTone } from "@/lib/theme";
@@ -28,6 +28,7 @@ import { StoryFeed } from "@/components/dojo/StoryFeed";
 import { Portfolio } from "@/components/dojo/Portfolio";
 import { TopicMastery } from "@/components/TopicMastery";
 import { XP } from "@/lib/xp";
+import { firstName } from "@/lib/site";
 import { openDataUrl } from "@/lib/files";
 import { MyQr } from "@/components/student/MyQr";
 import { FileLink } from "@/components/FileLink";
@@ -60,7 +61,7 @@ const tagStyle = {
 };
 const dot = { urgent: "bg-error", soon: "bg-tertiary", normal: "bg-primary" };
 const thumbs = [
-  "bg-primary text-white",
+  "bg-primary text-on-primary", // not text-white: dark mode's bright primary needs dark text, and no dark fix-up covers span tiles
   "bg-tertiary-container text-on-tertiary-container",
   "bg-primary-container text-on-primary-container",
   "bg-deep text-primary-container",
@@ -112,7 +113,7 @@ export default function StudentPage() {
   // sample threads. Guardians' threads aren't shown to students.
   const ownChat = lms.chats.find((c) => c.id === `student-${meId}`);
   const chats = [
-    { id: `student-${meId}`, name: teacherName, role: course, unread: 0, online: false, messages: ownChat?.messages ?? [] },
+    { id: `student-${meId}`, name: teacherName, role: course, unread: 0, online: false, messages: ownChat?.messages ?? [], readFamily: ownChat?.readFamily },
     ...lms.chats.filter((c) => !/^(parent|student)-/.test(c.id)),
   ];
   const announcements = noticesFor(lms.announcements, course); // also the notices for every batch
@@ -132,6 +133,8 @@ export default function StudentPage() {
   const quizzes = quizResults(publishedModules, meId);
 
   const activeChat = chats.find((c) => c.id === activeChatId) ?? chats[0];
+  const [opened, setOpened] = useState<Record<string, string>>({}); // this device's last-opened times (the badge with read receipts off)
+  useEffect(() => setOpened(chatOpened()), [activeChat?.id, lms.chats, navTab]); // after ChatRoom (a child) has saved its own; navTab too, since opening the Inbox mounts ChatRoom without changing the chats
   const totalUnread = chats.reduce((sum, c) => sum + c.unread, 0);
 
   const q = query.trim().toLowerCase();
@@ -350,7 +353,7 @@ export default function StudentPage() {
               </button>
             )}
             {activeItem.kind === "quiz" && (
-              <QuizRunner key={activeItem.id} item={activeItem} studentId={meId} onStart={() => lms.startQuiz(activeModule.id, activeItem.id, meId)} onSubmit={(score, marks, tabs, picks) => lms.submitQuiz(activeModule.id, activeItem.id, meId, score, marks, tabs, picks)} />
+              <QuizRunner key={activeItem.id} item={activeItem} studentId={meId} onStart={() => lms.startQuiz(activeModule.id, activeItem.id, meId)} onSubmit={(score, marks, tabs, picks, took) => lms.submitQuiz(activeModule.id, activeItem.id, meId, score, marks, tabs, picks, took)} />
             )}
             {activeItem.kind === "quiz" && activeItem.scores?.[meId] !== undefined && (() => {
               // Only my own rank: students never see other children's names or marks (same rule as the merit list).
@@ -408,7 +411,7 @@ export default function StudentPage() {
           {navTab === "dashboard" && (
             <main className="flex min-w-0 flex-1 flex-col [&>*]:shrink-0 gap-5 px-4 pb-28 pt-4 md:overflow-y-auto md:px-8 md:pb-8 md:pt-6">
               <div>
-                <h1 className="text-3xl font-bold">{t.kid.hi(myName.split(" ")[0])}</h1>
+                <h1 className="text-3xl font-bold">{t.kid.hi(firstName(myName))}</h1>
                 <p className="mt-1 text-lg text-on-surface-variant">{t.kid.sub}</p>
               </div>
 
@@ -934,7 +937,7 @@ export default function StudentPage() {
                         <div className="flex min-w-0 flex-1 flex-col">
                           <div className="flex items-center justify-between gap-2">
                             <span className="truncate text-sm font-bold">{c.name}</span>
-                            {unreadFor(c, "family") > 0 && <span className="rounded-full bg-primary px-2 py-0.5 text-[11px] font-bold text-on-primary">{unreadFor(c, "family")}</span>}
+                            {unreadFor(c, "family", opened[c.id]) > 0 && <span className="rounded-full bg-primary px-2 py-0.5 text-[11px] font-bold text-on-primary">{unreadFor(c, "family", opened[c.id])}</span>}
                           </div>
                           <span className="truncate text-xs opacity-75">{c.role}</span>
                           <span className="mt-0.5 truncate text-xs opacity-90">{preview(last, t.chat)}</span>

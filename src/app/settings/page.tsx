@@ -17,6 +17,7 @@ import { logOut } from "@/lib/logout";
 import { REAL_AUTH } from "@/lib/auth-mode";
 import { isBdMobile } from "@/lib/site";
 import { supabaseLater } from "@/lib/supabase/later";
+import { backupFileName } from "@/lib/dates";
 import { applyThemeMode, applyTone, readThemeMode, readTone, type ThemeMode, type Tone } from "@/lib/theme";
 
 const HOME: Record<Role, string> = { student: "/student", teacher: "/teacher", institute: "/institute", parent: "/parent" };
@@ -34,6 +35,7 @@ export default function Settings() {
   useEffect(() => setRole(getRole()), []);
   if (!lms.ready || !role) return null;
   const staff = role === "teacher" || role === "institute";
+  const backup = role === "institute" || (!REAL_AUTH && staff); // restoring is owner-only on the server (a teacher's would always be refused); the demo has no server
 
   return (
     <div className="min-h-dvh px-4 py-6 md:px-8">
@@ -51,7 +53,7 @@ export default function Settings() {
         {REAL_AUTH && <Password />}
         {(REAL_AUTH || !staff) && <Notifications role={role} />}
         {role === "institute" && <SeatBillingCard totalStudents={lms.students.length} />}
-        {staff && <Backup />}
+        {backup && <Backup />}
 
         <section className={card}>
           <h2 className="text-lg font-bold">{S.help}</h2>
@@ -302,7 +304,7 @@ function Backup() {
     const url = URL.createObjectURL(new Blob([lms.exportBackup()], { type: "application/json" }));
     const a = document.createElement("a");
     a.href = url;
-    a.download = `instanton-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = backupFileName();
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -323,8 +325,9 @@ function Backup() {
               const f = e.target.files?.[0];
               e.target.value = "";
               if (!f || !window.confirm(S.restoreQ)) return;
-              const ok = lms.importBackup(await f.text());
-              setMsg({ ok, text: ok ? S.restored : S.badBackup });
+              if (!lms.importBackup(await f.text())) return setMsg({ ok: false, text: S.badBackup });
+              const what = await lms.saved(); // the screen already shows the file; say "Restored" only once the server kept it
+              setMsg(what === "sent" ? { ok: true, text: S.restored } : { ok: false, text: what === "wait" ? t.app.sentLater : t.auth.syncFailed });
             }}
           />
         </label>

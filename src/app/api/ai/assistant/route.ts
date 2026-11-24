@@ -1,8 +1,8 @@
 import { chatFile, chatImage, chatPrefs, cleanHistory, costUsd, MODELS, modelOn, modelMenu, budgetPaused, prefsRule, takeTurn, TRAILER, usedTokens, withFile } from "@/lib/ai-chat";
-import { allowance } from "@/lib/ai-allowance";
+import { allowance, answerMaxUsd } from "@/lib/ai-allowance";
 import { creditHistory } from "@/lib/ai-credit";
 import { gate } from "@/lib/ai-gate";
-import { modelReady, streamChat } from "@/lib/ai-providers";
+import { modelReady, streamChat, type Answered } from "@/lib/ai-providers";
 import { embed, findAnswer, saveAnswer, shareable, VET_RULES, vetAsk, vetModel, vetSaysYes } from "@/lib/answer-cache";
 import { chatTools, toolsRule } from "@/lib/chat-tools";
 import { admin, aiSpent } from "@/lib/data-server";
@@ -57,7 +57,9 @@ export async function POST(request: Request) {
   const release = await takeTurn(key); // one answer at a time per student, so the count read below is never out of date
   let streaming = false; // an answer on its way lets go itself, once it is counted
   try {
-    const a = await allowance(db, key, me.institute, plan, ai, student.premiumUntil); // tokens and money for today, or extra credit
+    const maxTokens = tools.think ? 6000 : 4000;
+    // Paid from credit only if the credit covers the dearest answer this model could give, as the cost is taken afterwards.
+    const a = await allowance(db, key, me.institute, plan, ai, student.premiumUntil, answerMaxUsd(model, maxTokens, RULES.length + JSON.stringify(withFile(history, file)).length)); // tokens and money for today, or extra credit
     const leftNow = a.left();
 
     // Asked before by someone? Answer from the saved copy: instant, and it uses none of the student's allowance.
@@ -85,7 +87,7 @@ export async function POST(request: Request) {
         let keep = "";
         try {
           let answer = "";
-          const r = await streamChat({ model, system: [{ text: RULES }, { text: [prefsRule(prefs, history[history.length - 1].content), toolsRule(tools)].filter(Boolean).join("\n") }], messages: withFile(history, file), image, maxTokens: tools.think ? 6000 : 4000, think: !!tools.think, cacheFirst: !!file }, (t) => ((answer += t), send(t)));
+          const r = await streamChat({ model, system: [{ text: RULES }, { text: [prefsRule(prefs, history[history.length - 1].content), toolsRule(tools)].filter(Boolean).join("\n") }], messages: withFile(history, file), image, maxTokens, think: !!tools.think, cacheFirst: !!file }, (t) => ((answer += t), send(t)));
           keep = !!vec && !r.declined && !r.cut && answer.trim().length > 20 ? answer.trim() : "";
           const tokens = usedTokens(r.usage);
           const cost = costUsd(model, r.usage);
@@ -96,6 +98,9 @@ export async function POST(request: Request) {
           send(TRAILER + JSON.stringify({ left, credit: a.paying ? a.creditTk(cost) : undefined, declined: r.declined, cut: r.cut }));
         } catch (e) {
           console.error("ai assistant:", e instanceof Error ? e.message : e);
+          // Broke off partway: the provider still bills what it wrote, so it is counted like any answer.
+          const u = (e as { usage?: Answered["usage"] }).usage;
+          if (u) await a.record(costUsd(model, u), usedTokens(u)).catch(() => {});
           send(TRAILER + JSON.stringify({ error: true }));
         }
         release(); // counted (or failed): the student's next question may go ahead

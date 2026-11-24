@@ -8,6 +8,9 @@ const locale = (lang: Lang) => (lang === "bn" ? "bn-BD" : "en-GB");
 export const dayKey = (d: Date = new Date()) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
+/** Backup download name, dated by the local day (UTC would say yesterday before 06:00 in Dhaka). */
+export const backupFileName = (d: Date = new Date()) => `instanton-backup-${dayKey(d)}.json`;
+
 /** ISO time `days` from today at local hh:mm. */
 export const at = (days: number, h: number, m = 0) => {
   const d = new Date();

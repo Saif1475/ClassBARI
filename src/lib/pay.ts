@@ -62,3 +62,17 @@ export function packClash(st: { premiumUntil?: string; aiPack?: number } | undef
   const pack = (PACKS as readonly number[]).includes(st.aiPack as number) ? (st.aiPack as number) : PACKS[0];
   return pack === item ? null : { pack, until: st.premiumUntil };
 }
+
+/**
+ * What approving an AI pack payment does to the student: the setStudentPremium args (with the payment id, so it is
+ * added once), or null with the reason (no student, or a clash). A payment whose months are already in (the save went
+ * through but its answer was lost, and the admin approved again) changes nothing and keeps the date it gave.
+ */
+export function packGrant(st: { id: number; premiumUntil?: string; aiPack?: number; packPays?: string[] } | undefined, today: string, item: number, months: number, payId: string) {
+  if (!st) return { until: "", clash: null, args: null };
+  if (st.packPays?.includes(payId)) return { until: st.premiumUntil ?? "", clash: null, args: null };
+  const clash = packClash(st, today, item); // a different pack is still running: its paid months must keep their level
+  if (clash) return { until: "", clash, args: null };
+  const until = packUntil(st.premiumUntil, today, months);
+  return { until, clash: null, args: [st.id, until, item, payId] };
+}

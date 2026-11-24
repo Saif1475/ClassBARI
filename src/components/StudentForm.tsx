@@ -38,7 +38,7 @@ export function StudentForm({
     guardianName: initial?.guardianName ?? "",
     guardianEmail: initial?.guardianEmail ?? "",
     phone: initial?.phone ?? "",
-    batch: initial?.batch ?? batch ?? batches?.[0] ?? "",
+    batch: (batches && !batches.includes(initial?.batch ?? "") ? undefined : initial?.batch) ?? batch ?? batches?.[0] ?? "", // a batch not in the list (none chosen yet, or deleted) would show the first one but save the other
     mode: initial?.mode ?? ("offline" as "offline" | "online"),
     gender: (initial?.gender ?? "") as "" | "male" | "female",
     feePaid: true,
@@ -69,7 +69,7 @@ export function StudentForm({
         setErrors(Object.fromEntries(Object.entries(found).map(([k, v]) => [k, R.errors[v]])));
         const noGender = !!batches && !f.gender; // the institute's own form must say male or female
         setGenderMissing(noGender);
-        if (Object.keys(found).length || noGender) return;
+        if (Object.keys(found).length || noGender || (batches && !f.batch)) return; // no batch to put them in: the server would refuse the student, as the apps do
         onSubmit({ ...f, gender: f.gender || undefined, batch: batch ?? f.batch });
       }}
     >
@@ -107,6 +107,7 @@ export function StudentForm({
             <select value={f.batch} onChange={up("batch")} className={box}>
               {batches.map((b) => <option key={b} value={b}>{b}</option>)}
             </select>
+            {!f.batch && <span role="alert" className="font-semibold text-error">{t.teacher.noBatchYet}</span>}
           </label>
           <label className={label}>
             {t.student.mode}
@@ -127,7 +128,7 @@ export function StudentForm({
         </fieldset>
       )}
 
-      <button type="submit" className="h-12 self-start rounded-full bg-primary px-6 font-bold text-on-primary">{submitLabel}</button>
+      <button type="submit" disabled={!!batches && !f.batch} className="h-12 self-start disabled:opacity-50 rounded-full bg-primary px-6 font-bold text-on-primary">{submitLabel}</button>
     </form>
   );
 }

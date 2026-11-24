@@ -75,6 +75,21 @@ test("SMS: only Bangladeshi mobiles, de-duplicated, within the daily limit and s
   assert.deepEqual(checkSms(p, ["01811111111"], "x", now), { error: "switched off" });
 });
 
+test("SMS and push daily limits reset at Dhaka midnight, not UTC midnight", async () => {
+  const { checkSms, logSms, pushTargets } = await import("../src/lib/platform.ts");
+  const p = defaultPlatform();
+  p.smsDailyLimit = 1;
+  logSms(p, [{ at: "2026-11-24T19:00:00.000Z", to: "01711234511", text: "a", status: "sent" }]); // 01:00 Dhaka on the 25th
+  assert.deepEqual(checkSms(p, ["01811111111"], "x", new Date("2026-11-24T23:30:00.000Z")), { error: "daily limit reached" }); // 05:30 Dhaka, same Dhaka day
+  const q = defaultPlatform();
+  q.smsDailyLimit = 1;
+  logSms(q, [{ at: "2026-11-24T17:00:00.000Z", to: "01711234511", text: "a", status: "sent" }]); // 23:00 Dhaka on the 24th
+  assert.ok("numbers" in checkSms(q, ["01811111111"], "x", new Date("2026-11-24T19:00:00.000Z"))); // 01:00 Dhaka on the 25th: a new day
+  q.pushSent = { day: "", count: 0 };
+  pushTargets(q, "B1", new Date("2026-11-24T19:00:00.000Z"));
+  assert.equal(q.pushSent.day, "2026-11-25");
+});
+
 test("push: valid subscriptions only, one per browser, targeted by batch, daily limit", async () => {
   const { addPushSub, pushTargets, PUSH_DAILY_LIMIT } = await import("../src/lib/platform.ts");
   const p = defaultPlatform();
@@ -83,6 +98,10 @@ test("push: valid subscriptions only, one per browser, targeted by batch, daily 
   assert.deepEqual(addPushSub(p, sub("https://fcm.googleapis.com/x"), now), { ok: true }); // same browser again
   assert.deepEqual(addPushSub(p, sub("http://evil/x"), now), { error: "bad subscription" });
   assert.deepEqual(addPushSub(p, sub("https://internal.example/x"), now), { error: "bad subscription" }); // not a browser push service
+  const { pushSubOk } = await import("../src/lib/platform.ts"); // the real-accounts route uses this same check
+  assert.equal(pushSubOk(sub("https://fcm.googleapis.com/x").subscription), true);
+  assert.equal(pushSubOk(sub("https://10.128.0.5:8443/anything").subscription), false);
+  assert.equal(pushSubOk(sub("https://fcm.googleapis.com.evil.io/x").subscription), false);
   assert.deepEqual(addPushSub(p, { ...sub("https://updates.push.services.mozilla.com/b"), role: "teacher" }, now), { error: "bad role" });
   assert.equal(p.push.length, 1);
   assert.equal(pushTargets(p, "HSC A", now).length, 1);

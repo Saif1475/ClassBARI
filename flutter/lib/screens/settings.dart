@@ -235,7 +235,7 @@ class SettingsScreen extends StatelessWidget {
             Item(icon: I.info, title: kAppName, subtitle: t('settings.appVersion', [kVersion])),
           ],
         ),
-        Doing(label: t('app.logOut'), icon: I.logout, soft: true, danger: true, onPressed: store.signOut),
+        Doing(label: t('app.logOut'), icon: I.logout, soft: true, danger: true, onPressed: () => store.signOut(ask: (n) => confirm(context, t('app.logOut'), t('app.logOutWaiting', [n]), yes: t('app.logOut')))),
       ],
     );
   });

@@ -6,9 +6,18 @@ import { chatHtml, closePdfBrowser, htmlToPdf, pdfTurns, richHtml } from "../src
 test("only a sensible chat is accepted", () => {
   assert.equal(pdfTurns([]), null);
   assert.equal(pdfTurns([{ role: "system", content: "x" }]), null);
-  assert.equal(pdfTurns(Array.from({ length: 201 }, () => ({ role: "user", content: "a" }))), null);
   assert.equal(pdfTurns([{ role: "user", content: "x".repeat(300_001) }]), null);
   assert.deepEqual(pdfTurns([{ role: "user", content: "hi", photo: true, extra: 1 }]), [{ role: "user", content: "hi", photo: true }]);
+});
+
+test("a long chat keeps its newest turns instead of failing", () => {
+  const long = Array.from({ length: 202 }, (_, i) => ({ role: i % 2 ? "assistant" : "user", content: String(i) }));
+  const got = pdfTurns(long);
+  assert.equal(got.length, 200);
+  assert.equal(got[0].content, "2");
+  assert.equal(got.at(-1).content, "201");
+  const big = pdfTurns([{ role: "user", content: "old" }, { role: "assistant", content: "x".repeat(200_000) }, { role: "user", content: "y".repeat(200_000) }]);
+  assert.deepEqual(big.map((t) => t.content.length), [200_000]);
 });
 
 test("chat text is shown, never run: no HTML gets through", () => {

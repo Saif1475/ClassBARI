@@ -1,9 +1,10 @@
 // Live class polls, one per batch, kept in this server's memory.
 // shortcut: like the live quiz game, needs a single `next start` server; move to Supabase Realtime with the backend.
 import { randomUUID } from "node:crypto";
-import { pollView, startPoll, vote, type Poll } from "@/lib/live-poll";
+import { pollView, startPoll, vote, voterOf, type Poll } from "@/lib/live-poll";
 import { liveScope } from "@/lib/data-server";
 import { jsonBody } from "@/lib/platform-server";
+import { limited } from "@/lib/rate-limit";
 
 const polls = ((globalThis as { __classbariPolls?: Map<string, Poll> }).__classbariPolls ??= new Map<string, Poll>());
 const MAX_AGE_MS = 3 * 60 * 60 * 1000;
@@ -14,7 +15,7 @@ export async function GET(request: Request) {
   const scope = await liveScope(request, url.searchParams.get("batch") ?? "");
   const p = scope && polls.get(scope.key);
   if (!p || Date.now() - p.at > MAX_AGE_MS) return Response.json({ poll: null });
-  return Response.json({ poll: pollView(p, { staff: scope.staff, voter: url.searchParams.get("voter") ?? undefined }) });
+  return Response.json({ poll: pollView(p, { staff: scope.staff, voter: voterOf(scope.person, url.searchParams.get("voter") ?? undefined) as string | undefined }) });
 }
 
 /** { action: "start", batch, question, options, correct } · { action: "end", batch } (staff) · { action: "vote", batch, pollId, voter, option } */
@@ -34,9 +35,11 @@ export async function POST(request: Request) {
     return Response.json({ ok: true, id: p.id });
   }
   if (b.action === "vote") {
+    const over = limited(request, "poll", 600, 60_000); // a whole class may share one Wi-Fi address
+    if (over) return over;
     const p = polls.get(scope.key);
     if (!p) return Response.json({ error: "poll ended" }, { status: 409 });
-    const r = vote(p, b.pollId, b.voter, b.option);
+    const r = vote(p, b.pollId, voterOf(scope.person, b.voter), b.option);
     return Response.json(r, { status: "error" in r ? 409 : 200 });
   }
   return Response.json({ error: "unknown action" }, { status: 400 });

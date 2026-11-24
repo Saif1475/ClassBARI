@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useLang } from "@/lib/i18n/LanguageProvider";
 import { fmtWhen } from "@/lib/dates";
-import { MAX_UPLOAD_BYTES, openDataUrl, uploadData } from "@/lib/files";
+import { MAX_UPLOAD_BYTES, isPhoto, openDataUrl, uploadData } from "@/lib/files";
 import type { RubricCriterion, Submission } from "@/lib/lms-store";
 
 /** Student hand-in: pick a photo/PDF, submit, then see the grade and comment. */
@@ -41,7 +41,7 @@ export function SubmitAssignment({ sub, points, rubric, onSubmit }: { sub?: Subm
           capture="environment"
           onChange={(e) => {
             const f = e.target.files?.[0] ?? null;
-            const fits = !!f && (f.size <= MAX_UPLOAD_BYTES || f.type.startsWith("image/")); // big photos are made smaller when sent
+            const fits = !!f && (f.size <= MAX_UPLOAD_BYTES || isPhoto(f)); // big photos are made smaller when sent
             setError(f && !fits ? U.tooBig : "");
             setFile(fits ? f : null);
           }}
@@ -55,7 +55,7 @@ export function SubmitAssignment({ sub, points, rubric, onSubmit }: { sub?: Subm
         onClick={async () => {
           const data = file && (await uploadData(file));
           if (file && data) onSubmit({ fileName: file.name, file: data });
-          else setError(U.tooBig);
+          else setError(file && isPhoto(file) ? U.badPhoto : U.tooBig); // a photo fails only when the browser can't read it (HEIC in Chrome)
         }}
         className="h-11 self-start rounded-full bg-primary px-6 text-sm font-bold text-on-primary disabled:opacity-50"
       >

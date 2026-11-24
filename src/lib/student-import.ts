@@ -73,7 +73,7 @@ export function gridFromPieces(pieces: Piece[]): string[][] {
   const students = lines.filter((l) => marked(text(l)));
   const sample = students.length >= 2 ? students : lines.filter((l) => l.length >= 2);
   // How many sample lines have words at each x, in steps of a quarter letter height.
-  const left = Math.min(...ps.map((p) => p.x)), step = h / 4;
+  const left = ps.reduce((m, p) => Math.min(m, p.x), Infinity), step = h / 4; // not Math.min(...): a spread of 100,000+ pieces overflows the stack
   const cover: number[] = [];
   for (const l of sample) {
     const hit = new Set<number>();
@@ -90,7 +90,7 @@ export function gridFromPieces(pieces: Piece[]): string[][] {
   });
   if (cols.length < 2) {
     const cut = lines.map(text).filter(marked).map(cutAtMarks);
-    const width = Math.max(0, ...cut.map((r) => r.length));
+    const width = cut.reduce((w, r) => Math.max(w, r.length), 0);
     return cut.map((r) => [...r, ...Array<string>(width - r.length).fill("")]);
   }
   const columnOf = (p: Piece) => {
@@ -137,7 +137,7 @@ export function gridFromPieces(pieces: Piece[]): string[][] {
  * first row has no Gmail or number while later rows do).
  */
 export function guessFields(grid: string[][], batchNames: string[], heads?: boolean): { heads: boolean; fields: Field[] } {
-  const width = Math.max(0, ...grid.map((r) => r.length));
+  const width = grid.reduce((w, r) => Math.max(w, r.length), 0);
   const first = grid[0] ?? [];
   const known = first.map((c) => FIELDS.find((f) => (IMPORT_COLUMNS[f] as readonly string[]).includes(norm(c))));
   const isHeads = heads ?? (known.some(Boolean) || (!first.some(marked) && grid.slice(1).some((r) => r.some(marked))));
@@ -167,7 +167,7 @@ export const missingFields = (fields: Field[]) => REQUIRED.filter((f) => !fields
 
 /** Each column's heading (when the first row is headings) and its first two values, to show while choosing. */
 export const columnInfo = (grid: string[][], heads: boolean) =>
-  Array.from({ length: Math.max(0, ...grid.map((r) => r.length)) }, (_, i) => ({
+  Array.from({ length: grid.reduce((w, r) => Math.max(w, r.length), 0) }, (_, i) => ({
     heading: heads ? (grid[0]?.[i] ?? "").trim() : "",
     samples: (heads ? grid.slice(1) : grid)
       .map((r) => (r[i] ?? "").trim())
@@ -180,8 +180,8 @@ export const columnInfo = (grid: string[][], heads: boolean) =>
 export const gridToRecords = (grid: string[][], fields: Field[], heads: boolean): ImportRecord[] =>
   (heads ? grid.slice(1) : grid).filter((r) => r.some((c) => c?.trim())).map((r) => Object.fromEntries(fields.flatMap((f, i) => (f ? [[f, (r[i] ?? "").trim()]] : []))));
 
-/** The most rows one import checks: a bigger list is refused, to be split into smaller files. */
-export const MAX_ROWS = 2000;
+/** The most rows one import checks: a bigger list is refused, to be split into smaller files. Each row is one save, so this stays under SAVES_PER_MINUTE (data-access.ts) with room for the owner's other work. */
+export const MAX_ROWS = 200;
 
 /**
  * Each row checked with the enrol form's rules against the students already there and the rows before it (two rows

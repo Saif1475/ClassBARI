@@ -1,6 +1,7 @@
 // Run: npm test — reading a student list for "Import students" (src/lib/student-import.ts).
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { SAVES_PER_MINUTE } from "../src/lib/data-access.ts";
 import { assign, checkRows, MAX_ROWS, columnInfo, fixPhone, gridFromPieces, gridToRecords, guessFields, missingFields, rowsToFix } from "../src/lib/student-import.ts";
 
 /** A line of a PDF table: [x, text] pairs at one height (12 high, 6 wide a letter). */
@@ -96,7 +97,7 @@ test("every row is checked like the enrol form: Gmail rules, the same Gmail twic
 test("a big list is checked fast, with the same answers as the enrol form", async () => {
   const { validateStudent } = await import("../src/lib/site.ts");
   const existing = [{ id: 1, email: "ta.ken@gmail.com", guardianEmail: "papa@gmail.com" }];
-  const records = Array.from({ length: MAX_ROWS }, (_, i) => ({ name: `S${i}`, email: `s${i % 250}@gmail.com`, guardianName: "G", guardianEmail: i % 100 ? `g${i}@gmail.com` : "taken+x@gmail.com", phone: "01711000001" }));
+  const records = Array.from({ length: 2000 }, (_, i) => ({ name: `S${i}`, email: `s${i % 250}@gmail.com`, guardianName: "G", guardianEmail: i % 100 ? `g${i}@gmail.com` : "taken+x@gmail.com", phone: "01711000001" }));
   records.splice(300, 0, { name: "P", email: "PAPA@gmail.com", guardianName: "G", guardianEmail: "s5@gmail.com", phone: "01711000001" });
   const t0 = performance.now();
   const rows = checkRows(records, "A", ["A"], existing);
@@ -110,5 +111,17 @@ test("a big list is checked fast, with the same answers as the enrol form", asyn
   });
   assert.deepEqual(rows.slice(0, 400).map((r) => r.problems), slow);
   assert.ok(slow.some((p) => p.includes("emailTaken")) && slow.some((p) => p.includes("guardianIsStudent")));
-  assert.equal(MAX_ROWS, 2000);
+  assert.ok(MAX_ROWS + 20 <= SAVES_PER_MINUTE, "one import (one save per row) fits in one minute of saves, with room to spare");
+});
+
+test("a list of 200,000 rows is still read (so the user hears 'too many', not 'unreadable')", () => {
+  const grid = [["Name", "Gmail"], ...Array.from({ length: 200000 }, (_, i) => [`S${i}`, `s${i}@gmail.com`])];
+  assert.ok(guessFields(grid, []).fields.length >= 2);
+  assert.equal(columnInfo(grid, true).length, 2);
+  assert.ok(grid.length > MAX_ROWS);
+});
+
+test("a PDF of 200,000 text pieces is still read (so the user hears 'too many', not 'unreadable')", () => {
+  const pieces = Array.from({ length: 200000 }, (_, i) => ({ str: `S${i} s${i}@gmail.com`, x: 40, y: (i % 4000) * 14, w: 120, h: 12, page: Math.floor(i / 4000) }));
+  assert.ok(gridFromPieces(pieces).length > MAX_ROWS);
 });

@@ -18,7 +18,7 @@ import { Loading } from "@/components/Loading";
 import { dayFromToday, dayKey, fmtDate, fmtDayNum, fmtTime, fmtWeekday, fmtWhen, liveLabel, toLocalInput } from "@/lib/dates";
 import { levels, subjects, taka, type ItemKind, type ModuleItem } from "@/lib/mock-data";
 import { monthAttendance, useLms } from "@/lib/lms-store";
-import { downloadCsv, openDataUrl, readAsDataUrl, uploadData } from "@/lib/files";
+import { downloadCsv, openDataUrl, readAsDataUrl, uploadPaper } from "@/lib/files";
 import { MAX_FILE_BYTES, saveFile } from "@/lib/file-store";
 import { FileLink } from "@/components/FileLink";
 import { CentreCard } from "@/components/teacher/CentreCard";
@@ -252,6 +252,7 @@ export default function TeacherApp({
 
   const openAddItem = (kind?: ItemKind, moduleId = batchModules[0]?.id) => {
     // A brand-new batch has no chapter yet: make a "General" one so "New quiz" etc. always open the form.
+    if (!activeBatch) return notify(T.noBatchYet); // no batch yet: a chapter saved to batch "" is never shown again
     if (moduleId === undefined) moduleId = lms.addModule(T.defaultChapter, activeBatch);
     if (kind) setItemKind(kind);
     setItemError("");
@@ -292,6 +293,7 @@ export default function TeacherApp({
     }
     const rubric = itemKind === "task" || itemKind === "exam" ? parseRubric(itemRubric) : [];
     if (rubric === null) return setItemError(t.rubric.bad);
+    if (rubric.reduce((a, c) => a + c.max, 0) > (Number(itemPoints) || 30)) return setItemError(t.rubric.tooMany(Number(itemPoints) || 30));
     const title = itemTitle.trim();
     const moduleId = addingToModuleId;
     let url = itemUrl.trim() || undefined;
@@ -841,7 +843,13 @@ export default function TeacherApp({
         )}
 
         {/* ============================== COURSE STUDIO ============================== */}
-        {navTab === "courses" && (
+        {navTab === "courses" && !activeBatch && (
+          <main className="flex min-w-0 flex-1 flex-col items-start gap-4 px-4 pb-28 pt-4 md:px-8 md:pt-6">
+            <p className="text-on-surface-variant">{T.noBatchYet}</p>
+            {isInstitute && <button type="button" onClick={() => { setNavTab("dashboard"); setShowNewBatch(true); }} className="inline-flex h-11 items-center gap-2 rounded-full bg-primary px-5 text-sm font-bold text-on-primary"><Icon name="plus" size={18} /> {T.newBatch}</button>}
+          </main>
+        )}
+        {navTab === "courses" && !!activeBatch && (
           <>
             <aside data-slide className="hidden w-62 shrink-0 flex-col gap-1 overflow-y-auto border-r border-white/70 bg-surface-container/40 px-3 py-5 backdrop-blur-xl lg:flex">
               <div className="px-3 pb-3">
@@ -996,7 +1004,7 @@ export default function TeacherApp({
                         onChange={async (e) => {
                           const f = e.target.files?.[0];
                           if (!f) return setPaper(null);
-                          const data = await uploadData(f);
+                          const data = await uploadPaper(f);
                           if (!data) {
                             e.target.value = "";
                             return setItemError(t.sub.tooBig);
@@ -1103,7 +1111,7 @@ export default function TeacherApp({
                           onChange={async (e) => {
                             const f = e.target.files?.[0];
                             if (!f) return setValue(null);
-                            const data = await uploadData(f);
+                            const data = await uploadPaper(f);
                             if (!data) {
                               e.target.value = "";
                               return setItemError(t.sub.tooBig);
@@ -1532,7 +1540,7 @@ export default function TeacherApp({
                             type="button"
                             aria-pressed={present}
                             aria-label={`${s.name}: ${present ? t.common.present : t.common.absent}`}
-                            onClick={() => lms.toggleAttendance(s.id, attDate)}
+                            onClick={() => lms.toggleAttendance(s.id, attDate, present)}
                             className={`h-11 min-w-28 rounded-full px-4 text-base font-bold ${present ? "bg-primary text-on-primary" : "border border-error bg-error-container text-on-error-container"}`}
                           >
                             {present ? t.common.present : t.common.absent}
@@ -1708,7 +1716,7 @@ export default function TeacherApp({
         )}
 
         {/* ============================== CALENDAR ============================== */}
-        {navTab === "students" && <StudentsPage batchNames={visibleNames} notify={notify} />}
+        {navTab === "students" && <StudentsPage batchNames={visibleNames} notify={notify} showLost={isOwner && lms.viewer === "all"} />}
         {navTab === "tools" && <ToolsPage batchNames={visibleNames} notify={notify} owner={isOwner} />}
 
         {navTab === "calendar" && (

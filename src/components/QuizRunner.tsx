@@ -13,7 +13,7 @@ function useOrder(item: ModuleItem, studentId: number) {
 }
 
 /** Timed MCQ attempt: one minute per question, auto-submits when time runs out. */
-export function QuizRunner({ item, studentId, onSubmit, onStart }: { item: ModuleItem; studentId: number; onStart?: () => void; onSubmit: (score: number, marks: boolean[], tabSwitches: number, picks: (number | null)[]) => void }) {
+export function QuizRunner({ item, studentId, onSubmit, onStart }: { item: ModuleItem; studentId: number; onStart?: () => void; onSubmit: (score: number, marks: boolean[], tabSwitches: number, picks: (number | null)[], took: number) => void }) {
   const { t } = useLang();
   const Q = t.quiz;
   const E = t.exam2;
@@ -30,11 +30,27 @@ export function QuizRunner({ item, studentId, onSubmit, onStart }: { item: Modul
   const picksRef = useRef(picks);
   picksRef.current = picks;
   const switches = useRef(0);
+  const startedAt = useRef(0); // the device's own clock: lets the server spot an answer sheet that was sent late (offline)
   const submitted = useRef(false); // timer, anti-cheat and the button can race: submit exactly once
   // Real accounts: the server marks the quiz, and the right answers only arrive once it's handed in.
   const hidden = questions.some((q) => q.answer < 0);
   const [sent, setSent] = useState(false);
   const taken = item.scores?.[studentId];
+
+  // Real accounts: the first Start on this device is kept, so leaving and coming back carries on the countdown (and the count the server checks).
+  const begin = () => {
+    const key = `instanton-quiz-${item.id}-${studentId}`;
+    let first = Date.now();
+    try {
+      if (REAL_AUTH) first = Number(localStorage.getItem(key)) || (localStorage.setItem(key, String(first)), first);
+    } catch {
+      /* storage blocked: counted from now */
+    }
+    startedAt.current = Math.min(first, Date.now());
+    setLeft(Math.max(0, durationMin * 60 - Math.round((Date.now() - startedAt.current) / 1000)));
+    setStarted(true);
+    onStart?.();
+  };
 
   const finish = () => {
     if (submitted.current) return;
@@ -42,7 +58,7 @@ export function QuizRunner({ item, studentId, onSubmit, onStart }: { item: Modul
     const score = hidden ? 0 : scoreQuiz(questions, picksRef.current, points, item.negative);
     if (hidden) setSent(true); // wait for the server's marks
     else setResult(score);
-    onSubmit(score, markQuiz(questions, picksRef.current), switches.current, picksRef.current);
+    onSubmit(score, markQuiz(questions, picksRef.current), switches.current, picksRef.current, Math.round((Date.now() - startedAt.current) / 1000));
   };
   useEffect(() => {
     if (sent && result === null && !hidden && taken !== undefined) setResult(taken); // the server's marks have arrived
@@ -106,7 +122,7 @@ export function QuizRunner({ item, studentId, onSubmit, onStart }: { item: Modul
         </div>
         {/* Real accounts: one attempt (the server keeps the first), so no second start. */}
         {!(REAL_AUTH && taken !== undefined) && (
-          <button type="button" onClick={() => (setStarted(true), onStart?.())} className="h-11 rounded-full bg-primary px-6 text-sm font-bold text-on-primary">
+          <button type="button" onClick={begin} className="h-11 rounded-full bg-primary px-6 text-sm font-bold text-on-primary">
             {Q.start}
           </button>
         )}

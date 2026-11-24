@@ -28,3 +28,8 @@ test("enrolment rules", async () => {
   assert.equal(validateStudent({ ...ok, studentPhone: "999" }, existing).studentPhone, "studentPhoneInvalid");
   assert.deepEqual(validateStudent({ ...ok, email: "nusrat.jahan@gmail.com" }, existing, 1), {}, "editing yourself is fine");
 });
+
+test("firstName greets 'Md. Rahim Uddin' as Rahim, not 'Md.'", async () => {
+  const { firstName } = await import("../src/lib/site.ts");
+  assert.deepEqual(["Md. Rahim Uddin", "MST Ayesha Khatun", "md Karim", "Rahim Uddin", "Md.", " Nusrat ", ""].map(firstName), ["Rahim", "Ayesha", "Karim", "Rahim", "Md.", "Nusrat", ""]);
+});

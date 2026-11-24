@@ -146,7 +146,7 @@ class StudentHome extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 2,
           children: [
-            H1(t('kid.hi', ['${me['name']}'.split(' ').first])),
+            H1(t('kid.hi', [firstName('${me['name']}')])),
             Text(t('kid.sub'), style: context.type.bodyLarge?.copyWith(color: c.onSurfaceVariant)),
           ],
         ),

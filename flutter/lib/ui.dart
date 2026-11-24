@@ -509,6 +509,12 @@ class TabScope extends InheritedWidget {
   bool updateShouldNotify(TabScope old) => old.label != label;
 }
 
+/// The name to greet someone by: the first word, skipping a leading "Md."/"Mst." (so "Md. Rahim Uddin" is "Rahim", not "Md.").
+String firstName(String name) {
+  final w = name.trim().split(RegExp(r'\s+'));
+  return w.length > 1 && RegExp(r'^(md|mst)\.?$', caseSensitive: false).hasMatch(w[0]) ? w[1] : w[0];
+}
+
 String get myName => switch (kApp) {
   'guardian' => '${store.children.firstOrNull?['guardianName'] ?? ''}',
   'teacher' => store.staffName,
@@ -908,7 +914,7 @@ class SideMenu extends StatelessWidget {
               const SizedBox(height: 8),
               Chips(value: lang.code, options: const ['en', 'bn'], labels: const {'en': 'English', 'bn': 'বাংলা'}, onChanged: store.setLang),
               const SizedBox(height: 24),
-              Doing(label: t('app.logOut'), icon: I.logout, soft: true, danger: true, onPressed: store.signOut),
+              Doing(label: t('app.logOut'), icon: I.logout, soft: true, danger: true, onPressed: () => store.signOut(ask: (n) => confirm(context, t('app.logOut'), t('app.logOutWaiting', [n]), yes: t('app.logOut')))),
             ],
           ),
         ),

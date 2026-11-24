@@ -57,7 +57,7 @@ export function PayForm({ kind, studentId }: { kind: "ai_pack" | "plan" | "ai_cr
     const res = await fetch("/api/pay", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind, item, months, method, sender, trxId: trx, studentId }) }).catch(() => null);
     const d = res ? await res.json().catch(() => ({})) : {};
     if (res?.ok) {
-      setMsg({ ok: true, text: P.sent });
+      setMsg({ ok: true, text: d.clash ? P.sentWaiting(tk(d.clash.pack), d.clash.until) : P.sent }); // recorded, but it waits until the running pack ends
       setTrx("");
       void load();
     } else setMsg({ ok: false, text: d.error === "used" ? P.used : d.error === "pack running" ? P.packRunning(tk(d.pack), d.until) : credit && d.error === "bad item" ? P.creditBad : res?.status === 400 ? P.bad : P.error });

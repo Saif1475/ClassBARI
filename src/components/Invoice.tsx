@@ -2,9 +2,10 @@
 
 import { Logo } from "./Brand";
 import { useLang } from "@/lib/i18n/LanguageProvider";
-import { dayKey, fmtMonth, toDate } from "@/lib/dates";
+import { fmtMonth } from "@/lib/dates";
 import { FEE_DUE_DAY, taka } from "@/lib/mock-data";
 import { monthKey, useLms } from "@/lib/lms-store";
+import { invoice } from "@/lib/lms-views";
 
 /** This month's invoice for one student: fee, discount, fine, payments, balance. Printable. */
 export function Invoice({ studentId }: { studentId: number }) {
@@ -15,12 +16,14 @@ export function Invoice({ studentId }: { studentId: number }) {
   if (!s) return <p className="p-8 text-on-surface-variant">{t.teacher.noMatch}</p>;
   const month = monthKey();
   const batch = lms.batches.find((b) => b.name === s.batch);
-  const paid = lms.payments.filter((p) => p.studentId === s.id && dayKey(toDate(p.at)).startsWith(month)).reduce((sum, p) => sum + p.amount, 0);
+  const inv = invoice(s, batch, lms.payments, month);
+  const signed = (n: number) => (n < 0 ? `− ${taka(-n)}` : taka(n));
   const rows: [string, string][] = [
-    [F.monthlyFee, taka(batch?.fee ?? 0)],
-    ...(s.discount ? [[F.discountLine, `− ${taka(s.discount)}`] as [string, string]] : []),
-    ...(s.fineMonth === month && batch?.lateFine ? [[F.fineLine, `+ ${taka(batch.lateFine)}`] as [string, string]] : []),
-    [F.paidThisMonth, taka(paid)],
+    ...(inv.carried ? [[F.carriedLine, signed(inv.carried)] as [string, string]] : []), // owed from earlier months, or a fee or discount changed after the charge
+    [F.monthlyFee, taka(inv.fee)],
+    ...(inv.discount ? [[F.discountLine, `− ${taka(inv.discount)}`] as [string, string]] : []),
+    ...(inv.fine ? [[F.fineLine, `+ ${taka(inv.fine)}`] as [string, string]] : []),
+    [F.paidThisMonth, taka(inv.paid)],
   ];
 
   return (
@@ -44,7 +47,7 @@ export function Invoice({ studentId }: { studentId: number }) {
         </dl>
         <div className="flex items-center justify-between rounded-xl bg-tertiary-container px-5 py-4 text-on-tertiary-container">
           <span className="font-semibold">{F.balance}</span>
-          <span className="text-3xl font-extrabold">{taka(s.feeDue)}</span>
+          <span className="text-3xl font-extrabold">{taka(inv.balance)}</span>
         </div>
         <p className="text-xs text-on-surface-variant">{F.invoiceNote(FEE_DUE_DAY)}</p>
       </article>

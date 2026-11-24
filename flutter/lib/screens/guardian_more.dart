@@ -116,19 +116,19 @@ class InvoiceScreen extends StatelessWidget {
     final s = store.child;
     if (s == null) return Screen(children: [Muted(t('auth.notEnrolled'))]);
     final month = _month(), batch = _batchOf(s);
-    final paid = rows(store.state?['payments']).where((p) => p['studentId'] == s['id'] && p['at'] is String && dayKey(toDate(p['at'] as String)).startsWith(month)).fold<num>(0, (n, p) => n + ((p['amount'] as num?) ?? 0));
-    final discount = (s['discount'] as num?) ?? 0, fine = (batch?['lateFine'] as num?) ?? 0;
+    final inv = invoiceOf(s, batch, store.state?['payments'], month);
     return Screen(
       title: '${t('fees.invoiceTitle')} · ${fmtMonth('$month-01')}',
       children: [
         Box(
           children: [
             Muted('${s['name']} · ${t('batch.roll')} ${s['id']} · ${s['batch']}'),
-            Line(t('fees.monthlyFee'), taka((batch?['fee'] as num?) ?? 0)),
-            if (discount > 0) Line(t('fees.discountLine'), '− ${taka(discount)}'),
-            if (s['fineMonth'] == month && fine > 0) Line(t('fees.fineLine'), '+ ${taka(fine)}'),
-            Line(t('fees.paidThisMonth'), taka(paid)),
-            Total(t('fees.balance'), taka(feeDueOf(s)), warm: true),
+            if (inv.carried != 0) Line(t('fees.carriedLine'), inv.carried < 0 ? '− ${taka(-inv.carried)}' : taka(inv.carried)), // owed from earlier months, or a fee or discount changed after the charge
+            Line(t('fees.monthlyFee'), taka(inv.fee)),
+            if (inv.discount > 0) Line(t('fees.discountLine'), '− ${taka(inv.discount)}'),
+            if (inv.fine > 0) Line(t('fees.fineLine'), '+ ${taka(inv.fine)}'),
+            Line(t('fees.paidThisMonth'), taka(inv.paid)),
+            Total(t('fees.balance'), taka(inv.balance), warm: true),
             Muted(t('fees.invoiceNote', [kFeeDueDay])),
           ],
         ),

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Logo } from "@/components/Brand";
 import { PLANS, type Flags, type Institute, type overview, type Platform, type Plan } from "@/lib/platform";
 import { isBdMobile, waLink } from "@/lib/site";
-import { PACKS } from "@/lib/ai-chat";
+import { aiWindow, PACKS } from "@/lib/ai-chat";
 import { packUntil } from "@/lib/pay";
 
 // Instanton Campus staff panel. Staff-only, so English only. Data: /api/platform/admin + /api/leads (ADMIN_TOKEN).
@@ -121,7 +121,7 @@ export default function Admin() {
                   </div>
                 ))}
               </div>
-              <p className="text-sm text-on-surface-variant">Push notifications: <b>{data.push.length}</b> phones/browsers subscribed · {data.pushSent.day === new Date().toISOString().slice(0, 10) ? data.pushSent.count : 0} sent today</p>
+              <p className="text-sm text-on-surface-variant">Push notifications: <b>{data.push.length}</b> phones/browsers subscribed · {data.pushSent.day === aiWindow().day ? data.pushSent.count : 0} sent today</p>
               <div className="grid gap-3 md:grid-cols-2">
                 <div className={card}>
                   <h2 className="mb-2 font-bold">By status</h2>
@@ -367,8 +367,8 @@ function Price({ plan, value, act, label, unit = "৳ / month" }: { plan: Plan; 
 }
 
 function Sms({ data, act }: { data: Data; act: Act }) {
-  const today = new Date().toISOString().slice(0, 10);
-  const used = data.smsLog.filter((e) => e.at.startsWith(today) && e.status !== "failed").length;
+  const today = aiWindow().day; // Dhaka day, as the server counts it
+  const used = data.smsLog.filter((e) => aiWindow(new Date(e.at)).day === today && e.status !== "failed").length;
   return (
     <>
       <div className={`${card} flex flex-col gap-1`}>

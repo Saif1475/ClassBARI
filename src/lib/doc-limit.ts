@@ -1,6 +1,12 @@
 // The size limit of one institute's data. No imports, so it can be tested on its own.
 export const DOC_MAX = 20_000_000;
 export const FULL = "institute data is full";
+/** The biggest /api/data post by hand (a few homework photos), and the biggest restore: a backup is the whole institute sent as one escaped text. next.config.ts lets the proxy pass at least BACKUP_MAX. */
+export const POST_MAX = 12_000_000;
+// DOC_MAX counts characters but bodies are bytes: escaped again inside JSON, one character is at most 3 bytes (Bangla), plus room for the wrappers.
+export const BACKUP_MAX = DOC_MAX * 3 + 1_000_000;
+/** How many bytes /api/data reads from this person: only the owner and managers may restore, so only they get the big limit. */
+export const postLimit = (role: string) => (role === "owner" || role === "manager" ? BACKUP_MAX : POST_MAX);
 /**
  * Every request to Supabase goes through here. A save's body is the whole institute as text, so this is where its size
  * is known for free: an oversized one is refused before it is sent (instead of turning the institute into text a second
@@ -18,6 +24,9 @@ export const guardedFetch: typeof fetch = (input, init) => {
 
 /** The biggest file a teacher may upload (videos, PDFs). The storage bucket refuses anything bigger. */
 export const MAX_FILE_BYTES = 300 * 1024 * 1024; // 300 MB
+
+/** True when an upload request's body says the file is bigger than MAX_FILE_BYTES. A missing size passes: old tabs send no body, and the bucket still enforces the limit. */
+export const fileTooBig = (body: string | null) => body === null || Number(/"size"\s*:\s*(\d+)/.exec(body)?.[1] ?? 0) > MAX_FILE_BYTES;
 
 /** A request's body as text, or null when it is bigger than `max` bytes: stops reading there, even when no length was sent. */
 export async function readCapped(request: Request, max: number): Promise<string | null> {

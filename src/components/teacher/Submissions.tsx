@@ -36,7 +36,8 @@ function Row({ name, sub, points, rubric, onSave }: { name: string; sub: Submiss
   const [grade, setGrade] = useState(sub.grade?.toString() ?? "");
   // With a rubric the grade is the sum of the criterion marks.
   const [marks, setMarks] = useState<string[]>(() => rubric?.map((_, i) => sub.rubricScores?.[i]?.toString() ?? "") ?? []);
-  const rubricTotal = marks.reduce((s, m) => s + (Number(m) || 0), 0);
+  const rubricScores = marks.map((m, i) => Math.max(0, Math.min(rubric?.[i]?.max ?? 0, Number(m) || 0)));
+  const rubricTotal = Math.min(points, rubricScores.reduce((s, m) => s + m, 0)); // the same clamps the server applies
   const [comment, setComment] = useState(sub.comment ?? "");
   return (
     <li className="flex flex-wrap items-center gap-2 rounded-xl bg-surface-container px-3 py-2.5 text-sm">
@@ -86,7 +87,7 @@ function Row({ name, sub, points, rubric, onSave }: { name: string; sub: Submiss
         disabled={rubric?.length ? marks.some((m) => m === "") : grade === ""}
         onClick={() =>
           rubric?.length
-            ? onSave(rubricTotal, comment.trim(), marks.map((m, i) => Math.max(0, Math.min(rubric[i].max, Number(m) || 0))))
+            ? onSave(rubricTotal, comment.trim(), rubricScores)
             : onSave(Math.max(0, Math.min(points, Number(grade))), comment.trim())
         }
         className="h-9 rounded-full bg-primary px-4 text-xs font-bold text-on-primary disabled:opacity-50"

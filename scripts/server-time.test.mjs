@@ -17,7 +17,7 @@ test("server start switches the process to Dhaka time, so 00:30 on the 1st is al
   assert.equal(monthKey(night), "2026-12");
   // A salary paid at that moment is saved under December, so December's payroll shows it as paid.
   mock.timers.enable({ apis: ["Date"], now: night });
-  const paid = runAction(blankState(), "payStaff", ["Rumana Ma'am", 5000], Date.now());
+  const paid = runAction({ ...blankState(), staff: [{ name: "Rumana Ma'am", phone: "", salary: 5000, share: 0 }] }, "payStaff", ["Rumana Ma'am", 5000], Date.now());
   mock.timers.reset();
   assert.equal(paid.staffPayments[0].month, "2026-12");
 });

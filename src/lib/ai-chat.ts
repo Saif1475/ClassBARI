@@ -119,7 +119,7 @@ const onDay = (y: number, m: number, d: number) => new Date(Date.UTC(y, m, Math.
 export function packMonthStart(day: string, until?: string) {
   const [y, m, d] = [Number(day.slice(0, 4)), Number(day.slice(5, 7)) - 1, Number(until?.slice(8, 10)) || 1];
   const here = onDay(y, m, d).toISOString().slice(0, 10);
-  return here <= day ? here : onDay(y, m - 1, d).toISOString().slice(0, 10);
+  return here < day || (here === day && day !== until) ? here : onDay(y, m - 1, d).toISOString().slice(0, 10); // the pack's last day (day === until) still belongs to the month before it, so the cap does not restart at zero
 }
 /** When the pack's next month starts, midnight in Dhaka (UTC+6), as a time: when its monthly AI cap refills. */
 export function monthStartAfter(day: string, until?: string) {

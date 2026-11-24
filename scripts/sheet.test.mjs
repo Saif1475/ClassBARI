@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { deflateRawSync } from "node:zlib";
-import { readCsv, readXlsx, writeXlsx } from "../src/lib/sheet.ts";
+import { csvText, readCsv, readXlsx, writeXlsx } from "../src/lib/sheet.ts";
 
 /** A tiny real .xlsx (zip) built by hand: shared strings, a number cell, a skipped column and an entity. */
 function xlsx(files = {
@@ -64,6 +64,16 @@ test("CSV keeps every row: a quote inside a name is just a letter, and the separ
   assert.deepEqual(readCsv("\r\n \r\nName;Gmail\r\nA;a@gmail.com\r\n"), [["Name", "Gmail"], ["A", "a@gmail.com"]]);
   assert.deepEqual(readCsv('"Student\nname";Gmail\nA;a@gmail.com'), [["Student\nname", "Gmail"], ["A", "a@gmail.com"]]);
   assert.deepEqual(readCsv('"Name, as on the ""card""";Gmail\nA;a@gmail.com'), [['Name, as on the "card"', "Gmail"], ["A", "a@gmail.com"]]);
+  // A quote at the start of a cell that never closes is just a letter: the students after it must not merge into one cell.
+  assert.deepEqual(readCsv('Name,Gmail\n"Babu,b@gmail.com\nRina,r@gmail.com\nTuli,t@gmail.com'), [["Name", "Gmail"], ['"Babu', "b@gmail.com"], ["Rina", "r@gmail.com"], ["Tuli", "t@gmail.com"]]);
+  assert.deepEqual(readCsv('a,"b ""c""\nd,e'), [["a", '"b ""c""'], ["d", "e"]]);
+  // A later unrelated quote must not close the stray one: a real closing quote is followed by the separator, a line break or the end.
+  assert.deepEqual(readCsv('Name,Gmail\n"Babu,b@gmail.com\nRina,r@gmail.com\nO"Brien,o@gmail.com\nTuli,t@gmail.com'), [["Name", "Gmail"], ['"Babu', "b@gmail.com"], ["Rina", "r@gmail.com"], ['O"Brien', "o@gmail.com"], ["Tuli", "t@gmail.com"]]);
+  assert.deepEqual(readCsv('Name,Gmail\n"Babu,b@gmail.com\nRina,"r@gmail.com\nTuli,t@gmail.com'), [["Name", "Gmail"], ['"Babu', "b@gmail.com"], ["Rina", '"r@gmail.com'], ["Tuli", "t@gmail.com"]]);
+  assert.deepEqual(readCsv('"a\n"b\n"c'), [['"a'], ['"b'], ['"c']]);
+  assert.deepEqual(readCsv('"Name;Gmail\nA;a@gmail.com'), [['"Name', "Gmail"], ["A", "a@gmail.com"]]);
+  // Proper quoted cells still work, with spaces after the closing quote too.
+  assert.deepEqual(readCsv('"a, b" ,"c"\n"",x'), [["a, b", "c"], ["", "x"]]);
 });
 
 test("reads the text of a Word (.docx) file, one paragraph per line", async () => {
@@ -77,4 +87,19 @@ test("reads the text of a Word (.docx) file, one paragraph per line", async () =
   const buf = Buffer.concat([local, n, data, cd, end]);
   const text = await readDocxText(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.length));
   assert.equal(text, "1. Unit of force?\na) Joule \tb) Newton\nAnswer: b & done\n");
+});
+
+test("stops reading past the row cap: a tiny file with a million rows is refused, blank rows don't count", async () => {
+  const rows = (n) => `<worksheet><sheetData>${'<row><c t="inlineStr"><is><t>a</t></is></c></row>'.repeat(n)}</sheetData></worksheet>`;
+  await assert.rejects(readXlsx(xlsx({ "xl/worksheets/sheet1.xml": rows(5) }), 4), /too many rows/);
+  assert.equal((await readXlsx(xlsx({ "xl/worksheets/sheet1.xml": rows(2) + "<row></row>".repeat(10) + rows(2) + "<row></row>".repeat(10) }), 4)).length, 14); // blank rows between are kept, the ones after the list are not
+  // Empty rows still cost memory, so too many of them are refused too, and so is a huge sharedStrings.xml.
+  await assert.rejects(readXlsx(xlsx({ "xl/worksheets/sheet1.xml": rows(1) + '<row><c r="A1"/></row>'.repeat(41) }), 4), /too many rows/);
+  await assert.rejects(readXlsx(xlsx({ "xl/sharedStrings.xml": "<si><t>a</t></si>".repeat(401), "xl/worksheets/sheet1.xml": rows(1) }), 4), /too many rows/);
+  assert.throws(() => readCsv("a\n".repeat(5), 4), /too many rows/);
+  assert.equal(readCsv("a\n".repeat(4) + "\n".repeat(10), 4).length, 4);
+});
+
+test("CSV keeps negative marks and +880 phones as numbers, but still stops formulas", () => {
+  assert.equal(csvText([[-1.5, "-1.5", "+8801712345678", "=1+1", "-2+3", "+cmd", "@x"]]), `"-1.5","-1.5","+8801712345678","'=1+1","'-2+3","'+cmd","'@x"`);
 });

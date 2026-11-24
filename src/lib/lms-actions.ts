@@ -20,6 +20,7 @@ import {
   type Submission,
 } from "./mock-data.ts";
 import type { QuizQuestion } from "./quiz.ts";
+import { payroll } from "./lms-views.ts";
 import type { Admission, Doubt, DoubtReply, Meeting, Order, PointKind, RubricCriterion, StaffLeave, TeacherSite } from "./mock-data.ts";
 import type { Coupon, Expense, Slot } from "./centre.ts";
 import { answerFriend, BIO_MAX, cleanText, COMMENT_MAX, POST_MAX, requestFriend, type Audience, type Author, type CommunityProfile } from "./community.ts";
@@ -47,7 +48,8 @@ export type LmsState = ReturnType<typeof seed>;
 const DAILY_XP_MAX = 1000; // a full day of real study is well under this; ticking a lesson on and off all day must not win the leaderboard
 
 /** Who finished an item: each student ticks their own. */
-const markDone = (list: number[] | undefined, id: number, on: boolean) => (on ? [...new Set([...(list ?? []), id])] : (list ?? []).filter((x) => x !== id));
+// Old lessons may hold a non-list doneBy (saved before addModuleItem checked it); treat it as empty instead of crashing.
+const markDone = (list: number[] | undefined, id: number, on: boolean) => { const l = Array.isArray(list) ? list : []; return on ? [...new Set([...l, id])] : l.filter((x) => x !== id); };
 
 let lastId = Date.now();
 export const uid = () => ++lastId;
@@ -74,13 +76,13 @@ export function rollFees(s: LmsState, now = new Date()): LmsState {
   // Each batch is looked up by name once (the first with that name, as a search would find), not once per student.
   const batchOf = new Map<string, Batch>();
   for (const b of s.batches) if (!batchOf.has(b.name)) batchOf.set(b.name, b);
-  if (months > 0) s = { ...s, feeMonth: month, students: s.students.map((st) => ({ ...st, feeDue: st.feeDue + months * Math.max(0, (batchOf.get(st.batch)?.fee ?? 0) - (st.discount ?? 0)) })) };
+  if (months > 0) s = { ...s, feeMonth: month, students: s.students.map((st) => (st.pending ? st : { ...st, feeDue: st.feeDue + months * Math.max(0, (batchOf.get(st.batch)?.fee ?? 0) - (st.discount ?? 0)), chargedDiscount: st.discount ?? 0 })) }; // a join request still waiting for approval is not charged // chargedDiscount: what this month's charge took off, for the invoice (setDiscount only counts from the next charge)
   if (now.getDate() <= FEE_DUE_DAY) return s;
   // The list is copied only if somebody is actually fined (this runs on every load).
   let fined: StudentRecord[] | null = null;
   s.students.forEach((st, i) => {
     const fine = batchOf.get(st.batch)?.lateFine ?? 0;
-    if (st.feeDue > 0 && fine > 0 && st.fineMonth !== month && st.joined !== month) (fined ??= [...s.students])[i] = { ...st, feeDue: st.feeDue + fine, fineMonth: month };
+    if (!st.pending && st.feeDue > 0 && fine > 0 && st.fineMonth !== month && st.joined !== month) (fined ??= [...s.students])[i] = { ...st, feeDue: st.feeDue + fine, fineMonth: month };
   });
   return fined ? { ...s, students: fined } : s;
 }
@@ -158,13 +160,17 @@ export type Store = {
   replace: (s: LmsState) => void;
   fresh: () => LmsState; // what a restored backup is filled in with: sample data in the demo, empty with real accounts
   lastRoll: { current: number }; // several students added before a re-render must still get different roll numbers
+  now?: Date; // when the change was really made (an offline phone syncs later); unset means now
 };
 
-export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
+export function makeActions({ set, get, replace, fresh, lastRoll, now }: Store) {
+  const clock = () => now ?? new Date();
   const mapItem = (s: LmsState, moduleId: number, itemId: number, fn: (it: ModuleItem) => ModuleItem) =>
     s.modules.map((m) => (m.id === moduleId ? { ...m, items: m.items.map((it) => (it.id === itemId ? fn(it) : it)) } : m));
   const mapItems = (s: LmsState, moduleId: number, fn: (items: ModuleItem[]) => ModuleItem[]) =>
     s.modules.map((m) => (m.id === moduleId ? { ...m, items: fn(m.items) } : m));
+  // Explore copies of these lessons (same video link), dropped when the lessons are deleted.
+  const dropExplore = (s: LmsState, items: ModuleItem[]) => { const gone = new Set(items.flatMap((it) => (it.kind === "video" && it.url ? [it.url] : []))); return gone.size ? s.exploreVideos.filter((v) => !v.url || !gone.has(v.url)) : s.exploreVideos; };
   const today = dayKey();
   const addXp = (s: LmsState, studentId: number, amount: number) =>
     amount > 0 ? { ...s.xp, [studentId]: { ...s.xp[studentId], [today]: Math.min(DAILY_XP_MAX, (s.xp[studentId]?.[today] ?? 0) + amount) } } : s.xp;
@@ -172,7 +178,13 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
   const setChatMessage = (threadId: string, msgId: number, fn: (m: ChatThread["messages"][number]) => ChatThread["messages"][number]) =>
     set((s) => ({ chats: s.chats.map((c) => (c.id === threadId ? { ...c, messages: c.messages.map((m) => (m.id === msgId ? fn(m) : m)) } : c)) }));
   const batchFee = (s: LmsState, name: string) => batchOf(s, name)?.fee ?? 0;
-  const payment = (st: StudentRecord, method: Payment["method"], amount = st.feeDue): Payment => ({ id: uid(), studentId: st.id, batch: st.batch, amount, at: new Date().toISOString(), method });
+  // The teacher is saved with the payment, so moving the batch to another teacher later does not move fees they already earned.
+  // A fee taken offline before the batch moved syncs later: it goes to whoever taught the batch at the payment's time.
+  const teacherAt = (b: Batch | undefined, at: string) => b?.pastTeachers?.find((x) => at < x.until)?.name ?? b?.teacher;
+  const payment = (s: LmsState, st: StudentRecord, method: Payment["method"], amount = st.feeDue): Payment => {
+    const at = clock().toISOString();
+    return { id: uid(), studentId: st.id, batch: st.batch, teacher: teacherAt(batchOf(s, st.batch), at), amount, at, method };
+  };
 
   return {
     addAnnouncement: (input: { title: string; body: string; batch: string; pinned?: boolean }) =>
@@ -190,12 +202,14 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
       set((s) => {
         const m = s.modules.find((x) => x.id === moduleId);
         if (!m) return {};
-        const items = m.items.map(({ scores: _scores, submissions: _subs, ...it }) => ({ ...it, id: uid(), done: false }));
+        // Every per-student record stays behind: the new batch must not see the old batch's marks, and a student who moves must start the copy fresh.
+        const items = m.items.map(({ scores: _scores, submissions: _subs, answers: _a, started: _st, took: _t, tabSwitches: _ts, doneBy: _d, ranks: _r, meritPublished: _mp, ...it }) => ({ ...it, id: uid(), done: false }));
         return { modules: [{ ...m, id: uid(), batch, tag: "new", items }, ...s.modules] };
       }),
     toggleModulePublish: (moduleId: number) =>
       set((s) => ({ modules: s.modules.map((m) => (m.id === moduleId ? { ...m, published: !m.published } : m)) })),
-    deleteModule: (moduleId: number) => set((s) => ({ modules: s.modules.filter((m) => m.id !== moduleId) })),
+    // Its lessons' Explore copies go too: a deleted lesson must not stay watchable there.
+    deleteModule: (moduleId: number) => set((s) => ({ modules: s.modules.filter((m) => m.id !== moduleId), exploreVideos: dropExplore(s, s.modules.find((m) => m.id === moduleId)?.items ?? []) })),
 
     addModuleItem: (moduleId: number, input: AddItemInput) =>
       set((s) => {
@@ -214,7 +228,7 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
     toggleItemDone: (moduleId: number, itemId: number, studentId?: number) =>
       set((s) => {
         const it = s.modules.find((m) => m.id === moduleId)?.items.find((x) => x.id === itemId);
-        const was = it && (studentId && it.doneBy ? it.doneBy.includes(studentId) : it.done);
+        const was = it && (studentId && Array.isArray(it.doneBy) ? it.doneBy.includes(studentId) : it.done);
         return {
           modules: mapItem(s, moduleId, itemId, (x) => ({ ...x, done: !was, doneBy: studentId ? markDone(x.doneBy, studentId, !was) : x.doneBy })),
           ...(studentId && it && !was ? { xp: addXp(s, studentId, XP.itemDone) } : {}),
@@ -249,7 +263,10 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
       set((s) => ({
         modules: mapItem(s, moduleId, itemId, (it) => {
           const sub = it.submissions?.[studentId];
-          return sub ? { ...it, submissions: { ...it.submissions, [studentId]: { ...sub, grade, comment, ...(rubricScores ? { rubricScores } : {}) } } } : it;
+          // Each criterion is kept within its marks and the grade within the item's marks, so no grade goes above 100% or below 0.
+          const scores = rubricScores && it.rubric?.length ? it.rubric.map((c, i) => Math.max(0, Math.min(c.max, Number(rubricScores[i]) || 0))) : rubricScores;
+          const marks = Math.max(0, Math.min(it.points ?? 20, scores && it.rubric?.length ? scores.reduce((a, b) => a + b, 0) : grade));
+          return sub ? { ...it, submissions: { ...it.submissions, [studentId]: { ...sub, grade: marks, comment, ...(scores ? { rubricScores: scores } : {}) } } } : it;
         }),
       })),
 
@@ -262,7 +279,8 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
     addPortfolio: (studentId: number, title: string, image: string) =>
       set((s) => ({ portfolio: [{ id: uid(), studentId, title, image, at: new Date().toISOString() }, ...s.portfolio], xp: addXp(s, studentId, XP.submit) })),
     deletePortfolio: (id: number) => set((s) => ({ portfolio: s.portfolio.filter((p) => p.id !== id) })),
-    deleteModuleItem: (moduleId: number, itemId: number) => set((s) => ({ modules: mapItems(s, moduleId, (items) => items.filter((it) => it.id !== itemId)) })),
+    deleteModuleItem: (moduleId: number, itemId: number) =>
+      set((s) => ({ modules: mapItems(s, moduleId, (items) => items.filter((it) => it.id !== itemId)), exploreVideos: dropExplore(s, s.modules.find((m) => m.id === moduleId)?.items.filter((it) => it.id === itemId) ?? []) })),
 
     addExploreVideo: (input: { title: string; subject: string; level: string; length: string; free: boolean; url?: string; moduleId?: number }) =>
       set((s) => ({
@@ -291,12 +309,13 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
       set((s) => {
         const batch = s.batches.find((b) => b.id === batchId);
         return {
-          batches: s.batches.map((b) => (b.id === batchId ? { ...b, ...patch } : b)),
+          // The old teacher is kept with the time they stopped, so an offline fee from before the move still pays them.
+          batches: s.batches.map((b) => (b.id === batchId ? { ...b, ...patch, ...(patch.teacher !== undefined && patch.teacher !== b.teacher ? { pastTeachers: [...(b.pastTeachers ?? []), { name: b.teacher, until: clock().toISOString() }].slice(-20) } : {}) } : b)),
           // A new fee applies to students who still owe exactly this month's own fee (fee minus their discount); the difference is added.
           students:
             patch.fee !== undefined && batch
               ? s.students.map((st) => {
-                  const own = (fee: number) => Math.max(0, fee - (st.discount ?? 0));
+                  const own = (fee: number) => Math.max(0, fee - (st.chargedDiscount ?? st.discount ?? 0)); // the discount this month's charge took off (a discount set later counts from next month)
                   return st.batch === batch.name && st.feeDue > 0 && st.feeDue === own(batch.fee) ? { ...st, feeDue: st.feeDue + own(patch.fee!) - own(batch.fee) } : st;
                 })
               : s.students,
@@ -304,10 +323,12 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
       }),
 
     // Attendance is stored per date as the list of absent roll numbers.
-    toggleAttendance: (studentId: number, date = today) =>
+    // `makeAbsent` is what the person tapped to: a late offline sync or a second marker then sets it instead of undoing the other tap (no value: flip, for older apps).
+    toggleAttendance: (studentId: number, date = today, makeAbsent?: boolean) =>
       set((s) => {
         const absent = s.attendance[date] ?? [];
-        return { attendance: { ...s.attendance, [date]: absent.includes(studentId) ? absent.filter((id) => id !== studentId) : [...absent, studentId] } };
+        const out = typeof makeAbsent === "boolean" ? makeAbsent : !absent.includes(studentId);
+        return { attendance: { ...s.attendance, [date]: out ? (absent.includes(studentId) ? absent : [...absent, studentId]) : absent.filter((id) => id !== studentId) } };
       }),
     markAllPresent: (studentIds: number[], date = today) =>
       set((s) => {
@@ -326,7 +347,10 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
         const st = s.students.find((x) => x.id === studentId);
         if (!st || st.feeDue <= 0) return {};
         const paid = Math.min(st.feeDue, Math.max(1, Math.round(amount ?? st.feeDue)));
-        return { payments: [payment(st, method, paid), ...s.payments], students: s.students.map((x) => (x.id === studentId ? { ...x, feeDue: x.feeDue - paid } : x)) };
+        const when = clock();
+        // Paid by the due day but synced after it: the late fine added on sync is taken back when this payment clears all but the fine.
+        const unfine = st.fineMonth === monthKey(when) && when.getDate() <= FEE_DUE_DAY && st.feeDue - paid <= (batchOf(s, st.batch)?.lateFine ?? 0);
+        return { payments: [payment(s, st, method, paid), ...s.payments], students: s.students.map((x) => (x.id === studentId ? (unfine ? { ...x, feeDue: 0, fineMonth: undefined } : { ...x, feeDue: x.feeDue - paid }) : x)) };
       }),
     /** Monthly discount / scholarship; takes effect from next month's charge. */
     setDiscount: (studentId: number, discount: number) =>
@@ -339,15 +363,17 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
       lastRoll.current = id;
       set((s) => {
         const fee = batchFee(s, input.batch);
-        const st: StudentRecord = { id, ...clean(input), feeDue: fee, ch4Score: 0, ch3Score: 0, joined: monthKey(), ...(input.pending ? { pending: true } : {}) };
+        const st: StudentRecord = { id, ...clean(input), feeDue: fee, chargedDiscount: 0, ch4Score: 0, ch3Score: 0, joined: monthKey(), ...(input.pending ? { pending: true } : {}) };
         return input.feePaid && fee > 0
-          ? { students: [{ ...st, feeDue: 0 }, ...s.students], payments: [payment(st, "cash"), ...s.payments], nextStudentId: id + 1 }
+          ? { students: [{ ...st, feeDue: 0 }, ...s.students], payments: [payment(s, st, "cash"), ...s.payments], nextStudentId: id + 1 }
           : { students: [st, ...s.students], nextStudentId: id + 1 };
       });
       return id;
     },
     /** Accept someone who joined from a link: from now on they can log in. (Refusing them is removeStudent.) */
-    approveStudent: (studentId: number) => set((s) => ({ students: s.students.map((x) => (x.id === studentId ? { ...x, pending: undefined } : x)) })),
+    approveStudent: (studentId: number) =>
+      // They join from the month they are accepted, owing at most that one month (older data charged requests every month while they waited).
+      set((s) => ({ students: s.students.map((x) => (x.id === studentId && x.pending ? { ...x, pending: undefined, joined: monthKey(clock()), feeDue: Math.min(x.feeDue, Math.max(0, batchFee(s, x.batch) - (x.discount ?? 0))), chargedDiscount: x.discount ?? 0, fineMonth: undefined } : x)) })), // chargedDiscount: this month's charge now takes their discount off
     /** Edit a student's details (a batch change keeps their fees as they are). */
     updateStudent: (studentId: number, input: StudentInput) =>
       set((s) => ({ students: s.students.map((x) => (x.id === studentId ? { ...x, ...clean(input) } : x)) })),
@@ -372,10 +398,10 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
       return null;
     },
     /** Premium for a student until a date (YYYY-MM-DD), or off. The institute sells it (cash/bKash) and switches it on. */
-    setStudentPremium: (studentId: number, until: string | null, pack?: number) =>
+    setStudentPremium: (studentId: number, until: string | null, pack?: number, payId?: string) =>
       set((s) => ({
         students: s.students.map((x) =>
-          x.id === studentId ? { ...x, premiumUntil: until && /^\d{4}-\d{2}-\d{2}$/.test(until) ? until : undefined, aiPack: [150, 400, 800, 1500].includes(pack as number) ? pack : x.aiPack } : x,
+          x.id === studentId ? { ...x, premiumUntil: until && /^\d{4}-\d{2}-\d{2}$/.test(until) ? until : undefined, aiPack: [150, 400, 800, 1500].includes(pack as number) ? pack : x.aiPack, ...(typeof payId === "string" ? { packPays: [...(x.packPays ?? []), payId].slice(-20) } : {}) } : x,
         ),
       })),
     setStudentPhoto: (studentId: number, photo: string | undefined) => set((s) => ({ students: s.students.map((x) => (x.id === studentId ? { ...x, photo } : x)) })),
@@ -502,7 +528,7 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
           orders,
           students: [st, ...s.students],
           nextStudentId: roll + 1,
-          payments: o.price > 0 ? [{ id: uid(), studentId: roll, batch: batch.name, amount: o.price, at: new Date().toISOString(), method: "bkash" as const }, ...s.payments] : s.payments,
+          payments: o.price > 0 ? [{ id: uid(), studentId: roll, batch: batch.name, teacher: teacherAt(batch, clock().toISOString()), amount: o.price, at: clock().toISOString(), method: "bkash" as const }, ...s.payments] : s.payments,
           coupons: o.coupon ? s.coupons.map((c) => (c.code === o.coupon ? { ...c, used: c.used + 1 } : c)) : s.coupons,
         };
       });
@@ -547,12 +573,20 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
         };
       }),
     /** Opened the chat: the teacher's unread count goes to 0, and (with read receipts on) the other side's ticks turn blue. */
-    markChatRead: (threadId: string, side: "family" | "staff" = "staff", receipt = true) =>
-      set((s) => ({
-        chats: s.chats.map((c) =>
-          c.id !== threadId ? c : { ...c, ...(side === "staff" ? { unread: 0 } : {}), ...(receipt ? { [side === "staff" ? "readStaff" : "readFamily"]: new Date().toISOString() } : {}) },
-        ),
-      })),
+    markChatRead: (threadId: string, side: "family" | "staff" = "staff", receipt = true, upTo?: string) =>
+      set((s) => {
+        const now = new Date().toISOString();
+        // Read only up to the newest message the person saw (an offline queue syncs later): never later than now.
+        const at = upTo && upTo < now ? upTo : now;
+        return {
+          chats: s.chats.map((c) => {
+            if (c.id !== threadId) return c;
+            const key = side === "staff" ? "readStaff" : "readFamily";
+            const unread = upTo ? Math.min(c.unread, c.messages.filter((m) => m.mine && !m.deleted && m.at > at).length) : 0;
+            return { ...c, ...(side === "staff" ? { unread } : {}), ...(receipt && (c[key] ?? "") < at ? { [key]: at } : {}) };
+          }),
+        };
+      }),
     editChatMessage: (threadId: string, msgId: number, text: string) => setChatMessage(threadId, msgId, (m) => (m.deleted ? m : { ...m, text, edited: true })),
     /** "Delete for everyone": the message stays as "This message was deleted". */
     deleteChatMessage: (threadId: string, msgId: number) => setChatMessage(threadId, msgId, (m) => ({ id: m.id, sender: m.sender, at: m.at, mine: m.mine, text: "", deleted: true, ...(m.teacher === undefined ? {} : { teacher: m.teacher }) })),
@@ -568,7 +602,12 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
       set((s) => ({ staff: [...s.staff, { name, phone, salary: 0, share: 0, ...(email ? { email: normEmail(email) } : {}) }] })),
     updateStaff: (name: string, patch: Partial<Pick<Staff, "salary" | "share">>) => set((s) => ({ staff: s.staff.map((x) => (x.name === name ? { ...x, ...patch } : x)) })),
     payStaff: (name: string, amount: number) =>
-      set((s) => ({ staffPayments: [{ id: uid(), name, month: monthKey(), amount, at: new Date().toISOString() }, ...s.staffPayments] })),
+      set((s) => {
+        // Never more than this month's payroll still owes: a second tap (offline queue, or owner and manager at once) records nothing.
+        const owed = payroll(s, monthKey(clock())).find((r) => r.name === name)?.balance ?? 0;
+        const pay = Math.min(amount, owed);
+        return pay > 0 ? { staffPayments: [{ id: uid(), name, month: monthKey(clock()), amount: pay, at: clock().toISOString() }, ...s.staffPayments] } : {};
+      }),
     setViewer: (viewer: string) => set(() => ({ viewer })),
     /**
      * Teacher login by mobile number: the owner gets the whole institute; an assigned teacher only their own batches.
@@ -609,12 +648,15 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
           teacherName: r(s.teacherName),
           viewer: r(s.viewer),
           teacherLogin: r(s.teacherLogin),
-          batches: s.batches.map((b) => ({ ...b, teacher: r(b.teacher) })),
+          batches: s.batches.map((b) => ({ ...b, teacher: r(b.teacher), ...(b.pastTeachers ? { pastTeachers: b.pastTeachers.map((x) => ({ ...x, name: r(x.name) })) } : {}) })),
           routine: s.routine.map((x) => ({ ...x, teacher: r(x.teacher) })),
           meetings: s.meetings.map((x) => ({ ...x, teacher: r(x.teacher) })),
           staffPayments: s.staffPayments.map((x) => ({ ...x, name: r(x.name) })),
+          payments: s.payments.map((x) => (x.teacher === oldName ? { ...x, teacher: n } : x)),
           staffLeave: s.staffLeave.map((x) => ({ ...x, name: r(x.name) })),
           staffAbsent: Object.fromEntries(Object.entries(s.staffAbsent).map(([d, names]) => [d, names.map(r)])),
+          // Private chats are tagged with the teacher's name, and staff replies carry it as sender: without this the teacher loses their own history.
+          chats: s.chats.map((c) => ({ ...c, messages: c.messages.map((m) => (m.teacher === oldName || (!m.mine && m.sender === oldName) ? { ...m, ...(m.teacher === oldName ? { teacher: n } : {}), ...(!m.mine && m.sender === oldName ? { sender: n } : {}) } : m)) })),
         };
       }),
     /** Everything in this browser, as a backup file the teacher can keep (until data lives on the server). */
@@ -627,6 +669,13 @@ export function makeActions({ set, get, replace, fresh, lastRoll }: Store) {
         // Students' private chats with their teachers are never in a backup (the owner can't see them): keep them as they are.
         const own = get().chats.filter((c) => c.id.startsWith("student-"));
         const next: LmsState = { ...fresh(), ...b.data, chats: [...(Array.isArray(b.data.chats) ? b.data.chats : []).filter((c: { id?: unknown }) => !String(c?.id).startsWith("student-")), ...own] };
+        // The same for what the owner's view leaves out: students' own notes, who voted for what, and each student's mutes, blocks and saved posts.
+        const cur = get(), mineNotes = cur.notes.filter((n) => n.by !== undefined), keep = new Set(mineNotes.map((n) => n.id));
+        next.notes = [...mineNotes, ...(Array.isArray(next.notes) ? next.notes : []).filter((n) => !keep.has(n.id))];
+        const was = new Map(cur.community.map((p) => [p.id, p.poll]));
+        // A poll's votes come back from this copy and `counts` is dropped, so the numbers keep following the votes.
+        if (Array.isArray(next.community)) next.community = next.community.map((p) => (p?.poll ? { ...p, poll: { options: p.poll.options, votes: was.get(p.id)?.votes ?? p.poll.votes ?? {} } } : p));
+        next.communityProfiles = Object.fromEntries([...new Set([...Object.keys(cur.communityProfiles ?? {}), ...Object.keys(next.communityProfiles ?? {})])].map((id) => [id, { ...cur.communityProfiles?.[Number(id)], ...next.communityProfiles?.[Number(id)] }]));
         // Roll numbers given out since the backup was made stay used (those students' private chats are still here), so the counter never goes back.
         replace({ ...next, nextStudentId: Math.max(nextRoll(get()), nextRoll(next)) });
         return true;

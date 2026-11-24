@@ -44,7 +44,10 @@ export function BuyCourse({ batch }: { batch: Batch }) {
         if (REAL_AUTH) {
           // The server works out the price itself from the coupon.
           const r = await publicPost({ kind: "order", batchId: batch.id, student, coupon: applied?.code, trxId: trx.trim().toUpperCase() });
-          return r.ok ? setDone(true) : setFailed(true);
+          if (r.ok) return setDone(true);
+          // The coupon stopped working since Apply (say, its last use went to another order): show why and the full price again.
+          if (r.error && r.error in B.couponErrors) return (setApplied(null), setCouponError(B.couponErrors[r.error as keyof typeof B.couponErrors]));
+          return setFailed(true);
         }
         lms.placeOrder({ batchId: batch.id, student, price, coupon: applied?.code, trxId: trx.trim().toUpperCase() });
         setDone(true);

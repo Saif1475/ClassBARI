@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Logo, LangSwitch } from "@/components/Brand";
 import { PasswordInput } from "@/components/PasswordInput";
 import { useLang } from "@/lib/i18n/LanguageProvider";
@@ -14,6 +14,7 @@ import { useFlag } from "@/components/Platform";
 import { REAL_AUTH } from "@/lib/auth-mode";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { strongPassword } from "@/components/auth/StepLogin";
+import { emailAlreadyTaken } from "@/lib/access";
 
 const field = "flex flex-col gap-1.5 text-sm font-semibold text-on-surface-variant";
 const box = "h-12 rounded-xl border border-outline bg-white px-4 text-base text-on-surface";
@@ -31,6 +32,8 @@ export default function SignUp() {
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const signupsOn = useFlag("signups");
+  const [signedIn, setSignedIn] = useState(false); // already logged in (a teacher at B, a guardian): open the institute on this account, no new one
+  useEffect(() => { if (REAL_AUTH) supabaseBrowser().auth.getUser().then(({ data }) => setSignedIn(!!data.user)).catch(() => {}); }, []);
   const up = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setF({ ...f, [k]: e.target.value });
 
   return (
@@ -56,16 +59,22 @@ export default function SignUp() {
             e.preventDefault();
             if (!isBdMobile(f.phone)) return setBadPhone(true);
             if (REAL_AUTH) {
+              // read by /auth/continue (after the email link, or right away when logged in): it creates their institute
+              const data = { signup_kind: "institute", full_name: f.name.trim(), institute: f.institute.trim(), phone: f.phone.trim(), batch: f.batch.trim(), days: f.days, classDays, subject: f.subject, fee: Math.max(0, Number(f.fee) || 0) };
+              if (signedIn) {
+                setBusy(true);
+                const { error } = await supabaseBrowser().auth.updateUser({ data });
+                setBusy(false);
+                if (error) return setMsg({ ok: false, text: t.auth.signupFailed });
+                fetch("/api/platform/institutes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: f.institute.trim(), owner: f.name.trim(), phone: f.phone.trim(), firstBatch: f.batch.trim() }), keepalive: true }).catch(() => {});
+                return location.assign("/auth/continue");
+              }
               if (!strongPassword(login.password)) return setMsg({ ok: false, text: t.auth.passwordRule });
               setBusy(true);
-              const { error } = await supabaseBrowser().auth.signUp({
-                email: login.email.trim(),
-                password: login.password,
-                // read by /auth/continue after the email link: it creates their institute
-                options: { emailRedirectTo: `${location.origin}/auth/callback?next=/auth/continue`, data: { signup_kind: "institute", full_name: f.name.trim(), institute: f.institute.trim(), phone: f.phone.trim(), batch: f.batch.trim(), days: f.days, classDays, subject: f.subject, fee: Math.max(0, Number(f.fee) || 0) } },
-              });
+              const { data: made, error } = await supabaseBrowser().auth.signUp({ email: login.email.trim(), password: login.password, options: { emailRedirectTo: `${location.origin}/auth/callback?next=/auth/continue`, data } });
               setBusy(false);
               if (error) return setMsg({ ok: false, text: t.auth.signupFailed });
+              if (emailAlreadyTaken(made.user)) return setMsg({ ok: false, text: t.auth.alreadyRegistered }); // Supabase kept the old account as it was and sent nothing
             }
             // Lists the new teacher in our admin panel. shortcut: the demo still runs if this fails; with Supabase, sign-up itself happens on the server.
             fetch("/api/platform/institutes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: f.institute.trim(), owner: f.name.trim(), phone: f.phone.trim(), firstBatch: f.batch.trim() }), keepalive: true }).catch(() => {});
@@ -82,7 +91,7 @@ export default function SignUp() {
             <input required type="tel" autoComplete="tel" value={f.phone} onChange={(e) => { up("phone")(e); setBadPhone(false); }} placeholder="01XXXXXXXXX" aria-invalid={badPhone} className={box} />
             {badPhone && <span role="alert" className="text-error">{T.phoneInvalid}</span>}
           </label>
-          {REAL_AUTH && (
+          {REAL_AUTH && !signedIn && (
             <>
               <label className={field}>{t.auth.email}<input required type="email" autoComplete="email" value={login.email} onChange={(e) => setLogin({ ...login, email: e.target.value })} className={box} /></label>
               <label className={field}>{t.auth.password}<PasswordInput required minLength={8} autoComplete="new-password" value={login.password} onChange={(e) => setLogin({ ...login, password: e.target.value })} className={box} /><span className="font-normal">{t.auth.passwordRule}</span></label>

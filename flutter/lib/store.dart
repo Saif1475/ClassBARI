@@ -172,7 +172,7 @@ class Store extends ChangeNotifier {
     _version = 0;
     _outbox.clear();
     syncFailed = false;
-    for (final k in prefs.getKeys().where((k) => k == _data || k == _role || k == _queue || k == _child || k.startsWith('classbari-ai-chats-')).toList()) {
+    for (final k in prefs.getKeys().where((k) => k == _data || k == _role || k == _queue || k == _child || k.startsWith('classbari-ai-chats-') || k.startsWith('instanton-quiz-')).toList()) {
       prefs.remove(k); // the next person on this phone must not see this person's data
     }
   }
@@ -194,6 +194,9 @@ class Store extends ChangeNotifier {
     }
   }
 
+  // A big institute's data is read on a background thread, so the screen doesn't stutter while it arrives.
+  Future<void> _adoptText(String body, int since) async => _adopt((body.length > 200000 ? await compute(jsonDecode, body) : jsonDecode(body)) as Json, since);
+
   /// Send what is waiting, then ask the server for anything new.
   Future<void> refresh() async {
     if (!signedIn) return;
@@ -201,7 +204,7 @@ class Store extends ChangeNotifier {
     if (_outbox.isEmpty) await _pull(); // else still offline: keep showing what we have
   }
 
-  Future<void> _pull() async {
+  Future<void> _pull({bool renewed = false}) async {
     final was = status;
     var changed = false;
     final since = _signOuts;
@@ -209,16 +212,15 @@ class Store extends ChangeNotifier {
       final res = await api('/api/data?v=$_version');
       if (since != _signOuts) return; // signed out meanwhile
       if (res.statusCode == 200) {
-        // A big institute's data is read on a background thread, so the screen doesn't stutter while it arrives.
-        _adopt((res.body.length > 200000 ? await compute(jsonDecode, res.body) : jsonDecode(res.body)) as Json, since);
+        await _adoptText(res.body, since);
         changed = true;
         status = Status.ready;
       } else if (res.statusCode == 204) {
         status = Status.ready;
       } else if (res.statusCode == 401) {
         // The login may have been ended elsewhere: renewing it finds out (and logs out on this phone if so).
-        if (!await renewLogin()) return;
-        status = Status.noAccess; // signed in, but not on any list (or not at the institute picked)
+        if (!renewed && await renewLogin()) return await _pull(renewed: true); // an old token (a slow phone clock) or a server hiccup: asked once more with the renewed login
+        if (renewed) status = Status.noAccess; // still refused with a fresh login: signed in, but not on any list (or not at the institute picked)
       } else {
         status = state == null ? Status.loading : Status.offline;
       }
@@ -253,15 +255,17 @@ class Store extends ChangeNotifier {
     notifyListeners();
     await _flush();
     if (_outbox.contains(entry) && status != Status.offline) await _flush(); // added just as the last send finished
-    return !_outbox.contains(entry) && !syncFailed;
+    return !_outbox.contains(entry) && _refused[entry] != true; // only its own refusal: an earlier queued change refused in the same pass must not make a saved payment look failed
   }
 
   /// One sender at a time: everyone waits for the same run, which empties the queue in order.
   Future<void> _flush() => _flushing ??= _send().whenComplete(() => _flushing = null);
   Future<void>? _flushing;
+  final _refused = Expando<bool>(); // which sent changes the server refused, so act() answers for its own change
 
   Future<void> _send() async {
-    var refused = false;
+    var refused = false, renewed = false;
+    String? skipped;
     final since = _signOuts;
     try {
       while (_outbox.isNotEmpty) {
@@ -271,18 +275,23 @@ class Store extends ChangeNotifier {
         if (what == 'sent') {
           suspended = false;
           _outbox.removeAt(0);
-          _adopt(jsonDecode(res.body) as Json, since);
+          skipped = res.body; // each answer is the whole institute: only the one after the last change is read and kept, not one per queued change
+          if (_outbox.isEmpty) await _adoptText(skipped, since);
           status = Status.ready;
         } else if (what == 'login') {
           // As in _pull: a login ended elsewhere logs out (which forgets the queue); still signed in means removed from every list, so the screen says so, and the changes wait until re-added or signed out.
-          if (await renewLogin()) status = Status.noAccess;
+          if (!renewed && await renewLogin()) {
+            renewed = true; // an old token (a slow phone clock) or a server hiccup: sent once more with the renewed login before saying "not enrolled"
+            continue;
+          }
+          if (renewed) status = Status.noAccess;
           break;
         } else if (what == 'wait') {
           status = Status.offline; // busy or too fast: kept, and tried again on the next refresh
           break;
         } else {
           suspended = res.statusCode == 403 && res.body.contains('"suspended"');
-          _outbox.removeAt(0); // refused: only this one goes; the rest are still sent, and the real data is reloaded at the end
+          _refused[_outbox.removeAt(0)] = true; // refused: only this one goes; the rest are still sent, and the real data is reloaded at the end
           refused = syncFailed = true;
         }
         _keepQueue();
@@ -291,6 +300,7 @@ class Store extends ChangeNotifier {
     } catch (_) {
       status = Status.offline; // kept in the queue and sent on the next refresh
     }
+    if (_outbox.isNotEmpty && skipped != null) await _adoptText(skipped, since).catchError((_) {}); // stopped early: still show what was saved
     notifyListeners();
     if (refused) {
       _version = 0;
@@ -303,7 +313,10 @@ class Store extends ChangeNotifier {
 
   /// Tests only: take a server answer as if it had just arrived.
   @visibleForTesting
-  void adoptForTest(Json d, [int? since]) => _adopt(d, since ?? _signOuts);
+  void adoptForTest(Json d, [int? since]) {
+    _adopt(d, since ?? _signOuts);
+    notifyListeners(); // the real sync redraws after it adopts, so tests see the screen rebuilt too
+  }
 
   /// Tests only: how many sign-outs this phone has had.
   @visibleForTesting
@@ -324,7 +337,10 @@ class Store extends ChangeNotifier {
   /// Run before logging out, while still signed in (set by main.dart).
   Future<void> Function()? beforeSignOut;
 
-  Future<void> signOut() async {
+  /// `ask` is shown when changes are still not sent after one more try: false keeps this person signed in, with them.
+  Future<void> signOut({Future<bool> Function(int waiting)? ask}) async {
+    if (_outbox.isNotEmpty) await _flush(); // logging out forgets the queue: send it first while the login still works
+    if (_outbox.isNotEmpty && ask != null && !await ask(_outbox.length)) return;
     await beforeSignOut?.call(); // e.g. this phone stops getting notifications (needs the login still)
     _forget();
     notifyListeners();

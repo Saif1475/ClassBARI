@@ -67,14 +67,21 @@ function firstSheetPath(workbook = "", rels = "") {
   return target.startsWith("/") ? target.slice(1) : "xl/" + target.replace(/^\.\//, "");
 }
 
-export async function readXlsx(buf: ArrayBuffer): Promise<string[][]> {
+// A tiny zip can still hold a million rows; past `maxRows` rows with text, reading stops with this error instead of holding up the server.
+export const TOO_MANY_ROWS = "too many rows";
+
+export async function readXlsx(buf: ArrayBuffer, maxRows = Infinity): Promise<string[][]> {
   const meta = await unzip(buf, (n) => n === "xl/workbook.xml" || n === "xl/_rels/workbook.xml.rels" || n === "xl/sharedStrings.xml");
   const path = firstSheetPath(meta.get("xl/workbook.xml"), meta.get("xl/_rels/workbook.xml.rels"));
   const files = await unzip(buf, (n) => n === path || n === "xl/worksheets/sheet1.xml");
-  const shared = [...(meta.get("xl/sharedStrings.xml") ?? "").matchAll(/<si>([\s\S]*?)<\/si>/g)].map((m) => texts(m[1]));
+  // No sheet within the cap can use more distinct texts than it has cells, so a huge sharedStrings.xml stops here too.
+  const shared: string[] = [];
+  for (const m of (meta.get("xl/sharedStrings.xml") ?? "").matchAll(/<si>([\s\S]*?)<\/si>/g)) if (shared.push(texts(m[1])) > maxRows * MAX_COLS) throw new Error(TOO_MANY_ROWS);
   const sheet = files.get(path) ?? files.get("xl/worksheets/sheet1.xml");
   if (!sheet) throw new Error("no sheet");
-  return [...sheet.matchAll(/<row[^>]*>([\s\S]*?)<\/row>/g)].map((row) => {
+  const rows: string[][] = [];
+  let filled = 0, blanks = 0;
+  for (const row of sheet.matchAll(/<row[^>]*>([\s\S]*?)<\/row>/g)) {
     const cells: string[] = [];
     for (const c of row[1].matchAll(/<c\s([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g)) {
       const attrs = c[1], body = c[2] ?? "";
@@ -85,8 +92,13 @@ export async function readXlsx(buf: ArrayBuffer): Promise<string[][]> {
       const col = ref ? colIndex(ref) : cells.length;
       if (col < MAX_COLS) cells[col] = value.trim();
     }
-    return Array.from(cells, (x) => x ?? "");
-  });
+    // Blank rows are kept only when a row with text follows them, and count toward a total cap: millions of empty <row>s must not fill the memory.
+    if (!cells.some(Boolean)) { if (rows.length + ++blanks > maxRows * 10) throw new Error(TOO_MANY_ROWS); continue; }
+    for (; blanks; blanks--) rows.push([]);
+    rows.push(Array.from(cells, (x) => x ?? ""));
+    if (++filled > maxRows) throw new Error(TOO_MANY_ROWS);
+  }
+  return rows;
 }
 
 /** Plain text of a Word (.docx) file, one paragraph per line (tabs and line breaks kept). */
@@ -100,34 +112,48 @@ export async function readDocxText(buf: ArrayBuffer) {
 }
 
 /** CSV with quotes, commas or semicolons, as saved by Excel. */
-export function readCsv(text: string): string[][] {
+export function readCsv(text: string, maxRows = Infinity): string[][] {
   text = text.replace(/^﻿/, "");
   // The separator is the one seen more often on the first line that has text, counted outside quotes only: a file can start with an empty line, and a quoted heading can hold a comma or a line break.
   const head = text.trimStart();
   let commas = 0, semis = 0;
-  for (let i = 0, inQuotes = false, blank = true; i < head.length; i++) {
+  // A stray opening quote (one that never properly closes, see below) is a letter here too, or a "Name;Gmail heading would be split on commas.
+  for (let i = 0, inQuotes = false, blank = true, openAt = -1; ; i++) {
+    if (i >= head.length) { if (!inQuotes) break; inQuotes = false; i = openAt; blank = false; continue; }
     const ch = head[i];
-    if (inQuotes) { if (ch === '"' && head[i + 1] === '"') i++; else if (ch === '"') inQuotes = false; }
-    else if (ch === "\n" || ch === "\r") break;
+    if (inQuotes) {
+      if (ch === '"' && head[i + 1] === '"') i++;
+      else if (ch === '"') { inQuotes = false; if (!/^[ \t]*([,;\r\n]|$)/.test(head.slice(i + 1, i + 200))) { i = openAt; blank = false; } }
+    } else if (ch === "\n" || ch === "\r") break;
     else if (ch === "," || ch === ";") { if (ch === ",") commas++; else semis++; blank = true; }
-    else if (ch === '"' && blank) inQuotes = true;
+    else if (ch === '"' && blank) { inQuotes = true; openAt = i; }
     else if (ch.trim()) blank = false;
   }
   const sep = semis > commas ? ";" : ",";
   const rows: string[][] = [];
-  let row: string[] = [], cell = "", quoted = false;
+  let row: string[] = [], cell = "", quoted = false, filled = 0;
   // A quote opens a quoted cell only while the cell is still empty: in the middle (O"Brien, 5") it is just a letter, or the rest of the file would become one cell.
-  for (let i = 0; i < text.length; i++) {
+  // A quote that opens a cell but never properly closes is a plain letter: go back to it, or every student after it would merge into one cell. A real closing quote is followed only by spaces and then the separator, a line break or the end ("Babu,b@x then Rina,"r@x or O"Brien is not one).
+  // Stays linear: everything between the stray quote and where we stopped holds only "" pairs, and a cell reopened on such a pair stops at the end of its own run of quotes.
+  for (let i = 0, openAt = -1, before = ""; ; i++) {
+    if (i >= text.length) { if (!quoted) break; quoted = false; i = openAt; cell = before + '"'; continue; }
     const ch = text[i];
     if (quoted) {
       if (ch === '"' && text[i + 1] === '"') { cell += '"'; i++; }
-      else if (ch === '"') quoted = false;
-      else cell += ch;
-    } else if (ch === '"' && !cell.trim()) quoted = true;
+      else if (ch === '"') {
+        let k = i + 1;
+        while (text[k] === " " || text[k] === "\t") k++;
+        quoted = false;
+        if (k < text.length && text[k] !== sep && text[k] !== "\n" && text[k] !== "\r") { i = openAt; cell = before + '"'; }
+      } else cell += ch;
+    } else if (ch === '"' && !cell.trim()) { quoted = true; openAt = i; before = cell; }
     else if (ch === sep) { row.push(cell.trim()); cell = ""; }
     else if (ch === "\n" || ch === "\r") {
       if (ch === "\r" && text[i + 1] === "\n") i++;
-      row.push(cell.trim()); rows.push(row); row = []; cell = "";
+      row.push(cell.trim());
+      // Blank lines are dropped at the end anyway; keeping them first would let a file of ",\n" fill the memory.
+      if (row.some(Boolean)) { rows.push(row); if (++filled > maxRows) throw new Error(TOO_MANY_ROWS); }
+      row = []; cell = "";
     } else cell += ch;
   }
   if (cell || row.length) { row.push(cell.trim()); rows.push(row); }
@@ -209,9 +235,9 @@ export function writeXlsx(rows: string[][], textCols: number[] = []) {
   ]);
 }
 
-/** Rows as CSV text for Excel. Leading = + - @ are neutralised so cells can't run formulas. */
+/** Rows as CSV text for Excel. Leading = + - @ are neutralised so cells can't run formulas; a plain signed number (-1.5, +880 1712...) can't, so it stays a number. */
 export const csvText = (rows: (string | number)[][]) =>
-  rows.map((r) => r.map((v) => `"${String(v).replace(/^([=+\-@])/, "'$1").replace(/"/g, '""')}"`).join(",")).join("\r\n");
+  rows.map((r) => r.map((v) => `"${(typeof v === "number" || /^[+-]\d[\d.\s]*$/.test(v) ? String(v) : String(v).replace(/^([=+\-@])/, "'$1")).replace(/"/g, '""')}"`).join(",")).join("\r\n");
 
 export async function readSheetFile(file: File) {
   return /\.xlsx$/i.test(file.name) ? readXlsx(await file.arrayBuffer()) : readCsv(await file.text());
